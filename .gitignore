@@ -1,0 +1,4 @@
+straight/
+*~
+emacs.el
+.cache/
