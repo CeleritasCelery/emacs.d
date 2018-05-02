@@ -1,0 +1,316 @@
+ #+TITLE: Emacs Literate Configuration
+#+AUTHOR: Troy Hinckley
+#+PROPERTY: header-args :tangle yes
+
+
+* Configuration
+:PROPERTIES:
+:VISIBILITY: children
+:END:
+
+** About this file
+This is an Emacs literate configuration. It contains the basic structure
+of a literate config along with some optimizations to ensure a fast load time.
+
+** Personal Information
+Let's set some variables with basic user information.
+
+#+BEGIN_SRC emacs-lisp
+  (setq user-full-name "Troy Hinckley"
+        user-mail-address "t.macman@gmail.com")
+#+END_SRC
+
+
+** Emacs Initialization
+
+*** Settings
+
+don't use menu or scroll bars. We want the UI to be as clean as
+possible.
+
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+  (tooltip-mode -1)
+  (setq inhibit-startup-screen t)
+  (toggle-frame-fullscreen)
+  (add-hook 'focus-in-hook 'redraw-display)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (electric-pair-mode)
+#+END_SRC
+
+* Packages
+:PROPERTIES:
+:VISIBILITY: children
+:END:
+
+** Package Manager
+We are going to use =straight.el= as package manager because it allows us to
+easily maintain private repos of packages. There is bootstrap code on the
+website, but I could not get it to work behind the proxy so I cloned it myself.
+I will see later if I can get the bootstrap install code to work. 
+
+#+BEGIN_SRC emacs-lisp
+  (load (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory) nil 'nomessage)
+#+END_SRC
+
+** Use-package
+
+=use-package= is a macro that allows to easily define and load other packages.
+It is the first thing we want to install. I am using my own fork of the package
+that contains more sane defaults for the =:hook= keyword.
+
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package
+   '(use-package
+      :type git :host github :repo "CeleritasCelery/use-package"
+      :upstream (:host github
+                       :repo "jwiegley/use-package")))
+#+END_SRC
+
+Setting =straight-use-package-by-default= to =t= we can ensure that
+=use-pacakge= will use =straight.el= to install missing packages for us. Always
+defer and always ensure will guarntee that all dependaceies are loaded and that
+packages are autoloaded unless explicitly stated otherwise.
+#+BEGIN_SRC emacs-lisp
+  (setq straight-use-package-by-default t
+        use-package-always-defer t
+        use-package-always-ensure t)
+#+END_SRC
+
+This allows us to remove mode-line lighters
+#+BEGIN_SRC emacs-lisp
+  (use-package delight)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package esup)
+#+END_SRC
+
+** bootstrap
+packages that are used to setup the my emacs enviroment
+
+This package lets us use "SPC" as leader key for other
+keybindings.
+#+BEGIN_SRC emacs-lisp
+  (use-package general
+    :demand t
+    :config
+    (general-create-definer $leader-set-key
+      :prefix "SPC"
+      :states '(normal visual motion)
+      :keymaps 'override)
+    (general-create-definer $leader-local-set-key
+      :prefix "SPC m"
+      :states '(normal visual motion)))
+#+END_SRC
+
+Use tab for indentation and symbol completion
+#+BEGIN_SRC emacs-lisp
+  (general-define-key :states '(insert normal visual)
+                      "TAB" 'indent-for-tab-command)
+  (setq tab-always-indent 'complete)
+#+END_SRC
+
+
+** UI
+packages that used to improve the visuals and interface for Emacs
+
+Setup the font that I want to use
+#+BEGIN_SRC emacs-lisp
+(set-face-attribute 'default nil
+                    :family "Hasklig"
+                    :height 110)
+#+END_SRC
+
+Creating a collection of themes that I like. I can use
+=counsel-load-themes= to switch between them
+#+BEGIN_SRC emacs-lisp
+  (use-package challenger-deep-theme)
+  (use-package gruvbox-theme)
+  (use-package darktooth-theme)
+  (use-package spacemacs-theme)
+  (load-theme 'darktooth t)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :delight
+    :demand t
+    :init
+    (setq which-key-idle-delay 0.5
+          which-key-idle-secondary-delay 0.1
+          which-key-allow-evil-operators t)
+    :config
+    (which-key-mode))
+#+END_SRC
+
+** evil
+evil is the Extensible VI Layer. It gives us all the power of vim
+without the draw back of using vimscript for config.
+
+Evil will be loaded by one of it's dependacey packages. We need to set
+=evil-want-integration= before loading evil so that =evil-collection= can
+overide the modes.
+#+BEGIN_SRC emacs-lisp
+    (use-package evil
+      :init 
+      (setq evil-want-integration nil
+            evil-kill-on-visual-paste nil)
+      :config
+      (evil-mode 1))
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+  ($leader-set-key
+    "hdf" 'describe-function
+    "hdv" 'describe-variable
+    "hdk" 'describe-key
+    "fa" 'save-buffer)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-escape
+    :delight
+    :demand t
+    :init
+    (setq evil-escape-unordered-key-sequence t
+          evil-escape-key-sequence "jk")
+    :config
+    (evil-escape-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init 'dired))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-surround
+    :demand t
+    :config
+    (global-evil-surround-mode)
+    (general-define-key
+     :states 'visual
+     :keymaps 'evil-surround-mode-map
+     "s" 'evil-surround-region
+     "S" 'evil-substitute))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-nerd-commenter
+    :commands (evilnc-copy-and-comment-operator
+               evilnc-comment-operator)
+    :init
+    ($leader-set-key
+      "." 'evilnc-copy-and-comment-operator
+      ";" 'evilnc-comment-operator))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lispy
+    :delight
+    :hook emacs-lisp-mode)
+
+  (use-package lispyville
+    :delight
+    :hook lispy-mode
+    :init
+    (setq lispyville-key-theme
+          '(operators
+            c-w
+            slurp/barf-cp
+            additional
+            additional-movement
+            additional-insert
+            additional-wrap
+            mark)))
+#+END_SRC
+
+** Ivy
+   
+I feel like ivy is simpler to setup so I am going to give it a try. I am going
+to have to try to fix =counsel-ag=.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :delight
+    :general
+    (:keymaps 'ivy-minibuffer-map
+              "C-j" 'ivy-next-line
+              "C-k" 'ivy-previous-line
+              "C-h" "DEL"
+              "C-S-H" help-map
+              "C-l" 'ivy-alt-done
+              ;; "TAB" 'ivy-alt-done
+              )
+    :init
+    (setq ivy-height 15
+          ivy-use-virtual-buffers t
+          ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+    ($leader-set-key
+      "bb" 'ivy-switch-buffer)
+    :config
+    (evil-collection-init 'ivy)
+    (ivy-mode 1))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-hydra
+    :demand t
+    :after (ivy hydra))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper
+    :init
+    ($leader-set-key
+      "ss" 'swiper))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :delight
+    :init
+    ($leader-set-key
+      "ff" 'counsel-find-file
+      "sf" 'counsel-ag
+      "SPC" 'counsel-M-x)
+    :config
+    (counsel-mode))
+#+END_SRC
+
+smex is an enchanced version of =M-x= that will record history and is
+integrated into ivy
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+    :init
+    (setq smex-history-length 32))
+#+END_SRC
+
+** Org
+I want to to get this more organized, but for now I will just put
+basic org config here
+#+BEGIN_SRC emacs-lisp
+  ($leader-local-set-key
+    :keymaps 'org-mode-map
+    "c" 'org-edit-special)
+
+  ($leader-local-set-key
+    :keymaps 'org-src-mode-map
+    "c" 'org-edit-src-exit)
+
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+  (org-indent-mode)
+#+END_SRC
