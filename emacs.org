@@ -25,6 +25,12 @@ Let's set some variables with basic user information.
 
 *** Settings
 
+The location of all cached files that save history between runs
+#+BEGIN_SRC emacs-lisp
+  (defvar $cache-directory (expand-file-name "cache" user-emacs-directory)
+    "The location of all save and restore type files")
+
+#+END_SRC
 don't use menu or scroll bars. We want the UI to be as clean as
 possible.
 
@@ -113,6 +119,13 @@ Use tab for indentation and symbol completion
   (general-define-key :states '(insert normal visual)
                       "TAB" 'indent-for-tab-command)
   (setq tab-always-indent 'complete)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package recentf
+    :init
+    (setq recentf-save-file (expand-file-name "recentf" $cache-directory)
+          recentf-max-saved-items 500))
 #+END_SRC
 
 
@@ -295,7 +308,8 @@ integrated into ivy
 #+BEGIN_SRC emacs-lisp
   (use-package smex
     :init
-    (setq smex-history-length 32))
+    (setq smex-history-length 32
+          smex-save-file (expand-file-name "smex-items" $cache-directory)))
 #+END_SRC
 
 ** Org
