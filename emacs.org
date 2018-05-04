@@ -175,6 +175,46 @@ Creating a collection of themes that I like. I can use
     (which-key-mode))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-window
+    :init
+    (setq aw-dispatch-always t
+          aw-background nil
+          aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+    ($leader-set-key
+      "w" 'ace-window)
+    :config
+    (add-to-list 'aw-dispatch-alist '(?w $toggle-maximize-window)))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package init-display
+    :straight (init-display
+               :local-repo "init-display")
+    :init
+    ($leader-set-key
+      "TAB" '$alternate-buffer
+      "fe" '$find-user-config-file))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (defun $quit-emacs ()
+    "save buffers and quit"
+    (interactive)
+    (save-some-buffers)
+    (kill-emacs))
+  ($leader-set-key
+    "q" '(:ignore t :wk "quit")
+    "qq" '$quit-emacs)
+#+END_SRC
+
+changing the volume on my mic triggers these bindings.
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   "<XF86AudioLowerVolume>" 'ignore
+   "<XF86AudioRaiseVolume>" 'ignore)
+#+END_SRC
+
 ** evil
 evil is the Extensible VI Layer. It gives us all the power of vim
 without the draw back of using vimscript for config.
@@ -356,17 +396,29 @@ integrated into ivy
           smex-save-file (expand-file-name "smex-items" $cache-directory)))
 #+END_SRC
 
+** files
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :init
+    (setq avy-timeout-seconds 0.25)
+    (general-define-key
+     :states '(normal visual)
+     ";" 'avy-goto-char-timer)
+    :config
+    (evil-collection-init 'avy))
+#+END_SRC
+
 ** Org
 I want to to get this more organized, but for now I will just put
 basic org config here
 #+BEGIN_SRC emacs-lisp
   ($leader-local-set-key
     :keymaps 'org-mode-map
-    "c" 'org-edit-special)
+    "," 'org-edit-special)
 
   ($leader-local-set-key
     :keymaps 'org-src-mode-map
-    "c" 'org-edit-src-exit)
+    "," 'org-edit-src-exit)
 
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
