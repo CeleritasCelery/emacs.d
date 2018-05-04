@@ -48,6 +48,11 @@ possible.
   (electric-pair-mode)
 #+END_SRC
 
+use =y= and =n= instead of =yes= and =no=
+#+BEGIN_SRC emacs-lisp
+  (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+
 * Packages
 :PROPERTIES:
 :VISIBILITY: children
@@ -107,11 +112,11 @@ keybindings.
     :config
     (general-create-definer $leader-set-key
       :prefix "SPC"
-      :states '(normal visual motion)
+      :states 'motion
       :keymaps 'override)
     (general-create-definer $leader-local-set-key
-      :prefix "SPC m"
-      :states '(normal visual motion)))
+      :prefix ","
+      :states 'motion))
 #+END_SRC
 
 Use tab for indentation and symbol completion
@@ -128,7 +133,6 @@ Use tab for indentation and symbol completion
           recentf-max-saved-items 500))
 #+END_SRC
 
-
 ** UI
 packages that used to improve the visuals and interface for Emacs
 
@@ -142,11 +146,21 @@ Setup the font that I want to use
 Creating a collection of themes that I like. I can use
 =counsel-load-themes= to switch between them
 #+BEGIN_SRC emacs-lisp
-  (use-package challenger-deep-theme)
-  (use-package gruvbox-theme)
-  (use-package darktooth-theme)
-  (use-package spacemacs-theme)
-  (load-theme 'darktooth t)
+    (use-package challenger-deep-theme)
+    (use-package gruvbox-theme)
+    (use-package darktooth-theme)
+    (use-package spacemacs-theme)
+    (use-package dracula-theme)
+    (use-package moe-theme)
+    (use-package doom-themes)
+    (use-package solarized-theme)
+    (use-package color-theme-sanityinc-tomorrow)
+    (use-package noctilux-theme)
+    (use-package flatland-theme)
+    (use-package monokai-theme)
+    (add-to-list 'custom-theme-load-path
+                 "/nfs/site/home/tjhinckl/.emacs.d/straight/build/moe-theme/")
+   (load-theme 'darktooth t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -177,12 +191,34 @@ overide the modes.
       (evil-mode 1))
 #+END_SRC
 
+=C-i= can be used to move forward in cursor jumps, but Emacs binds it to =TAB=, so
+we rebinding it to =H-i=. Though this won't work in the terminal
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :keymaps 'input-decode-map
+   "C-i" "H-i")
+  (general-define-key
+   :states 'normal
+   "H-i" 'evil-jump-forward)
+#+END_SRC
+
+We want to hybridize some usefull emacs commands with better evil keybindings
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :states 'insert
+   "C-y" 'yank
+   "C-e" 'mwim-end-of-code-or-line
+   "C-a" 'mwim-beginning-of-code-or-line)
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
+    "h" '(:ignore t :wk "help")
+    "hd" '(:ignore t :wk "describe")
     "hdf" 'describe-function
     "hdv" 'describe-variable
     "hdk" 'describe-key
+    "f" '(:ignore t :wk "files")
     "fa" 'save-buffer)
 #+END_SRC
 
@@ -222,14 +258,18 @@ overide the modes.
                evilnc-comment-operator)
     :init
     ($leader-set-key
-      "." 'evilnc-copy-and-comment-operator
-      ";" 'evilnc-comment-operator))
+      "." '(evilnc-copy-and-comment-operator :wk "copy-and-comment")
+      ";" '(evilnc-comment-operator :wk "comment")))
 #+END_SRC
 
+These packages are great at providing editor shortcuts for editing
+lisp
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
     :delight
-    :hook emacs-lisp-mode)
+    :hook emacs-lisp-mode
+    :init
+    (setq lispy-colon-p nil))
 
   (use-package lispyville
     :delight
@@ -249,7 +289,8 @@ overide the modes.
 ** Ivy
    
 I feel like ivy is simpler to setup so I am going to give it a try. I am going
-to have to try to fix =counsel-ag=.
+to have to try to fix =counsel-ag= out of order matching if I want to live with
+it though.
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
@@ -268,7 +309,9 @@ to have to try to fix =counsel-ag=.
           ivy-use-virtual-buffers t
           ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
     ($leader-set-key
-      "bb" 'ivy-switch-buffer)
+      "b" '(:ignore t :wk "buffers")
+      "bb" 'ivy-switch-buffer
+      "r" 'ivy-resume)
     :config
     (evil-collection-init 'ivy)
     (ivy-mode 1))
@@ -288,6 +331,7 @@ to have to try to fix =counsel-ag=.
   (use-package swiper
     :init
     ($leader-set-key
+      "s" '(:ignore t :wk "search")
       "ss" 'swiper))
 #+END_SRC
 
