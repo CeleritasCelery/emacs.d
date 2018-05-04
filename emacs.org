@@ -223,12 +223,16 @@ Evil will be loaded by one of it's dependacey packages. We need to set
 =evil-want-integration= before loading evil so that =evil-collection= can
 overide the modes.
 #+BEGIN_SRC emacs-lisp
-    (use-package evil
-      :init 
-      (setq evil-want-integration nil
-            evil-kill-on-visual-paste nil)
-      :config
-      (evil-mode 1))
+  (use-package evil
+    :init 
+    (setq evil-want-integration nil
+          evil-kill-on-visual-paste nil
+          evil-search-module 'evil-search
+          evil-magic 'very-magic ;; make evil search regex more PCRE compatible
+          evil-ex-search-vim-style-regexp t)
+    :config
+    (general-swap-key nil 'motion "0" "^")
+    (evil-mode 1))
 #+END_SRC
 
 =C-i= can be used to move forward in cursor jumps, but Emacs binds it to =TAB=, so
@@ -275,9 +279,17 @@ We want to hybridize some usefull emacs commands with better evil keybindings
 
 #+BEGIN_SRC emacs-lisp
   (use-package evil-collection
+    :demand t
     :after evil
     :config
-    (evil-collection-init 'dired))
+    (defun $unmap-leader (_m keymaps)
+      (when keymaps
+        (general-define-key
+         :states 'normal
+         :keymaps keymaps
+         "SPC" nil)))
+    (add-hook 'evil-collection-setup-hook '$unmap-leader)
+    (evil-collection-init '(calc calendar custom debug eldoc elisp-mode dired help info occur wgrep wdired which-key)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -423,4 +435,11 @@ basic org config here
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
   (org-indent-mode)
+#+END_SRC
+
+** elisp
+
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+    :hook emacs-lisp-mode)
 #+END_SRC
