@@ -420,6 +420,37 @@ integrated into ivy
     (evil-collection-init 'avy))
 #+END_SRC
 
+** git
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :init
+    (setq magit-git-executable
+          "/usr/intel/pkgs/git/2.12.0/bin/git") ;; get around old magit git version problem
+    ($leader-set-key
+      "g" '(:ignore t :wk "git")
+      "gs" 'magit-status))
+
+  (use-package evil-magit
+    :demand t
+    :after magit)
+
+  (use-package git-timemachine
+    :init
+    ($leader-set-key
+      "gt" 'git-timemachine))
+
+  (use-package git-gutter
+    :diminish
+    :demand t
+    :init
+    (setq git-gutter:diff-option "-w")
+    :config
+    (global-git-gutter-mode))
+  (use-package git-gutter-fringe
+    :demand t
+    :after git-gutter)
+#+END_SRC
+* Languages
 ** Org
 I want to to get this more organized, but for now I will just put
 basic org config here
