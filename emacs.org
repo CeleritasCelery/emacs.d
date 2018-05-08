@@ -29,7 +29,13 @@ The location of all cached files that save history between runs
 #+BEGIN_SRC emacs-lisp
   (defvar $cache-directory (expand-file-name "cache" user-emacs-directory)
     "The location of all save and restore type files")
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (defvar $leader-key "SPC"
+    "leader key used to quicky access commands.")
 
+  (defvar $mm-leader-key ","
+    "leader key for major mode specific commands")
 #+END_SRC
 don't use menu or scroll bars. We want the UI to be as clean as
 possible.
@@ -111,11 +117,11 @@ keybindings.
     :demand t
     :config
     (general-create-definer $leader-set-key
-      :prefix "SPC"
+      :prefix $leader-key
       :states 'motion
       :keymaps 'override)
     (general-create-definer $leader-local-set-key
-      :prefix ","
+      :prefix $mm-leader-key
       :states 'motion))
 #+END_SRC
 
@@ -287,7 +293,8 @@ We want to hybridize some usefull emacs commands with better evil keybindings
         (general-define-key
          :states 'normal
          :keymaps keymaps
-         "SPC" nil)))
+         $leader-key nil
+         $mm-leader-key nil)))
     (add-hook 'evil-collection-setup-hook '$unmap-leader)
     (evil-collection-init '(calc calendar custom debug eldoc elisp-mode dired help info occur wgrep wdired which-key)))
 #+END_SRC
