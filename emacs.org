@@ -271,6 +271,118 @@ changing the volume on my mic triggers these bindings.
    "<XF86AudioRaiseVolume>" 'ignore)
 #+END_SRC
 
+** Ivy
+
+#+BEGIN_SRC emacs-lisp
+  (defvar $use-ivy nil
+    "use Ivy for completion")
+  (defvar $use-helm t
+    "use helm for completion")
+#+END_SRC
+
+I feel like ivy is simpler to setup so I am going to give it a try. I am going
+to have to try to fix =counsel-ag= out of order matching if I want to live with
+it though.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy
+    :straight
+    (ivy
+     :type git :host github :repo "CeleritasCelery/swiper"
+     ;; a:files (:defaults (:exclude "swiper.el" "counsel.el" "ivy-hydra.el") "doc/ivy-help.org")
+     :upstream (:host github
+                      :repo "abo-abo/swiper"))
+    :delight
+    :general
+    (:keymaps 'ivy-minibuffer-map
+              "C-j" 'ivy-next-line
+              "C-k" 'ivy-previous-line
+              "C-h" "DEL"
+              "C-S-H" help-map
+              "C-l" 'ivy-alt-done
+              "<C-return>" 'ivy-immediate-done
+              ;; "TAB" 'ivy-alt-done
+              )
+    :init
+    (setq ivy-height 15
+          ivy-use-virtual-buffers t
+          ivy-extra-directories nil
+          ivy-use-selectable-prompt t
+          ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+    ($leader-set-key
+      "bb" 'ivy-switch-buffer
+      "r" 'ivy-resume)
+    :config
+    (ivy-mode 1))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-hydra
+    :straight
+    (ivy-hydra
+     :type git :host github :repo "CeleritasCelery/swiper"
+     :upstream (:host github
+                      :repo "abo-abo/swiper"))
+    ;; :demand t
+    :after (ivy hydra))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package swiper
+    :straight
+    (swiper
+     :files ("swiper.el")
+     :type git :host github :repo "CeleritasCelery/swiper"
+     :upstream (:host github
+                      :repo "abo-abo/swiper"))
+    :init
+    ($leader-set-key
+      "s" '(:ignore t :wk "search")
+      "ss" 'swiper))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :straight
+    (counsel
+     :type git :host github :repo "CeleritasCelery/swiper"
+     :upstream (:host github
+                      :repo "abo-abo/swiper"))
+    :delight
+    :init
+    ($leader-set-key
+      "ff" 'counsel-find-file
+      "sf" 'counsel-ag
+      "SPC" 'counsel-M-x)
+    :config
+    (counsel-mode))
+#+END_SRC
+
+This package makes =ivy-switch-buffer= behave more like =helm-mini=
+(i.e. displays the buffer type and full path to recentf files)
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-rich
+    :demand t
+    :after ivy
+    :config
+    (setq ivy-virtual-abbreviate 'full
+          ivy-rich-switch-buffer-align-virtual-buffer t)
+    (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer))
+#+END_SRC
+
+smex is an enchanced version of =M-x= that will record history and is
+integrated into ivy
+#+BEGIN_SRC emacs-lisp
+  (use-package smex
+    :init
+    (setq smex-history-length 32
+          smex-save-file (expand-file-name "smex-items" $cache-directory)))
+#+END_SRC
+
 ** evil
 evil is the Extensible VI Layer. It gives us all the power of vim
 without the draw back of using vimscript for config.
@@ -399,81 +511,52 @@ lisp
             mark)))
 #+END_SRC
 
-** Ivy
-   
-I feel like ivy is simpler to setup so I am going to give it a try. I am going
-to have to try to fix =counsel-ag= out of order matching if I want to live with
-it though.
+** Helm
+helm is the more powerfull of the two between itself and ivy. I really
+want to give Ivy a good try because it seems snappier on large files,
+but there are still some issues that gives helm the advantage
+- =helm-ag= supports out of order matching
+- helm doesn't break when using "regex" characters in pattern
+- helm is integrated with dired.
+- helm supports marking files
+- helm file sorting is more sane
+- helm-mini has better recentf functionality
+- helm supports frames, which makes swoop easier
+- =counsel-fzf= is broken, but =helm-fzf= works great
+- helm supports marking, which is very efficent.
 
+my biggest beef with helm is that when using tramp it very slow. I
+will have to look into seeing what can be done about that. But the
+code is so intimidating. But thankfully I only use tramp about once a
+week to copy some files, so it is not a big deal.
 #+BEGIN_SRC emacs-lisp
-  (use-package ivy
-    :delight
+  (use-package helm
     :general
-    (:keymaps 'ivy-minibuffer-map
-              "C-j" 'ivy-next-line
-              "C-k" 'ivy-previous-line
-              "C-h" "DEL"
-              "C-S-H" help-map
-              "C-l" 'ivy-alt-done
-              ;; "TAB" 'ivy-alt-done
-              )
-    :init
-    (setq ivy-height 15
-          ivy-use-virtual-buffers t
-          ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
-    ($leader-set-key
-      "b" '(:ignore t :wk "buffers")
-      "bb" 'ivy-switch-buffer
-      "r" 'ivy-resume)
-    :config
-    (evil-collection-init 'ivy)
-    (ivy-mode 1))
+    (:keymaps 'helm-map
+              "C-j" 'helm-next-line
+              "C-k" 'helm-previous-line
+              "C-h" 'helm-next-source
+              "C-S-h" 'describe-key
+              "C-l" "RET"
+              "C-z" 'helm-select-action
+              "TAB" 'helm-execute-persistent-action)
+    (:keymaps '(helm-find-files-map
+                helm-read-file-map)
+              "C-l" 'helm-execute-persistent-action
+              "C-h" 'helm-find-files-up-one-level))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package hydra)
-#+END_SRC
+  (use-package swoop)
 
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy-hydra
-    :demand t
-    :after (ivy hydra))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package swiper
-    :init
-    ($leader-set-key
-      "s" '(:ignore t :wk "search")
-      "ss" 'swiper))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel
-    :delight
-    :init
-    ($leader-set-key
-      "ff" 'counsel-find-file
-      "sf" 'counsel-ag
-      "SPC" 'counsel-M-x)
-    :config
-    (counsel-mode))
-#+END_SRC
-
-smex is an enchanced version of =M-x= that will record history and is
-integrated into ivy
-#+BEGIN_SRC emacs-lisp
-  (use-package smex
-    :init
-    (setq smex-history-length 32
-          smex-save-file (expand-file-name "smex-items" $cache-directory)))
+  (use-package helm-ag)
 #+END_SRC
 
 ** files
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :init
-    (setq avy-timeout-seconds 0.25)
+    (setq avy-timeout-seconds 0.3)
     (general-define-key
      :states '(normal visual)
      ";" 'avy-goto-char-timer)
