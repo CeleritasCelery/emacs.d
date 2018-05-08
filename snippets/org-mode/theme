@@ -1,0 +1,5 @@
+# name: use HTML theme
+# key: theme
+# --
+
+#+setupfile: ~/org/org-html-themes/setup/theme-${1:readtheorg}.setup

@@ -588,7 +588,7 @@ week to copy some files, so it is not a big deal.
   (use-package helm-ag)
 #+END_SRC
 
-** files
+** editing
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :init
@@ -598,6 +598,14 @@ week to copy some files, so it is not a big deal.
      ";" 'avy-goto-char-timer)
     :config
     (evil-collection-init 'avy))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :demand t
+    :config
+    (yas-global-mode))
+  (use-package yasnippet-snippets)
 #+END_SRC
 
 ** git

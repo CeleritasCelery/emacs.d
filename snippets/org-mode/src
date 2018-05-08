@@ -1,0 +1,5 @@
+# name: inline source code
+# key: src
+# --
+
+src_$1[:exports code]{$2}

@@ -1,0 +1,4 @@
+# name: simregress options
+# key: sim
+# --
+simregress -l $1 -dut ${2:snr} -model ${3:snr} -P ${4:sc_normal3 $(yas-choose-value '("sc_normal3" "sc_express"))} -C 'SLES11SP4&&${5:64}G' -save
