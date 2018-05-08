@@ -8,7 +8,7 @@
 ;;; Code:
 
 ;; Set this to a high value so we don't have a lot of costly garbage collection
-(setq gc-cons-threshold (* 512 1024 1024)
+(setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)
 
 ;; Don't attempt to find/apply special file handlers to files loaded during startup.
@@ -27,3 +27,17 @@
       gc-cons-percentage 0.1)
 
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(safe-local-variable-values
+   (quote
+    ((bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
