@@ -565,6 +565,11 @@ week to copy some files, so it is not a big deal.
 #+END_SRC
 
 ** git
+don't ask about following symlinks
+#+BEGIN_SRC emacs-lisp
+     (setq vc-follow-symlinks t)
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :init
@@ -595,21 +600,79 @@ week to copy some files, so it is not a big deal.
     :after git-gutter)
 #+END_SRC
 * Languages
+  :PROPERTIES:
+  :VISIBILITY: children
+  :END:
+
+** General
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :general
+    (:keymaps 'company-active-map
+              "RET" nil
+              [return] nil
+              "C-l" 'company-complete-selection)
+    :hook '(prog-mode org-mode)
+    :init
+    (setq company-idle-delay 0.2)
+    (setq evil-collection-company-use-tng nil)
+    (evil-collection-init 'company))
+
+  (use-package company-statistics
+    :demand t
+    :after company
+    :init
+    (setq company-statistics-file
+          (expand-file-name "company-statistics-cache.el"
+                            $cache-directory))
+    :config
+    (company-statistics-mode))
+
+  (use-package company-shell)
+#+END_SRC
 ** Org
 I want to to get this more organized, but for now I will just put
 basic org config here
 #+BEGIN_SRC emacs-lisp
-  ($leader-local-set-key
-    :keymaps 'org-mode-map
-    "," 'org-edit-special)
+  (use-package org
+    :straight nil
+    :gfhook org-indent-mode
+    :init
+    ($leader-local-set-key
+      :keymaps 'org-mode-map
+      "," 'org-edit-special))
 
-  ($leader-local-set-key
-    :keymaps 'org-src-mode-map
-    "," 'org-edit-src-exit)
+  (defun $git-work-user ()
+    "Set my work credentials"
+    (interactive)
+    (shell-command "git config --local user.name \"Hinckley, Troy J\" &&
+   git config --local user.email troy.j.hinckley@intel.com"))
 
-  (setq org-src-fontify-natively t)
-  (setq org-src-tab-acts-natively t)
-  (org-indent-mode)
+  (defun $git-private-user ()
+    "Set my work credentials"
+    (interactive)
+    (shell-command "git config --local user.name CeleritasCelery &&
+   git config --local user.email t.macman@gmail.com"))
+
+  (use-package org-src
+    :straight nil
+    :init
+    (setq org-src-fontify-natively t
+          org-src-tab-acts-natively t)
+    :config
+    ($leader-local-set-key
+      :definer 'minor-mode
+      :keymaps 'org-src-mode
+      "," 'org-edit-src-exit)
+    (defun $suppress-delete-other-windows (orig-fn &rest args)
+      (cl-letf (((symbol-function 'delete-other-windows)
+                 (symbol-function 'ignore)))
+        (apply orig-fn args)))
+    (advice-add #'org-edit-src-code :around #'$suppress-delete-other-windows))
 #+END_SRC
 
 ** elisp
@@ -617,4 +680,46 @@ basic org config here
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :hook emacs-lisp-mode)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load "tramp"
+    (setq tramp-default-method "ssh")
+    (setq tramp-default-user "tjhinckl")
+    ;; set TRAMP verbosity to warnings and errors only. default is level 3 which
+    ;; sends a message every time we connect to a remote host
+    (setq tramp-verbose 4)
+    (setq helm-tramp-connection-min-time-diff 1)
+
+    ;; https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
+    (setq tramp-inline-compress-start-size 1000000)
+    (setq tramp-copy-size-limit 1000000)
+    (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))
+#+END_SRC
+
+** perl
+#+BEGIN_SRC emacs-lisp
+  (use-package perl
+    :straight nil
+    :init
+    (setq flycheck-perl-executable "/usr/intel/pkgs/perl/5.14.1/bin/perl")
+    (setq flycheck-perl-perlcritic-executable "/usr/intel/pkgs/perl/5.14.1-threads/bin/perlcritic")
+    (setq flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5" ;; SPF library
+                                       "../lib/perl5" ;; DTEG ultiscan
+                                       "../../lib/perl5" ;; DTEG STF
+                                       "..")) ;; library files need to see the library ¯\_(ツ)_/¯
+    (setenv "SPF_ROOT" "/p/hdk/cad/spf/latest")
+    (setenv "VALID_ROOT" "/p/hdk/rtl/valid/shdk74")
+    (setenv "VTLIB" "/p/hdk/rtl/valid/shdk74/lib")
+    (setenv "SPF_PERL_LIB" "/p/hdk/cad/spf/latest/lib/perl5")
+    (setenv "GLOBAL_TOOLS" "/nfs/site/proj/dpg/tools")
+    (setenv "XWEAVE_REPO_ROOT" "/p/hdk/rtl/ip_releases/shdk74/xweave/v17ww43a")
+    (setenv "IDS_HOME" "/p/hdk/rtl/cad/x86-64_linux26/dteg/ideas_shell/0.15.1")
+
+    ;; ISC required variables
+    (setenv "RTL_CAD_ROOT" "/p/hdk/rtl/cad/x86-64_linux26")
+    (setenv "RTL_PROJ_CFG" "/p/hdk/rtl/proj_tools/proj_cfg")
+    (setenv "CFG_PROJECT" "shdk74")
+    (setenv "RTL_PROJ_BIN" "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest")
+    (setenv "RTL_PROJ_TOOLS" "/p/hdk/rtl/proj_tools"))
 #+END_SRC
