@@ -65,13 +65,17 @@ use =y= and =n= instead of =yes= and =no=
 :END:
 
 ** Package Manager
-We are going to use =straight.el= as package manager because it allows us to
-easily maintain private repos of packages. There is bootstrap code on the
-website, but I could not get it to work behind the proxy so I cloned it myself.
-I will see later if I can get the bootstrap install code to work. 
+We are going to use =straight.el= as package manager because it allows
+us to easily maintain private repos of packages. There is bootstrap
+code on the website, but I could not get it to work behind the proxy
+so I cloned it myself.  I will see later if I can get the bootstrap
+install code to work.
+
+I also byte-complied the bootstrap file which
+shaves about 500 ms of the startup time.
 
 #+BEGIN_SRC emacs-lisp
-  (load (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory) nil 'nomessage)
+  (load (expand-file-name "straight/repos/straight.el/bootstrap" user-emacs-directory) nil 'nomessage)
 #+END_SRC
 
 ** Use-package
@@ -152,21 +156,21 @@ Setup the font that I want to use
 Creating a collection of themes that I like. I can use
 =counsel-load-themes= to switch between them
 #+BEGIN_SRC emacs-lisp
-    (use-package challenger-deep-theme)
-    (use-package gruvbox-theme)
-    (use-package darktooth-theme)
-    (use-package spacemacs-theme)
-    (use-package dracula-theme)
-    (use-package moe-theme)
-    (use-package doom-themes)
-    (use-package solarized-theme)
-    (use-package color-theme-sanityinc-tomorrow)
-    (use-package noctilux-theme)
-    (use-package flatland-theme)
-    (use-package monokai-theme)
-    (add-to-list 'custom-theme-load-path
-                 "/nfs/site/home/tjhinckl/.emacs.d/straight/build/moe-theme/")
-   (load-theme 'darktooth t)
+  (use-package challenger-deep-theme)
+  (use-package gruvbox-theme)
+  (use-package darktooth-theme)
+  (use-package spacemacs-theme)
+  (use-package dracula-theme)
+  (use-package moe-theme)
+  (use-package doom-themes)
+  (use-package solarized-theme)
+  (use-package color-theme-sanityinc-tomorrow)
+  (use-package noctilux-theme)
+  (use-package flatland-theme)
+  (use-package monokai-theme)
+  (add-to-list 'custom-theme-load-path
+               "/nfs/site/home/tjhinckl/.emacs.d/straight/build/moe-theme/")
+  (load-theme 'darktooth t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -230,11 +234,15 @@ Evil will be loaded by one of it's dependacey packages. We need to set
 overide the modes.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
-    :init 
+    :init
     (setq evil-want-integration nil
           evil-kill-on-visual-paste nil
           evil-search-module 'evil-search
           evil-magic 'very-magic ;; make evil search regex more PCRE compatible
+          evil-want-C-u-scroll t
+          evil-want-C-d-scroll t
+          evil-want-C-w-delete t
+          evil-want-C-i-jump t
           evil-ex-search-vim-style-regexp t)
     :config
     (general-swap-key nil 'motion "0" "^")
