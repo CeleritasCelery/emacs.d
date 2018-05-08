@@ -435,7 +435,43 @@ We want to hybridize some usefull emacs commands with better evil keybindings
     "hdv" 'describe-variable
     "hdk" 'describe-key
     "f" '(:ignore t :wk "files")
-    "fa" 'save-buffer)
+    "fa" 'save-buffer
+    "bd" 'kill-buffer
+    "br" 'rename-buffer)
+#+END_SRC
+
+I will need to fix this so that it won't use =[]= as a starter key.
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-unimpaired
+    :straight
+    (evil-unimpaired
+     :type git :host github :repo "CeleritasCelery/evil-unimpaired"
+     :upstream (:host github
+                      :repo "zmaas/evil-unimpaired"))
+    :demand t
+    :init
+    (setq evil-unimpaired-leader-keys '("gk" . "gj"))
+    :config
+    (evil-unimpaired-mode))
+#+END_SRC
+
+we only want evil snipe for the ability to repeat =f,F,t,T=. I find
+avy is better for the actual sniping
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-snipe
+    :demand t
+    :after evil
+    :init
+    (setq evil-snipe-override-evil-repeat-keys nil)
+    :config
+    (evil-snipe-override-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package vi-tilde-fringe
+    :demand t
+    :config
+    (global-vi-tilde-fringe-mode))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
