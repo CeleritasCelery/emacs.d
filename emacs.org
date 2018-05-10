@@ -928,6 +928,17 @@ don't ask about following symlinks
 ** elisp
 
 #+BEGIN_SRC emacs-lisp
+  (use-package emacs-lisp
+    :straight nil
+    :init
+    ($leader-set-key
+      "'" 'ielm
+      "eb" 'eval-buffer
+      "er" 'eval-region
+      "ef" 'eval-defun))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :hook emacs-lisp-mode)
 #+END_SRC
