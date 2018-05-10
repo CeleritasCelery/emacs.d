@@ -621,11 +621,37 @@ don't ask about following symlinks
           "/usr/intel/pkgs/git/2.12.0/bin/git") ;; get around old magit git version problem
     ($leader-set-key
       "g" '(:ignore t :wk "git")
-      "gs" 'magit-status))
+      "gs" 'magit-status)
+    
+    ($leader-local-set-key
+      :keymaps 'with-editor-mode-map
+      "," 'with-editor-finish
+      "k" 'with-editor-cancel))
+#+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (defun $git-work-user ()
+    "Set my work credentials"
+    (interactive)
+    (shell-command "git config --local user.name \"Hinckley, Troy J\" &&
+     git config --local user.email troy.j.hinckley@intel.com"))
+
+  (defun $git-private-user ()
+    "Set my work credentials"
+    (interactive)
+    (shell-command "git config --local user.name CeleritasCelery &&
+     git config --local user.email t.macman@gmail.com"))
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package evil-magit
     :demand t
-    :after magit)
+    :after magit
+    :config
+    (general-define-key
+     :keymaps 'magit-mode-map
+     "SPC" nil))
 
   (use-package git-timemachine
     :init
@@ -655,6 +681,7 @@ don't ask about following symlinks
 
 #+BEGIN_SRC emacs-lisp
   (use-package company
+    :delight
     :general
     (:keymaps 'company-active-map
               "RET" nil
@@ -679,29 +706,167 @@ don't ask about following symlinks
   (use-package company-shell)
 #+END_SRC
 ** Org
-I want to to get this more organized, but for now I will just put
-basic org config here
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
-    :gfhook org-indent-mode
+    :gfhook org-indent-mode $org-truncate-lines
     :init
     ($leader-local-set-key
       :keymaps 'org-mode-map
-      "," 'org-edit-special))
+      "," 'org-edit-special
+      "g" 'counsel-org-goto)
+    
+    (setq org-todo-sort-order '("BLOCK" "TODO" "DOING" "CANCELED" "DONE")
+          org-enforce-todo-dependencies t)
+    (defun $org-truncate-lines ()
+      (let ((inhibit-message t))
+        (toggle-truncate-lines)))
+    :config
+    (add-to-list 'org-structure-template-alist
+                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
+#+END_SRC
 
-  (defun $git-work-user ()
-    "Set my work credentials"
+#+BEGIN_SRC emacs-lisp
+  (defun $suppress-delete-other-windows (orig-fn &rest args)
+    (cl-letf (((symbol-function 'delete-other-windows)
+               (symbol-function 'ignore)))
+      (apply orig-fn args)))
+  (general-advice-add '(org-capture-place-template org-edit-src-code) :around #'$suppress-delete-other-windows)
+
+  (defun $org-archive-done-tasks ()
     (interactive)
-    (shell-command "git config --local user.name \"Hinckley, Troy J\" &&
-   git config --local user.email troy.j.hinckley@intel.com"))
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (outline-previous-heading)))
+     "/DONE" 'file)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (outline-previous-heading)))
+     "/CANCELED" 'file))
+  ($leader-local-set-key
+    :keymaps 'org-mode-map
+    "a" '$org-archive-done-tasks)
 
-  (defun $git-private-user ()
-    "Set my work credentials"
+  (defun $org-smart-return ()
+    "if in a list return should add a new item. If the item is
+  blank, we want to break out of the list and delete the blank
+  item"
     (interactive)
-    (shell-command "git config --local user.name CeleritasCelery &&
-   git config --local user.email t.macman@gmail.com"))
+    (if (org-at-item-p)
+        (if (and (looking-back (rx space) (- (point) 1))
+                 (memq (- (point) (org-in-item-p))
+                       (number-sequence 1 3)))
+            ;; If at a blank item, delete it
+            (progn
+              (beginning-of-line)
+              (kill-line)
+              (insert "\n")
+              (org-return))
+          ;; If at a non-blank item, insert a new item
+          (org-return)
+          (org-insert-item))
+      ;; If not at item, normal return
+      (org-return)))
+  (general-define-key
+   :keymaps 'org-mode-map
+   "<ret>" '$org-smart-return
+   "RET" '$org-smart-return)
 
+  (defun $org-procrastinate (arg)
+    (interactive "P")
+    (let ((fn (if (eq major-mode 'org-agenda-mode)
+                  'org-agenda-schedule
+                'org-schedule)))
+      (funcall fn arg "+1d")))
+  ($leader-local-set-key
+    :keymaps '(org-mode-map org-agenda-mode-map)
+    "s" '$org-procrastinate)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-agenda
+    :straight nil
+    :init
+    (setq org-agenda-todo-ignore-scheduled 'future
+          org-agenda-dim-blocked-tasks 'invisible))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ox
+    :straight nil
+    :init
+    (setq org-export-with-section-numbers nil
+          org-export-with-toc nil
+          org-export-with-sub-superscripts '{}
+          org-export-with-priority t
+          org-export-preserve-breaks t
+          org-insert-heading-respect-content t
+          org-html-postamble nil)
+    (defun $org-create-css-html-email-head ()
+      "Create the header with CSS for use with email"
+      (interactive)
+      (setq org-html-head
+            (concat
+             "<style type=\"text/css\">\n"
+             "<!--/*--><![CDATA[/*><!--*/\n"
+             (with-temp-buffer
+               (insert-file-contents
+                "~/org/org-html-themes/styles/email/css/email.css")
+               (buffer-string))
+             "/*]]>*/-->\n"
+             "</style>\n"))
+      t)
+    ($org-create-css-html-email-head))
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package org-capture
+    :straight nil
+    :init
+    ($leader-set-key
+      "c" 'org-capture)
+    ($leader-local-set-key
+      :definer 'minor-mode
+      :keymaps 'org-capture-mode
+      "e" '$export-org-email
+      "," 'org-capture-finalize
+      "k" 'org-capture-kill)
+    :config
+    (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
+          org-default-email-file (expand-file-name "email.org" org-directory)
+          org-default-journal-file (expand-file-name "journal.org" org-directory)
+          org-capture-templates
+          '(("t" "Todo" entry (file+headline org-default-notes-file "Tasks")
+             "* TODO [#B] %?\n %t\n" :empty-lines 1)
+            ("l" "Todo Link" entry (file+headline org-default-notes-file "Tasks")
+             "* TODO [#B] %?\n %i\n %a" :empty-lines 1)
+            ("s" "Scheduled TODO" entry (file+headline org-default-notes-file "Tasks")
+             "* TODO [#B] %?\n  SCHEDULED: %^T\n" :empty-lines 1)
+            ("T" "Todo from Clipboard" entry (file+headline org-default-notes-file "Tasks")
+             "* TODO [#B] %?\n  %c" :empty-lines 1)
+            ("n" "Note" entry (file+headline org-default-notes-file "Notes")
+             "* %?" :empty-lines 1)
+            ("N" "Note with Clipboard" entry (file+headline org-default-notes-file "Notes")
+             "* %?\n   %c" :empty-lines 1)
+            ("e" "Email" entry (file org-default-email-file)
+             "* %?" :empty-lines 1)
+            ("j" "Journal" entry (file org-default-journal-file)
+             "* %<%a %b %e, %l:%M> -  %?" :empty-lines 1))))
+
+     (defun $export-org-email ()
+       "Export the current org email and copy it to the clipboard"
+       (interactive)
+       (let ((org-export-show-temporary-export-buffer nil))
+         (org-html-export-as-html)
+         (with-current-buffer "*Org HTML Export*"
+           (kill-new (buffer-string)))
+         (message "HTML copied to clipboard")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package org-src
     :straight nil
     :init
@@ -711,12 +876,19 @@ basic org config here
     ($leader-local-set-key
       :definer 'minor-mode
       :keymaps 'org-src-mode
-      "," 'org-edit-src-exit)
-    (defun $suppress-delete-other-windows (orig-fn &rest args)
-      (cl-letf (((symbol-function 'delete-other-windows)
-                 (symbol-function 'ignore)))
-        (apply orig-fn args)))
-    (advice-add #'org-edit-src-code :around #'$suppress-delete-other-windows))
+      "," 'org-edit-src-exit))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-org
+    :delight
+    :hook org-mode
+    :init (add-hook 'org-insert-heading-hook 'evil-insert-state))
+
+  (use-package evil-org-agenda
+    :straight nil
+    :commands evil-org-agenda-set-keys
+    :hook (org-agenda-mode . evil-org-agenda-set-keys))
 #+END_SRC
 
 ** elisp
@@ -726,19 +898,36 @@ basic org config here
     :hook emacs-lisp-mode)
 #+END_SRC
 
+set TRAMP verbosity to warnings and errors only. default is level 3
+which sends a message every time we connect to a remote host
+https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
 #+BEGIN_SRC emacs-lisp
-  (with-eval-after-load "tramp"
-    (setq tramp-default-method "ssh")
-    (setq tramp-default-user "tjhinckl")
-    ;; set TRAMP verbosity to warnings and errors only. default is level 3 which
-    ;; sends a message every time we connect to a remote host
-    (setq tramp-verbose 4)
-    (setq helm-tramp-connection-min-time-diff 1)
-
-    ;; https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
-    (setq tramp-inline-compress-start-size 1000000)
-    (setq tramp-copy-size-limit 1000000)
+  (use-package tramp
+    :straight nil
+    :init
+    (setq tramp-default-method "ssh"
+          tramp-default-user "tjhinckl"
+          tramp-verbose 4
+          helm-tramp-connection-min-time-diff 1
+          tramp-inline-compress-start-size 1000000
+          tramp-copy-size-limit 1000000)
+    :config
     (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))
+#+END_SRC
+
+packages to help manage parens
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :hook prog-mode)
+
+  (use-package paren
+    :straight nil
+    :demand t
+    :init
+    (setq evil-show-paren-range 3)
+    (evil-collection-init 'paren)
+    :config
+    (show-paren-mode))
 #+END_SRC
 
 ** perl
