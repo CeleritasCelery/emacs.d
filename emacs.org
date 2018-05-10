@@ -131,7 +131,8 @@ This allows us to remove mode-line lighters
 #+END_SRC
 
 ** bootstrap
-packages that are used to setup the my emacs enviroment
+packages that are used to setup the my emacs enviroment. They are
+needed as dependaceies for other packages later on.
 
 This package lets us use "SPC" as leader key for other
 keybindings.
@@ -170,6 +171,10 @@ Use tab for indentation and symbol completion
     (setq savehist-file (expand-file-name "minibuffer_history" $cache-directory))
     :config
     (savehist-mode))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra)
 #+END_SRC
 
 ** UI
@@ -335,10 +340,6 @@ it though.
       "r" 'ivy-resume)
     :config
     (ivy-mode 1))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (use-package hydra)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
