@@ -505,6 +505,16 @@ avy is better for the actual sniping
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
+  (use-package evil-ediff
+    :commands evil-ediff-startup-hook
+    :hook (ediff-startup . evil-ediff-startup-hook)
+    :init
+    (evil-set-initial-state 'ediff-mode 'motion)
+    :config
+    (evil-ediff-adjust-help))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package evil-surround
     :demand t
     :config
@@ -960,4 +970,30 @@ packages to help manage parens
     (setenv "CFG_PROJECT" "shdk74")
     (setenv "RTL_PROJ_BIN" "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest")
     (setenv "RTL_PROJ_TOOLS" "/p/hdk/rtl/proj_tools"))
+#+END_SRC
+** other
+#+BEGIN_SRC emacs-lisp
+  (use-package itpp-mode
+    :straight (itpp-mode
+               :local-repo "itpp-mode"))
+
+  (use-package postsim-mode
+    :straight (postsim-mode
+               :local-repo "postsim-mode"))
+
+  (use-package reglist-mode
+    :straight (reglist-mode
+               :local-repo "reglist-mode"))
+
+  (use-package spfspec-mode
+    :straight (reglist-mode
+               :local-repo "reglist-mode"))
+
+  (use-package tracker-mode
+    :straight (tracker-mode
+               :local-repo "tracker-mode"))
+
+  (use-package spf-mode
+    :straight (spf-mode
+               :local-repo "spf-mode"))
 #+END_SRC
