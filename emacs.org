@@ -232,7 +232,7 @@ Creating a collection of themes that I like. I can use
     :init
     (setq shackle-rules
           '((help-mode :select t)
-            (ielm-mode :popup t)))
+            ("*ielm*" :popup t)))
     :config
     (shackle-mode))
 #+END_SRC
