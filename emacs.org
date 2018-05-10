@@ -12,16 +12,18 @@
 This is an Emacs literate configuration. It contains the basic structure
 of a literate config along with some optimizations to ensure a fast load time.
 
-** Personal Information
+I am using =$= as my personal namespace. I like it because it reminds
+me about perl, it is really simple, and this is lisp, so I can make my
+namespace whatever I want.
+
+** Emacs Initialization
+*** Personal Information
 Let's set some variables with basic user information.
 
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Troy Hinckley"
         user-mail-address "t.macman@gmail.com")
 #+END_SRC
-
-
-** Emacs Initialization
 
 *** Settings
 
@@ -469,6 +471,7 @@ avy is better for the actual sniping
 
 #+BEGIN_SRC emacs-lisp
   (use-package vi-tilde-fringe
+    :delight
     :demand t
     :config
     (global-vi-tilde-fringe-mode))
@@ -602,6 +605,7 @@ week to copy some files, so it is not a big deal.
 
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
+    :diminish
     :demand t
     :config
     (yas-global-mode))
@@ -659,13 +663,14 @@ don't ask about following symlinks
       "gt" 'git-timemachine))
 
   (use-package git-gutter
-    :diminish
     :demand t
     :init
     (setq git-gutter:diff-option "-w")
     :config
     (global-git-gutter-mode))
+
   (use-package git-gutter-fringe
+    :diminish
     :demand t
     :after git-gutter)
 #+END_SRC
