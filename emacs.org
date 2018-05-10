@@ -252,6 +252,26 @@ Creating a collection of themes that I like. I can use
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
+  (use-package persp-mode
+    :init
+    (defhydra persp (:exit t :pre (persp-mode))
+      "Perspective"
+      ("l" persp-switch "switch")
+      ("n" persp-next "next" :exit nil)
+      ("p" persp-prev "previous" :exit nil)
+      ("r" persp-rename "rename")
+      ("a" persp-add-buffer "add buffer")
+      ("k" persp-remove-buffer "remove buffer")
+      ("D" persp-kill "Delete perspective"))
+    ($leader-set-key
+      "l" 'persp/body))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package eyebrowse)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
   (use-package restart-emacs
     :init
     ($leader-set-key
@@ -260,7 +280,6 @@ Creating a collection of themes that I like. I can use
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-
   ($leader-set-key
     "q" '(:ignore t :wk "quit")
     "qq" '$quit-emacs)
