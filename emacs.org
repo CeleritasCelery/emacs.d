@@ -1051,9 +1051,12 @@ these are utility functions used to setting up the Emacs shell.
       :keymaps 'org-mode-map
       "," 'org-edit-special
       "g" 'counsel-org-goto)
-    
-    (setq org-todo-sort-order '("BLOCK" "TODO" "DOING" "CANCELED" "DONE")
-          org-enforce-todo-dependencies t)
+    (setq org-enforce-todo-dependencies t
+          org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
+                              (sequence "|" "CANCELED(c@)"))
+          org-priority-faces '((?A . (:foreground "OrangeRed"))
+                               (?B . (:foreground "yellow3"))
+                               (?C . (:foreground "ForestGreen"))))
     (defun $org-truncate-lines ()
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
@@ -1126,7 +1129,10 @@ these are utility functions used to setting up the Emacs shell.
     :straight nil
     :init
     (setq org-agenda-todo-ignore-scheduled 'future
-          org-agenda-dim-blocked-tasks 'invisible))
+          org-agenda-dim-blocked-tasks 'invisible
+          org-agenda-files "~/org/.agenda-files")
+    ($leader-set-key
+      "a" 'org-agenda))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1138,7 +1144,6 @@ these are utility functions used to setting up the Emacs shell.
           org-export-with-sub-superscripts '{}
           org-export-with-priority t
           org-export-preserve-breaks t
-          org-insert-heading-respect-content t
           org-html-postamble nil)
     (defun $org-create-css-html-email-head ()
       "Create the header with CSS for use with email"
@@ -1227,13 +1232,33 @@ these are utility functions used to setting up the Emacs shell.
     :hook (org-agenda-mode . evil-org-agenda-set-keys))
 #+END_SRC
 
+These packages are used to make org mode look better and take
+advantage of unicode
+#+BEGIN_SRC emacs-lisp
+  (use-package org-bullets
+    :hook org-mode)
+
+  (use-package org-fancy-priorities
+    :diminish
+    :hook org-mode
+    :init
+    (setq org-fancy-priorities-list '("⬆" "⬅" "⬇" "☕")))
+#+END_SRC
+
+This package is builtin to Emacs, but the builtin version is too low
+to export fontified org src code blocks
+#+BEGIN_SRC emacs-lisp
+  (use-package htmlize)
+#+END_SRC
+
 ** elisp
 
 #+BEGIN_SRC emacs-lisp
   (use-package emacs-lisp
     :straight nil
     :init
-    ($leader-set-key
+    ($leader-local-set-key
+      :keymaps 'emacs-lisp-mode-map
       "'" 'ielm
       "eb" 'eval-buffer
       "er" 'eval-region
