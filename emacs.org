@@ -735,6 +735,33 @@ move me to the start of the line or start of code, based on heuristics
 
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :defer 2
+    :init
+    (setq projectile-enable-caching t)
+    :config
+    (projectile-global-mode))
+
+  (use-package counsel-projectile
+    :init
+    (push '((nil . "counsel-projectile") . (nil . "proj")) which-key-replacement-alist)
+    ($leader-set-key
+      "p" '(:ignore t :wk "project")
+      "pp" 'counsel-projectile
+      "pP" 'counsel-projectile-switch-project
+      "ps" 'counsel-projectile-ag
+      "pf" 'counsel-projectile-find-file
+      "pb" 'counsel-projectile-switch-to-buffer
+      "pd" 'counsel-projectile-find-dir))
+#+END_SRC
+
+** files
+
+#+BEGIN_SRC emacs-lisp
+  (use-package recentf
+    :init
+    (setq recentf-max-saved-items 500))
 #+END_SRC
 
 ** git
