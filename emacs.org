@@ -184,7 +184,7 @@ use a hydra to scale the text size
 #+BEGIN_SRC emacs-lisp
   (defhydra text-scale (:hint nil)
     "
-  Text Scale 
+  Text Scale
     [_+_/_=_] scale up [_-_] scale down [_0_] reset font [_q_] quit
   "
     ("+" text-scale-increase)
@@ -493,7 +493,7 @@ overide the modes.
 
     (evil-define-text-object evil-inner-buffer (count &optional beg end type)
       (list (point-min) (point-max)))
-    
+
     (general-define-key
      :states 'motion
      [remap evil-next-line] 'evil-next-visual-line
@@ -778,7 +778,7 @@ don't ask about following symlinks
     ($leader-set-key
       "g" '(:ignore t :wk "git")
       "gs" 'magit-status)
-    
+
     ($leader-local-set-key
       :keymaps 'with-editor-mode-map
       "," 'with-editor-finish
@@ -914,7 +914,7 @@ these are utility functions used to setting up the Emacs shell.
 
   (defun $supress-hostkey-warning (str)
     "EC machines issue a benign but really annoying warning that the EC people
-    don't have the technical competence to fix. It has the following form: 
+    don't have the technical competence to fix. It has the following form:
 
     add_host_to_hostkeys: failed to open <missing path> - reason Permission denied "
     (if (string-match "add_host_to_hostkeys: failed to open" str) "" str))
