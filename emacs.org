@@ -34,9 +34,9 @@ Let's set some variables with basic user information.
   (defvar $mm-leader-key ","
     "leader key for major mode specific commands")
 #+END_SRC
+
 don't use menu or scroll bars. We want the UI to be as clean as
 possible.
-
 #+BEGIN_SRC emacs-lisp
   (tool-bar-mode -1)
   (menu-bar-mode -1)
@@ -178,6 +178,22 @@ Setup the font that I want to use
 (set-face-attribute 'default nil
                     :family "Hasklig"
                     :height 110)
+#+END_SRC
+
+use a hydra to scale the text size
+#+BEGIN_SRC emacs-lisp
+  (defhydra text-scale (:hint nil)
+    "
+  Text Scale 
+    [_+_/_=_] scale up [_-_] scale down [_0_] reset font [_q_] quit
+  "
+    ("+" text-scale-increase)
+    ("=" text-scale-increase)
+    ("-" text-scale-decrease)
+    ("0" (text-scale-set 0))
+    ("q" nil :exit t))
+  ($leader-set-key
+    "z" 'text-scale/body)
 #+END_SRC
 
 Creating a collection of themes that I like. I can use
