@@ -524,9 +524,7 @@ We want to hybridize some usefull emacs commands with better evil keybindings
 #+BEGIN_SRC emacs-lisp
   (general-define-key
    :states 'insert
-   "C-y" 'yank
-   "C-e" 'mwim-end-of-code-or-line
-   "C-a" 'mwim-beginning-of-code-or-line)
+   "C-y" 'yank)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -702,6 +700,15 @@ week to copy some files, so it is not a big deal.
 #+END_SRC
 
 ** editing
+
+move me to the start of the line or start of code, based on heuristics
+#+BEGIN_SRC emacs-lisp
+  (use-package mwim
+    :general
+    (:states 'insert
+             "C-e" 'mwim-end
+             "C-a" 'mwim-beginning))
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :init
