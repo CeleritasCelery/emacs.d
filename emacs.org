@@ -727,8 +727,14 @@ move me to the start of the line or start of code, based on heuristics
     :diminish
     :defer 3
     :config
-    (yas-global-mode))
-  (use-package yasnippet-snippets)
+    (let ((inhibit-message t))
+      (yas-global-mode)))
+  (use-package yasnippet-snippets
+    :diminish
+    :after yasnippet)
+
+#+END_SRC
+
 #+END_SRC
 
 ** git
