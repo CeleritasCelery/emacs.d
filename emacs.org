@@ -228,15 +228,17 @@ Creating a collection of themes that I like. I can use
   (use-package darktooth-theme)
   (use-package spacemacs-theme)
   (use-package dracula-theme)
-  (use-package moe-theme)
+  (use-package moe-theme
+    :init
+    (add-to-list 'custom-theme-load-path
+                 "~/.emacs.d/straight/build/moe-theme/"))
   (use-package doom-themes)
   (use-package solarized-theme)
   (use-package color-theme-sanityinc-tomorrow)
   (use-package noctilux-theme)
   (use-package flatland-theme)
   (use-package monokai-theme)
-  (add-to-list 'custom-theme-load-path
-               "/nfs/site/home/tjhinckl/.emacs.d/straight/build/moe-theme/")
+
   (load-theme 'darktooth t)
 #+END_SRC
 
