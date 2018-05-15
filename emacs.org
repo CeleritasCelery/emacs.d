@@ -534,6 +534,8 @@ We want to hybridize some usefull emacs commands with better evil keybindings
     "hdf" 'describe-function
     "hdv" 'describe-variable
     "hdk" 'describe-key
+    "hde" 'describe-face
+    "hdm" 'describe-mode
     "f" '(:ignore t :wk "files")
     "fa" 'save-buffer
     "bd" 'kill-buffer
