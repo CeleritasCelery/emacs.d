@@ -285,6 +285,10 @@ Creating a collection of themes that I like. I can use
     ($leader-set-key
       "TAB" '$alternate-buffer
       "fe" '$find-user-config-file
+      "fc" '$copy-file
+      "fy" '$show-and-copy-buffer-filename
+      "fD" '$delete-file
+      "fR" '$rename-file
       "b" '(:ignore t :wk "buffers")
       "bs" '$open-scratch-buffer
       "q" '(:ignore t :wk "quit")
@@ -417,6 +421,15 @@ it though.
       "SPC" 'counsel-M-x)
     :config
     (counsel-mode))
+
+  (defun $open-file-in-clipboard ()
+    "open the current file in the clipboard"
+    (interactive)
+    (let* ((file (string-trim (current-kill 0)))
+           (default-directory (file-name-directory file)))
+      (counsel-find-file (file-name-nondirectory file))))
+  ($leader-set-key
+    "fo" '$open-file-in-clipboard)
 #+END_SRC
 
 This package makes =ivy-switch-buffer= behave more like =helm-mini=
