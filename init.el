@@ -34,10 +34,15 @@
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
    (quote
-    ((bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))))
+    ((bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)"))))
+ '(shx-kept-commands
+   (quote
+    (("git filter branch" . "git filter-branch --tag-name-filter cat --prune-empty --subdirectory-filter layers/shell-config/local/shell-config")
+     ("Enable wordwrap at 90 columns" . ":eval (shx-wordwrap 90)")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'upcase-region 'disabled nil)
