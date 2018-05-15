@@ -210,6 +210,16 @@ use a hydra to scale the text size
     "n"  'vnc-resize/body)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (use-package telephone-line
+    :init
+    (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+          telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+          telephone-line-primary-right-separator 'telephone-line-cubed-right
+          telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right)
+    (telephone-line-mode))
+#+END_SRC
+
 Creating a collection of themes that I like. I can use
 =counsel-load-themes= to switch between them
 #+BEGIN_SRC emacs-lisp
