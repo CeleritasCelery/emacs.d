@@ -196,6 +196,20 @@ use a hydra to scale the text size
     "z" 'text-scale/body)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (defun vnc-resize (size)
+    (shell-command (concat "xrandr --size " size)))
+
+  (defhydra vnc-resize (:columns 2 :exit t)
+    "VNC Resize"
+    ("l" (vnc-resize "1920x1200") "single monitor (large)")
+    ("m" (vnc-resize "1536x864") "mobile")
+    ("w" (vnc-resize "3840x1200") "double monitor (wide)")
+    ("s" (vnc-resize "1920x1080") "short"))
+  ($leader-set-key
+    "n"  'vnc-resize/body)
+#+END_SRC
+
 Creating a collection of themes that I like. I can use
 =counsel-load-themes= to switch between them
 #+BEGIN_SRC emacs-lisp
