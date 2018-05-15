@@ -298,6 +298,7 @@ Creating a collection of themes that I like. I can use
 #+BEGIN_SRC emacs-lisp
   (use-package persp-mode
     :init
+    (setq persp-auto-save-opt 0)
     (defhydra persp (:exit t :pre (persp-mode))
       "Perspective"
       ("l" persp-switch "switch")
@@ -312,7 +313,22 @@ Creating a collection of themes that I like. I can use
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package eyebrowse)
+  (use-package eyebrowse
+    :init
+    (defhydra eyebrowse (:exit t :pre (eyebrowse-mode))
+      "Window Config"
+      ("e" eyebrowse-switch-to-window-config "switch")
+      ("n" eyebrowse-next-window-config "next" :exit nil)
+      ("p" eyebrowse-prev-window-config "previous" :exit nil)
+      ("d" eyebrowse-close-window-config-prompt "close")
+      ("0" 'eyebrowse-switch-to-window-config-0)
+      ("1" 'eyebrowse-switch-to-window-config-1)
+      ("2" 'eyebrowse-switch-to-window-config-2)
+      ("3" 'eyebrowse-switch-to-window-config-3)
+      ("4" 'eyebrowse-switch-to-window-config-4)
+      ("5" 'eyebrowse-switch-to-window-config-5))
+    ($leader-set-key
+      "e" 'eyebrowse/body))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
