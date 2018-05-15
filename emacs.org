@@ -826,6 +826,186 @@ don't ask about following symlinks
     :demand t
     :after git-gutter)
 #+END_SRC
+** shell
+
+comint is the generic backend for REPL's and shells. We are giving it
+more bash-it style behavior where I can enter some text and then use
+the previous command to match against it. Also we can use ivy to
+search through the command history. also whenever we try to go to the
+previous command it will automatically move us the the command line.
+#+BEGIN_SRC emacs-lisp
+  (use-package comint
+    :straight nil
+    :general
+    (:keymaps 'comint-mode-map
+              "C-k" 'comint-previous-matching-input-from-input
+              "C-j" 'comint-next-matching-input-from-input
+              "C-S-k" 'comint-previous-prompt
+              "C-S-j" 'comint-next-prompt
+              [remap comint-dynamic-list-input-ring] 'counsel-shell-history)
+    :init
+    (setq comint-scroll-to-bottom-on-input t
+          comint-process-echoes t
+          comint-prompt-read-only t))
+
+  (defun $goto-cmd-line (&rest _)
+    (goto-char (point-max)))
+
+  (general-advice-add '(comint-next-matching-input-from-input
+                        comint-previous-matching-input-from-input) :before '$goto-cmd-line)
+#+END_SRC
+
+these are utility functions used to setting up the Emacs shell.
+#+BEGIN_SRC emacs-lisp
+  (use-package shell
+    :straight nil
+    :gfhook company-mode
+    :init
+    (setq shell-file-name "bash"))
+
+  (defvar $dir-history nil
+    "previous shell directories")
+  (make-variable-buffer-local '$dir-history)
+
+  (defun $select-shell-history ()
+    (interactive)
+    (goto-char (point-max))
+    (insert (concat "cd " (string-remove-prefix (file-remote-p default-directory)
+                                                (completing-read "directory:" $dir-history)))))
+
+  (general-define-key
+   :keymaps 'shell-mode-map
+   "C-c C-j" '$select-shell-history)
+
+  (defun $track-shell-directory (str)
+    "use the proc filesytem to get the current directory.
+  Works on remote shells as well if `shx' and `shx-cmd-set-pid' are used. The
+  remote shell will need to echo it's PID in the rc file in the form of `shx'
+  markup."
+    (when (string-match comint-prompt-regexp str)
+      (--when-let (-some->> ($get-shell-pid)
+                            (format "/proc/%s/cwd")
+                            (concat (file-remote-p default-directory))
+                            file-symlink-p
+                            cd)
+        (unless (equal it (car $dir-history))
+          (push it $dir-history))))
+    str)
+
+  (defun $get-shell-pid ()
+    (or $shell-pid
+        ;; we can only use the buffer process PID
+        ;; with local shells
+        (unless (file-remote-p default-directory)
+          (-some->> (current-buffer)
+                    get-buffer-process
+                    process-id))))
+
+  (defvar $shell-pid nil
+    "Set this variable when the buffer process PID is not the shell PID.")
+  (make-variable-buffer-local '$shell-pid)
+
+  (defun shx-cmd-set-pid (pid)
+    "(SAFE) sets env local shell PID.
+  Add the following lines to (or equvilent) to your shell starup file
+
+  echo \"<set-pid $$>\""
+    (setq $shell-pid pid))
+
+  (defun $supress-hostkey-warning (str)
+    "EC machines issue a benign but really annoying warning that the EC people
+    don't have the technical competence to fix. It has the following form: 
+
+    add_host_to_hostkeys: failed to open <missing path> - reason Permission denied "
+    (if (string-match "add_host_to_hostkeys: failed to open" str) "" str))
+
+  (defun $shell-mode-hook ()
+    (shell-dirtrack-mode 0)
+    (setq-local comint-prompt-regexp (rx bol "╰─→ " eos))
+    (modify-syntax-entry ?= ".")
+
+    (general-add-hook 'comint-preoutput-filter-functions
+                      '($supress-hostkey-warning $track-shell-directory) nil 'local))
+  (add-hook 'shell-mode-hook '$shell-mode-hook)
+
+  (defun $tcsh-remote-shell (fn &rest args)
+    (if (file-remote-p default-directory)
+        (let ((shell-file-name "tcsh"))
+          (apply fn args))
+      (apply fn args)))
+
+  (general-advice-add '(shell-pop shell) :around '$tcsh-remote-shell)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package shx
+    :diminish
+    :hook shell-mode)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package shell-pop
+    :init
+    ;; https://github.com/kyagi/shell-pop-el/issues/51
+    (add-to-list 'shackle-rules `(,(rx "*shell*") :regexp t :same t))
+    ($leader-set-key
+      "'" 'shell-pop))
+
+  (defun $shell-in-cwd-p (cwd)
+    (file-equal-p default-directory cwd))
+  (advice-add 'shell-pop--cd-to-cwd :before-until '$shell-in-cwd-p)
+
+  (defun $scroll-shell-pop (_)
+    (scroll-down 1))
+  (advice-add 'shell-pop--cd-to-cwd :after '$scroll-shell-pop)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package s)
+  (use-package f)
+  (use-package company-async-files
+    :after company
+    :straight
+    (company-async-files
+     :type git :host github :repo "CeleritasCelery/company-async-files")
+    :init
+    (add-to-list 'company-backends 'company-async-files)
+    (delete 'company-files company-backends))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-fish
+    :after company
+    :straight
+    (company-fish
+     :type git :host github :repo "CeleritasCelery/company-fish")
+    :init
+    (add-to-list 'company-backends 'company-fish))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package local-env
+    :straight
+    (local-env :type git
+               :host github
+               :repo "CeleritasCelery/local-env-mode"
+               :files ("local-env.el")))
+
+  (use-package company-env
+    :straight
+    (company-env :type git
+                 :host github
+                 :repo "CeleritasCelery/local-env-mode"
+                 :files ("company-env.el")))
+
+  (use-package company-command
+    :straight
+    (company-command :type git
+                     :host github
+                     :repo "CeleritasCelery/local-env-mode"
+                     :files ("company-command.el")))
+#+END_SRC
+
 * Languages
   :PROPERTIES:
   :VISIBILITY: children
