@@ -404,7 +404,6 @@ it though.
      :type git :host github :repo "CeleritasCelery/swiper"
      :upstream (:host github
                       :repo "abo-abo/swiper"))
-    ;; :demand t
     :after (ivy hydra))
 #+END_SRC
 
@@ -486,10 +485,28 @@ overide the modes.
           evil-want-C-d-scroll t
           evil-want-C-w-delete t
           evil-want-C-i-jump t
+          evil-want-Y-yank-to-eol t
           evil-ex-search-vim-style-regexp t)
     :config
     (general-swap-key nil 'motion "0" "^")
-    (evil-mode 1))
+    (evil-mode 1)
+
+    (evil-define-text-object evil-inner-buffer (count &optional beg end type)
+      (list (point-min) (point-max)))
+    
+    (general-define-key
+     :states 'motion
+     [remap evil-next-line] 'evil-next-visual-line
+     [remap evil-previous-line] 'evil-previous-visual-line)
+
+    (evil-define-text-object evil-pasted (count &rest args)
+      (list (save-excursion (evil-goto-mark ?\[) (point))
+            (save-excursion (evil-goto-mark ?\]) (point))))
+    (general-define-key
+     :keymaps 'evil-inner-text-objects-map
+     "g" 'evil-inner-buffer
+     "P" 'evil-pasted))
+
 #+END_SRC
 
 =C-i= can be used to move forward in cursor jumps, but Emacs binds it to =TAB=, so
