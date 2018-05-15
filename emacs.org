@@ -27,11 +27,6 @@ Let's set some variables with basic user information.
 
 *** Settings
 
-The location of all cached files that save history between runs
-#+BEGIN_SRC emacs-lisp
-  (defvar $cache-directory (expand-file-name "cache" user-emacs-directory)
-    "The location of all save and restore type files")
-#+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defvar $leader-key "SPC"
     "leader key used to quicky access commands.")
@@ -156,19 +151,17 @@ Use tab for indentation and symbol completion
   (setq tab-always-indent 'complete)
 #+END_SRC
 
+make sure that third party files cannot leave conifg and save files
+all over the place
 #+BEGIN_SRC emacs-lisp
-  (use-package recentf
-    :init
-    (setq recentf-save-file (expand-file-name "recentf" $cache-directory)
-          recentf-max-saved-items 500))
+  (use-package no-littering
+    :demand t)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (use-package savehist
     :straight nil
-    :demand t
-    :init
-    (setq savehist-file (expand-file-name "minibuffer_history" $cache-directory))
+    :defer 1
     :config
     (savehist-mode))
 #+END_SRC
@@ -401,8 +394,7 @@ integrated into ivy
 #+BEGIN_SRC emacs-lisp
   (use-package smex
     :init
-    (setq smex-history-length 32
-          smex-save-file (expand-file-name "smex-items" $cache-directory)))
+    (setq smex-history-length 32))
 #+END_SRC
 
 ** evil
@@ -731,14 +723,13 @@ don't ask about following symlinks
   (use-package company-statistics
     :demand t
     :after company
-    :init
-    (setq company-statistics-file
-          (expand-file-name "company-statistics-cache.el"
-                            $cache-directory))
     :config
     (company-statistics-mode))
 
-  (use-package company-shell)
+  (use-package company-shell
+    :after company
+    :init
+    (add-to-list 'company-backends 'company-shell))
 #+END_SRC
 ** Org
 #+BEGIN_SRC emacs-lisp
