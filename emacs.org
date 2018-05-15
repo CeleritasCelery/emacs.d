@@ -548,7 +548,7 @@ I will need to fix this so that it won't use =[]= as a starter key.
      :type git :host github :repo "CeleritasCelery/evil-unimpaired"
      :upstream (:host github
                       :repo "zmaas/evil-unimpaired"))
-    :demand t
+    :defer 2
     :init
     (setq evil-unimpaired-leader-keys '("gk" . "gj"))
     :config
@@ -614,7 +614,7 @@ avy is better for the actual sniping
 
 #+BEGIN_SRC emacs-lisp
   (use-package evil-surround
-    :demand t
+    :defer 4
     :config
     (global-evil-surround-mode)
     (general-define-key
@@ -723,7 +723,7 @@ move me to the start of the line or start of code, based on heuristics
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :diminish
-    :demand t
+    :defer 3
     :config
     (yas-global-mode))
   (use-package yasnippet-snippets)
@@ -780,7 +780,7 @@ don't ask about following symlinks
       "gt" 'git-timemachine))
 
   (use-package git-gutter
-    :demand t
+    :defer 3
     :init
     (setq git-gutter:diff-option "-w")
     :config
