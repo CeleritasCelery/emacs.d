@@ -12,16 +12,21 @@
       gc-cons-percentage 0.6)
 
 ;; Don't attempt to find/apply special file handlers to files loaded during startup.
-(let ((file-name-handler-alist nil)
-      (el-file (expand-file-name "emacs.el" user-emacs-directory))
-      (org-file (expand-file-name "emacs.org" user-emacs-directory)))
-  ;; If config is updated, load it
-  (if (and (file-exists-p el-file)
-           (file-newer-than-file-p el-file org-file))
-      (load-file el-file)
-    ;; Otherwise use org-babel to tangle and load the configuration
-    (require 'org)
-    (org-babel-load-file org-file)))
+(defun $load-literate-file (name &optional dir)
+  "if file is tangled load the .el file, else tangle it"
+  (setq dir (or dir user-emacs-directory))
+  (let ((file-name-handler-alist nil)
+        (el-file (expand-file-name (concat name ".el") dir))
+        (org-file (expand-file-name (concat name ".org") dir)))
+    ;; If config is updated, load it
+    (if (and (file-exists-p el-file)
+             (file-newer-than-file-p el-file org-file))
+        (load-file el-file)
+      ;; Otherwise use org-babel to tangle and load the configuration
+      (require 'org)
+      (org-babel-load-file org-file))))
+
+($load-literate-file "emacs")
 
 (setq gc-cons-threshold 800000
       gc-cons-percentage 0.1)
@@ -34,7 +39,11 @@
  ;; If there is more than one, they won't work right.
  '(safe-local-variable-values
    (quote
-    ((bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)"))))
+    ((eval when
+           (fboundp
+            (quote rainbow-mode))
+           (rainbow-mode 1))
+     (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)"))))
  '(shx-kept-commands
    (quote
     (("git filter branch" . "git filter-branch --tag-name-filter cat --prune-empty --subdirectory-filter layers/shell-config/local/shell-config")
