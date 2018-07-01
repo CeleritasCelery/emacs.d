@@ -331,7 +331,18 @@ Creating a collection of themes that I like. I can use
       ("4" eyebrowse-switch-to-window-config-4)
       ("5" eyebrowse-switch-to-window-config-5))
     ($leader-set-key
-      "e" 'eyebrowse/body))
+      "e" 'eyebrowse/body)
+    :config
+    (general-define-key
+     :keymaps 'eyebrowse-mode-map
+     "C-c C-w" nil))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package layouts
+    :straight (layouts
+               :local-repo "layouts")
+    :after (persp-mode eyebrowse))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -494,22 +505,43 @@ overide the modes.
     (general-swap-key nil 'motion "0" "^")
     (evil-mode 1)
 
-    (evil-define-text-object evil-inner-buffer (count &optional beg end type)
-      (list (point-min) (point-max)))
-
     (general-define-key
      :states 'motion
      [remap evil-next-line] 'evil-next-visual-line
      [remap evil-previous-line] 'evil-previous-visual-line)
 
+    (defvar evil-v$-gets-eol nil)
+
+    (evil-define-motion evil-end-of-line (count)
+      "Move the cursor to the end of the current line. If COUNT is
+    given, move COUNT - 1 lines downward first."
+      :type inclusive
+      (move-end-of-line count)
+      (when evil-track-eol
+        (setq temporary-goal-column most-positive-fixnum
+              this-command 'next-line))
+      (unless (and (evil-visual-state-p) evil-v$-gets-eol)
+        (evil-adjust-cursor)
+        (when (eolp)
+          ;; prevent "c$" and "d$" from deleting blank lines
+          (setq evil-this-type 'exclusive))))
+
+    (evil-define-text-object evil-inner-buffer (count &optional beg end type)
+      (list (point-min) (point-max)))
+
     (evil-define-text-object evil-pasted (count &rest args)
       (list (save-excursion (evil-goto-mark ?\[) (point))
             (save-excursion (evil-goto-mark ?\]) (point))))
+
+    (evil-define-text-object evil-filename (count &rest args)
+      (let ((bounds (bounds-of-thing-at-point 'filename)))
+        (list (car bounds) (cdr bounds))))
+
     (general-define-key
      :keymaps 'evil-inner-text-objects-map
      "g" 'evil-inner-buffer
-     "P" 'evil-pasted))
-
+     "P" 'evil-pasted
+     "F" 'evil-filename))
 #+END_SRC
 
 =C-i= can be used to move forward in cursor jumps, but Emacs binds it to =TAB=, so
@@ -539,11 +571,15 @@ We want to hybridize some usefull emacs commands with better evil keybindings
     "hdk" 'describe-key
     "hde" 'describe-face
     "hdm" 'describe-mode
+    "hs"  'profiler-start
+    "hr"  'profiler-report
     "f" '(:ignore t :wk "files")
     "fa" 'save-buffer
     "bd" 'kill-buffer
     "br" 'rename-buffer)
 #+END_SRC
+
+don't grab the
 
 I will need to fix this so that it won't use =[]= as a starter key.
 #+BEGIN_SRC emacs-lisp
@@ -604,7 +640,7 @@ avy is better for the actual sniping
          $leader-key nil
          $mm-leader-key nil)))
     (add-hook 'evil-collection-setup-hook '$unmap-leader)
-    (evil-collection-init '(calc calendar custom debug eldoc elisp-mode dired help info occur wgrep wdired which-key)))
+    (evil-collection-init '(calc calendar custom debug eldoc elisp-mode dired help info occur popup profiler wgrep wdired which-key)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
