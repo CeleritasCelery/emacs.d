@@ -1,4 +1,4 @@
- #+TITLE: Emacs Literate Configuration
+#+TITLE: Emacs Literate Configuration
 #+AUTHOR: Troy Hinckley
 #+PROPERTY: header-args :tangle yes
 
@@ -321,12 +321,11 @@ Creating a collection of themes that I like. I can use
       ("n" eyebrowse-next-window-config "next" :exit nil)
       ("p" eyebrowse-prev-window-config "previous" :exit nil)
       ("d" eyebrowse-close-window-config-prompt "close")
-      ("0" 'eyebrowse-switch-to-window-config-0)
-      ("1" 'eyebrowse-switch-to-window-config-1)
-      ("2" 'eyebrowse-switch-to-window-config-2)
-      ("3" 'eyebrowse-switch-to-window-config-3)
-      ("4" 'eyebrowse-switch-to-window-config-4)
-      ("5" 'eyebrowse-switch-to-window-config-5))
+      ("1" eyebrowse-switch-to-window-config-1)
+      ("2" eyebrowse-switch-to-window-config-2)
+      ("3" eyebrowse-switch-to-window-config-3)
+      ("4" eyebrowse-switch-to-window-config-4)
+      ("5" eyebrowse-switch-to-window-config-5))
     ($leader-set-key
       "e" 'eyebrowse/body))
 #+END_SRC
@@ -440,7 +439,7 @@ it though.
   (defun $open-file-in-clipboard ()
     "open the current file in the clipboard"
     (interactive)
-    (let* ((file (string-trim (current-kill 0)))
+    (let* ((file (substitute-env-vars (string-trim (current-kill 0))))
            (default-directory (file-name-directory file)))
       (counsel-find-file (file-name-nondirectory file))))
   ($leader-set-key
@@ -870,7 +869,7 @@ these are utility functions used to setting up the Emacs shell.
   (defun $select-shell-history ()
     (interactive)
     (goto-char (point-max))
-    (insert (concat "cd " (string-remove-prefix (file-remote-p default-directory)
+    (insert (concat "cd " (string-remove-prefix (or (file-remote-p default-directory) "")
                                                 (completing-read "directory:" $dir-history)))))
 
   (general-define-key
@@ -961,8 +960,6 @@ these are utility functions used to setting up the Emacs shell.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (use-package s)
-  (use-package f)
   (use-package company-async-files
     :after company
     :straight
