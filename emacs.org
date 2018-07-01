@@ -742,6 +742,11 @@ week to copy some files, so it is not a big deal.
 
 ** editing
 
+general editing configuration. We only want to use tabs in specific major modes
+#+BEGIN_SRC emacs-lisp
+  (setq-default indent-tabs-mode nil)
+#+END_SRC
+
 move me to the start of the line or start of code, based on heuristics
 #+BEGIN_SRC emacs-lisp
   (use-package mwim
@@ -962,7 +967,7 @@ these are utility functions used to setting up the Emacs shell.
     (shell-dirtrack-mode 0)
     (setq-local comint-prompt-regexp (rx bol "╰─→ " eos))
     (modify-syntax-entry ?= ".")
-
+    (setq-local company-backends '(company-async-files (company-command company-env) company-fish company-capf company-dabbrev-code))
     (general-add-hook 'comint-preoutput-filter-functions
                       '($supress-hostkey-warning $track-shell-directory) nil 'local))
   (add-hook 'shell-mode-hook '$shell-mode-hook)
@@ -980,6 +985,28 @@ these are utility functions used to setting up the Emacs shell.
   (use-package shx
     :diminish
     :hook shell-mode)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package exec-path-from-shell
+    :defer 6
+    :init
+    (setq exec-path-from-shell-check-startup-files nil)
+    :config
+    (exec-path-from-shell-initialize)
+
+    (let ((exec-path-from-shell-shell-name "tcsh")
+          (exec-path-from-shell-arguments nil))
+      (setenv "EMACS_CAPTURE_ENV" "1")
+      (exec-path-from-shell-copy-envs '("IP_MODELS"
+                                        "IP_RELEASES"
+                                        "GIT_REPOS"
+                                        "GLOBAL_TOOLS"
+                                        "RTLMODELS"
+                                        "SPF_PERL_LIB"
+                                        "SPF_ROOT"))
+      (setenv "EMACS_CAPTURE_ENV" nil)))
+
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1074,9 +1101,13 @@ these are utility functions used to setting up the Emacs shell.
     (company-statistics-mode))
 
   (use-package company-shell
+    :after company)
+
+  (use-package company-childframe
+    :demand t
     :after company
-    :init
-    (add-to-list 'company-backends 'company-shell))
+    :config
+    (company-childframe-mode 1))
 #+END_SRC
 ** Org
 #+BEGIN_SRC emacs-lisp
