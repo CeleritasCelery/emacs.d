@@ -7,7 +7,6 @@
 :PROPERTIES:
 :VISIBILITY: children
 :END:
-
 ** About this file
 This is an Emacs literate configuration. It contains the basic structure
 of a literate config along with some optimizations to ensure a fast load time.
@@ -77,7 +76,6 @@ use =y= and =n= instead of =yes= and =no=
 :PROPERTIES:
 :VISIBILITY: children
 :END:
-
 ** Package Manager
 We are going to use =straight.el= as package manager because it allows
 us to easily maintain private repos of packages. There is bootstrap
@@ -85,8 +83,9 @@ code on the website, but I could not get it to work behind the proxy
 so I cloned it myself.  I will see later if I can get the bootstrap
 install code to work.
 
-I also byte-complied the bootstrap file which
-shaves about 500 ms of the startup time.
+I also byte-complied the bootstrap file which shaves about 500 ms of
+the startup time. This is still slower then using package.el, but I
+think it is worth it.
 
 #+BEGIN_SRC emacs-lisp
   (load (expand-file-name "straight/repos/straight.el/bootstrap" user-emacs-directory) nil 'nomessage)
@@ -94,9 +93,10 @@ shaves about 500 ms of the startup time.
 
 ** Use-package
 
-=use-package= is a macro that allows to easily define and load other packages.
-It is the first thing we want to install. I am using my own fork of the package
-that contains more sane defaults for the =:hook= keyword.
+=use-package= is a macro that allows to easily define and load other
+packages.  It is the first thing we want to install. I am using my own
+fork of the package that contains more sane defaults for the =:hook=
+keyword (essentially it automatically adds the =-mode= suffix).
 
 #+BEGIN_SRC emacs-lisp
   (straight-use-package
@@ -107,9 +107,10 @@ that contains more sane defaults for the =:hook= keyword.
 #+END_SRC
 
 Setting =straight-use-package-by-default= to =t= we can ensure that
-=use-pacakge= will use =straight.el= to install missing packages for us. Always
-defer and always ensure will guarntee that all dependaceies are loaded and that
-packages are autoloaded unless explicitly stated otherwise.
+=use-pacakge= will use =straight.el= to install missing packages for
+us. Always defer and always ensure will guarantee that all
+dependencies are loaded and that packages are autoloaded unless
+explicitly stated otherwise.
 #+BEGIN_SRC emacs-lisp
   (setq straight-use-package-by-default t
         use-package-always-defer t
@@ -121,6 +122,9 @@ This allows us to remove mode-line lighters
   (use-package delight)
 #+END_SRC
 
+The "Emacs Startup profiler". This allows us to see what parts of the
+config are most heavily impacting start up time. you can't optimize
+until you have good info
 #+BEGIN_SRC emacs-lisp
   (use-package esup)
 #+END_SRC
@@ -129,8 +133,9 @@ This allows us to remove mode-line lighters
 packages that are used to setup the my emacs enviroment. They are
 needed as dependaceies for other packages later on.
 
-This package lets us use "SPC" as leader key for other
-keybindings.
+This package lets us use "SPC" as leader key for other keybindings. It
+also provides a lot of helper functions to make binding keys easier
+and smarter.
 #+BEGIN_SRC emacs-lisp
   (use-package general
     :demand t
@@ -158,6 +163,7 @@ all over the place
     :demand t)
 #+END_SRC
 
+save minibuffer history between sessions.
 #+BEGIN_SRC emacs-lisp
   (use-package savehist
     :straight nil
@@ -166,6 +172,8 @@ all over the place
     (savehist-mode))
 #+END_SRC
 
+hydra provides repeatable keybindings to quickly execute multiple
+commands
 #+BEGIN_SRC emacs-lisp
   (use-package hydra)
 #+END_SRC
@@ -173,7 +181,8 @@ all over the place
 ** UI
 packages that used to improve the visuals and interface for Emacs
 
-Setup the font that I want to use
+Setup the font that I want to use. Hasklig is a fork of /Source Code
+Pro/ that contains ligatures.
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
                     :family "Hasklig"
@@ -196,6 +205,9 @@ use a hydra to scale the text size
     "z" 'text-scale/body)
 #+END_SRC
 
+change the size of the VNC to match the size of the monitor that I am
+using. Since I always run my VNC fullscreen having the VNC resolution
+not match the resolution of my monitor results in weird text sizes.
 #+BEGIN_SRC emacs-lisp
   (defun vnc-resize (size)
     (shell-command (concat "xrandr --size " size)))
@@ -210,6 +222,13 @@ use a hydra to scale the text size
     "n"  'vnc-resize/body)
 #+END_SRC
 
+telephone line is powerline that has some nice defaults. I am still
+not satisfied with my mode-line, and when I get some time I would love
+to customize it to my extact taste. But in the meantime this is
+working.
+
+*** TODO [#B] create a list of customization for the modeline.
+*** TODO [#C] try out the doom modeline
 #+BEGIN_SRC emacs-lisp
   (use-package telephone-line
     :init
@@ -225,7 +244,11 @@ use a hydra to scale the text size
 #+END_SRC
 
 Creating a collection of themes that I like. I can use
-=counsel-load-themes= to switch between them
+=counsel-load-themes= to switch between them. Some of these themes do
+not have all faces that I would like, so When I get some time I will
+modify them.
+
+*** TODO [#C] add missing faces to themes
 #+BEGIN_SRC emacs-lisp
   (use-package challenger-deep-theme)
   (use-package gruvbox-theme)
@@ -246,6 +269,8 @@ Creating a collection of themes that I like. I can use
   (load-theme 'darktooth t)
 #+END_SRC
 
+which key is an awesome package that shows me the key I can press
+after choosing a prefix key.
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
     :delight
@@ -258,6 +283,19 @@ Creating a collection of themes that I like. I can use
     (which-key-mode))
 #+END_SRC
 
+This is a window managment package that I am testing out. it works
+pretty well, but I have a couple of things I would like to change.
+1. there is no good way to operate on the current window, you have to
+   knows its letter first, which is not always easy. my idea is that
+   the capital of action would operate on the current window. For
+   example =SPC wX= would delete the current window. This would take a
+   fair amount of work to change the package however. Or at least so I
+   think, I have not actually looked at it yet. I want to wait for
+   while to make this change so that I can get the muscle memory down
+   and see if that makes this easier with this package.
+2. This package will split the window but leave the cursor in the old
+   window. I relalize this is just a little thing. but it is very
+   unintuitive for me and I have to think about it every time.
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
     :init
@@ -270,6 +308,9 @@ Creating a collection of themes that I like. I can use
     (add-to-list 'aw-dispatch-alist '(?w $toggle-maximize-window)))
 #+END_SRC
 
+this is a window managment package that is very minimalistic. I am
+going to use it until I find a case where it won't work, then I might
+try a more powerful package like popwin.
 #+BEGIN_SRC emacs-lisp
   (use-package shackle
     :demand t
@@ -281,6 +322,10 @@ Creating a collection of themes that I like. I can use
     (shackle-mode))
 #+END_SRC
 
+A collection of functions stolen from Spacemacs that allows me to more
+easily manipulate files, buffers, and windows. I figure it is easier
+to keep in a seperate file then to try and load them in my main
+config. still not sure if they will stay there long term.
 #+BEGIN_SRC emacs-lisp
   (use-package init-display
     :straight (init-display
@@ -299,6 +344,14 @@ Creating a collection of themes that I like. I can use
       "qq" '$quit-emacs))
 #+END_SRC
 
+persp-mode is layout managment package that provides way more
+functionality then I want. All I really are about is having named
+groups of eyebrowse window configs. I could probably drop persp mode
+and create a wrapper around =eyebrowse= that could group the window
+configs under a name. I would use only eyebrowse, but then I would
+have to try to remember what windows go to what project, and that can
+get a little confusing. Also I have created some fuctions that make
+shell-pop perspective local, and I really like that feature.
 #+BEGIN_SRC emacs-lisp
   (use-package persp-mode
     :init
@@ -316,6 +369,7 @@ Creating a collection of themes that I like. I can use
       "l" 'persp/body))
 #+END_SRC
 
+minimal window managment package.
 #+BEGIN_SRC emacs-lisp
   (use-package eyebrowse
     :init
@@ -338,6 +392,9 @@ Creating a collection of themes that I like. I can use
      "C-c C-w" nil))
 #+END_SRC
 
+This package is really just a lift of the layout functionality from
+spacemacs. It essentially makes window configs layout local and add
+some helper helm sources for perspectives.
 #+BEGIN_SRC emacs-lisp
   (use-package layouts
     :straight (layouts
@@ -359,7 +416,7 @@ Creating a collection of themes that I like. I can use
     "qq" '$quit-emacs)
 #+END_SRC
 
-changing the volume on my mic triggers these bindings.
+changing the volume on my mic triggers these bindings. So we ignore them.
 #+BEGIN_SRC emacs-lisp
   (general-define-key
    "<XF86AudioLowerVolume>" 'ignore
@@ -579,9 +636,7 @@ We want to hybridize some usefull emacs commands with better evil keybindings
     "br" 'rename-buffer)
 #+END_SRC
 
-don't grab the
-
-I will need to fix this so that it won't use =[]= as a starter key.
+evil unimpaired binds some usefull functions to some quick keys.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-unimpaired
     :straight
@@ -608,6 +663,9 @@ avy is better for the actual sniping
     (evil-snipe-override-mode))
 #+END_SRC
 
+this package adds a tilde to the fringe of every line that is
+empty. eventually I just want to replace this with a save buffer hook
+that removes additional lines at the end of the file.
 #+BEGIN_SRC emacs-lisp
   (use-package vi-tilde-fringe
     :delight
@@ -627,6 +685,8 @@ avy is better for the actual sniping
     (evil-escape-mode))
 #+END_SRC
 
+evil collection evilifies several major and minor modes to make them
+behave better with evil.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-collection
     :demand t
@@ -676,7 +736,15 @@ avy is better for the actual sniping
 #+END_SRC
 
 These packages are great at providing editor shortcuts for editing
-lisp
+lisp. There are several things I want to change however. 
+- I hate that is overrides =v=, as I use that character all the time
+  for motions. I think I am going to delegate only =C-v= and =V= to
+  the lispy functions and leave the rest untouched. probably should
+  use a hydra.
+- I am starting to think that I would be better off just using the
+  evil lisp state, and then binding some of the most convient
+  functions from both to the new state. Some of the evil-cleverparens
+  functions are smarter then their equvilents in lispyville.
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
     :delight
@@ -755,6 +823,8 @@ move me to the start of the line or start of code, based on heuristics
              "C-e" 'mwim-end
              "C-a" 'mwim-beginning))
 #+END_SRC
+
+avy is an awesome jump to point package.
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :init
@@ -766,6 +836,7 @@ move me to the start of the line or start of code, based on heuristics
     (evil-collection-init 'avy))
 #+END_SRC
 
+provides snippets for adding complex blocks. use it with =M-/=
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :diminish
@@ -776,7 +847,6 @@ move me to the start of the line or start of code, based on heuristics
   (use-package yasnippet-snippets
     :diminish
     :after yasnippet)
-
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -809,11 +879,13 @@ move me to the start of the line or start of code, based on heuristics
 #+END_SRC
 
 ** git
+
 don't ask about following symlinks
 #+BEGIN_SRC emacs-lisp
      (setq vc-follow-symlinks t)
 #+END_SRC
 
+magit is the best git porcelain that exists, so far as I can tell. 
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :init
@@ -829,6 +901,10 @@ don't ask about following symlinks
       "k" 'with-editor-cancel))
 #+END_SRC
 
+I don't like to commit to my github repos using my work credentials,
+but I can't use those credentials on my work repos. there I set
+=useconfigonly = true= so that I have to set the credentials for every
+repo. I can use these functions as short hand.
 #+BEGIN_SRC emacs-lisp
   (defun $git-work-user ()
     "Set my work credentials"
@@ -841,7 +917,6 @@ don't ask about following symlinks
     (interactive)
     (shell-command "git config --local user.name CeleritasCelery &&
      git config --local user.email t.macman@gmail.com"))
-
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -857,7 +932,15 @@ don't ask about following symlinks
     :init
     ($leader-set-key
       "gt" 'git-timemachine))
+#+END_SRC
 
+git gutter uses the the margin to display the git status. the frige
+package uses the fringe instead of the margin. This means that it
+won't conflict with linum-mode. However since I don't need linum mode
+I can probably remove git gutter fringe all together. All the that it
+would offer me is that I could display of the left side, which I may
+want to do when I enable flycheck.
+#+BEGIN_SRC emacs-lisp
   (use-package git-gutter
     :defer 3
     :init
@@ -981,12 +1064,16 @@ these are utility functions used to setting up the Emacs shell.
   (general-advice-add '(shell-pop shell) :around '$tcsh-remote-shell)
 #+END_SRC
 
+shx mode allows us to call emacs lisp functions from within the
+builtin shell, gives us the best of both worlds.
 #+BEGIN_SRC emacs-lisp
   (use-package shx
     :diminish
     :hook shell-mode)
 #+END_SRC
 
+the =EMACS_CAPTURE_ENV= is used as part of my tcshrc file to source
+the proper env scripts so that all these variables are set
 #+BEGIN_SRC emacs-lisp
   (use-package exec-path-from-shell
     :defer 6
@@ -1006,7 +1093,6 @@ these are utility functions used to setting up the Emacs shell.
                                         "SPF_PERL_LIB"
                                         "SPF_ROOT"))
       (setenv "EMACS_CAPTURE_ENV" nil)))
-
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1026,6 +1112,9 @@ these are utility functions used to setting up the Emacs shell.
   (advice-add 'shell-pop--cd-to-cwd :after '$scroll-shell-pop)
 #+END_SRC
 
+I wrote this package to do async file completion. This is especially
+true when using this in a shell, where you don't want to block the ui
+while typing.
 #+BEGIN_SRC emacs-lisp
   (use-package company-async-files
     :after company
@@ -1037,6 +1126,10 @@ these are utility functions used to setting up the Emacs shell.
     (delete 'company-files company-backends))
 #+END_SRC
 
+this is a package that I wrote to fallback on fish shell for
+completion candidates. I think at some point I would like to
+reimplement that argument parsing functionality in lisp and remove the
+dependacey on fish.
 #+BEGIN_SRC emacs-lisp
   (use-package company-fish
     :after company
@@ -1047,6 +1140,9 @@ these are utility functions used to setting up the Emacs shell.
     (add-to-list 'company-backends 'company-fish))
 #+END_SRC
 
+set of packages I wrote to add completion for enviroment variables and
+commands, currently broken, I tried to remove dependencies on external
+packages, but that wasn't really necessary.
 #+BEGIN_SRC emacs-lisp
   (use-package local-env
     :straight
@@ -1071,15 +1167,17 @@ these are utility functions used to setting up the Emacs shell.
 #+END_SRC
 
 * Languages
-  :PROPERTIES:
-  :VISIBILITY: children
-  :END:
-
+:PROPERTIES:
+:VISIBILITY: children
+:END:
 ** General
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck)
 #+END_SRC
 
+I don't want to use return for completion because that often
+interferces with just regular typing. So i have gotten in the habit of
+just using =C-l=
 #+BEGIN_SRC emacs-lisp
   (use-package company
     :delight
@@ -1324,6 +1422,7 @@ to export fontified org src code blocks
 #+END_SRC
 
 https://gist.github.com/dfeich/1df4e174d45f05fb5798ca514d28c68a
+provide a hydra dispatcher based on context
 #+BEGIN_SRC emacs-lisp
   ;;; ** Hydras
   ;;; *** context launcher for hydras
@@ -1428,6 +1527,7 @@ https://gist.github.com/dfeich/1df4e174d45f05fb5798ca514d28c68a
       "ef" 'eval-defun))
 #+END_SRC
 
+never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :hook emacs-lisp-mode)
@@ -1466,6 +1566,8 @@ packages to help manage parens
 #+END_SRC
 
 ** perl
+all the enviroment variables are set so as to make it easier for
+flycheck to get a clean compile.
 #+BEGIN_SRC emacs-lisp
   (use-package cperl
     :straight nil
@@ -1492,6 +1594,7 @@ packages to help manage parens
     (setenv "RTL_PROJ_TOOLS" "/p/hdk/rtl/proj_tools"))
 #+END_SRC
 ** other
+collection of major modes that I use for different file types.
 #+BEGIN_SRC emacs-lisp
   (use-package major-modes
     :straight (major-modes
