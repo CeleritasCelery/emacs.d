@@ -651,6 +651,13 @@ evil unimpaired binds some usefull functions to some quick keys.
     (evil-unimpaired-mode))
 #+END_SRC
 
+provides total number of searches in the modeline
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-anzu
+    :demand t
+    :after evil)
+#+END_SRC
+
 we only want evil snipe for the ability to repeat =f,F,t,T=. I find
 avy is better for the actual sniping
 #+BEGIN_SRC emacs-lisp
