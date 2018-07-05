@@ -401,22 +401,11 @@ minimal window managment package.
      "C-c C-w" nil))
 #+END_SRC
 
-This package is really just a lift of the layout functionality from
-spacemacs. It essentially makes window configs layout local and add
-some helper helm sources for perspectives.
-#+BEGIN_SRC emacs-lisp
-  (use-package layouts
-    :straight (layouts
-               :local-repo "layouts")
-    :after (persp-mode eyebrowse))
-#+END_SRC
-
 #+BEGIN_SRC emacs-lisp
   (use-package restart-emacs
     :init
     ($leader-set-key
       "qr" 'restart-emacs))
-
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
