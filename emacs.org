@@ -227,9 +227,18 @@ not satisfied with my mode-line, and when I get some time I would love
 to customize it to my extact taste. But in the meantime this is
 working.
 
-*** TODO [#B] create a list of customization for the modeline.
-*** TODO [#C] try out the doom modeline
 #+BEGIN_SRC emacs-lisp
+  (use-package doom-modeline
+    :straight
+    (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
+    :hook (after-init . doom-modeline-init))
+
+  (use-package evil-anzu
+    :demand t
+    :after doom-modeline)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package telephone-line
     :init
     (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
