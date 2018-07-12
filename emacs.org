@@ -96,7 +96,17 @@ think it is worth it.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-recipes-gnu-elpa-url  "http://git.savannah.gnu.org/git/emacs/elpa.git")
-  (load (expand-file-name "straight/repos/straight.el/bootstrap" user-emacs-directory) nil 'nomessage)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+        (bootstrap-version 4))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
 ** packages
@@ -122,8 +132,7 @@ dependencies are loaded and that packages are autoloaded unless
 explicitly stated otherwise.
 #+BEGIN_SRC emacs-lisp
   (setq straight-use-package-by-default t
-        use-package-always-defer t
-        use-package-always-ensure t)
+        use-package-always-defer t)
 #+END_SRC
 
 *** delight
@@ -300,6 +309,7 @@ modify them.
   (load-theme 'doom-one t)
 #+END_SRC
 
+*** which key
 which key is an awesome package that shows me the key I can press
 after choosing a prefix key.
 #+BEGIN_SRC emacs-lisp
@@ -314,6 +324,7 @@ after choosing a prefix key.
     (which-key-mode))
 #+END_SRC
 
+*** ace window
 This is a window managment package that I am testing out. it works
 pretty well, but I have a couple of things I would like to change.
 1. there is no good way to operate on the current window, you have to
@@ -337,8 +348,20 @@ pretty well, but I have a couple of things I would like to change.
       "w" 'ace-window)
     :config
     (add-to-list 'aw-dispatch-alist '(?w $toggle-maximize-window)))
+
+  ;; from https://gist.github.com/3402786
+  (defun $toggle-maximize-window ()
+    "Maximize buffer"
+    (interactive)
+    (if (and (= 1 (length (window-list)))
+             (assoc ?_ register-alist))
+        (jump-to-register ?_)
+      (progn
+        (window-configuration-to-register ?_)
+        (delete-other-windows))))
 #+END_SRC
 
+*** shackle
 this is a window managment package that is very minimalistic. I am
 going to use it until I find a case where it won't work, then I might
 try a more powerful package like popwin.
@@ -353,28 +376,65 @@ try a more powerful package like popwin.
     (shackle-mode))
 #+END_SRC
 
+*** buffers
 A collection of functions stolen from Spacemacs that allows me to more
-easily manipulate files, buffers, and windows. I figure it is easier
-to keep in a seperate file then to try and load them in my main
-config. still not sure if they will stay there long term.
+easily manipulate files, buffers, and windows. 
+
 #+BEGIN_SRC emacs-lisp
-  (use-package init-display
-    :straight (init-display
-               :local-repo "init-display")
-    :init
-    ($leader-set-key
-      "TAB" '$alternate-buffer
-      "fe" '$find-user-config-file
-      "fc" '$copy-file
-      "fy" '$show-and-copy-buffer-filename
-      "fD" '$delete-file
-      "fR" '$rename-file
-      "b" '(:ignore t :wk "buffers")
-      "bs" '$open-scratch-buffer
-      "q" '(:ignore t :wk "quit")
-      "qq" '$quit-emacs))
+  (defun $alternate-buffer (&optional window)
+    "Switch back and forth between current and last buffer in the
+  current window."
+    (interactive)
+    (let ((current-buffer (window-buffer window))
+          (buffer-predicate
+           (frame-parameter (window-frame window) 'buffer-predicate)))
+      ;; switch to first buffer previously shown in this window that matches
+      ;; frame-parameter `buffer-predicate'
+      (switch-to-buffer
+       (or (cl-find-if (lambda (buffer)
+                         (and (not (eq buffer current-buffer))
+                              (or (null buffer-predicate)
+                                  (funcall buffer-predicate buffer))))
+                       (mapcar #'car (window-prev-buffers window)))
+           ;; `other-buffer' honors `buffer-predicate' so no need to filter
+           (other-buffer current-buffer t)))))
+
+
+
+  (defun $quit-emacs ()
+    "save buffers and quit"
+    (interactive)
+    (save-some-buffers)
+    (kill-emacs))
+
+  (defun $open-scratch-buffer ()
+    "open the scratch buffer"
+    (interactive)
+    (set-window-buffer (selected-window) "*scratch*"))
+
+  (defun $show-and-copy-buffer-filename (arg)
+    "Show and copy the full path to the current file in the minibuffer."
+    (interactive "P")
+    ;; list-buffers-directory is the variable set in dired buffers
+    (let ((file-name (or (buffer-file-name)
+                         list-buffers-directory
+                         default-directory)))
+      (if file-name
+          (message (kill-new (if (null arg)
+                                 (file-truename file-name)
+                               file-name)))
+        (error "Buffer not visiting a file"))))
+
+  ($leader-set-key
+    "TAB" '$alternate-buffer
+    "fy" '$show-and-copy-buffer-filename
+    "b" '(:ignore t :wk "buffers")
+    "bs" '$open-scratch-buffer
+    "q" '(:ignore t :wk "quit")
+    "qq" '$quit-emacs)
 #+END_SRC
 
+*** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
 groups of eyebrowse window configs. I could probably drop persp mode
@@ -400,6 +460,7 @@ shell-pop perspective local, and I really like that feature.
       "l" 'persp/body))
 #+END_SRC
 
+*** eyebrowse
 minimal window managment package.
 #+BEGIN_SRC emacs-lisp
   (use-package eyebrowse
@@ -423,17 +484,12 @@ minimal window managment package.
      "C-c C-w" nil))
 #+END_SRC
 
+*** restart
 #+BEGIN_SRC emacs-lisp
   (use-package restart-emacs
     :init
     ($leader-set-key
       "qr" 'restart-emacs))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  ($leader-set-key
-    "q" '(:ignore t :wk "quit")
-    "qq" '$quit-emacs)
 #+END_SRC
 
 changing the volume on my mic triggers these bindings. So we ignore them.
@@ -671,7 +727,6 @@ We want to hybridize some usefull emacs commands with better evil keybindings
     "hdm" 'describe-mode
     "hs"  'profiler-start
     "hr"  'profiler-report
-    "f" '(:ignore t :wk "files")
     "d" 'save-buffer
     "bd" 'kill-buffer
     "br" 'rename-buffer
@@ -932,6 +987,41 @@ provides snippets for adding complex blocks. use it with =M-/=
 #+END_SRC
 
 ** files
+
+collection of functions stolen from spacemacs
+#+BEGIN_SRC emacs-lisp
+  (defun $copy-file ()
+    (interactive)
+    (let* ((destination (read-file-name "Write File: "))
+           (dir (file-name-directory destination)))
+      (unless (file-exists-p dir)
+        (make-directory dir 'parents))
+      (write-file destination 'confirm)))
+
+  (defun $delete-file ()
+    (interactive)
+    (delete-file (buffer-file-name)))
+
+  (defun $rename-file ()
+    (interactive)
+    (let* ((destination (read-file-name "Rename File: "))
+           (dir (file-name-directory destination)))
+      (unless (file-exists-p dir)
+        (make-directory dir 'parents))
+      (rename-file (buffer-file-name) destination)))
+
+  (defun $find-user-config-file ()
+    "Edit the org file we use for config, in the current window."
+    (interactive)
+    (find-file-existing (expand-file-name "emacs.org" user-emacs-directory)))
+
+  ($leader-set-key
+    "f" '(:ignore t :wk "files")
+    "fe" '$find-user-config-file
+    "fc" '$copy-file
+    "fD" '$delete-file
+    "fR" '$rename-file)
+#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (use-package recentf
@@ -1914,8 +2004,9 @@ flycheck to get a clean compile.
 collection of major modes that I use for different file types.
 #+BEGIN_SRC emacs-lisp
   (use-package major-modes
-    :straight (major-modes
-               :local-repo "major-modes")
+    :straight
+    (major-modes
+     :type git :host github :repo "CeleritasCelery/major-modes")
     :init
     ($leader-local-set-key
       :keymaps 'spfspec-mode-map
