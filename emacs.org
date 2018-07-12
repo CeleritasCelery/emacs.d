@@ -181,6 +181,20 @@ commands
 ** UI
 packages that used to improve the visuals and interface for Emacs
 
+*** keybings
+
+use =key-freq= to see your key usage.
+#+BEGIN_SRC emacs-lisp
+  (use-package keyfreq
+    :demand t
+    :init
+    (setq keyfreq-excluded-commands '(org-self-insert-command self-insert-command))
+    :config
+    (keyfreq-mode)
+    (keyfreq-autosave-mode))
+#+END_SRC
+
+*** font
 Setup the font that I want to use. Hasklig is a fork of /Source Code
 Pro/ that contains ligatures.
 #+BEGIN_SRC emacs-lisp
