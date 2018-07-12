@@ -1469,7 +1469,8 @@ just using =C-l=
     ($leader-local-set-key
       :keymaps 'org-mode-map
       "," 'org-edit-special
-      "g" 'counsel-org-goto)
+      "j" 'counsel-org-goto
+      "g" '$org-navigate/body)
     (setq org-enforce-todo-dependencies t
           org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
                               (sequence "|" "CANCELED(c@)"))
@@ -1481,7 +1482,16 @@ just using =C-l=
         (toggle-truncate-lines)))
     :config
     (add-to-list 'org-structure-template-alist
-                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
+                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))
+    (defhydra $org-navigate ()
+      "navigate through org headers"
+      ("J" org-next-visible-heading "next heading")
+      ("K" org-previous-visible-heading "prev heading")
+      ("j" org-forward-element "foward")
+      ("k" org-backward-element "back")
+      ("h" org-up-element "up")
+      ("l" org-down-element "down")
+      ("<tab>" org-cycle "cycle")))
 #+END_SRC
 
 *** functions
@@ -1494,6 +1504,22 @@ just using =C-l=
                                   (cl-letf (((symbol-function 'delete-other-windows)
                                              (symbol-function 'ignore)))
                                     (apply orig-fn args))))
+
+    (defun $org-show-current-heading-tidily ()
+      "Show next entry, keeping other entries closed."
+      (interactive)
+      (if (save-excursion (end-of-line) (outline-invisible-p))
+          (progn (org-show-entry) (show-children))
+        (outline-back-to-heading)
+        (unless (and (bolp) (org-on-heading-p))
+          (org-up-heading-safe)
+          (hide-subtree)
+          (error "Boundary reached"))
+        (org-overview)
+        (org-reveal t)
+        (org-show-entry)
+        (show-children)))
+    (advice-add 'counsel-org-goto :after '$org-show-current-heading-tidily)
 
     (defun $org-archive-done-tasks ()
       "move tasks that are completed to the archive file."
@@ -1508,9 +1534,11 @@ just using =C-l=
          (org-archive-subtree)
          (setq org-map-continue-from (outline-previous-heading)))
        "/CANCELED" 'file))
+
     ($leader-local-set-key
       :keymaps 'org-mode-map
-      "a" '$org-archive-done-tasks)
+      "a" '$org-archive-done-tasks
+      "h" '$org-show-current-heading-tidily)
 
     (defun $org-smart-return ()
       "if in a list return should add a new item. If the item is
@@ -1550,17 +1578,37 @@ just using =C-l=
       "s" '$org-procrastinate))
 #+END_SRC
 
+*** agenda
 #+BEGIN_SRC emacs-lisp
   (use-package org-agenda
     :straight nil
     :init
     (setq org-agenda-todo-ignore-scheduled 'future
           org-agenda-dim-blocked-tasks 'invisible
-          org-agenda-files "~/org/.agenda-files")
+          org-agenda-files "~/org/.agenda-files"
+          org-agenda-custom-commands '(("f" tags-todo "mdf-pvim|snr|gen")
+                                       ("d" tags-todo "dev")
+                                       ("p" tags-todo "pvim+now")))
     ($leader-set-key
       "a" 'org-agenda))
 #+END_SRC
 
+*** clock
+#+BEGIN_SRC emacs-lisp
+  (use-package org-clock
+    :straight nil
+    :init
+    ($leader-local-set-key
+      :keymaps 'org-mode-map
+      "i" 'org-clock-in
+      "o" 'org-clock-out)
+    ($leader-local-set-key
+      :keymaps 'org-agenda-mode-map
+      "i" 'org-agenda-clock-in
+      "o" 'org-agenda-clock-out))
+#+END_SRC
+
+*** export
 #+BEGIN_SRC emacs-lisp
   (use-package ox
     :straight nil
@@ -1571,21 +1619,21 @@ just using =C-l=
           org-export-with-priority t
           org-export-preserve-breaks t
           org-html-postamble nil)
-    (defun $org-create-css-html-email-head ()
-      "Create the header with CSS for use with email"
-      (interactive)
-      (setq org-html-head
-            (concat
-             "<style type=\"text/css\">\n"
-             "<!--/*--><![CDATA[/*><!--*/\n"
-             (with-temp-buffer
-               (insert-file-contents
-                "~/org/org-html-themes/styles/email/css/email.css")
-               (buffer-string))
-             "/*]]>*/-->\n"
-             "</style>\n"))
-      t)
-    ($org-create-css-html-email-head))
+    :config
+    (setq org-html-head
+          (concat
+           "<style type=\"text/css\">\n"
+           "<!--/*--><![CDATA[/*><!--*/\n"
+           (with-temp-buffer
+             (insert-file-contents
+              "~/org/org-html-themes/styles/email/css/email.css")
+             (buffer-string))
+           "/*]]>*/-->\n"
+           "</style>\n")))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package htmlize)
 #+END_SRC
 
 *** capture
@@ -1653,15 +1701,23 @@ just using =C-l=
     :delight
     :hook org-mode
     :init (add-hook 'org-insert-heading-hook 'evil-insert-state))
-  ;; (evil-define-key 'normal evil-org-mode-map
-  ;;   "H" 'org-shiftleft
-  ;;   "J" 'org-shiftdown
-  ;;   "K" 'org-shiftup
-  ;;   "L" 'org-shiftright)
+
   (use-package evil-org-agenda
     :straight nil
     :commands evil-org-agenda-set-keys
     :hook (org-agenda-mode . evil-org-agenda-set-keys))
+
+  (defun $org-todo-or-evil-t ()
+    "change the org todo state or evil's till operator"
+    (interactive)
+    (if (org-at-heading-p)
+        (org-todo)
+      (call-interactively 'evil-snipe-t)))
+
+  (general-define-key
+   :keymaps 'org-mode-map
+   :states 'normal
+   "t" '$org-todo-or-evil-t)
 #+END_SRC
 
 *** visuals
@@ -1677,12 +1733,6 @@ advantage of unicode
     :init
     (setq org-fancy-priorities-list '("⬆" "⬅" "⬇" "☕")))
 #+END_SRC
-
-This package is builtin to Emacs, but the builtin version is too low
-to export fontified org src code blocks
-# #+BEGIN_SRC emacs-lisp
-#   (use-package htmlize)
-# #+END_SRC
 
 *** dispatcher
 https://gist.github.com/dfeich/1df4e174d45f05fb5798ca514d28c68a
