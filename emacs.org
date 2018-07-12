@@ -1237,6 +1237,192 @@ packages, but that wasn't really necessary.
                      :repo "CeleritasCelery/local-env-mode"
                      :files ("company-command.el")))
 #+END_SRC
+** compilation
+packages that assist in compiling and building code
+
+compilation mode will throw these warnings when clearing large buffers
+so we supress them
+#+BEGIN_SRC emacs-lisp
+  (setq warning-suppress-types '(undo discard-info))
+#+END_SRC
+
+*** compile
+#+BEGIN_SRC emacs-lisp
+  (use-package compile
+    :straight nil
+    :init
+    (setq compilation-auto-jump-to-first-error t)
+    :config
+    (evil-collection-init 'compile)
+    (general-define-key
+     :keymaps 'compilation-mode-map
+     "SPC" nil)
+    (font-lock-add-keywords 'compilation-mode
+                            `((,(rx bol (0+ space)
+                                    (group "#" (0+ nonl)))
+                               1 'font-lock-comment-face)
+                              (,(rx bol
+                                    (group-n 2
+                                             (group-n 1 (any "*="))
+                                             (1+ (backref 1)))
+                                    eol)
+                               2 'font-lock-comment-face)
+                              (,(rx bol (0+ space)
+                                    (group (1+ "-"))
+                                    eol)
+                               1 'font-lock-comment-face)))
+    (add-hook 'compilation-filter-hook
+              (defun $compilation-apply-ansi-color ()
+                (ansi-color-apply-on-region compilation-filter-start (point))))) 
+#+END_SRC
+
+*** functions
+functions that are used for compilation of ipgen and bman. Need to
+make the bman function more robust and flexible
+
+#+BEGIN_SRC emacs-lisp
+  (defun $run-ipgen (arg)
+    "run dft ipgen in the current model"
+    (interactive "P")
+    (let* ((model-root (vc-git-root default-directory))
+           (ipgen (f-join model-root "tools/ipgen/"))
+           (dut (completing-read "select DUT: "
+                                 (-map 'f-filename
+                                       (f--directories ipgen (member "setup" (directory-files it))))))
+           (default-directory (f-join ipgen dut))
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (compilation-buffer-name-function
+            (lambda (mm)
+              (concat "*" (f-filename model-root) " " dut " ipgen "  (downcase mm) "*"))))
+      (compile (concat "source setup && $DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen"
+                       (if arg " -B" "") " && touch ./post_ipgen && python ./post_ipgen"))))
+
+  (defhydra bman-cmd (:exit t :columns 2)
+    "run a bman command"
+    ("a" ($run-bman "") "all")
+    ("l" ($run-bman "-s all +s lintra") "lintra")
+    ("v" ($run-bman "-s all +s vcs") "vcs")
+    ("e" ($run-bman "-s all +s espfmodel") "espf")
+    ("c" ($run-bman "-s all +s sglp") "spyglass compile")
+    ("s" ($run-bman "-s all +s sgdft") "spyglass")
+    ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only"))
+
+  (defun $run-bman (filter)
+    "run dft ipgen in the current model"
+    (let* ((model-root (file-truename (vc-git-root default-directory)))
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (compilation-buffer-name-function
+            (lambda (mm)
+              (concat "*" (f-filename model-root) " bman " (downcase mm) "*"))))
+      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman -dut mdf_10nm " filter))))
+
+  ($leader-set-key
+    "C" '(:ignore t :wk "compile")
+    "Cb" 'bman-cmd/body
+    "Ci" '$run-ipgen
+    "Cc" 'compile)
+#+END_SRC
+
+*** utility
+we are doing two things here to make compliation more convient
+
+1. we want to compile with tcsh because that is the standard login shell
+for EC machines and some of the compilation setup scripts require it,
+we could make it work with bash, but this is easier.
+
+2. by setting the compliation root, we can ensure that we are only
+prompted to save buffers that actaully exist in the project instead of
+it trying prompt us to save all buffers.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'compile
+    (defun $compile-with-tcsh (fn &rest args)
+      "use tcsh (standard intel shell) for compilation"
+      (let ((shell-file-name "tcsh"))
+        (apply fn args)))
+
+    (defvar $current-compilation-dir nil
+      "root of current compliation")
+
+    (defun $set-compilation-dir (&rest _)
+      "set the root of the current compilation"
+      (setq $current-compilation-dir default-directory))
+
+    (setq compilation-save-buffers-predicate
+          (lambda ()
+            (when-let ((root (vc-git-root (buffer-file-name)))
+                       (comp-root (vc-git-root $current-compilation-dir)))
+              (f-same? comp-root root))))
+
+    (general-advice-add '(compile recompile) :around #'$compile-with-tcsh)
+    (general-advice-add '(compile recompile) :before #'$set-compilation-dir))
+#+END_SRC
+
+we need to define what errors look like in compilation and log
+files. compilation mode has some defaults but they are not really
+applicable to us. Also the built in verilog mode tries to add all of
+its error regexp's to the alist everytime it is loaded. This results
+in a lot of extra processing that we don't want. Therefore we remove
+that hook and set the alist back to our canonical version.
+#+BEGIN_SRC emacs-lisp
+  (defvar $compilation-error-regexp-alist nil
+    "The canonical error regexp alist")
+
+  (with-eval-after-load 'compile
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(ipgen-gmake ,(rx bol "gmake" (optional "[1]") ": *** [" (group-n 1 (1+ nonl)) "] Error " digit) 1))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(core-assembler ,(rx bol "Information: script '" (group-n 1 (1+ (not (any "'"))))
+                                       "'\n" (1+ space) "stopped at line " (group-n 2 (1+ digit)) (1+ nonl)) 1 2))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(connection-error ,(rx bol (optional "-I-:") "Error: " (group-n 3 (1+ nonl))
+                                         "\n" (optional "-I-:") "-" (or "E" "F") "-: [CRT-" (1+ digit) "] Error in "
+                                         (1+ nonl) " file " (group-n 1 (1+ (not (any space)))) (0+ space)
+                                         "\n" (optional "-I-:") " Error at line# " (group-n 2 (1+ digit)) (1+ nonl))
+                                    1 2 nil nil nil (3 font-lock-warning-face)))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(bman-verilog ,(rx bol "-I-:Error-" (1+ nonl)
+                                     "\n-I-:" (group-n 1 (1+ (not space))) ", " (group-n 2 (1+ digit))) 1 2))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(bman-stage ,(rx bol "-" (or "E" "I") "-:" (optional space) "FAILED:"  (1+ nonl) (or ";" ":") " LOG " (optional ": ") (group (1+ (not space)))) 1))
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(ipgen-hdl-copy ,(rx bol "-I-:Error-[MPD] Module previously declared"
+                                       "\n-I-:  The module was previously declared at: "
+                                       "\n-I-:  \"" (group (1+ (not space))) "/" (1+ (not space)) (or ".vs" ".sv") "\",") (1 "%s/dft_ipgen.hdl")))
+
+
+    (setq $compilation-error-regexp-alist '(ipgen-hdl-copy ipgen-gmake core-assembler connection-error bman-stage bman-verilog))
+    (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
+
+  (with-eval-after-load 'verilog-mode
+    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
+    (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
+#+END_SRC
+
+*** alert
+the alert package lets us creat notification for any event we want. In
+this case we are intersted in knowing when a compliation finishes or
+stalls.
+#+BEGIN_SRC emacs-lisp
+  (use-package alert
+    :init
+    (setq alert-default-style 'fringe))
+
+  (add-hook 'compilation-filter-hook
+            (defun $complilation-detect-core-assembler-stall ()
+              "termiate compilation when core assembler stalls"
+              (when (looking-back (rx bol "CoreAssembler> ") (line-beginning-position))
+                (alert "Core Assembler stall"
+                       :severity 'moderate))))
+
+  (setq compilation-finish-functions
+        (list (defun $notify-compile-done (buffer exit-string)
+                "notfiy the user that compliation is finished"
+                (alert "compliation finished"
+                       :severity (if (string-prefix-p "exited abnormally" exit-string)
+                                     'high
+                                   'normal)))))
+#+END_SRC
+
 
 * Languages
 :PROPERTIES:
