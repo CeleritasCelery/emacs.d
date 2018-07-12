@@ -16,6 +16,12 @@ me about perl, it is really simple, and this is lisp, so I can make my
 namespace whatever I want.
 
 ** Emacs Initialization
+
+*** lexical bindings
+
+#+BEGIN_SRC emacs-lisp
+  ;;; init.el --- personal emacs config file -*- lexical-binding: t
+#+END_SRC
 *** Personal Information
 Let's set some variables with basic user information.
 
@@ -88,16 +94,18 @@ the startup time. This is still slower then using package.el, but I
 think it is worth it.
 
 #+BEGIN_SRC emacs-lisp
+  (setq straight-recipes-gnu-elpa-url  "http://git.savannah.gnu.org/git/emacs/elpa.git")
   (load (expand-file-name "straight/repos/straight.el/bootstrap" user-emacs-directory) nil 'nomessage)
 #+END_SRC
 
-** Use-package
+** packages
 
 =use-package= is a macro that allows to easily define and load other
 packages.  It is the first thing we want to install. I am using my own
 fork of the package that contains more sane defaults for the =:hook=
 keyword (essentially it automatically adds the =-mode= suffix).
 
+*** use-package
 #+BEGIN_SRC emacs-lisp
   (straight-use-package
    '(use-package
@@ -117,11 +125,13 @@ explicitly stated otherwise.
         use-package-always-ensure t)
 #+END_SRC
 
+*** delight
 This allows us to remove mode-line lighters
 #+BEGIN_SRC emacs-lisp
   (use-package delight)
 #+END_SRC
 
+*** emacs startup profiler
 The "Emacs Startup profiler". This allows us to see what parts of the
 config are most heavily impacting start up time. you can't optimize
 until you have good info
@@ -219,6 +229,7 @@ use a hydra to scale the text size
     "z" 'text-scale/body)
 #+END_SRC
 
+*** vnc size
 change the size of the VNC to match the size of the monitor that I am
 using. Since I always run my VNC fullscreen having the VNC resolution
 not match the resolution of my monitor results in weird text sizes.
@@ -236,21 +247,18 @@ not match the resolution of my monitor results in weird text sizes.
     "n"  'vnc-resize/body)
 #+END_SRC
 
-telephone line is powerline that has some nice defaults. I am still
-not satisfied with my mode-line, and when I get some time I would love
-to customize it to my extact taste. But in the meantime this is
-working.
-
+*** modeline
 #+BEGIN_SRC emacs-lisp
   (use-package doom-modeline
     :straight
     (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
     :hook (after-init . doom-modeline-init))
-
-  (use-package evil-anzu
-    :demand t
-    :after doom-modeline)
 #+END_SRC
+
+telephone line is powerline that has some nice defaults. I am still
+not satisfied with my mode-line, and when I get some time I would love
+to customize it to my extact taste. But in the meantime this is
+working.
 
 #+BEGIN_SRC emacs-lisp :tangle no
   (use-package telephone-line
@@ -266,12 +274,11 @@ working.
     (telephone-line-mode))
 #+END_SRC
 
+*** themes
 Creating a collection of themes that I like. I can use
 =counsel-load-themes= to switch between them. Some of these themes do
 not have all faces that I would like, so When I get some time I will
 modify them.
-
-*** TODO [#C] add missing faces to themes
 #+BEGIN_SRC emacs-lisp
   (use-package challenger-deep-theme)
   (use-package gruvbox-theme)
@@ -289,7 +296,7 @@ modify them.
   (use-package flatland-theme)
   (use-package monokai-theme)
 
-  (load-theme 'darktooth t)
+  (load-theme 'doom-one t)
 #+END_SRC
 
 which key is an awesome package that shows me the key I can press
@@ -434,7 +441,6 @@ changing the volume on my mic triggers these bindings. So we ignore them.
    "<XF86AudioLowerVolume>" 'ignore
    "<XF86AudioRaiseVolume>" 'ignore)
 #+END_SRC
-
 ** Ivy
 
 #+BEGIN_SRC emacs-lisp
@@ -444,6 +450,7 @@ changing the volume on my mic triggers these bindings. So we ignore them.
     "use helm for completion")
 #+END_SRC
 
+*** ivy
 I feel like ivy is simpler to setup so I am going to give it a try. I am going
 to have to try to fix =counsel-ag= out of order matching if I want to live with
 it though.
@@ -487,6 +494,7 @@ it though.
     :after (ivy hydra))
 #+END_SRC
 
+*** swiper
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
     :straight
@@ -501,6 +509,7 @@ it though.
       "ss" 'swiper))
 #+END_SRC
 
+*** counsel
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :straight
@@ -527,9 +536,10 @@ it though.
     "fo" '$open-file-in-clipboard)
 #+END_SRC
 
+*** rich foratting
 This package makes =ivy-switch-buffer= behave more like =helm-mini=
 (i.e. displays the buffer type and full path to recentf files)
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package ivy-rich
     :demand t
     :after ivy
@@ -539,6 +549,7 @@ This package makes =ivy-switch-buffer= behave more like =helm-mini=
     (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer))
 #+END_SRC
 
+*** smex
 smex is an enchanced version of =M-x= that will record history and is
 integrated into ivy
 #+BEGIN_SRC emacs-lisp
@@ -551,16 +562,18 @@ integrated into ivy
 evil is the Extensible VI Layer. It gives us all the power of vim
 without the draw back of using vimscript for config.
 
-Evil will be loaded by one of it's dependacey packages. We need to set
-=evil-want-integration= before loading evil so that =evil-collection= can
-overide the modes.
+*** general
+We need to set =evil-want-integration= before loading evil so that
+=evil-collection= can overide the modes. the very magic setting will
+make the evil search regex more PCRE compatible.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
+    :demand t
     :init
     (setq evil-want-integration nil
           evil-kill-on-visual-paste nil
           evil-search-module 'evil-search
-          evil-magic 'very-magic ;; make evil search regex more PCRE compatible
+          evil-magic 'very-magic
           evil-want-C-u-scroll t
           evil-want-C-d-scroll t
           evil-want-C-w-delete t
@@ -615,6 +628,7 @@ overide the modes.
      "F" 'evil-filename))
 #+END_SRC
 
+*** keybindings
 =C-i= can be used to move forward in cursor jumps, but Emacs binds it to =TAB=, so
 we rebinding it to =H-i=. Though this won't work in the terminal
 #+BEGIN_SRC emacs-lisp
@@ -665,25 +679,26 @@ evil unimpaired binds some usefull functions to some quick keys.
     (evil-unimpaired-mode))
 #+END_SRC
 
+*** anzu
 provides total number of searches in the modeline
 #+BEGIN_SRC emacs-lisp
   (use-package evil-anzu
-    :demand t
-    :after evil)
+    :demand t)
 #+END_SRC
 
+*** snipe
 we only want evil snipe for the ability to repeat =f,F,t,T=. I find
 avy is better for the actual sniping
 #+BEGIN_SRC emacs-lisp
   (use-package evil-snipe
     :demand t
-    :after evil
     :init
     (setq evil-snipe-override-evil-repeat-keys nil)
     :config
     (evil-snipe-override-mode))
 #+END_SRC
 
+*** vi tilde
 this package adds a tilde to the fringe of every line that is
 empty. eventually I just want to replace this with a save buffer hook
 that removes additional lines at the end of the file.
@@ -695,6 +710,7 @@ that removes additional lines at the end of the file.
     (global-vi-tilde-fringe-mode))
 #+END_SRC
 
+*** escape
 #+BEGIN_SRC emacs-lisp
   (use-package evil-escape
     :delight
@@ -706,6 +722,7 @@ that removes additional lines at the end of the file.
     (evil-escape-mode))
 #+END_SRC
 
+*** collection
 evil collection evilifies several major and minor modes to make them
 behave better with evil.
 #+BEGIN_SRC emacs-lisp
@@ -736,6 +753,7 @@ behave better with evil.
     (evil-ediff-adjust-help))
 #+END_SRC
 
+*** surround
 #+BEGIN_SRC emacs-lisp
   (use-package evil-surround
     :defer 4
@@ -748,6 +766,18 @@ behave better with evil.
      "S" 'evil-substitute))
 #+END_SRC
 
+*** ediff
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-ediff
+    :commands evil-ediff-startup-hook
+    :hook (ediff-startup . evil-ediff-startup-hook)
+    :init
+    (evil-set-initial-state 'ediff-mode 'motion)
+    :config
+    (evil-ediff-adjust-help))
+#+END_SRC
+
+*** commenting
 #+BEGIN_SRC emacs-lisp
   (use-package evil-nerd-commenter
     :commands (evilnc-copy-and-comment-operator
@@ -758,6 +788,7 @@ behave better with evil.
       ";" '(evilnc-comment-operator :wk "comment")))
 #+END_SRC
 
+*** lispy
 These packages are great at providing editor shortcuts for editing
 lisp. There are several things I want to change however. 
 - I hate that is overrides =v=, as I use that character all the time
@@ -908,15 +939,20 @@ don't ask about following symlinks
      (setq vc-follow-symlinks t)
 #+END_SRC
 
-magit is the best git porcelain that exists, so far as I can tell. 
+*** magit
+magit is the best git porcelain that exists, so far as I can tell. we
+need to set the git version to a newer version because the default at
+intel is not support. Also the Trash at intel is only 100M so trashing
+files can quickly fill up my home disk.
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :init
-    (setq magit-git-executable
-          "/usr/intel/pkgs/git/2.12.0/bin/git") ;; get around old magit git version problem
+    (setq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git"
+          magit-delete-by-moving-to-trash nil)
     ($leader-set-key
       "g" '(:ignore t :wk "git")
-      "gs" 'magit-status)
+      "gs" 'magit-status
+      "gb" 'magit-blame)
 
     ($leader-local-set-key
       :keymaps 'with-editor-mode-map
@@ -926,8 +962,8 @@ magit is the best git porcelain that exists, so far as I can tell.
 #+END_SRC
 
 I don't like to commit to my github repos using my work credentials,
-but I can't use those credentials on my work repos. there I set
-=useconfigonly = true= so that I have to set the credentials for every
+but I can't use those credentials on my work repos. therefore I set
+~useconfigonly = true~ so that I have to set the credentials for every
 repo. I can use these functions as short hand.
 #+BEGIN_SRC emacs-lisp
   (defun $git-work-user ()
@@ -1226,6 +1262,7 @@ just using =C-l=
     :after company)
 #+END_SRC
 ** Org
+*** todos and general
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
@@ -1249,6 +1286,7 @@ just using =C-l=
                  '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
 #+END_SRC
 
+*** functions
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
@@ -1352,6 +1390,7 @@ just using =C-l=
     ($org-create-css-html-email-head))
 #+END_SRC
 
+*** capture
 #+BEGIN_SRC emacs-lisp
   (use-package org-capture
     :straight nil
@@ -1396,6 +1435,7 @@ just using =C-l=
          (message "HTML copied to clipboard")))
 #+END_SRC
 
+*** src blocks
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
     :straight nil
@@ -1409,6 +1449,7 @@ just using =C-l=
       "," 'org-edit-src-exit))
 #+END_SRC
 
+*** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
     :delight
@@ -1425,6 +1466,7 @@ just using =C-l=
     :hook (org-agenda-mode . evil-org-agenda-set-keys))
 #+END_SRC
 
+*** visuals
 These packages are used to make org mode look better and take
 advantage of unicode
 #+BEGIN_SRC emacs-lisp
@@ -1444,6 +1486,7 @@ to export fontified org src code blocks
 #   (use-package htmlize)
 # #+END_SRC
 
+*** dispatcher
 https://gist.github.com/dfeich/1df4e174d45f05fb5798ca514d28c68a
 provide a hydra dispatcher based on context
 #+BEGIN_SRC emacs-lisp
