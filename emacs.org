@@ -19,9 +19,11 @@ namespace whatever I want.
 
 *** lexical bindings
 
+make this file lexically bound
 #+BEGIN_SRC emacs-lisp
   ;;; init.el --- personal emacs config file -*- lexical-binding: t
 #+END_SRC
+
 *** Personal Information
 Let's set some variables with basic user information.
 
@@ -498,6 +500,7 @@ changing the volume on my mic triggers these bindings. So we ignore them.
    "<XF86AudioLowerVolume>" 'ignore
    "<XF86AudioRaiseVolume>" 'ignore)
 #+END_SRC
+
 ** Ivy
 
 #+BEGIN_SRC emacs-lisp
@@ -1549,6 +1552,7 @@ just using =C-l=
   (use-package company-shell
     :after company)
 #+END_SRC
+
 ** Org
 *** todos and general
 #+BEGIN_SRC emacs-lisp
@@ -2000,6 +2004,7 @@ flycheck to get a clean compile.
     (setenv "RTL_PROJ_BIN" "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest")
     (setenv "RTL_PROJ_TOOLS" "/p/hdk/rtl/proj_tools"))
 #+END_SRC
+
 ** other
 collection of major modes that I use for different file types.
 #+BEGIN_SRC emacs-lisp
