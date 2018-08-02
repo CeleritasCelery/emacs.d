@@ -63,6 +63,13 @@ use =y= and =n= instead of =yes= and =no=
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+move the custom file to its own loaction so it does not clutter us. 
+
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  (load-file custom-file)
+#+END_SRC
+
 *** tangling
     we want to tangle on exit so that it will make startup time
     quicker.
