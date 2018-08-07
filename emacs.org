@@ -1061,10 +1061,9 @@ files can quickly fill up my home disk.
       "gs" 'magit-status
       "gb" 'magit-blame)
 
-    ($leader-local-set-key
-      :keymaps 'with-editor-mode-map
-      "," 'with-editor-finish
-      "k" 'with-editor-cancel)
+start teh commit message editor in insert state
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'with-editor
     (add-hook 'with-editor-mode-hook 'evil-insert-state))
 #+END_SRC
 
@@ -1747,9 +1746,7 @@ just using =C-l=
     ($leader-local-set-key
       :definer 'minor-mode
       :keymaps 'org-capture-mode
-      "e" '$export-org-email
-      "," 'org-capture-finalize
-      "k" 'org-capture-kill)
+      "e" '$export-org-email)
     :config
     (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
           org-default-email-file (expand-file-name "email.org" org-directory)
@@ -1789,11 +1786,6 @@ just using =C-l=
     :init
     (setq org-src-fontify-natively t
           org-src-tab-acts-natively t)
-    :config
-    ($leader-local-set-key
-      :definer 'minor-mode
-      :keymaps 'org-src-mode
-      "," 'org-edit-src-exit))
 #+END_SRC
 
 *** evil
