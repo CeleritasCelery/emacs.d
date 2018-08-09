@@ -528,6 +528,20 @@ easily manipulate files, buffers, and windows.
     "qq" '$quit-emacs)
 #+END_SRC
 
+quick movement hydra.
+
+#+BEGIN_SRC emacs-lisp
+  (defhydra buffer-nav (:exit nil)
+    "move quickly through recent buffers"
+    ("p" previous-buffer "prev")
+    ("N" previous-buffer "prev")
+    ("n" next-buffer "next"))
+
+  ($leader-set-key
+    "bp" 'buffer-nav/previous-buffer
+    "bn" 'buffer-nav/next-buffer)
+#+END_SRC
+
 *** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
