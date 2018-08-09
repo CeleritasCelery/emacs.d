@@ -28,7 +28,7 @@
 
 ($load-literate-file "emacs")
 
-(setq gc-cons-threshold 800000
+(setq gc-cons-threshold 20000000
       gc-cons-percentage 0.1)
 
 ;;; init.el ends here
