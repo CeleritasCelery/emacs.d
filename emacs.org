@@ -286,6 +286,42 @@ use a hydra to scale the text size
     "zs" 'text-scale/body)
 #+END_SRC
 
+*** ligatures
+liguatures use a custom symbol to represent two or more
+characters. The haskling font is required to make these work. Another
+option would be FiraCode, but I am pretty happy with Hasklig for now.
+#+BEGIN_SRC emacs-lisp
+
+  (setq prettify-symbols-unprettify-at-point t)
+
+  (defvar $prog-prettify-symbols-alist
+    `(("&&"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE100)))
+      ("||"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE104)))
+      ("::"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE106)))
+      ("=="  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE107)))
+      ("=>"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE10A)))
+      (">>"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE10D)))
+      ("->"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE112)))
+      ("<<"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE11C)))
+      (".."  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE11F)))
+      ("++"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE121)))
+      ("!="  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE123)))
+      ("..." . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE120)))
+      ("->>" . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE126)))
+      ("=<<" . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE10B)))
+      (".=<<" . (?· (Br . Bl) ?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br)  ,(decode-char 'ucs #XE10B)))
+      (".="  . (?· (Br . Bl) ?=))
+      ("<="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?< (Bc . Bc) ?_))
+      (">="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?> (Bc . Bc) ?_))))
+
+  (defun $prettify-base-symbols ()
+    "enable hasklig ligatures"
+    (interactive)
+    (dolist (symbol $prog-prettify-symbols-alist)
+      (add-to-list 'prettify-symbols-alist symbol))
+    (prettify-symbols-mode))
+
+  (add-hook 'prog-mode-hook '$prettify-base-symbols)
 #+END_SRC
 
 *** vnc size
