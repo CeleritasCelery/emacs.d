@@ -465,11 +465,9 @@ try a more powerful package like popwin.
 #+BEGIN_SRC emacs-lisp
   (use-package shackle
     :demand t
-    :init
-    (setq shackle-rules
-          '((help-mode :select t)
-            ("*ielm*" :popup t)))
     :config
+    (add-to-list 'shackle-rules '("*Help*" :select t :align below))
+    (add-to-list 'shackle-rules '("*ielm*" :same nil :popup t :select t))
     (shackle-mode))
 #+END_SRC
 
@@ -1399,8 +1397,6 @@ the proper env scripts so that all these variables are set
 #+BEGIN_SRC emacs-lisp
   (use-package shell-pop
     :init
-    ;; https://github.com/kyagi/shell-pop-el/issues/51
-    (add-to-list 'shackle-rules `(,(rx "*shell*") :regexp t :same t))
     ($leader-set-key
       "'" 'shell-pop)
     :config
@@ -1411,6 +1407,11 @@ the proper env scripts so that all these variables are set
     (advice-add 'shell-pop--cd-to-cwd
                 :after (defun $scroll-shell-pop (_)
                          (scroll-down 1))))
+#+END_SRC
+
+fix [[https://github.com/kyagi/shell-pop-el/issues/51][kyagi/shell-pop-el#51]]
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'shackle-rules `(,(rx "*shell*") :regexp t :same t))
 #+END_SRC
 
 I wrote this package to do async file completion. This is especially
@@ -1483,6 +1484,9 @@ so we supress them
     :straight nil
     :init
     (setq compilation-auto-jump-to-first-error t)
+    (add-to-list 'shackle-rules '(compilation-mode :select t))
+    (add-to-list 'shackle-rules '(comint-mode :select t))
+    (add-to-list 'shackle-rules '(".* ipgen compilation\\*" :regexp t :select t))
     :config
     (evil-collection-init 'compile)
     (general-define-key
