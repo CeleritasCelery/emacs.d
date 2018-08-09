@@ -252,7 +252,7 @@ highlight the current line with a background face
 use =key-freq= to see your key usage.
 #+BEGIN_SRC emacs-lisp
   (use-package keyfreq
-    :demand t
+    :defer 1
     :init
     (setq keyfreq-excluded-commands '(org-self-insert-command self-insert-command))
     :config
@@ -266,7 +266,7 @@ Pro/ that contains ligatures.
 #+BEGIN_SRC emacs-lisp
 (set-face-attribute 'default nil
                     :family "Hasklig"
-                    :height 110)
+                    :height 120)
 #+END_SRC
 
 use a hydra to scale the text size
@@ -279,10 +279,13 @@ use a hydra to scale the text size
     ("+" text-scale-increase)
     ("=" text-scale-increase)
     ("-" text-scale-decrease)
-    ("0" (text-scale-set 0))
+    ("0" (text-scale-set 0) :exit t)
     ("q" nil :exit t))
   ($leader-set-key
-    "z" 'text-scale/body)
+    "z" '(:ignore t :wk "util")
+    "zs" 'text-scale/body)
+#+END_SRC
+
 #+END_SRC
 
 *** vnc size
