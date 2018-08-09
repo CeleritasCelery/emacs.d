@@ -932,6 +932,16 @@ week to copy some files, so it is not a big deal.
   (use-package swoop)
 
   (use-package helm-ag)
+
+*** org
+use helm to quickly navigate org headings
+#+BEGIN_SRC emacs-lisp
+  ($leader-local-set-key
+    :keymaps 'org-mode-map
+    "j" 'helm-org-in-buffer-headings)
+
+  (csetq helm-org-format-outline-path t)
+#+END_SRC
 #+END_SRC
 
 ** editing
@@ -1569,7 +1579,6 @@ just using =C-l=
     ($leader-local-set-key
       :keymaps 'org-mode-map
       "," 'org-edit-special
-      "j" 'counsel-org-goto
       "g" '$org-navigate/body)
     (setq org-enforce-todo-dependencies t
           org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
