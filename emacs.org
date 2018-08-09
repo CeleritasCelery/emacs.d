@@ -7,13 +7,30 @@
 :PROPERTIES:
 :VISIBILITY: children
 :END:
-** About this file
-This is an Emacs literate configuration. It contains the basic structure
-of a literate config along with some optimizations to ensure a fast load time.
+** Design Choices
+I have some basic design principles that I am trying to keep
+consistent through all of my config.
 
+*** namespace
 I am using =$= as my personal namespace. I like it because it reminds
-me about perl, it is really simple, and this is lisp, so I can make my
+me of perl, it is really simple, and this is elisp, so I can make my
 namespace whatever I want.
+
+*** lambdas
+the easiest way add a simple wrapper function to a hook or advice is
+to use lambdas. However that has the problem of making them very hard
+to inspect and remove. It is better to use named functions. However it
+can be confusing if a function is only used as a named lambda or if it
+is being used elsewhere. Therefore I will put named functions (using
+=defun=) inside of =add-hook= or =advice-add=. This allows me to
+clearly associate the function with the purpose but also avoids the
+confusion surrounding anonymous functions.
+
+*** overrides
+Never override a function when an advice will do. when I actually do
+need to override a function, I will try to use the package =el-patch=
+to make it maintainable.
+
 
 ** Emacs Initialization
 
