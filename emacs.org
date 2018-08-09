@@ -49,6 +49,15 @@ Let's set some variables with basic user information.
         user-mail-address "t.macman@gmail.com")
 #+END_SRC
 
+*** customization
+
+stolen from https://github.com/abo-abo/oremacs/blob/github/init.el
+makes sure that we are using the correct setter for all variables
+#+BEGIN_SRC emacs-lisp
+(defmacro csetq (variable value)
+  `(funcall (or (get ',variable 'custom-set) 'set-default) ',variable ,value))
+#+END_SRC
+
 *** Settings
 
 #+BEGIN_SRC emacs-lisp
