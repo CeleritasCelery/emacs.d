@@ -1131,6 +1131,17 @@ want to do when I enable flycheck.
     :defer 3
     :init
     (setq git-gutter:diff-option "-w")
+    (defhydra $git-hunk (:exit nil)
+      ("n" git-gutter:next-hunk "next")
+      ("j" git-gutter:next-hunk "next")
+      ("p" git-gutter:previous-hunk "prev")
+      ("k" git-gutter:previous-hunk "prev")
+      ("r" git-gutter:revert-hunk "revert")
+      ("h" $git-gutter-show-hunk "show hunk" :exit t)
+      ("s" git-gutter:stage-hunk "stage")
+      ("v" git-gutter:mark-hunk "mark" :exit t))
+    ($leader-set-key
+      "gg" '$git-hunk/body)
     :config
     (global-git-gutter-mode))
 
