@@ -89,7 +89,7 @@ use =y= and =n= instead of =yes= and =no=
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
-move the custom file to its own loaction so it does not clutter us. 
+move the custom file to its own loaction so it does not clutter us.
 
 #+BEGIN_SRC emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -120,14 +120,9 @@ move the custom file to its own loaction so it does not clutter us.
 :END:
 ** Package Manager
 We are going to use =straight.el= as package manager because it allows
-us to easily maintain private repos of packages. There is bootstrap
-code on the website, but I could not get it to work behind the proxy
-so I cloned it myself.  I will see later if I can get the bootstrap
-install code to work.
-
-I also byte-complied the bootstrap file which shaves about 500 ms of
-the startup time. This is still slower then using package.el, but I
-think it is worth it.
+us to easily maintain private repos of packages. This is still slower
+then using package.el, but I think it is worth it. below is the
+bootstrap code to download the package manager and run it.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-recipes-gnu-elpa-url  "http://git.savannah.gnu.org/git/emacs/elpa.git")
@@ -162,9 +157,8 @@ keyword (essentially it automatically adds the =-mode= suffix).
 
 Setting =straight-use-package-by-default= to =t= we can ensure that
 =use-pacakge= will use =straight.el= to install missing packages for
-us. Always defer and always ensure will guarantee that all
-dependencies are loaded and that packages are autoloaded unless
-explicitly stated otherwise.
+us. Always defer will guarantee that all packages are autoloaded
+unless explicitly stated otherwise.
 #+BEGIN_SRC emacs-lisp
   (setq straight-use-package-by-default t
         use-package-always-defer t)
@@ -185,9 +179,10 @@ until you have good info
 #+END_SRC
 
 ** bootstrap
-packages that are used to setup the my emacs enviroment. They are
+packages that are used to setup my emacs enviroment. They are
 needed as dependaceies for other packages later on.
 
+*** general package
 This package lets us use "SPC" as leader key for other keybindings. It
 also provides a lot of helper functions to make binding keys easier
 and smarter.
@@ -211,6 +206,7 @@ Use tab for indentation and symbol completion
   (setq tab-always-indent 'complete)
 #+END_SRC
 
+*** no littering
 make sure that third party files cannot leave conifg and save files
 all over the place
 #+BEGIN_SRC emacs-lisp
@@ -218,6 +214,7 @@ all over the place
     :demand t)
 #+END_SRC
 
+*** save hist
 save minibuffer history between sessions.
 #+BEGIN_SRC emacs-lisp
   (use-package savehist
@@ -227,6 +224,7 @@ save minibuffer history between sessions.
     (savehist-mode))
 #+END_SRC
 
+*** hyrda
 hydra provides repeatable keybindings to quickly execute multiple
 commands
 #+BEGIN_SRC emacs-lisp
@@ -234,10 +232,10 @@ commands
 #+END_SRC
 
 ** UI
-packages that used to improve the visuals and interface for Emacs
+packages that are used to improve the visuals and interface for Emacs
+
 
 *** keybings
-
 use =key-freq= to see your key usage.
 #+BEGIN_SRC emacs-lisp
   (use-package keyfreq
@@ -321,7 +319,7 @@ working.
 
 *** themes
 Creating a collection of themes that I like. I can use
-=counsel-load-themes= to switch between them. Some of these themes do
+=helm-themes= to switch between them. Some of these themes do
 not have all faces that I would like, so When I get some time I will
 modify them.
 #+BEGIN_SRC emacs-lisp
@@ -413,7 +411,7 @@ try a more powerful package like popwin.
 
 *** buffers
 A collection of functions stolen from Spacemacs that allows me to more
-easily manipulate files, buffers, and windows. 
+easily manipulate files, buffers, and windows.
 
 #+BEGIN_SRC emacs-lisp
   (defun $alternate-buffer (&optional window)
@@ -433,8 +431,6 @@ easily manipulate files, buffers, and windows.
                        (mapcar #'car (window-prev-buffers window)))
            ;; `other-buffer' honors `buffer-predicate' so no need to filter
            (other-buffer current-buffer t)))))
-
-
 
   (defun $quit-emacs ()
     "save buffers and quit"
@@ -656,14 +652,19 @@ evil is the Extensible VI Layer. It gives us all the power of vim
 without the draw back of using vimscript for config.
 
 *** general
-We need to set =evil-want-integration= before loading evil so that
-=evil-collection= can overide the modes. the very magic setting will
-make the evil search regex more PCRE compatible.
+
+because we are using evil collection, we need to disable evil's
+builtin integration *before* evil is loaded.
+#+BEGIN_SRC emacs-lisp
+  (setq evil-want-integration nil)
+#+END_SRC
+
+we want to overide most control keybindings to make them behave like
+Vim instead of like Emacs.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :demand t
     :init
-    (setq evil-want-integration nil
           evil-kill-on-visual-paste nil
           evil-search-module 'evil-search
           evil-magic 'very-magic
@@ -1146,6 +1147,7 @@ repo. I can use these functions as short hand.
       "gt" 'git-timemachine))
 #+END_SRC
 
+*** git gutter
 git gutter uses the the margin to display the git status. the frige
 package uses the fringe instead of the margin. This means that it
 won't conflict with linum-mode. However since I don't need linum mode
@@ -1176,8 +1178,9 @@ want to do when I enable flycheck.
     :demand t
     :after git-gutter)
 #+END_SRC
-** shell
 
+** shell
+*** comint
 comint is the generic backend for REPL's and shells. We are giving it
 more bash-it style behavior where I can enter some text and then use
 the previous command to match against it. Also we can use ivy to
@@ -1205,6 +1208,7 @@ previous command it will automatically move us the the command line.
                         comint-previous-matching-input-from-input) :before '$goto-cmd-line)
 #+END_SRC
 
+*** shell
 these are utility functions used to setting up the Emacs shell.
 #+BEGIN_SRC emacs-lisp
   (use-package shell
@@ -1229,9 +1233,9 @@ these are utility functions used to setting up the Emacs shell.
 
   (defun $track-shell-directory (str)
     "use the proc filesytem to get the current directory.
-  Works on remote shells as well if `shx' and `shx-cmd-set-pid' are used. The
-  remote shell will need to echo it's PID in the rc file in the form of `shx'
-  markup."
+    Works on remote shells as well if `shx' and `shx-cmd-set-pid' are used. The
+    remote shell will need to echo it's PID in the rc file in the form of `shx'
+    markup."
     (when (string-match comint-prompt-regexp str)
       (--when-let (-some->> ($get-shell-pid)
                             (format "/proc/%s/cwd")
@@ -1318,6 +1322,7 @@ the proper env scripts so that all these variables are set
       (setenv "EMACS_CAPTURE_ENV" nil)))
 #+END_SRC
 
+*** shell pop
 #+BEGIN_SRC emacs-lisp
   (use-package shell-pop
     :init
@@ -1349,6 +1354,7 @@ while typing.
     (delete 'company-files company-backends))
 #+END_SRC
 
+*** fish completion
 this is a package that I wrote to fallback on fish shell for
 completion candidates. I think at some point I would like to
 reimplement that argument parsing functionality in lisp and remove the
@@ -1363,9 +1369,9 @@ dependacey on fish.
     (add-to-list 'company-backends 'company-fish))
 #+END_SRC
 
-set of packages I wrote to add completion for enviroment variables and
-commands, currently broken, I tried to remove dependencies on external
-packages, but that wasn't really necessary.
+*** local env
+These packages will be loaded by shell-mode. They let me share the
+environment of my local process with the buffer. very useful.
 #+BEGIN_SRC emacs-lisp
   (use-package local-env
     :straight
@@ -1388,6 +1394,7 @@ packages, but that wasn't really necessary.
                      :repo "CeleritasCelery/local-env-mode"
                      :files ("company-command.el")))
 #+END_SRC
+
 ** compilation
 packages that assist in compiling and building code
 
@@ -1427,10 +1434,20 @@ so we supress them
                 (ansi-color-apply-on-region compilation-filter-start (point))))) 
 #+END_SRC
 
-*** functions
-functions that are used for compilation of ipgen and bman. Need to
-make the bman function more robust and flexible
+compillation can either be run in =compilation-mode= or in
+=comint-mode= with =compilation-shell-minor-mode= enabled. The later
+is needed when we want to interact with the running process. This has
+a few issues that we are going to resolve now:
 
+1. There is a weird issue where the recompile buffer is not the same
+   as the original buffer. Therefore we force the buffer name to remain the same by overriding the =compilation-arguments=.
+
+2. It is really convient to dismiss the compilation window with =q= so
+   we are going to bind that. regular compilation-mode supports this
+   binding by default.
+
+3. We want to start in normal state, so we easily dismiss the
+   window with =q= right when it first pops up if we want.
 #+BEGIN_SRC emacs-lisp
   (defun $run-ipgen (arg)
     "run dft ipgen in the current model"
@@ -1584,6 +1601,8 @@ stalls.
   (use-package flycheck)
 #+END_SRC
 
+
+*** company
 I don't want to use return for completion because that often
 interferces with just regular typing. So i have gotten in the habit of
 just using =C-l=
@@ -1974,8 +1993,9 @@ provide a hydra dispatcher based on context
     )
 #+END_SRC
 
-** elisp
+** lisp
 
+*** elisp
 #+BEGIN_SRC emacs-lisp
   (use-package emacs-lisp
     :straight nil
