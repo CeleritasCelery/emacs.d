@@ -38,7 +38,7 @@ to make it maintainable.
 
 make this file lexically bound
 #+BEGIN_SRC emacs-lisp
-  ;;; init.el --- personal emacs config file -*- lexical-binding: t
+  ;;; init.el --- personal emacs config file -*- lexical-binding: t -*-
 #+END_SRC
 
 *** Personal Information
