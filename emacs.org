@@ -542,6 +542,21 @@ quick movement hydra.
     "bn" 'buffer-nav/next-buffer)
 #+END_SRC
 
+*** window
+switch back to minibuffer when it is active.
+
+#+BEGIN_SRC emacs-lisp
+  (defun $switch-to-minibuffer-window ()
+    "switch to minibuffer window (if active)"
+    (interactive)
+    (when (active-minibuffer-window)
+      (select-frame-set-input-focus (window-frame (active-minibuffer-window)))
+      (select-window (active-minibuffer-window))))
+
+  ($leader-set-key
+    "bm" '$switch-to-minibuffer-window)
+#+END_SRC
+
 *** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
