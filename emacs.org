@@ -951,6 +951,11 @@ general editing configuration. We only want to use tabs in specific major modes
   (setq-default indent-tabs-mode nil)
 #+END_SRC
 
+
+don't show me long lines in whitespace mode
+#+BEGIN_SRC emacs-lisp
+  (delq 'lines whitespace-style)
+#+END_SRC
 move me to the start of the line or start of code, based on heuristics
 #+BEGIN_SRC emacs-lisp
   (use-package mwim
