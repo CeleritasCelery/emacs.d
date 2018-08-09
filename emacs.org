@@ -503,7 +503,8 @@ easily manipulate files, buffers, and windows.
   (defun $open-scratch-buffer ()
     "open the scratch buffer"
     (interactive)
-    (set-window-buffer (selected-window) "*scratch*"))
+    (set-window-buffer (selected-window)
+                       (get-buffer-create "*scratch*")))
 
   (defun $show-and-copy-buffer-filename (arg)
     "Show and copy the full path to the current file in the minibuffer."
