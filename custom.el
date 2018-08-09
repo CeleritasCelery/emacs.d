@@ -30,3 +30,4 @@
  ;; If there is more than one, they won't work right.
  '(mode-line ((t (:background "#1c1e24" :box nil :height 1.0)))))
 (put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)

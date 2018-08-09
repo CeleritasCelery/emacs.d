@@ -996,6 +996,15 @@ don't show me long lines in whitespace mode
 #+BEGIN_SRC emacs-lisp
   (delq 'lines whitespace-style)
 #+END_SRC
+
+*** narrowing
+#+BEGIN_SRC emacs-lisp
+  ($leader-set-key
+    "n" '(:ignore t :wk "narrow")
+    "nw" 'widen
+    "nr" 'narrow-to-region
+    "nf" 'narrow-to-defun)
+#+END_SRC
 move me to the start of the line or start of code, based on heuristics
 #+BEGIN_SRC emacs-lisp
   (use-package mwim
