@@ -438,12 +438,13 @@ pretty well, but I have a couple of things I would like to change.
   (use-package ace-window
     :init
     (setq aw-dispatch-always t
-          aw-background nil
-          aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+          aw-background nil)
     ($leader-set-key
       "w" 'ace-window)
     :config
-    (add-to-list 'aw-dispatch-alist '(?w $toggle-maximize-window)))
+    (add-to-list 'aw-dispatch-alist '(?w $toggle-maximize-window))
+    (add-to-list 'aw-dispatch-alist '(?d aw-delete-window "delete window"))
+    (add-to-list 'aw-dispatch-alist '(?s aw-split-window-horz "Split Horz window")))
 
   ;; from https://gist.github.com/3402786
   (defun $toggle-maximize-window ()
