@@ -557,6 +557,19 @@ switch back to minibuffer when it is active.
     "bm" '$switch-to-minibuffer-window)
 #+END_SRC
 
+*** winum
+#+BEGIN_SRC emacs-lisp
+  (use-package winum
+    :defer 1
+    :init
+    (dolist (num (number-sequence 0 9))
+      (let ((str (number-to-string num)))
+        (eval `($leader-set-key
+                 ,str (intern (concat "winum-select-window-" ,str))))))
+    :config
+    (winum-mode))
+#+END_SRC
+
 *** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
