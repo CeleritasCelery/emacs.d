@@ -340,31 +340,6 @@ not match the resolution of my monitor results in weird text sizes.
     ("s" (vnc-resize "1920x1080") "short")
     ("r" (vnc-resize "1600x1200") "square"))
   ($leader-set-key
-*** modeline
-#+BEGIN_SRC emacs-lisp
-  (use-package doom-modeline
-    :straight
-    (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
-    :hook (after-init . doom-modeline-init))
-#+END_SRC
-
-telephone line is powerline that has some nice defaults. I am still
-not satisfied with my mode-line, and when I get some time I would love
-to customize it to my extact taste. But in the meantime this is
-working.
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package telephone-line
-    :init
-    (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-          telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-          telephone-line-primary-right-separator 'telephone-line-cubed-right
-          telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
-          telephone-line-lhs '((evil   . (telephone-line-evil-tag-segment))
-                               (accent . (telephone-line-vc-segment
-                                          telephone-line-process-segment))
-                               (nil    . (telephone-line-buffer-segment))))
-    (telephone-line-mode))
     "zn"  'vnc-resize/body)
 #+END_SRC
 
@@ -391,6 +366,43 @@ modify them.
   (use-package monokai-theme)
 
   (load-theme 'doom-one t)
+#+END_SRC
+
+*** modeline
+I am still struggling to find a modeline I really like. I have settled
+on doom for now, but there are some segments that I would like to add
+such as compilation exit status. My biggest beef with doom-modeline is
+it does not play nice non "doom" themes. I think powerlines are cool
+looking, but I am honestly becomeling less of a fan of them. I may
+just end up making my own modeline from scratch.
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
+  (use-package smart-mode-line
+    :demand t
+    :config
+    (sml/setup))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (use-package doom-modeline
+    :straight
+    (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
+    :hook (after-init . doom-modeline-init)
+    :config
+    (setq eldoc-eval-preferred-function 'eval-expression))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
+  (use-package telephone-line
+    :init
+    (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
+          telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
+          telephone-line-primary-right-separator 'telephone-line-cubed-right
+          telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
+          telephone-line-lhs '((evil   . (telephone-line-evil-tag-segment))
+                               (accent . (telephone-line-vc-segment
+                                          telephone-line-process-segment))
+                               (nil    . (telephone-line-buffer-segment))))
+    (telephone-line-mode))
 #+END_SRC
 
 *** which key
