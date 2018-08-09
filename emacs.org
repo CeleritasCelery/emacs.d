@@ -337,11 +337,9 @@ not match the resolution of my monitor results in weird text sizes.
     ("l" (vnc-resize "1920x1200") "single monitor (large)")
     ("m" (vnc-resize "1536x864") "mobile")
     ("w" (vnc-resize "3840x1200") "double monitor (wide)")
-    ("s" (vnc-resize "1920x1080") "short"))
+    ("s" (vnc-resize "1920x1080") "short")
+    ("r" (vnc-resize "1600x1200") "square"))
   ($leader-set-key
-    "n"  'vnc-resize/body)
-#+END_SRC
-
 *** modeline
 #+BEGIN_SRC emacs-lisp
   (use-package doom-modeline
@@ -367,6 +365,7 @@ working.
                                           telephone-line-process-segment))
                                (nil    . (telephone-line-buffer-segment))))
     (telephone-line-mode))
+    "zn"  'vnc-resize/body)
 #+END_SRC
 
 *** themes
