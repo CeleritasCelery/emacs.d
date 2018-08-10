@@ -2928,9 +2928,24 @@ this allows me to quickly move headers around files based on these refile target
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
     :straight nil
+    :gfhook #'$org-src-lexical-bindings
+    :general
+    (:keymaps 'org-src-mode-map
+              "C-c C-c" 'org-edit-src-exit)
     :init
     (setq org-src-fontify-natively t
           org-src-tab-acts-natively t)
+=C-c C-C= is more usefull to edit src code blocks then to eval them
+#+BEGIN_SRC emacs-lisp
+  (defun $org-ctrl-c-ctrl-c (&optional arg)
+    (interactive "P")
+    (if (eq 'src-block (org-element-type (org-element-at-point)))
+        (org-edit-src-code)
+      (org-ctrl-c-ctrl-c arg)))
+
+  (general-define-key
+   :keymaps 'org-mode-map
+   "C-c C-c" '$org-ctrl-c-ctrl-c)
 #+END_SRC
 
 *** evil
