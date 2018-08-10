@@ -3179,30 +3179,34 @@ packages to help manage parens
 
 ** perl
 all the enviroment variables are set so as to make it easier for
-flycheck to get a clean compile.
+flycheck to get a clean compile. We also change =:= to be a
+punctuation character to match perl mode. This fixes a ligature issue.
 #+BEGIN_SRC emacs-lisp
-  (use-package cperl
+  (use-package cperl-mode
     :straight nil
     :init
+    (setq
+     ;; highlight all scalar variables not just the instantiation
+     cperl-highlight-variables-indiscriminately t
+     cperl-indent-level 4        ; 4 spaces is the standard indentation
+     cperl-close-paren-offset -4 ; indent the closing paren back four spaces
+     cperl-continued-statement-offset 4 ; if a statement continues indent it to four spaces
+     cperl-indent-parens-as-block t)
+
     (setq flycheck-perl-executable "/usr/intel/pkgs/perl/5.14.1/bin/perl"
           flycheck-perl-perlcritic-executable "/usr/intel/pkgs/perl/5.14.1-threads/bin/perlcritic"
           flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5" ;; SPF library
                                        "../lib/perl5" ;; DTEG ultiscan
                                        "../../lib/perl5" ;; DTEG STF
                                        "..")) ;; library files need to see the library ¯\_(ツ)_/¯
-    (setenv "VALID_ROOT" "/p/hdk/rtl/valid/shdk74")
-    (setenv "VTLIB" "/p/hdk/rtl/valid/shdk74/lib")
+    (setenv "SPF_ROOT" "/p/hdk/cad/spf/latest")
     (setenv "SPF_PERL_LIB" "/p/hdk/cad/spf/latest/lib/perl5")
-    (setenv "GLOBAL_TOOLS" "/nfs/site/proj/dpg/tools")
     (setenv "XWEAVE_REPO_ROOT" "/p/hdk/rtl/ip_releases/shdk74/xweave/v17ww43a")
     (setenv "IDS_HOME" "/p/hdk/rtl/cad/x86-64_linux26/dteg/ideas_shell/0.15.1")
+    :config
+    (modify-syntax-entry ?: "." cperl-mode-syntax-table))
+#+END_SRC
 
-    ;; ISC required variables
-    (setenv "RTL_CAD_ROOT" "/p/hdk/rtl/cad/x86-64_linux26")
-    (setenv "RTL_PROJ_CFG" "/p/hdk/rtl/proj_tools/proj_cfg")
-    (setenv "CFG_PROJECT" "shdk74")
-    (setenv "RTL_PROJ_BIN" "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest")
-    (setenv "RTL_PROJ_TOOLS" "/p/hdk/rtl/proj_tools"))
 #+END_SRC
 
 ** json
