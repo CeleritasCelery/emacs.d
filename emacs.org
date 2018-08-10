@@ -2278,11 +2278,11 @@ a few issues that we are going to resolve now:
    :states 'normal
    :keymaps 'compilation-shell-minor-mode
    "q" 'quit-window
-   "r" 'recompile)
+   "gr" 'recompile)
   (general-define-key
    :states 'motion
    :keymaps 'compilation-mode-map
-   "r" 'recompile)
+   "gf" '$find-file-at-point)
 
   (advice-add 'recompile :before (defun $set-recompile-buffer-name (_)
                                    (setf (nth 2 compilation-arguments) (lambda (_) (buffer-name)))))
