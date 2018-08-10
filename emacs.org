@@ -1213,6 +1213,34 @@ will be first.
 #+END_SRC
 
   (use-package helm-ag)
+*** evil
+some hacks to make helm more evil compatible See
+[[https://github.com/syl20bnr/spacemacs/issues/3700][syl20bnr/spacemacs#3700]]
+#+BEGIN_SRC emacs-lisp
+  (defun $helm-unprevent-minibuffer-escape ()
+    (when helm-prevent-escaping-from-minibuffer
+      (general-define-key :states 'motion
+                          [down-mouse-1] 'evil-mouse-drag-region)
+      (general-define-key :states 'normal
+                          [mouse-2] 'mouse-yank-primary)))
+
+  (defun $helm-prevent-minibuffer-escape ()
+    (when helm-prevent-escaping-from-minibuffer
+      (general-define-key :states 'motion
+                          [down-mouse-1] nil)
+      (general-define-key :states 'normal
+                          [mouse-2] nil)))
+
+  (defun $helm-hide-cursor-in-buffer ()
+    (with-helm-buffer
+      (setq cursor-in-non-selected-windows nil)))
+
+  (general-add-hook 'helm-after-initialize-hook
+                    '($helm-prevent-minibuffer-escape
+                      $helm-hide-cursor-in-buffer))
+  (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
