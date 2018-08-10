@@ -570,6 +570,24 @@ switch back to minibuffer when it is active.
     (winum-mode))
 #+END_SRC
 
+*** helpful
+helpful provides better information about variables and
+functions. only tweak we need to make is let the window close with q
+#+BEGIN_SRC emacs-lisp
+  (use-package helpful
+    :init
+    ($leader-set-key
+      "h" '(:ignore t :wk "help")
+      "hd" '(:ignore t :wk "describe")
+      "hdf" 'helpful-callable
+      "hdv" 'helpful-variable
+      "hdk" 'helpful-key)
+    (general-define-key
+     :keymaps 'helpful-mode-map
+     :states 'normal
+     "q" 'quit-window))
+#+END_SRC
+
 *** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
@@ -858,15 +876,12 @@ We want to hybridize some usefull emacs commands with better evil keybindings
    "C-y" 'yank)
 #+END_SRC
 
+general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
-    "h" '(:ignore t :wk "help")
-    "hd" '(:ignore t :wk "describe")
-    "hdf" 'describe-function
-    "hdv" 'describe-variable
-    "hdk" 'describe-key
     "hde" 'describe-face
     "hdm" 'describe-mode
+    "hdc" 'describe-char
     "hs"  'profiler-start
     "hr"  'profiler-report
     "d" 'save-buffer
