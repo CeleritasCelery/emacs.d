@@ -805,44 +805,60 @@ Vim instead of like Emacs.
   (use-package evil
     :demand t
     :init
-          evil-kill-on-visual-paste nil
-          evil-search-module 'evil-search
-          evil-magic 'very-magic
+    (setq evil-jumps-cross-buffers nil
           evil-want-C-u-scroll t
           evil-want-C-d-scroll t
           evil-want-C-w-delete t
           evil-want-C-i-jump t
-          evil-want-Y-yank-to-eol t
-          evil-ex-search-vim-style-regexp t)
+          evil-want-Y-yank-to-eol t)
     :config
     (general-swap-key nil 'motion "0" "^")
-    (evil-mode 1)
+    (evil-mode 1))
+#+END_SRC
 
-    (general-define-key
-     :states 'motion
-     [remap evil-next-line] 'evil-next-visual-line
-     [remap evil-previous-line] 'evil-previous-visual-line)
+Using =*= and =#=, search foward for symbols, not words
+#+BEGIN_SRC emacs-lisp
+  (setq evil-symbol-word-search t)
+#+END_SRC
 
-    (general-define-key
-     :states 'operator
-     [remap evil-next-line] 'evil-next-line
-     [remap evil-previous-line] 'evil-previous-line)
+we want to use visual lines, but then the line operators don't work
+(i.e. =dj= will not operate on literal lines). So we do some simple
+remapping instead of setting =evil-respect-visual-line-mode=.
+[[https://github.com/emacs-evil/evil/issues/188][emacs-evil/evil#188]]
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+       :states 'motion
+       [remap evil-next-line] 'evil-next-visual-line
+       [remap evil-previous-line] 'evil-previous-visual-line)
 
-    (defvar evil-v$-gets-eol nil)
+  (general-define-key
+       :states 'operator
+       [remap evil-next-line] 'evil-next-line
+       [remap evil-previous-line] 'evil-previous-line)
+#+END_SRC
 
-    (evil-define-motion evil-end-of-line (count)
-      "Move the cursor to the end of the current line. If COUNT is
-    given, move COUNT - 1 lines downward first."
-      :type inclusive
-      (move-end-of-line count)
-      (when evil-track-eol
-        (setq temporary-goal-column most-positive-fixnum
-              this-command 'next-line))
-      (unless (and (evil-visual-state-p) evil-v$-gets-eol)
-        (evil-adjust-cursor)
-        (when (eolp)
-          ;; prevent "c$" and "d$" from deleting blank lines
-          (setq evil-this-type 'exclusive)))))
+add a little hack to prevent =v$= from grabbing the newline. This is a
+much better default, but the evil people don't like it and won't add
+an option to support it. Nice thing about Emacs though, is we can do
+it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897]]
+#+BEGIN_SRC emacs-lisp
+  (defvar evil-v$-gets-eol nil)
+
+  (evil-define-motion evil-end-of-line (count)
+    "Move the cursor to the end of the current line. If COUNT is
+      given, move COUNT - 1 lines downward first."
+    :type inclusive
+    (move-end-of-line count)
+    (when evil-track-eol
+      (setq temporary-goal-column most-positive-fixnum
+            this-command 'next-line))
+    (unless (and (evil-visual-state-p) evil-v$-gets-eol)
+      (evil-adjust-cursor)
+      (when (eolp)
+        ;; prevent "c$" and "d$" from deleting blank lines
+        (setq evil-this-type 'exclusive))))
+#+END_SRC
+
 #+END_SRC
 
 *** text objects
