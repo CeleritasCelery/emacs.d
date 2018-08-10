@@ -859,6 +859,12 @@ it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897
         (setq evil-this-type 'exclusive))))
 #+END_SRC
 
+prevent "vimmers" from quiting my Emacs. Old habbits die hard.
+#+BEGIN_SRC emacs-lisp
+  (evil-ex-define-cmd "q" nil)
+  (evil-ex-define-cmd "wq" nil)
+#+END_SRC
+
 #+END_SRC
 
 *** text objects
