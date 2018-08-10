@@ -3123,9 +3123,19 @@ make page breaks easier to see
     :hook (emacs-lisp-mode . turn-on-page-break-lines-mode))
 #+END_SRC
 
+*** indent
 never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
+    :hook emacs-lisp-mode)
+#+END_SRC
+
+*** extra font lock
+let's you visually distinguish between let bound dynamic and lexical
+variables. also shows interpolated parts of backquoted sexps.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package lisp-extra-font-lock
     :hook emacs-lisp-mode)
 #+END_SRC
 
