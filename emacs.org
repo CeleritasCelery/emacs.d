@@ -959,6 +959,12 @@ general leader key bindings
     "u" 'universal-argument)
 #+END_SRC
 
+*** undo-tree
+#+BEGIN_SRC emacs-lisp
+  ($leader-set-key
+    "U" 'undo-tree-visualize)
+#+END_SRC
+
 *** unimpaired
 evil unimpaired binds some usefull functions to some quick keys.
 #+BEGIN_SRC emacs-lisp
