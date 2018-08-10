@@ -3139,6 +3139,13 @@ variables. also shows interpolated parts of backquoted sexps.
     :hook emacs-lisp-mode)
 #+END_SRC
 
+*** quick expand
+using speed of though lisp to quicky create edit emacs-lisp
+#+BEGIN_SRC emacs-lisp
+  (use-package sotlisp
+    :hook emacs-lisp-mode)
+#+END_SRC
+*** tramp
 set TRAMP verbosity to warnings and errors only. default is level 3
 which sends a message every time we connect to a remote host
 https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
