@@ -1194,8 +1194,23 @@ action.
     (setq helm-ff-delete-files-function 'helm-delete-marked-files-async))
 #+END_SRC
 
+*** bookmarks
+don't set the org source as the first one in the book marks. Ideally
+since I am using helm-adaptive-mode the most commonly used bookmarks
+will be first.
 #+BEGIN_SRC emacs-lisp
   (use-package swoop)
+  (use-package helm-bookmark
+    :straight nil
+    :init
+    ($leader-set-key
+      "fb" 'helm-filtered-bookmarks)
+    :config
+    (setq helm-bookmark-default-filtered-sources
+          (-insert-at 2 (car helm-bookmark-default-filtered-sources)
+                      (cdr helm-bookmark-default-filtered-sources))))
+
+#+END_SRC
 
   (use-package helm-ag)
 
