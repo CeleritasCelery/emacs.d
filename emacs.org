@@ -2479,6 +2479,7 @@ the timestamp in the compilation buffer.
         (format "%d %s%s" value name (if (>= value 1) "s" "")))))
 #+END_SRC
 
+*** errors
 we need to define what errors look like in compilation and log
 files. compilation mode has some defaults but they are not really
 applicable to us. Also the built in verilog mode tries to add all of
@@ -2491,14 +2492,14 @@ that hook and set the alist back to our canonical version.
 
   (with-eval-after-load 'compile
     (add-to-list 'compilation-error-regexp-alist-alist
-                 `(ipgen-gmake ,(rx bol "gmake" (optional "[1]") ": *** [" (group-n 1 (1+ nonl)) "] Error " digit) 1))
+                 `(ipgen-gmake ,(rx bol "gmake: *** [" (group-n 1 (>= 10 nonl)) "] Error " digit) 1))
     (add-to-list 'compilation-error-regexp-alist-alist
                  `(core-assembler ,(rx bol "Information: script '" (group-n 1 (1+ (not (any "'"))))
                                        "'\n" (1+ space) "stopped at line " (group-n 2 (1+ digit)) (1+ nonl)) 1 2))
     (add-to-list 'compilation-error-regexp-alist-alist
                  `(connection-error ,(rx bol (optional "-I-:") "Error: " (group-n 3 (1+ nonl))
                                          "\n" (optional "-I-:") "-" (or "E" "F") "-: [CRT-" (1+ digit) "] Error in "
-                                         (1+ nonl) " file " (group-n 1 (1+ (not (any space)))) (0+ space)
+                                         (1+ nonl) " file " (group-n 1 (and "/" (1+ (not (any space))))) (0+ space)
                                          "\n" (optional "-I-:") " Error at line# " (group-n 2 (1+ digit)) (1+ nonl))
                                     1 2 nil nil nil (3 font-lock-warning-face)))
     (add-to-list 'compilation-error-regexp-alist-alist
@@ -2511,8 +2512,15 @@ that hook and set the alist back to our canonical version.
                                        "\n-I-:  The module was previously declared at: "
                                        "\n-I-:  \"" (group (1+ (not space))) "/" (1+ (not space)) (or ".vs" ".sv") "\",") (1 "%s/dft_ipgen.hdl")))
 
+    (add-to-list 'compilation-error-regexp-alist-alist
+                 `(sgdft ,(rx bol "-E-:SGDFT" (1+ nonl) "FAILED"
+                              "\n-I-:  Error" (1+ nonl)
+                              "\n-I-:  Use" (1+ nonl)
+                              "\n-I-:Report: " (group (1+ (not space))))
+                         1))
 
-    (setq $compilation-error-regexp-alist '(ipgen-hdl-copy ipgen-gmake core-assembler connection-error bman-stage bman-verilog))
+
+    (setq $compilation-error-regexp-alist '(ipgen-hdl-copy sgdft ipgen-gmake core-assembler connection-error bman-stage bman-verilog))
     (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
 
   (with-eval-after-load 'verilog-mode
