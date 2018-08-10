@@ -1491,6 +1491,23 @@ switch themes using helm
       "T" 'helm-themes))
 #+END_SRC
 
+*** ediff
+running ediff from helm is very convient. But the problem is that is
+not reproducible. You have to reselect the files everytime, which is
+time consuming. So we create a function to save the last ediff.
+#+BEGIN_SRC emacs-lisp
+  (defvar $ediff-targets nil
+    "The last two files that were diffed")
+  (defun $save-ediff-targets (&rest args)
+    "Save the last two ediffed files"
+    (setq $ediff-targets (car args)))
+  (advice-add 'ediff-files-internal :filter-args #'$save-ediff-targets)
+
+  (defun $run-last-ediff ()
+    "Run ediff with the last used files"
+    (interactive)
+    (apply 'ediff-files-internal $ediff-targets))
+  ($leader-set-key "fd" '$run-last-ediff)
 #+END_SRC
 
 ** editing
