@@ -1300,6 +1300,15 @@ ignore lockfiles and backups when looking through the filesystem
   (csetq helm-ff-skip-boring-files t)
 #+END_SRC
 
+open file in clipboard. Usually something I copied from an email
+#+BEGIN_SRC emacs-lisp
+  (defun $open-file-in-clipboard ()
+    (interactive)
+    (helm-find-files-1 (string-trim (current-kill 0))))
+  ($leader-set-key
+    "fo" '$open-file-in-clipboard)
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
