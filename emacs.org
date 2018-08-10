@@ -1199,7 +1199,6 @@ don't set the org source as the first one in the book marks. Ideally
 since I am using helm-adaptive-mode the most commonly used bookmarks
 will be first.
 #+BEGIN_SRC emacs-lisp
-  (use-package swoop)
   (use-package helm-bookmark
     :straight nil
     :init
@@ -1398,6 +1397,34 @@ more convient keybindings for dispatcher functions as well as some helm builtins
      "C-c '" '$helm-ff-switch-to-shell
      "C-c s" '$helm-ag-from-session
      "C-c g" '$magit-from-helm-session))
+#+END_SRC
+
+*** swoop
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-swoop
+    :ghook ('after-revert-hook 'helm-swoop--clear-cache)
+    :init
+    (setq helm-swoop-split-with-multiple-windows t
+          helm-swoop-speed-or-color t
+          helm-swoop-candidate-number-limit 1000
+          helm-swoop-pre-input-function (lambda () ""))
+
+
+    ($leader-set-key
+      "s" '(:ignore t :wk "search")
+      "ss" 'helm-swoop
+      "sS" '$helm-swoop-region-or-symbol))
+
+  (defun $helm-swoop-region-or-symbol ()
+    "Call `helm-swoop' with default input."
+    (interactive)
+    (let ((helm-swoop-pre-input-function
+           (lambda ()
+             (if (region-active-p)
+                 (buffer-substring (region-beginning)
+                                   (region-end))
+               (or (thing-at-point 'symbol t) "")))))
+      (call-interactively 'helm-swoop)))
 #+END_SRC
 
 
