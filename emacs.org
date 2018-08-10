@@ -1789,18 +1789,24 @@ files can quickly fill up my home disk.
     ($leader-set-key
       "g" '(:ignore t :wk "git")
       "gs" 'magit-status
-      "gb" 'magit-blame)
+      "gb" 'magit-blame
+      "gf" 'magit-file-popup)
+    :config
+    (general-define-key
+     :keymaps 'magit-diff-mode-map
+     "SPC" nil))
+#+END_SRC
 
-start teh commit message editor in insert state
+start the commit message editor in insert state
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'with-editor
     (add-hook 'with-editor-mode-hook 'evil-insert-state))
 #+END_SRC
 
 I don't like to commit to my github repos using my work credentials,
-but I can't use those credentials on my work repos. therefore I set
-~useconfigonly = true~ so that I have to set the credentials for every
-repo. I can use these functions as short hand.
+but I can't use my private credentials on my work repos. therefore I
+set ~useconfigonly = true~ so that I have to set the credentials for
+every repo. I can use these functions as short hand.
 #+BEGIN_SRC emacs-lisp
   (defun $git-work-user ()
     "Set my work credentials"
