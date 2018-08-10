@@ -2593,11 +2593,29 @@ just using =C-l=
               "RET" nil
               [return] nil
               "C-l" 'company-complete-selection)
-    :hook '(prog-mode org-mode)
+    :hook '(prog-mode org-mode ielm-mode)
     :init
     (setq company-idle-delay 0.2
-          evil-collection-company-use-tng nil)
-    (evil-collection-init 'company))
+          evil-collection-company-use-tng nil
+          company-require-match nil)
+    (evil-collection-init 'company)
+    ($leader-set-key
+      "tc" 'company-mode)
+    :config
+    (defun $company-select-prev-or-comint-match-input (&optional _)
+      (when (and (eq major-mode 'shell-mode)
+                 (eq company-selection 0))
+        (company-abort)
+        (call-interactively 'comint-previous-matching-input-from-input)))
+    (advice-add 'company-select-previous :before-until #'$company-select-prev-or-comint-match-input))
+
+  (with-eval-after-load 'company-dabbrev-code
+    (add-to-list 'company-dabbrev-code-modes 'shell-mode))
+
+
+  (use-package company-shell
+    :after company)
+#+END_SRC
 
   (use-package company-statistics
     :demand t
@@ -2605,8 +2623,6 @@ just using =C-l=
     :config
     (company-statistics-mode))
 
-  (use-package company-shell
-    :after company)
 #+END_SRC
 
 ** Org
