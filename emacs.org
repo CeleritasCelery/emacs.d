@@ -2015,13 +2015,6 @@ these are utility functions used to setting up the Emacs shell.
   (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
 
-  (defun $tcsh-remote-shell (fn &rest args)
-    (if (file-remote-p default-directory)
-        (let ((shell-file-name "tcsh"))
-          (apply fn args))
-      (apply fn args)))
-
-  (general-advice-add '(shell-pop shell) :around '$tcsh-remote-shell)
 #+END_SRC
 
 shx mode allows us to call emacs lisp functions from within the
