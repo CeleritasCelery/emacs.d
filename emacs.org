@@ -1298,11 +1298,24 @@ ignore lockfiles and backups when looking through the filesystem
   (csetq helm-ff-skip-boring-files t)
 #+END_SRC
 
-open file in clipboard. Usually something I copied from an email
+open file in clipboard. Usually something I copied from an
+email. automatically add the tramp header if from a different site
 #+BEGIN_SRC emacs-lisp
   (defun $open-file-in-clipboard ()
     (interactive)
-    (helm-find-files-1 (string-trim (current-kill 0))))
+    (let* ((file (string-trim (current-kill 0)))
+           (current-site (getenv "EC_SITE"))
+           (target-site (if (string-match (rx bos "/nfs/" (group (1+ (not (any "/"))))) file)
+                            (match-string 1 file)
+                          current-site))
+           (tramp (if (equal current-site target-site)
+                      ""
+                    (concat "/ssh:"
+                            (if (equal target-site "sc")
+                                "zone"
+                              target-site)
+                            ":" ))))
+      (helm-find-files-1 (concat tramp file) (file-name-base file))))
   ($leader-set-key
     "fo" '$open-file-in-clipboard)
 #+END_SRC
