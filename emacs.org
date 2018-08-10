@@ -1525,6 +1525,18 @@ general editing configuration. We only want to use tabs in specific major modes
   (setq-default indent-tabs-mode nil)
 #+END_SRC
 
+*always* add a final newline. some really poor languages (looking at
+you tcsh) require a final newline or the last line of a script never
+gets executed.
+#+BEGIN_SRC emacs-lisp
+  (setq-default require-final-newline t)
+#+END_SRC
+
+my filesystem generates regular backups, so having Emacs create
+backups is redundant.
+#+BEGIN_SRC emacs-lisp
+  (setq make-backup-files nil)
+#+END_SRC
 
 don't show me long lines in whitespace mode
 #+BEGIN_SRC emacs-lisp
