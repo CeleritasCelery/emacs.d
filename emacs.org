@@ -2271,18 +2271,77 @@ a few issues that we are going to resolve now:
   (add-hook 'compilation-shell-minor-mode-hook 'evil-normal-state)
 #+END_SRC
 
+*** functions
+functions that are used for compilation of ipgen and bman or turnin.
+
+**** ipgen
+a function to run IPGen. using helm me can mark the candidates and run
+them all at once.
+#+BEGIN_SRC emacs-lisp
+  (defun $run-ipgen-internal (dir &optional clean)
+    (let* ((default-directory dir)
+           (model-root (vc-git-root dir))
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)
+                                          "PATH=/usr/intel/bin:/usr/bin:/usr/sbin:/bin"
+                                          "TAP_MARSHAL"
+                                          "TAP2STF_MAP_FILE"
+                                          "XWEAVE"
+                                          "XWEAVE_REPO_ROOT"
+                                          "TAP_SPFSPEC"
+                                          "STF_SPFSPEC"
+                                          "STF_MARSHAL"))
+           (compilation-buffer-name-function
+            (lambda (major-mode)
+              (format "*%s %s ipgen %s*"
+                      (f-filename model-root)
+                      (f-filename dir)
+                      (downcase major-mode)))))
+      (compile (concat "source setup && "
+                       (when clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
+                       "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen") t)))
+
+  (defun $helm-get-ipgen-data ()
     (let* ((model-root (vc-git-root default-directory))
            (ipgen (f-join model-root "tools/ipgen/"))
-           (dut (completing-read "select DUT: "
-                                 (-map 'f-filename
-                                       (f--directories ipgen (member "setup" (directory-files it))))))
-           (default-directory (f-join ipgen dut))
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
-           (compilation-buffer-name-function
-            (lambda (mm)
-              (concat "*" (f-filename model-root) " " dut " ipgen "  (downcase mm) "*"))))
-      (compile (concat "source setup && $DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen"
-                       (if arg " -B" "") " && touch ./post_ipgen && python ./post_ipgen"))))
+           (duts (f--directories ipgen (let ((setup (f-join it "setup")))
+                                         (and (file-exists-p setup)
+                                              (not (file-symlink-p setup)))))))
+      (--map (cons (f-filename it) it) duts)))
+
+  (defun $helm-ipgen-action (_)
+    (--each (helm-marked-candidates) ($run-ipgen-internal it helm-current-prefix-arg)))
+
+  (defun $run-ipgen ()
+    "run dft ipgen in the current model"
+    (interactive)
+    (helm
+     :buffer "*Run IPGen*"
+     :sources (helm-build-sync-source
+                  "select ipgen model: "
+                :fuzzy-match t
+                :candidates ($helm-get-ipgen-data)
+                :action '(("run ipgen (C-u to run clean)" . $helm-ipgen-action)))))
+
+  ($leader-set-key
+    "oi" '$run-ipgen)
+#+END_SRC
+
+ipgen will some times pull up a coreassembler prompt when it
+fails. This allows us to enter commands to either debug or continue,
+but unfortunately =compilation-mode= does not support input. Therefore
+we can start compilations in comint-mode with
+=compilation-shell-minor-mode= enabled.  We are adding a hook to alert
+us whenever a run stalls with a prompt, so we can quickly address it.
+#+BEGIN_SRC emacs-lisp
+  (defun $alert-core-assembler-stall (output)
+    (when (string-match-p (rx bol "CoreAssembler> " eos) output)
+      (alert "Core Assembler stall"
+             :severity 'moderate)))
+
+  (add-hook 'compilation-shell-minor-mode-hook
+            (defun $add-local-output-filter ()
+              (add-hook 'comint-output-filter-functions '$alert-core-assembler-stall nil 'local)))
+#+END_SRC
 
   (defhydra bman-cmd (:exit t :columns 2)
     "run a bman command"
