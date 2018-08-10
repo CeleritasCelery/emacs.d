@@ -1862,6 +1862,7 @@ this gives me the power to do that.
     "gs" '$magit-status)
 #+END_SRC
 
+*** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-magit
     :demand t
@@ -1873,6 +1874,7 @@ this gives me the power to do that.
 
   (use-package git-timemachine
     :init
+    (evil-collection-init 'git-timemachine)
     ($leader-set-key
       "gt" 'git-timemachine))
 #+END_SRC
