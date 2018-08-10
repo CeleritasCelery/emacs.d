@@ -2551,6 +2551,14 @@ stalls.
                        :severity (if (string-prefix-p "exited abnormally" exit-string)
                                      'high
                                    'normal)))))
+
+  (defun $clear-alert ()
+    "clear persistent alert"
+    (interactive)
+    (alert ""))
+
+  ($leader-set-key
+    "oa" '$clear-alert)
 #+END_SRC
 
 
