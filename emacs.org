@@ -1457,6 +1457,21 @@ regex
       (helm-do-ag dir)))
 #+END_SRC
 
+*** projectile
+this still needs to be setup, as I am currently using counsel
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-projectile
+    :init
+    (push '((nil . "helm-projectile") . (nil . "proj")) which-key-replacement-alist)
+    ($leader-set-key
+      "p" '(:ignore t :wk "project")
+      "pp" 'helm-projectile
+      "pP" 'helm-projectile-switch-project
+      "ps" 'helm-projectile-ag
+      "pf" 'helm-projectile-find-file
+      "pb" 'helm-projectile-switch-to-buffer
+      "pd" 'helm-projectile-find-dir))
+#+END_SRC
 
 *** org
 use helm to quickly navigate org headings
@@ -1543,22 +1558,12 @@ provides snippets for adding complex blocks. use it with =M-/=
     :config
     (projectile-global-mode))
 
-  (use-package counsel-projectile
 *** multiedit
 mutliedit is a hybrid of evil-iedit-state and evil-mc.
 
 #+BEGIN_SRC emacs-lisp
   (use-package evil-multiedit
     :init
-    (push '((nil . "counsel-projectile") . (nil . "proj")) which-key-replacement-alist)
-    ($leader-set-key
-      "p" '(:ignore t :wk "project")
-      "pp" 'counsel-projectile
-      "pP" 'counsel-projectile-switch-project
-      "ps" 'counsel-projectile-ag
-      "pf" 'counsel-projectile-find-file
-      "pb" 'counsel-projectile-switch-to-buffer
-      "pd" 'counsel-projectile-find-dir))
     (general-define-key
      :states 'visual
      "R" 'evil-multiedit-match-all
