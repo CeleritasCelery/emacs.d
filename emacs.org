@@ -3229,6 +3229,17 @@ I use regular perl-mode for files that are considered read-only.
           perl-continued-brace-offset 0))
 #+END_SRC
 
+*** highlight escape sequences
+
+#+BEGIN_SRC emacs-lisp
+  (use-package highlight-escape-sequences
+    :hook ((cperl-mode . hes-mode)
+           (perl-mode . hes-mode))
+    :config
+    (add-to-list 'hes-mode-alist `(perl-mode . ,hes-common-escape-sequence-re))
+    (add-to-list 'hes-mode-alist `(cperl-mode . ,hes-common-escape-sequence-re)))
+#+END_SRC
+
 ** json
 add hide-show support to json mode and make comments properly font
 locked
