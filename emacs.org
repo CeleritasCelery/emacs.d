@@ -991,13 +991,14 @@ provides total number of searches in the modeline
 *** snipe
 we only want evil snipe for the ability to repeat =f,F,t,T=. I find
 avy is better for the actual sniping
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package evil-snipe
     :demand t
     :init
     (setq evil-snipe-override-evil-repeat-keys nil)
     :config
-    (evil-snipe-override-mode))
+    (evil-snipe-override-mode)
+  (add-to-list 'evil-snipe-disabled-modes 'undo-tree-visualizer-mode))
 #+END_SRC
 
 *** vi tilde
@@ -1243,6 +1244,17 @@ avy is an awesome jump to point package.
      ";" 'avy-goto-char-timer)
     :config
     (evil-collection-init 'avy))
+#+END_SRC
+
+*** easy motion
+a evil motion package. by default the =F,f,T,t= bindings have buffer
+scope, but that makes it too complex, so we will limit that to current
+line only
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-easymotion
+    :general
+    (:states '(normal visual)
+             "s" '(:keymap evilem-map)))
 #+END_SRC
 
 provides snippets for adding complex blocks. use it with =M-/=
