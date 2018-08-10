@@ -1713,7 +1713,7 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
 #+END_SRC
 
 ** files
-
+*** functions
 collection of functions stolen from spacemacs
 #+BEGIN_SRC emacs-lisp
   (defun $copy-file ()
@@ -1741,10 +1741,16 @@ collection of functions stolen from spacemacs
     (interactive)
     (find-file-existing (expand-file-name "emacs.org" user-emacs-directory)))
 
+  (defun $kill-this-buffer ()
+    "kill this buffer"
+    (interactive)
+    (kill-buffer (current-buffer)))
+
   ($leader-set-key
     "f" '(:ignore t :wk "files")
     "fe" '$find-user-config-file
     "fc" '$copy-file
+    "bd" '$kill-this-buffer
     "fD" '$delete-file
     "fR" '$rename-file)
 #+END_SRC
