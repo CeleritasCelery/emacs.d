@@ -2570,10 +2570,16 @@ stalls.
 
 make scripts executable on save
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck)
   (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 #+END_SRC
 
+*** flycheck
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :init
+    ($leader-set-key
+      "tf" 'flycheck-mode))
+#+END_SRC
 
 *** company
 I don't want to use return for completion because that often
