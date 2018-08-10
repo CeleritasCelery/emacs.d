@@ -865,6 +865,32 @@ prevent "vimmers" from quiting my Emacs. Old habbits die hard.
   (evil-ex-define-cmd "wq" nil)
 #+END_SRC
 
+*** magic searching
+by default =evil-ex= uses the emacs regex engine which has some very
+weird syntax and annoying escaping. instead we want to use evil's
+=very-magic= mode which provdies something much more PCRE
+compatible. however we can't just set this directly because
+=evil-multiedit= relies on =evil-ex= to be "non-magic". Therefore we
+just create user callable wrapper around evil-ex functions. Magic mode
+only works if the search module is =evil-search=.
+#+BEGIN_SRC emacs-lisp
+  (setq evil-search-module 'evil-search
+        evil-ex-search-vim-style-regexp t)
+
+  (defmacro $make-magic (cmd)
+    `(defun ,(intern (concat "$magic-" (symbol-name cmd))) ()
+       (interactive)
+       (let ((evil-magic 'very-magic))
+         (call-interactively (quote ,cmd)))))
+
+
+  (general-define-key
+   :states '(motion normal visual)
+   ":" ($make-magic evil-ex)
+   "/" ($make-magic evil-ex-search-forward)
+   "?" ($make-magic evil-ex-search-backward)
+   "n" ($make-magic evil-ex-search-next)
+   "N" ($make-magic evil-ex-search-previous))
 #+END_SRC
 
 *** text objects
@@ -883,7 +909,7 @@ texdt objects the select based on indentation.
     (evil-define-text-object evil-filename (count &rest args)
       (let ((bounds (bounds-of-thing-at-point 'filename)))
         (list (car bounds) (cdr bounds))))
-  
+
     (general-define-key
      :keymaps 'evil-inner-text-objects-map
      "g" 'evil-inner-buffer
@@ -1233,6 +1259,11 @@ provides snippets for adding complex blocks. use it with =M-/=
     (projectile-global-mode))
 
   (use-package counsel-projectile
+*** multiedit
+mutliedit is a hybrid of evil-iedit-state and evil-mc.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-multiedit
     :init
     (push '((nil . "counsel-projectile") . (nil . "proj")) which-key-replacement-alist)
     ($leader-set-key
@@ -1243,6 +1274,32 @@ provides snippets for adding complex blocks. use it with =M-/=
       "pf" 'counsel-projectile-find-file
       "pb" 'counsel-projectile-switch-to-buffer
       "pd" 'counsel-projectile-find-dir))
+    (general-define-key
+     :states 'visual
+     "R" 'evil-multiedit-match-all
+     "M-d" 'evil-multiedit-match-and-next
+     "M-D" 'evil-multiedit-match-and-prev
+     "C-M-D" 'evil-multiedit-restore)
+    (general-define-key
+     :states 'normal
+     "M-d" 'evil-multiedit-match-symbol-and-next
+     "M-D" 'evil-multiedit-match-symbol-and-prev)
+    (general-define-key
+     :states 'insert
+     "M-d" 'evil-multiedit-toggle-marker-here)
+    (general-define-key
+     :states 'motion
+     "RET" 'evil-multiedit-toggle-or-restrict-region)
+    (general-define-key
+     :keymaps 'evil-multiedit-state-map
+     "RET" 'evil-multiedit-toggle-or-restrict-region)
+    (general-define-key
+     :keymaps '(evil-multiedit-state-map
+                evil-multiedit-insert-state-map)
+     "C-n" 'evil-multiedit-next
+     "C-p" 'evil-multiedit-prev))
+#+END_SRC
+
 #+END_SRC
 
 ** files
