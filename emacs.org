@@ -1482,6 +1482,15 @@ use helm to quickly navigate org headings
 
   (csetq helm-org-format-outline-path t)
 #+END_SRC
+*** themes
+switch themes using helm
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-themes
+    :init
+    ($leader-set-key
+      "T" 'helm-themes))
+#+END_SRC
+
 #+END_SRC
 
 ** editing
