@@ -2035,12 +2035,35 @@ I want =C-d= to scroll, not delete a character
      :keymaps 'comint-mode-map
      "C-d" nil))
 #+END_SRC
+*** shx
 shx mode allows us to call emacs lisp functions from within the
 builtin shell, gives us the best of both worlds.
 #+BEGIN_SRC emacs-lisp
   (use-package shx
     :diminish
-    :hook shell-mode)
+    :hook shell-mode
+    :general
+    (:keymaps 'shx-mode-map
+              "C-<return>" '$shx-send-input-or-copy-path))
+
+  (defun $get-path-at-point ()
+    (thread-last
+        (apply 'buffer-substring-no-properties
+               (--map (save-excursion
+                        (funcall it "-{}[:alnum:]$/._~\"")
+                        (point))
+                      '(skip-chars-backward skip-chars-forward)))
+      (replace-regexp-in-string "\"" "")
+      (replace-regexp-in-string "/+" "/")
+      (replace-regexp-in-string "$ENV" "$")))
+
+  (defun $shx-send-input-or-copy-path ()
+    (interactive)
+    (if (shx-point-on-input-p)
+        (shx-send-input)
+      (let ((path ($get-path-at-point)))
+        (goto-char (point-max))
+        (insert path))))
 #+END_SRC
 
 the =EMACS_CAPTURE_ENV= is used as part of my tcshrc file to source
@@ -2071,15 +2094,25 @@ the proper env scripts so that all these variables are set
   (use-package shell-pop
     :init
     ($leader-set-key
-      "'" 'shell-pop)
-    :config
-    (advice-add 'shell-pop--cd-to-cwd
-                :before-until (defun $shell-in-cwd-p (cwd)
-                                (file-equal-p default-directory cwd)))
+      "'" 'shell-pop))
+#+END_SRC
 
-    (advice-add 'shell-pop--cd-to-cwd
-                :after (defun $scroll-shell-pop (_)
-                         (scroll-down 1))))
+only send a cd command if we are not already in that directory
+#+BEGIN_SRC emacs-lisp
+  (advice-add 'shell-pop--cd-to-cwd
+              :before-until
+              (defun $shell-in-cwd-p (cwd)
+                (file-equal-p default-directory cwd)))
+#+END_SRC
+
+my current bash prompt is 2 lines, so we always scroll one line down
+so that I can see the whole thing. probably need to make this code
+smarter
+#+BEGIN_SRC emacs-lisp
+  (advice-add 'shell-pop--cd-to-cwd
+              :after
+              (defun $scroll-shell-pop (_)
+                (scroll-down 1)))
 #+END_SRC
 
 fix [[https://github.com/kyagi/shell-pop-el/issues/51][kyagi/shell-pop-el#51]]
