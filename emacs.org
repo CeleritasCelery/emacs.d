@@ -1293,6 +1293,13 @@ set of function to make helm find files more usable.
                               (not (string-suffix-p ".." file))))
 #+END_SRC
 
+ignore lockfiles and backups when looking through the filesystem
+#+BEGIN_SRC emacs-lisp
+  (csetq helm-boring-file-regexp-list
+         (list "~" "#" (rx ".#" (1+ nonl))))
+  (csetq helm-ff-skip-boring-files t)
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
