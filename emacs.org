@@ -1260,6 +1260,39 @@ to have it in the minibuffer as well.
   (add-hook 'helm-minibuffer-set-up-hook '$helm-hide-minibuffer-maybe)
 #+END_SRC
 
+*** files
+set of function to make helm find files more usable.
+- remove the parent hardlink from the list (we can always go up a
+  directory).
+- make sure current directory is not selected by default. rarely am I
+  going to just select the current directory. This is especially
+  useful when I want to quickly navigate through multiple directories
+  with only one entry. I can just use tab over and over again instead
+  of having to type.
+
+#+BEGIN_SRC emacs-lisp
+  (defun $helm-skip-dots ()
+    (let ((cands (helm-marked-candidates))
+          (sel   (helm-get-selection)))
+      (if (and sel
+               (not (cdr cands))
+               (file-directory-p sel)
+               (string= "." (helm-basename sel)))
+          (helm-next-line))))
+
+  (advice-add 'helm-ff-setup-update-hook :after
+              (defun $helm-add-skip-dot ()
+                (add-hook 'helm-after-update-hook '$helm-skip-dots)))
+
+  (advice-add 'helm-find-files-cleanup :after
+              (defun $helm-remove-skip-dot ()
+                (remove-hook 'helm-after-update-hook '$helm-skip-dots)))
+
+  (advice-add 'helm-ff-filter-candidate-one-by-one
+              :before-while (defun $helm-ff-not-parent-hardlink-p (file)
+                              (not (string-suffix-p ".." file))))
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
