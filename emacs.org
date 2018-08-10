@@ -2411,11 +2411,10 @@ we could make it work with bash, but this is easier.
 prompted to save buffers that actaully exist in the project instead of
 it trying prompt us to save all buffers.
 #+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'compile
-    (defun $compile-with-tcsh (fn &rest args)
-      "use tcsh (standard intel shell) for compilation"
-      (let ((shell-file-name "tcsh"))
-        (apply fn args)))
+  (defun $compile-with-tcsh (fn &rest args)
+    "use tcsh (standard intel shell) for compilation"
+    (let ((shell-file-name "tcsh"))
+      (apply fn args)))
 
     (defvar $current-compilation-dir nil
       "root of current compliation")
