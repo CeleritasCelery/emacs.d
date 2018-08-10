@@ -2667,15 +2667,39 @@ helm company provides a helm interface to helm completion
      "C-c C-M-<return>" 'org-insert-todo-subheading)
     (add-to-list 'org-structure-template-alist
                  '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))
-    (defhydra $org-navigate ()
-      "navigate through org headers"
-      ("J" org-next-visible-heading "next heading")
-      ("K" org-previous-visible-heading "prev heading")
-      ("j" org-forward-element "foward")
-      ("k" org-backward-element "back")
-      ("h" org-up-element "up")
-      ("l" org-down-element "down")
-      ("<tab>" org-cycle "cycle")))
+    )
+#+END_SRC
+
+*** navigation
+#+BEGIN_SRC emacs-lisp
+  (defhydra $org-navigate ()
+    "navigate through org headers"
+    ("J" org-next-visible-heading "next heading")
+    ("K" org-previous-visible-heading "prev heading")
+    ("j" org-forward-element "foward")
+    ("k" org-backward-element "back")
+    ("h" org-up-element "up")
+    ("l" org-down-element "down")
+    ("q" nil)
+    ("<tab>" org-cycle "cycle"))
+
+  (defun $org-smart-forward-element ()
+    "if heading is not folded go down into it first."
+    (interactive)
+    (let ((element (org-element-at-point)))
+      (if (and (org-at-heading-or-item-p)
+               (not (org-invisible-p (line-end-position)))
+               (org-element-property :contents-begin element)
+               (memq (org-element-type element)
+                     (append '(plain-list table) org-element-greater-elements)))
+          (org-down-element)
+        (org-forward-element))))
+
+  (general-define-key
+   :keymaps 'org-mode-map
+   "C-j" '$org-smart-forward-element
+   "C-k" 'org-backward-element
+   "C-l" 'org-down-element)
 #+END_SRC
 
 *** functions
