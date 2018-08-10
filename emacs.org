@@ -2126,6 +2126,7 @@ fix [[https://github.com/kyagi/shell-pop-el/issues/51][kyagi/shell-pop-el#51]]
   (add-to-list 'shackle-rules `(,(rx "*shell*") :regexp t :same t))
 #+END_SRC
 
+*** async file completion
 I wrote this package to do async file completion. This is especially
 true when using this in a shell, where you don't want to block the ui
 while typing.
@@ -2145,7 +2146,7 @@ this is a package that I wrote to fallback on fish shell for
 completion candidates. I think at some point I would like to
 reimplement that argument parsing functionality in lisp and remove the
 dependacey on fish.
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
   (use-package company-fish
     :after company
     :straight
@@ -2164,7 +2165,20 @@ environment of my local process with the buffer. very useful.
     (local-env :type git
                :host github
                :repo "CeleritasCelery/local-env-mode"
-               :files ("local-env.el")))
+               :files ("local-env.el"))
+    :init
+    (setq local-env-capture-variables '("MODEL_ROOT"
+                                        "STF_SPFSPEC"
+                                        "TAP_SPFSPEC"
+                                        "TAP2STF_MAP_FILE"
+                                        "XWEAVE"
+                                        "XWEAVE_REPO_ROOT"
+                                        "SPF_ROOT"
+                                        "SPF_PERL_LIB"
+                                        "DFT_REPO_ROOT"))
+    ($leader-local-set-key
+      :keymaps 'shell-mode-map
+      "e" 'local-env-capture))
 
   (use-package company-env
     :straight
