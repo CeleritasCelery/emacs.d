@@ -2661,6 +2661,10 @@ helm company provides a helm interface to helm completion
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
     :config
+    (general-define-key
+     :keymaps 'org-mode-map
+     "C-c C-<return>" 'org-insert-subheading
+     "C-c C-M-<return>" 'org-insert-todo-subheading)
     (add-to-list 'org-structure-template-alist
                  '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))
     (defhydra $org-navigate ()
