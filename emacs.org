@@ -2343,13 +2343,19 @@ us whenever a run stalls with a prompt, so we can quickly address it.
               (add-hook 'comint-output-filter-functions '$alert-core-assembler-stall nil 'local)))
 #+END_SRC
 
+**** bman
+run the bman command based on a dispatcher. At some point I would like
+to make this dynamic so that it could detect all stages and detect
+what models can be run.
+#+BEGIN_SRC emacs-lisp
   (defhydra bman-cmd (:exit t :columns 2)
     "run a bman command"
     ("a" ($run-bman "") "all")
     ("l" ($run-bman "-s all +s lintra") "lintra")
     ("v" ($run-bman "-s all +s vcs") "vcs")
     ("e" ($run-bman "-s all +s espfmodel") "espf")
-    ("c" ($run-bman "-s all +s sglp") "spyglass compile")
+    ("c" ($run-bman "-s all +s collage") "collage")
+    ("p" ($run-bman "-s all +s sglp") "spyglass compile")
     ("s" ($run-bman "-s all +s sgdft") "spyglass")
     ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only"))
 
@@ -2357,16 +2363,41 @@ us whenever a run stalls with a prompt, so we can quickly address it.
     "run dft ipgen in the current model"
     (let* ((model-root (file-truename (vc-git-root default-directory)))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (default-directory model-root)
            (compilation-buffer-name-function
-            (lambda (mm)
-              (concat "*" (f-filename model-root) " bman " (downcase mm) "*"))))
+            (lambda (major-mode)
+              (format "*%s bman %s*"
+                      (f-filename model-root)
+                      (downcase major-mode)))))
       (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman -dut mdf_10nm " filter))))
 
   ($leader-set-key
-    "C" '(:ignore t :wk "compile")
-    "Cb" 'bman-cmd/body
-    "Ci" '$run-ipgen
-    "Cc" 'compile)
+    "ob" 'bman-cmd/body)
+#+END_SRC
+
+**** turnin
+run a turnin command
+#+BEGIN_SRC emacs-lisp
+  (defun $run-turnin ()
+    "run a turnin command"
+    (interactive)
+    (let* ((model-root (file-truename (vc-git-root default-directory)))
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (mock (yes-or-no-p "Run as Mock? "))
+           (clone (yes-or-no-p "Clone ToT? "))
+           (compilation-buffer-name-function
+            (lambda (major-mode)
+              (format "*%s %sturnin %s*"
+                      (f-filename model-root)
+                      (if mock "mock " "")
+                      (downcase major-mode)))))
+      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c mdf -s srvr10nm"
+                       (when mock " -mock")
+                       (unless clone " -no_clone")))))
+
+  ($leader-set-key
+    "o" '(:ignore t :wk "compile")
+    "ot" '$run-turnin)
 #+END_SRC
 
 *** utility
