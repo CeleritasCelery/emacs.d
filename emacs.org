@@ -1755,6 +1755,12 @@ collection of functions stolen from spacemacs
     "fR" '$rename-file)
 #+END_SRC
 
+*** dired
+we don't need so many dired confirmation prompts
+#+BEGIN_SRC emacs-lisp
+  (setq dired-no-confirm t)
+#+END_SRC
+
 *** recentf
 #+BEGIN_SRC emacs-lisp
   (use-package recentf
