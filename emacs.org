@@ -3102,6 +3102,20 @@ provide a hydra dispatcher based on context
       "ef" 'eval-defun))
 #+END_SRC
 
+*** prettify symbols
+make things look a litle nicer. we have to "cycle"
+=prettify-symbols-mode= because our prog-mode hook enables it and
+therefore it won't process any changes to =prettify-symbols-alist=
+unless we turn it back on.
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'emacs-lisp-mode-hook
+            (defun $prettify-cons ()
+              (add-to-list 'prettify-symbols-alist '("lambda" . ?λ))
+              (add-to-list 'prettify-symbols-alist '("." . ?•))
+              (prettify-symbols-mode -1)
+              (prettify-symbols-mode 1)))
+#+END_SRC
+
 never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
