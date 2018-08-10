@@ -3207,6 +3207,18 @@ punctuation character to match perl mode. This fixes a ligature issue.
     (modify-syntax-entry ?: "." cperl-mode-syntax-table))
 #+END_SRC
 
+highlight variables in strings
+#+BEGIN_SRC emacs-lisp
+  (font-lock-add-keywords 'perl-mode
+                          `((,(rx (group-n 1 "$") (group-n 2 (1+ (any alnum "_"))))
+                             (1 (when (not (nth 4 (syntax-ppss)))
+                                  'default)
+                                t)
+                             (2 (when (not (nth 4 (syntax-ppss)))
+                                  font-lock-variable-name-face)
+                                t))))
+#+END_SRC
+
 #+END_SRC
 
 ** json
