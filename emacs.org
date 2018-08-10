@@ -1511,6 +1511,14 @@ time consuming. So we create a function to save the last ediff.
 #+END_SRC
 
 ** editing
+*** general
+make interprogram paste work correctly. don't update the primary when
+in evil
+#+BEGIN_SRC emacs-lisp
+  (setq interprogram-paste-function 'x-cut-buffer-or-selection-value
+        evil-kill-on-visual-paste nil)
+  (fset 'evil-visual-update-x-selection 'ignore)
+#+END_SRC
 
 general editing configuration. We only want to use tabs in specific major modes
 #+BEGIN_SRC emacs-lisp
