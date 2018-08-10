@@ -1211,7 +1211,6 @@ will be first.
 
 #+END_SRC
 
-  (use-package helm-ag)
 *** evil
 some hacks to make helm more evil compatible See
 [[https://github.com/syl20bnr/spacemacs/issues/3700][syl20bnr/spacemacs#3700]]
@@ -1425,6 +1424,37 @@ more convient keybindings for dispatcher functions as well as some helm builtins
                                    (region-end))
                (or (thing-at-point 'symbol t) "")))))
       (call-interactively 'helm-swoop)))
+#+END_SRC
+
+*** ag
+use the ag utility to search through files. The pcre package provides
+us with PCRE compatible functions. PCRE is more intuitive then emacs
+regex
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-ag
+    :init
+    ($leader-set-key
+      "sf" 'helm-do-ag
+      "sF" '$helm-do-ag-region-or-symbol))
+
+  (use-package pcre2el
+    :commands reb-change-syntax)
+
+  (defun $helm-do-ag-region-or-symbol (&optional dir)
+    "Search with `ag' with a default input."
+    (interactive)
+    (require 'helm-ag)
+    (cl-letf* (((symbol-value 'helm-ag-insert-at-point) 'symbol)
+               ;; make thing-at-point choosing the active region first
+               ((symbol-function 'this-fn) (symbol-function 'thing-at-point))
+               ((symbol-function 'thing-at-point)
+                (lambda (thing)
+                  (let ((res (if (region-active-p)
+                                 (buffer-substring-no-properties
+                                  (region-beginning) (region-end))
+                               (this-fn thing))))
+                    (when res (rxt-quote-pcre res))))))
+      (helm-do-ag dir)))
 #+END_SRC
 
 
