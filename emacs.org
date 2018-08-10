@@ -1569,14 +1569,14 @@ move me to the start of the line or start of code, based on heuristics
              "C-a" 'mwim-beginning))
 #+END_SRC
 
+*** avy
 avy is an awesome jump to point package.
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :init
     (setq avy-timeout-seconds 0.3)
-    (general-define-key
-     :states '(normal visual)
-     ";" 'avy-goto-char-timer)
+    :general (:states 'motion
+                      ";" 'avy-goto-char-timer)
     :config
     (evil-collection-init 'avy))
 #+END_SRC
