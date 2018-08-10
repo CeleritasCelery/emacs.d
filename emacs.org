@@ -1241,6 +1241,25 @@ some hacks to make helm more evil compatible See
   (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
 #+END_SRC
 
+*** minibuffer
+sice we are echoing the prompt in the helm buffer there is no reason
+to have it in the minibuffer as well.
+#+BEGIN_SRC emacs-lisp
+  (setq helm-echo-input-in-header-line t)
+
+  (defun $helm-hide-minibuffer-maybe ()
+    "Hide minibuffer in Helm session if we use the header line as input field."
+    (when (with-helm-buffer helm-echo-input-in-header-line)
+      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
+        (overlay-put ov 'window (selected-window))
+        (overlay-put ov 'face
+                     (let ((bg-color (face-background 'default nil)))
+                       `(:background ,bg-color :foreground ,bg-color)))
+        (setq-local cursor-type nil))))
+
+  (add-hook 'helm-minibuffer-set-up-hook '$helm-hide-minibuffer-maybe)
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
