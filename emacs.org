@@ -2209,10 +2209,12 @@ so we supress them
   (use-package compile
     :straight nil
     :init
-    (setq compilation-auto-jump-to-first-error t)
     (add-to-list 'shackle-rules '(compilation-mode :select t))
     (add-to-list 'shackle-rules '(comint-mode :select t))
     (add-to-list 'shackle-rules '(".* ipgen compilation\\*" :regexp t :select t))
+    ($leader-set-key
+      "o" '(:ignore t :wk "compile")
+      "oc" 'compile)
     :config
     (evil-collection-init 'compile)
     (general-define-key
@@ -2234,7 +2236,7 @@ so we supress them
                                1 'font-lock-comment-face)))
     (add-hook 'compilation-filter-hook
               (defun $compilation-apply-ansi-color ()
-                (ansi-color-apply-on-region compilation-filter-start (point))))) 
+                (ansi-color-apply-on-region compilation-filter-start (point)))))
 #+END_SRC
 
 compillation can either be run in =compilation-mode= or in
