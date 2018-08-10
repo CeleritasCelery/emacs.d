@@ -1909,6 +1909,24 @@ want to do when I enable flycheck.
     :after git-gutter)
 #+END_SRC
 
+these changes the behavior of the git gutter popup so that I can quit
+with =q= and the window is selected.
+#+BEGIN_SRC emacs-lisp
+  (advice-add 'git-gutter:update-popuped-buffer :after
+              (defun $git-gutter-window-quit (&rest _)
+                (when-let ((buffer (get-buffer git-gutter:popup-buffer)))
+                  (with-current-buffer buffer
+                    (general-define-key
+                     :keymaps 'local
+                     :states 'normal
+                     "q" 'quit-window)))))
+
+  (defun $git-gutter-show-hunk ()
+    (interactive)
+    (git-gutter:popup-hunk)
+    (pop-to-buffer git-gutter:popup-buffer))
+#+END_SRC
+
 ** shell
 *** comint
 comint is the generic backend for REPL's and shells. We are giving it
