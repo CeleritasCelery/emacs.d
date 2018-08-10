@@ -1961,9 +1961,7 @@ these are utility functions used to setting up the Emacs shell.
 #+BEGIN_SRC emacs-lisp
   (use-package shell
     :straight nil
-    :gfhook company-mode
-    :init
-    (setq shell-file-name "bash"))
+    :gfhook company-mode)
 
   (defvar $dir-history nil
     "previous shell directories")
