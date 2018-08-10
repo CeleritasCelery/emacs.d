@@ -1188,6 +1188,10 @@ action.
         (helm-default-display-buffer buffer)))
     :config
     (helm-mode)
+    (helm-adaptive-mode)
+    (setq helm-adaptive-history-length 100)
+    (dired-async-mode)
+    (setq helm-ff-delete-files-function 'helm-delete-marked-files-async))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
