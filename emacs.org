@@ -1309,6 +1309,24 @@ open file in clipboard. Usually something I copied from an email
     "fo" '$open-file-in-clipboard)
 #+END_SRC
 
+a better fild-file-at-point function that allows full directory
+naviagation
+#+BEGIN_SRC emacs-lisp
+  (defun $find-file-at-point ()
+    "A better replacement for `find-file-at-point' that gives me
+  the full power of helm"
+    (interactive)
+    (let ((file ($get-path-at-point)))
+      (helm-find-files-1 (concat (or (file-remote-p default-directory) "")
+                                 file)
+                         (file-name-base file))))
+
+  (general-define-key
+   :states '(normal visual motion)
+   :keymaps 'global
+   "gf" '$find-file-at-point)
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
