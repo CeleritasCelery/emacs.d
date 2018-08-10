@@ -1943,7 +1943,7 @@ previous command it will automatically move us the the command line.
               "C-j" 'comint-next-matching-input-from-input
               "C-S-k" 'comint-previous-prompt
               "C-S-j" 'comint-next-prompt
-              [remap comint-dynamic-list-input-ring] 'counsel-shell-history)
+              [remap comint-dynamic-list-input-ring] 'helm-comint-input-ring)
     :init
     (setq comint-scroll-to-bottom-on-input t
           comint-process-echoes t
