@@ -2486,42 +2486,47 @@ applicable to us. Also the built in verilog mode tries to add all of
 its error regexp's to the alist everytime it is loaded. This results
 in a lot of extra processing that we don't want. Therefore we remove
 that hook and set the alist back to our canonical version.
+
 #+BEGIN_SRC emacs-lisp
   (defvar $compilation-error-regexp-alist nil
     "The canonical error regexp alist")
 
   (with-eval-after-load 'compile
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(ipgen-gmake ,(rx bol "gmake: *** [" (group-n 1 (>= 10 nonl)) "] Error " digit) 1))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(core-assembler ,(rx bol "Information: script '" (group-n 1 (1+ (not (any "'"))))
-                                       "'\n" (1+ space) "stopped at line " (group-n 2 (1+ digit)) (1+ nonl)) 1 2))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(connection-error ,(rx bol (optional "-I-:") "Error: " (group-n 3 (1+ nonl))
-                                         "\n" (optional "-I-:") "-" (or "E" "F") "-: [CRT-" (1+ digit) "] Error in "
-                                         (1+ nonl) " file " (group-n 1 (and "/" (1+ (not (any space))))) (0+ space)
-                                         "\n" (optional "-I-:") " Error at line# " (group-n 2 (1+ digit)) (1+ nonl))
-                                    1 2 nil nil nil (3 font-lock-warning-face)))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(bman-verilog ,(rx bol "-I-:Error-" (1+ nonl)
-                                     "\n-I-:" (group-n 1 (1+ (not space))) ", " (group-n 2 (1+ digit))) 1 2))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(bman-stage ,(rx bol "-" (or "E" "I") "-:" (optional space) "FAILED:"  (1+ nonl) (or ";" ":") " LOG " (optional ": ") (group (1+ (not space)))) 1))
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(ipgen-hdl-copy ,(rx bol "-I-:Error-[MPD] Module previously declared"
-                                       "\n-I-:  The module was previously declared at: "
-                                       "\n-I-:  \"" (group (1+ (not space))) "/" (1+ (not space)) (or ".vs" ".sv") "\",") (1 "%s/dft_ipgen.hdl")))
+    (dolist (regex `((ipgen-gmake ,(rx bol "gmake: *** [" (group-n 1 (>= 10 nonl)) "] Error " digit)
+                                  1)
+                     (core-assembler ,(rx bol "Information: script '" (group-n 1 (1+ (not (any "'"))))
+                                          "'\n" (1+ space) "stopped at line " (group-n 2 (1+ digit)) (1+ nonl))
+                                     1 2)
+                     (connection-error ,(rx bol (optional "-I-:") "Error: " (group-n 3 (1+ nonl))
+                                            "\n" (optional "-I-:") "-" (or "E" "F") "-: [CRT-" (1+ digit) "] Error in "
+                                            (1+ nonl) " file " (group-n 1 (and "/" (1+ (not (any space))))) (0+ space)
+                                            "\n" (optional "-I-:") " Error at line# " (group-n 2 (1+ digit)) (1+ nonl))
+                                       1 2 nil nil nil (3 font-lock-warning-face))
+                     (bman-verilog ,(rx bol "-I-:Error-" (1+ nonl)
+                                        "\n-I-:" (group-n 1 (1+ (not space))) ", " (group-n 2 (1+ digit)))
+                                   1 2)
+                     (bman-stage ,(rx bol "-" (or "E" "I") "-:" (optional space) "FAILED:"
+                                      (1+ nonl) (or ";" ":") " LOG " (optional ": ") (group (1+ (not space))))
+                                 1)
+                     (ipgen-hdl-copy ,(rx bol "-I-:Error-[MPD] Module previously declared"
+                                          "\n-I-:  The module was previously declared at: "
+                                          "\n-I-:  \"" (group (1+ (not space))) "/" (1+ (not space))
+                                          (or ".vs" ".sv") "\",")
+                                     (1 "%s/dft_ipgen.hdl"))
+                     (sgdft ,(rx bol "-E-:SGDFT" (1+ nonl) "FAILED"
+                                 "\n-I-:  Error" (1+ nonl)
+                                 "\n-I-:  Use" (1+ nonl)
+                                 "\n-I-:Report: " (group (1+ (not space))))
+                            1)
+                     (json ,(rx bol "-E- Unable to parse JSON file " (group-n 1 (1+ (not space))) ":"
+                                (1+ nonl) "line " (group-n 2 (1+ digit))
+                                " offset " (group-n 3 (1+ digit)))
+                           1 2 3)))
+      (add-to-list 'compilation-error-regexp-alist-alist regex))
 
-    (add-to-list 'compilation-error-regexp-alist-alist
-                 `(sgdft ,(rx bol "-E-:SGDFT" (1+ nonl) "FAILED"
-                              "\n-I-:  Error" (1+ nonl)
-                              "\n-I-:  Use" (1+ nonl)
-                              "\n-I-:Report: " (group (1+ (not space))))
-                         1))
-
-
-    (setq $compilation-error-regexp-alist '(ipgen-hdl-copy sgdft ipgen-gmake core-assembler connection-error bman-stage bman-verilog))
-    (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
+    (setq compilation-error-regexp-alist
+          (setq $compilation-error-regexp-alist
+                '(json ipgen-hdl-copy sgdft ipgen-gmake core-assembler connection-error bman-stage bman-verilog))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
@@ -3320,6 +3325,7 @@ collection of major modes that I use for different file types.
       :keymaps 'spfspec-mode-map
       "g" 'spfspec-goto-definition))
 #+END_SRC
+
 *** digit groups
 allows us to more easily read binary numbers by visually grouping them
 into nibbles.
