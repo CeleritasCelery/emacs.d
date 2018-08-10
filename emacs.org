@@ -2795,13 +2795,31 @@ helm company provides a helm interface to helm completion
     :straight nil
     :init
     (setq org-agenda-todo-ignore-scheduled 'future
+          org-agenda-tags-todo-honor-ignore-options t
           org-agenda-dim-blocked-tasks 'invisible
           org-agenda-files "~/org/.agenda-files"
-          org-agenda-custom-commands '(("f" tags-todo "mdf-pvim|snr|gen")
-                                       ("d" tags-todo "dev")
-                                       ("p" tags-todo "pvim+now")))
+          org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen")
+                                       ("d" "development" tags-todo "dev")
+                                       ("p" "pvim" tags-todo "pvim+now")))
     ($leader-set-key
-      "a" 'org-agenda))
+      "a" 'org-agenda)
+    :config
+    (setf (alist-get 'todo org-agenda-sorting-strategy)
+          '(todo-state-up priority-down category-keep)))
+#+END_SRC
+
+*** refile
+this allows me to quickly move headers around files based on these refile targets
+#+BEGIN_SRC emacs-lisp
+  (setq org-refile-targets '((nil :maxlevel . 2)
+                             ("~/org/integration.org" :maxlevel . 2)
+                             ("~/org/validation.org" :maxlevel . 2)
+                             ("~/org/projects/mdf.org" :maxlevel . 2)
+                             ("~/org/projects/mdf_pvim.org" :maxlevel . 3)
+                             ("~/org/projects/snr/snr_scan.org" :maxlevel . 2)
+                             ("~/org/meeting-notes/mdf_meet.org" :maxlevel . 2)
+                             ("~/org/meeting-notes/integ_meet.org" :maxlevel . 2)
+                             ("~/org/dev/development.org" :maxlevel . 1)))
 #+END_SRC
 
 *** clock
