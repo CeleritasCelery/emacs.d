@@ -1327,6 +1327,79 @@ naviagation
    "gf" '$find-file-at-point)
 #+END_SRC
 
+*** dispatcher
+these are functions that I often want to run, but normally have to
+exit helm to call their keybindings. So we create wrapper thats lets
+us call them from helm.
+#+BEGIN_SRC emacs-lisp
+  (defun $helm-ag-from-session ()
+    "Launch `helm-ag' from within a helm session"
+    (interactive)
+    (with-helm-alive-p
+      (helm-run-after-exit
+       'helm-do-ag
+       helm-ff-default-directory
+       (let ((cand (helm-marked-candidates)))
+         ;; if we have not marked anything we want to search the current directory
+         (unless (equal (list (helm-get-selection))
+                        cand)
+           cand)))))
+
+  (defun $magit-from-helm-session ()
+    "run magit from a helm session"
+    (interactive)
+    (with-helm-alive-p
+      (helm-run-after-exit
+       '$magit-status-in-dir
+       helm-ff-default-directory)))
+
+  (defun $helm-ff-switch-to-shell ()
+    "Run switch to shell action from `helm-source-find-files'."
+    (interactive)
+    (with-helm-alive-p
+      (helm-run-after-exit
+       '$shell-pop
+       helm-current-prefix-arg
+       helm-current-buffer
+       helm-ff-default-directory)))
+
+  (defun $helm-copy-to-kill-ring ()
+    "Copy selection or marked candidates to the kill ring.
+  Note that the real values of candidates are copied and not the
+  display values.
+  If a file name, copy the full path unless C-u prefix is given."
+    (interactive)
+    (with-helm-alive-p
+      (helm-run-after-exit
+       (lambda (cands)
+         (with-helm-current-buffer
+           (kill-new (mapconcat
+                      (lambda (c)
+                        (format "%s" (if (and (null helm-current-prefix-arg)
+                                              (stringp c)
+                                              (file-exists-p c))
+                                         (file-truename c)
+                                       c)))
+                      cands "\n"))))
+       (helm-marked-candidates))))
+#+END_SRC
+
+more convient keybindings for dispatcher functions as well as some helm builtins
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'helm
+    (general-define-key
+     :keymaps 'helm-map
+     "C-c y" '$helm-copy-to-kill-ring)
+    (general-define-key
+     :keymaps '(helm-find-files-map helm-read-file-map helm-generic-files-map)
+     "C-r"   'helm-find-files-history
+     "C-c m" 'helm-ff-bookmark-set
+     "C-c b" 'helm-find-files-toggle-to-bookmark
+     "C-c '" '$helm-ff-switch-to-shell
+     "C-c s" '$helm-ag-from-session
+     "C-c g" '$magit-from-helm-session))
+#+END_SRC
+
 
 *** org
 use helm to quickly navigate org headings
