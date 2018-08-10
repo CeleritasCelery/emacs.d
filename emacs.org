@@ -1983,50 +1983,37 @@ these are utility functions used to setting up the Emacs shell.
     remote shell will need to echo it's PID in the rc file in the form of `shx'
     markup."
     (when (string-match comint-prompt-regexp str)
-      (--when-let (-some->> ($get-shell-pid)
-                            (format "/proc/%s/cwd")
-                            (concat (file-remote-p default-directory))
-                            file-symlink-p
-                            cd)
-        (unless (equal it (car $dir-history))
-          (push it $dir-history))))
+      (when-let ((remote  (or (file-remote-p default-directory) ""))
+                 (dir (-some->> (local-env-get-shell-pid)
+                             (format "/proc/%s/cwd")
+                             (concat remote)
+                             file-symlink-p)))
+        (cd (concat remote dir))
+        (unless (equal dir (car $dir-history))
+          (push dir $dir-history))))
     str)
-
-  (defun $get-shell-pid ()
-    (or $shell-pid
-        ;; we can only use the buffer process PID
-        ;; with local shells
-        (unless (file-remote-p default-directory)
-          (-some->> (current-buffer)
-                    get-buffer-process
-                    process-id))))
-
-  (defvar $shell-pid nil
-    "Set this variable when the buffer process PID is not the shell PID.")
-  (make-variable-buffer-local '$shell-pid)
-
-  (defun shx-cmd-set-pid (pid)
-    "(SAFE) sets env local shell PID.
-  Add the following lines to (or equvilent) to your shell starup file
-
-  echo \"<set-pid $$>\""
-    (setq $shell-pid pid))
 
   (defun $supress-hostkey-warning (str)
     "EC machines issue a benign but really annoying warning that the EC people
-    don't have the technical competence to fix. It has the following form:
+      don't have the technical competence to fix. It has the following form:
 
-    add_host_to_hostkeys: failed to open <missing path> - reason Permission denied "
+      add_host_to_hostkeys: failed to open <missing path> - reason Permission denied "
     (if (string-match "add_host_to_hostkeys: failed to open" str) "" str))
 
   (defun $shell-mode-hook ()
     (shell-dirtrack-mode 0)
     (setq-local comint-prompt-regexp (rx bol "╰─→ " eos))
     (modify-syntax-entry ?= ".")
-    (setq-local company-backends '(company-async-files (company-command company-env) company-fish company-capf company-dabbrev-code))
+    (modify-syntax-entry ?> ".")
+    (modify-syntax-entry ?> ".")
+    (local-env-mode)
+    (setq-local company-backends '(company-async-files
+                                   (company-command company-env)
+                                   (company-capf company-dabbrev-code)))
     (general-add-hook 'comint-preoutput-filter-functions
                       '($supress-hostkey-warning $track-shell-directory) nil 'local))
   (add-hook 'shell-mode-hook '$shell-mode-hook)
+#+END_SRC
 
   (defun $tcsh-remote-shell (fn &rest args)
     (if (file-remote-p default-directory)
