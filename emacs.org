@@ -648,6 +648,19 @@ minimal window managment package.
      "C-c C-w" nil))
 #+END_SRC
 
+*** toggles
+minor modes that I commonly toggle on and off
+#+BEGIN_SRC emacs-lisp
+  ($leader-set-key
+    "t" '(:ignore t :wk "toggle")
+    "tn" 'display-line-numbers-mode
+    "tl" 'toggle-truncate-lines
+    "te" 'toggle-debug-on-error
+    "tq" 'toggle-debug-on-quit
+    "tw" 'whitespace-mode
+    "tg" 'git-gutter-mode)
+#+END_SRC
+
 *** restart
 #+BEGIN_SRC emacs-lisp
   (use-package restart-emacs
