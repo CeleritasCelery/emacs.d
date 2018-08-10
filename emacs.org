@@ -774,6 +774,19 @@ integrated into ivy
     (setq smex-history-length 32))
 #+END_SRC
 
+*** prescient
+keeps track of statistics for usage and presents most familiar
+candiates first. Currently does not support regex, which makes it much
+less useful
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-prescient
+    :after ivy
+    :demand t
+    :config
+    (ivy-prescient-mode)
+    (prescient-persist-mode))
+#+END_SRC
+
 ** evil
 evil is the Extensible VI Layer. It gives us all the power of vim
 without the draw back of using vimscript for config.
