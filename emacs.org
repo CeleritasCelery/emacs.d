@@ -1041,9 +1041,9 @@ behave better with evil.
                    $leader-key nil
                    $mm-leader-key nil))))
     (evil-collection-init '(calc calendar custom debug eldoc
-                                 elisp-mode dired help info occur
-                                 popup profiler wgrep wdired
-                                 which-key)))
+                                 elisp-mode dired help info
+                                 integration occur popup profiler
+                                 wgrep wdired which-key)))
 #+END_SRC
 
 *** surround
