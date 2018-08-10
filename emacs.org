@@ -948,10 +948,12 @@ general leader key bindings
     "hdm" 'describe-mode
     "hdc" 'describe-char
     "hs"  'profiler-start
+    "hS"  'profiler-stop
     "hr"  'profiler-report
+    "hR"  'profiler-reset
     "d" 'save-buffer
-    "bd" 'kill-buffer
     "br" 'rename-buffer
+    "bR" 'revert-buffer
     "s" '(:ignore t :wk "search")
     "sc" 'evil-ex-nohighlight
     "u" 'universal-argument)
