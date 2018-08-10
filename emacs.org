@@ -3304,6 +3304,10 @@ the following ways:
                 ""
               json--encoding-current-indentation)))
 #+END_SRC
+** makefile
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
+#+END_SRC
 ** other
 collection of major modes that I use for different file types.
 #+BEGIN_SRC emacs-lisp
