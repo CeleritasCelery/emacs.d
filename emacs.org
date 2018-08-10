@@ -2015,6 +2015,17 @@ these are utility functions used to setting up the Emacs shell.
   (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
 
+generic wrapper function that can be called from other code. currently
+used in helm
+#+BEGIN_SRC emacs-lisp
+  (defun $shell-pop (arg buffer dir)
+    "shell-pop to current buffers directory or dir"
+    (if (and (boundp 'shell-pop-last-shell-buffer-name)
+             (equal (buffer-name buffer)
+                    shell-pop-last-shell-buffer-name))
+        (shell-pop--cd-to-cwd dir)
+      (let ((default-directory dir))
+        (shell-pop arg))))
 #+END_SRC
 
 shx mode allows us to call emacs lisp functions from within the
