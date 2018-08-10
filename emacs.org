@@ -2780,6 +2780,9 @@ helm company provides a helm interface to helm completion
       (let ((fn (if (eq major-mode 'org-agenda-mode)
                     'org-agenda-schedule
                   'org-schedule)))
+        (defvar org-state)
+        (let ((org-state "DONE"))
+          (org-clock-out-if-current))
         (funcall fn arg "+1d")))
     ($leader-local-set-key
       :keymaps '(org-mode-map org-agenda-mode-map)
