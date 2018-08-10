@@ -1077,8 +1077,8 @@ behave better with evil.
                evilnc-comment-operator)
     :init
     ($leader-set-key
-      "." '(evilnc-copy-and-comment-operator :wk "copy-and-comment")
-      ";" '(evilnc-comment-operator :wk "comment")))
+      "k" '(evilnc-comment-operator :wk "comment")
+      "K" '(evilnc-copy-and-comment-operator :wk "copy-and-comment")))
 #+END_SRC
 
 *** lispy
