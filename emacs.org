@@ -2416,19 +2416,21 @@ it trying prompt us to save all buffers.
     (let ((shell-file-name "tcsh"))
       (apply fn args)))
 
-    (defvar $current-compilation-dir nil
-      "root of current compliation")
+  (defvar $current-compilation-dir nil
+    "root of current compliation")
 
-    (defun $set-compilation-dir (&rest _)
-      "set the root of the current compilation"
-      (setq $current-compilation-dir default-directory))
+  (defun $set-compilation-dir (&rest _)
+    "set the root of the current compilation"
+    (setq $current-compilation-dir default-directory))
 
-    (setq compilation-save-buffers-predicate
-          (lambda ()
-            (when-let ((root (vc-git-root (buffer-file-name)))
-                       (comp-root (vc-git-root $current-compilation-dir)))
-              (f-same? comp-root root))))
+  (setq compilation-save-buffers-predicate
+        (lambda ()
+          (when-let ((root (vc-git-root (buffer-file-name)))
+                     (comp-root (vc-git-root $current-compilation-dir)))
+            (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
+                 (f-same? comp-root root)))))
 
+  (with-eval-after-load 'compile
     (general-advice-add '(compile recompile) :around #'$compile-with-tcsh)
     (general-advice-add '(compile recompile) :before #'$set-compilation-dir))
 #+END_SRC
