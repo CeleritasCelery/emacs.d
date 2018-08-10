@@ -2911,6 +2911,19 @@ this allows me to quickly move headers around files based on these refile target
          (message "HTML copied to clipboard")))
 #+END_SRC
 
+*** tags
+#+BEGIN_SRC emacs-lisp
+  (setq org-tag-alist
+        '(("mdf"  . ?m)
+          ("snr"  . ?s)
+          ("dev"  . ?d)
+          ("int"  . ?i)
+          ("val"  . ?v)
+          ("gen"  . ?g)
+          ("hsd"  . ?h)
+          ("info" . ?f)))
+#+END_SRC
+
 *** src blocks
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
