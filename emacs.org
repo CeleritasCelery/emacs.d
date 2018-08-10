@@ -1755,10 +1755,18 @@ collection of functions stolen from spacemacs
     "fR" '$rename-file)
 #+END_SRC
 
+*** recentf
 #+BEGIN_SRC emacs-lisp
   (use-package recentf
     :init
     (setq recentf-max-saved-items 500))
+#+END_SRC
+
+*** ediff
+I like to keep everything in one frame. I am not mutli-window heathen
+from 2003
+#+BEGIN_SRC emacs-lisp
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
 #+END_SRC
 
 ** git
