@@ -2066,9 +2066,10 @@ builtin shell, gives us the best of both worlds.
         (insert path))))
 #+END_SRC
 
+*** exec path from shell
 the =EMACS_CAPTURE_ENV= is used as part of my tcshrc file to source
 the proper env scripts so that all these variables are set
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (use-package exec-path-from-shell
     :defer 6
     :init
@@ -2082,10 +2083,15 @@ the proper env scripts so that all these variables are set
       (exec-path-from-shell-copy-envs '("IP_MODELS"
                                         "IP_RELEASES"
                                         "GIT_REPOS"
-                                        "GLOBAL_TOOLS"
                                         "RTLMODELS"
-                                        "SPF_PERL_LIB"
-                                        "SPF_ROOT"))
+                                        "RTL_PROJ_TOOLS"
+                                        "RTL_PROJ_CFG"
+                                        "RTL_PROJ_BIN"
+                                        "RTL_CAD_ROOT"
+                                        "GLOBAL_TOOLS"
+                                        "CFG_PROJECT"
+                                        "VALID_ROOT"
+                                        "VTLIB"))
       (setenv "EMACS_CAPTURE_ENV" nil)))
 #+END_SRC
 
