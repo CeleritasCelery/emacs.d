@@ -1592,6 +1592,7 @@ line only
              "s" '(:keymap evilem-map)))
 #+END_SRC
 
+*** yasnippet
 provides snippets for adding complex blocks. use it with =M-/=
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
@@ -1605,6 +1606,7 @@ provides snippets for adding complex blocks. use it with =M-/=
     :after yasnippet)
 #+END_SRC
 
+*** projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
     :defer 2
@@ -1612,6 +1614,7 @@ provides snippets for adding complex blocks. use it with =M-/=
     (setq projectile-enable-caching t)
     :config
     (projectile-global-mode))
+#+END_SRC
 
 *** multiedit
 mutliedit is a hybrid of evil-iedit-state and evil-mc.
