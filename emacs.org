@@ -3219,6 +3219,14 @@ highlight variables in strings
                                 t))))
 #+END_SRC
 
+I use regular perl-mode for files that are considered read-only.
+#+BEGIN_SRC emacs-lisp
+  (use-package perl-mode
+    :straight nil
+    :mode (rx ".ip_info" eos)
+    :init
+    (setq perl-indent-parens-as-block t
+          perl-continued-brace-offset 0))
 #+END_SRC
 
 ** json
