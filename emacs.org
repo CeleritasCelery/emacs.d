@@ -2567,8 +2567,11 @@ stalls.
 :VISIBILITY: children
 :END:
 ** General
+
+make scripts executable on save
 #+BEGIN_SRC emacs-lisp
   (use-package flycheck)
+  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
 #+END_SRC
 
 
