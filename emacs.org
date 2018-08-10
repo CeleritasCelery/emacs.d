@@ -588,6 +588,16 @@ functions. only tweak we need to make is let the window close with q
      "q" 'quit-window))
 #+END_SRC
 
+we are going to add helpful to the completing read handler for
+helm. This will let us preview the variable with TAB.
+#+BEGIN_SRC emacs-lisp
+  (dolist (help-fn '(helpful-variable
+                     helpful-function
+                     helpful-macro
+                     helpful-key
+                     helpful-callable))
+    (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols))
+#+END_SRC
 *** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
