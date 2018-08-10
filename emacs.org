@@ -1083,15 +1083,11 @@ behave better with evil.
 
 *** lispy
 These packages are great at providing editor shortcuts for editing
-lisp. There are several things I want to change however. 
-- I hate that is overrides =v=, as I use that character all the time
-  for motions. I think I am going to delegate only =C-v= and =V= to
-  the lispy functions and leave the rest untouched. probably should
-  use a hydra.
+lisp. There are several things I want to change however.
 - I am starting to think that I would be better off just using the
   evil lisp state, and then binding some of the most convient
   functions from both to the new state. Some of the evil-cleverparens
-  functions are smarter then their equvilents in lispyville.
+  functions are smarter then their equivalents in lispyville.
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
     :delight
@@ -1110,8 +1106,14 @@ lisp. There are several things I want to change however.
             additional
             additional-movement
             additional-insert
-            additional-wrap
-            mark)))
+            additional-wrap))
+
+    :config
+    (eval `(defhydra lispyville-mark (:exit nil)
+             ("v" ,(lispyville-wrap-command lispy-mark-symbol visual) "symbol")
+             ("V" ,(lispyville-wrap-command lispy-mark visual) "sexp")))
+    ($leader-set-key
+      "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual))
 #+END_SRC
 
 ** Helm
