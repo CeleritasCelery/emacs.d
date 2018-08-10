@@ -2254,9 +2254,23 @@ a few issues that we are going to resolve now:
 3. We want to start in normal state, so we easily dismiss the
    window with =q= right when it first pops up if we want.
 #+BEGIN_SRC emacs-lisp
-  (defun $run-ipgen (arg)
-    "run dft ipgen in the current model"
-    (interactive "P")
+  (general-define-key
+   :definer 'minor-mode
+   :states 'normal
+   :keymaps 'compilation-shell-minor-mode
+   "q" 'quit-window
+   "r" 'recompile)
+  (general-define-key
+   :states 'motion
+   :keymaps 'compilation-mode-map
+   "r" 'recompile)
+
+  (advice-add 'recompile :before (defun $set-recompile-buffer-name (_)
+                                   (setf (nth 2 compilation-arguments) (lambda (_) (buffer-name)))))
+
+  (add-hook 'compilation-shell-minor-mode-hook 'evil-normal-state)
+#+END_SRC
+
     (let* ((model-root (vc-git-root default-directory))
            (ipgen (f-join model-root "tools/ipgen/"))
            (dut (completing-read "select DUT: "
