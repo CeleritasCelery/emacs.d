@@ -3116,6 +3116,13 @@ unless we turn it back on.
               (prettify-symbols-mode 1)))
 #+END_SRC
 
+*** page breaks
+make page breaks easier to see
+#+BEGIN_SRC emacs-lisp
+  (use-package page-break-lines
+    :hook (emacs-lisp-mode . turn-on-page-break-lines-mode))
+#+END_SRC
+
 never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
