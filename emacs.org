@@ -1826,6 +1826,42 @@ every repo. I can use these functions as short hand.
     "gcp" '$git-private-user)
 #+END_SRC
 
+calling =magit-status= on a whole IP can be very time
+consumuing. Often I am just trying to look at a single directory, and
+this gives me the power to do that.
+
+#+BEGIN_SRC emacs-lisp
+  (defun $magit-status-in-dir (dir)
+    "limit magit status to directory"
+    (interactive "D")
+    (require 'magit)
+    (let* ((root (vc-git-root dir))
+           (dir (list (file-relative-name dir root)))
+           (magit-status-mode-hook (cons (lambda () (setq-local magit-diff-section-file-args dir))
+                                         magit-status-mode-hook)))
+      (magit-status-internal root)))
+
+  (defun $magit-status-current-dir ()
+    "run magit in current dir"
+    (interactive)
+    ($magit-status-in-dir default-directory))
+
+  (defun $magit-clear-diff-args-if-not-dir-local ()
+    (when (--none? (eq (car it) 'magit-diff-section-file-args)
+                   dir-local-variables-alist)
+      (setq-local magit-diff-section-file-args nil)))
+
+  (defun $magit-status ()
+    (interactive)
+    (let ((magit-status-mode-hook (cons '$magit-clear-diff-args-if-not-dir-local
+                                        magit-status-mode-hook)))
+      (call-interactively 'magit-status)))
+
+  ($leader-set-key
+    "gd" '$magit-status-current-dir
+    "gs" '$magit-status)
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (use-package evil-magit
     :demand t
