@@ -2435,6 +2435,50 @@ it trying prompt us to save all buffers.
     (general-advice-add '(compile recompile) :before #'$set-compilation-dir))
 #+END_SRC
 
+it is often useful to know how long a command runs, but compilation
+mode only gives us the end time normally. These functions will print
+the timestamp in the compilation buffer.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'compile
+    (general-add-advice '(compile recompile) :after
+                        (defun $compilation-set-start-time (&rest _)
+                          (with-current-buffer compilation-last-buffer
+                            (setq-local $compilation-start-time (current-time))))))
+
+  (add-hook 'compilation-finish-functions
+            (defun $compilation-print-run-time (buffer _msg)
+              (with-current-buffer buffer
+                (save-excursion
+                  (goto-char (point-max))
+                  (insert (format " --- Total run time: %s ---\n"
+                                  ($time-difference-to-string
+                                   (current-time) $compilation-start-time)))))))
+
+
+  (cl-defun $time-difference-to-string (time1 time2)
+    "take the difference between two time stamps and print it"
+    (let* ((names '("day" "hour" "minute" "second"))
+           (decode (reverse (-take 4 (decode-time (time-subtract time1 time2) "UTC0"))))
+           ;; units is the alist of (value . name) pairs. e.g. (1 . day) (4 . hour) etc.
+           ;; since days starts at 1 (instead of 0) we subtract 1 from the first element
+           (units (-zip-pair (cons (1- (car decode)) (cdr decode))
+                             names)))
+      (while units
+        ;; When we find the first non-zero unit we print it as well as
+        ;; the following unit.
+        (when-let ((formatted ($format-time-unit (pop units))))
+          (cl-return-from $time-difference-to-string
+            (s-join ", " (remove nil (list formatted ($format-time-unit (pop units))))))))))
+
+  (defun $format-time-unit (unit)
+    "return formatted time string if unit is not 0"
+    (when (and unit
+               (> (car unit) 0))
+      (let ((value (car unit))
+            (name (cdr unit)))
+        (format "%d %s%s" value name (if (>= value 1) "s" "")))))
+#+END_SRC
+
 we need to define what errors look like in compilation and log
 files. compilation mode has some defaults but they are not really
 applicable to us. Also the built in verilog mode tries to add all of
