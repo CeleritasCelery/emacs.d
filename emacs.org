@@ -3154,9 +3154,7 @@ https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
     :straight nil
     :init
     (setq tramp-default-method "ssh"
-          tramp-default-user "tjhinckl"
-          tramp-verbose 4
-          helm-tramp-connection-min-time-diff 1
+          tramp-verbose 3
           tramp-inline-compress-start-size 1000000
           tramp-copy-size-limit 1000000)
     :config
