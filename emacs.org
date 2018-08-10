@@ -2278,7 +2278,7 @@ functions that are used for compilation of ipgen and bman or turnin.
 a function to run IPGen. using helm me can mark the candidates and run
 them all at once.
 #+BEGIN_SRC emacs-lisp
-  (defun $run-ipgen-internal (dir &optional clean)
+  (defun $run-ipgen-internal (dir &optional no-clean)
     (let* ((default-directory dir)
            (model-root (vc-git-root dir))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)
@@ -2297,7 +2297,7 @@ them all at once.
                       (f-filename dir)
                       (downcase major-mode)))))
       (compile (concat "source setup && "
-                       (when clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
+                       (unless no-clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
                        "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen") t)))
 
   (defun $helm-get-ipgen-data ()
@@ -2320,7 +2320,7 @@ them all at once.
                   "select ipgen model: "
                 :fuzzy-match t
                 :candidates ($helm-get-ipgen-data)
-                :action '(("run ipgen (C-u to run clean)" . $helm-ipgen-action)))))
+                :action '(("run ipgen (C-u to run without clean)" . $helm-ipgen-action)))))
 
   ($leader-set-key
     "oi" '$run-ipgen)
