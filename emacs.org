@@ -2537,6 +2537,9 @@ that hook and set the alist back to our canonical version.
                                  "\n-I-:  Use" (1+ nonl)
                                  "\n-I-:Report: " (group (1+ (not space))))
                             1)
+                     (simregress ,(rx (1+ space) "simregress invocation failed on " (1+ nonl)
+                                      "\n" (1+ space) "Refer to " (1+ nonl) ": " (group (1+ nonl)))
+                                 1)
                      (json ,(rx bol "-E- Unable to parse JSON file " (group-n 1 (1+ (not space))) ":"
                                 (1+ nonl) "line " (group-n 2 (1+ digit))
                                 " offset " (group-n 3 (1+ digit)))
@@ -2545,7 +2548,7 @@ that hook and set the alist back to our canonical version.
 
     (setq compilation-error-regexp-alist
           (setq $compilation-error-regexp-alist
-                '(json ipgen-hdl-copy sgdft ipgen-gmake core-assembler connection-error bman-stage bman-verilog))))
+                '(json simregress ipgen-hdl-copy sgdft ipgen-gmake core-assembler connection-error bman-stage bman-verilog))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
