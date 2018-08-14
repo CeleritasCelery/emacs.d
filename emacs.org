@@ -817,7 +817,7 @@ Vim instead of like Emacs.
 
 Using =*= and =#=, search foward for symbols, not words
 #+BEGIN_SRC emacs-lisp
-  (setq evil-symbol-word-search t)
+  (csetq evil-symbol-word-search t)
 #+END_SRC
 
 we want to use visual lines, but then the line operators don't work
