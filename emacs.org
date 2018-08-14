@@ -1187,10 +1187,20 @@ action.
         (helm-default-display-buffer buffer)))
     :config
     (helm-mode)
-    (helm-adaptive-mode)
-    (setq helm-adaptive-history-length 100)
     (dired-async-mode)
     (setq helm-ff-delete-files-function 'helm-delete-marked-files-async))
+#+END_SRC
+
+*** sorting
+we want use adaptive sorting whenever possible. Also we want to keep
+the intial buffer sorting intact
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'helm
+    (helm-adaptive-mode)
+    (advice-add 'helm-buffers-sort-transformer :around
+                (defun helm-buffers-sort-transformer@donot-sort (_ candidates _)
+                  candidates))
+    (setq helm-adaptive-history-length 100))
 #+END_SRC
 
 *** bookmarks
@@ -1394,7 +1404,8 @@ us call them from helm.
        (helm-marked-candidates))))
 #+END_SRC
 
-more convient keybindings for dispatcher functions as well as some helm builtins
+more convient keybindings for dispatcher functions as well as some
+helm builtins
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'helm
     (general-define-key
