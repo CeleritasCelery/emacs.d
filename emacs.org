@@ -3308,11 +3308,15 @@ we have some nonstandard extensions for SV
     :mode (rx ".vf" eos)
     :mode (rx ".hier" eos))
 #+END_SRC
+
 ** json
 add hide-show support to json mode and make comments properly font
 locked
 #+BEGIN_SRC emacs-lisp
   (use-package json-mode
+    :gfhook 'flycheck-mode 'hs-minor-mode
+    :init
+    (setq flycheck-json-python-json-executable "python3.6.3")
     :config
     (add-to-list 'hs-special-modes-alist (list 'json-mode (rx (any "{[")) (rx (any "]}")) (rx "/" (any "/*"))))
     (font-lock-add-keywords 'json-mode
