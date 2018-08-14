@@ -3352,6 +3352,15 @@ collection of major modes that I use for different file types.
       "g" 'spfspec-goto-definition))
 #+END_SRC
 
+*** compilation mode
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'compile
+    (general-define-key
+     :keymaps 'compilation-minor-mode-map
+     "C-j" 'compilation-next-error
+     "C-k" 'compilation-previous-error))
+#+END_SRC
+
 *** digit groups
 allows us to more easily read binary numbers by visually grouping them
 into nibbles.
