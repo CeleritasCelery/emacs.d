@@ -1615,13 +1615,16 @@ scope, but that makes it too complex, so we will limit that to current
 line only
 #+BEGIN_SRC emacs-lisp
   (use-package evil-easymotion
-    :general
-    (:states '(normal visual)
-             "f" 'evilem-motion-find-char
-             "F" 'evilem-motion-find-char-backward
-             "t" 'evilem-motion-find-char-to
-             "T" 'evilem-motion-find-char-to-backward
-             "s" '(:keymap evilem-map)))
+    :init
+    (general-define-key
+     :states '(normal visual)
+     "f" 'evilem-motion-find-char
+     "F" 'evilem-motion-find-char-backward
+     "t" 'evilem-motion-find-char-to
+     "T" 'evilem-motion-find-char-to-backward)
+    (general-define-key
+     :states 'normal
+     "s" '(:keymap evilem-map)))
 #+END_SRC
 
 *** yasnippet
