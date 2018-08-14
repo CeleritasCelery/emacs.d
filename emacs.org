@@ -1602,6 +1602,10 @@ line only
   (use-package evil-easymotion
     :general
     (:states '(normal visual)
+             "f" 'evilem-motion-find-char
+             "F" 'evilem-motion-find-char-backward
+             "t" 'evilem-motion-find-char-to
+             "T" 'evilem-motion-find-char-to-backward
              "s" '(:keymap evilem-map)))
 #+END_SRC
 
