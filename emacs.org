@@ -2022,12 +2022,15 @@ these are utility functions used to setting up the Emacs shell.
       add_host_to_hostkeys: failed to open <missing path> - reason Permission denied "
     (if (string-match "add_host_to_hostkeys: failed to open" str) "" str))
 
+  (with-eval-after-load 'shell
+    (modify-syntax-entry ?= "." shell-mode-syntax-table)
+    (modify-syntax-entry ?> "." shell-mode-syntax-table)
+    (modify-syntax-entry ?> "." shell-mode-syntax-table))
+
   (defun $shell-mode-hook ()
     (shell-dirtrack-mode 0)
     (setq-local comint-prompt-regexp (rx bol "╰─→ " eos))
-    (modify-syntax-entry ?= ".")
-    (modify-syntax-entry ?> ".")
-    (modify-syntax-entry ?> ".")
+    (setq-local evil-search-wrap nil)
     (local-env-mode)
     (setq-local company-backends '(company-async-files
                                    (company-command company-env)
