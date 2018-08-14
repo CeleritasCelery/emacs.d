@@ -1430,12 +1430,17 @@ helm builtins
           helm-swoop-speed-or-color t
           helm-swoop-candidate-number-limit 1000
           helm-swoop-pre-input-function (lambda () ""))
-
-
     ($leader-set-key
       "s" '(:ignore t :wk "search")
       "ss" 'helm-swoop
-      "sS" '$helm-swoop-region-or-symbol))
+      "sS" '$helm-swoop-region-or-symbol)
+    :config
+    (general-define-key
+     :keymaps 'helm-swoop-edit-map
+     "C-c C-c" 'helm-swoop--edit-complete
+     "C-c C-k" 'helm-swoop--edit-cancel))
+
+
 
   (defun $helm-swoop-region-or-symbol ()
     "Call `helm-swoop' with default input."
