@@ -372,7 +372,7 @@ modify them.
 I am still struggling to find a modeline I really like. I have settled
 on doom for now, but there are some segments that I would like to add
 such as compilation exit status. My biggest beef with doom-modeline is
-it does not play nice non "doom" themes. I think powerlines are cool
+it does not play nice non-doom themes. I think powerlines are cool
 looking, but I am honestly becomeling less of a fan of them. I may
 just end up making my own modeline from scratch.
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
@@ -467,7 +467,6 @@ try a more powerful package like popwin.
     :demand t
     :config
     (add-to-list 'shackle-rules '("*Help*" :select t :align below))
-    (add-to-list 'shackle-rules '("*ielm*" :same nil :popup t :select t))
     (shackle-mode))
 #+END_SRC
 
@@ -3127,10 +3126,35 @@ provide a hydra dispatcher based on context
     :init
     ($leader-local-set-key
       :keymaps 'emacs-lisp-mode-map
-      "'" 'ielm
       "eb" 'eval-buffer
       "er" 'eval-region
       "ef" 'eval-defun))
+#+END_SRC
+
+*** ielm
+ielm is an emacs lisp repl. We are going to patch the function so that
+it will split the current window instead of replacing it. See
+[[https://github.com/wasamasa/shackle/issues/33][wasamasa/shackle#33]]
+#+BEGIN_SRC emacs-lisp
+  ($leader-local-set-key
+    :keymaps 'emacs-lisp-mode-map
+    "'" 'ielm)
+
+  (with-eval-after-load 'ielm
+    (el-patch-defun ielm ()
+      "Interactively evaluate Emacs Lisp expressions.
+  Switches to the buffer `*ielm*', or creates it if it does not exist.
+  See `inferior-emacs-lisp-mode' for details."
+      (interactive)
+      (let (old-point)
+        (unless (comint-check-proc "*ielm*")
+          (with-current-buffer (get-buffer-create "*ielm*")
+            (unless (zerop (buffer-size)) (setq old-point (point)))
+            (inferior-emacs-lisp-mode)))
+        (el-patch-swap (pop-to-buffer-same-window "*ielm*")
+                       (progn (split-window)
+                              (pop-to-buffer "*ielm*")))
+        (when old-point (push-mark old-point)))))
 #+END_SRC
 
 *** prettify symbols
