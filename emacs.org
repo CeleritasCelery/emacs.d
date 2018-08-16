@@ -1573,14 +1573,14 @@ in evil
 
 general editing configuration. We only want to use tabs in specific major modes
 #+BEGIN_SRC emacs-lisp
-  (setq-default indent-tabs-mode nil)
+  (csetq indent-tabs-mode nil)
 #+END_SRC
 
 *always* add a final newline. some really poor languages (looking at
 you tcsh) require a final newline or the last line of a script never
 gets executed.
 #+BEGIN_SRC emacs-lisp
-  (setq-default require-final-newline t)
+  (csetq require-final-newline t)
 #+END_SRC
 
 my filesystem generates regular backups, so having Emacs create
@@ -1667,7 +1667,7 @@ provides snippets for adding complex blocks. use it with =M-/=
 *** projectile
 #+BEGIN_SRC emacs-lisp
   (use-package projectile
-    :defer 2
+    :defer 1
     :init
     (setq projectile-enable-caching t)
     :config
