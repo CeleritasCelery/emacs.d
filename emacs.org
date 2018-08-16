@@ -1146,34 +1146,36 @@ action.
     :general
     (:keymaps 'minibuffer-local-map
               "C-c C-l" 'helm-minibuffer-history)
-    (general-define-key :keymaps 'helm-map
-                        "C-j" 'helm-next-line
-                        "C-k" 'helm-previous-line
-                        "C-h" 'helm-next-source
-                        "C-S-h" 'helm-help
-                        "C-c C-h" 'describe-key
-                        "C-l" "RET"
-                        "C-z" 'helm-select-action
-                        "TAB" 'helm-execute-persistent-action)
+    (:keymaps 'helm-map
+              "C-j" 'helm-next-line
+              "C-k" 'helm-previous-line
+              "C-h" 'helm-next-source
+              "C-S-h" 'helm-help
+              "C-c C-h" 'describe-key
+              "C-l" "RET"
+              "C-z" 'helm-select-action
+              "TAB" 'helm-execute-persistent-action)
     (:keymaps '(helm-find-files-map
                 helm-read-file-map)
               "C-l" 'helm-execute-persistent-action
               "C-h" 'helm-find-files-up-one-level)
+    ("M-x" 'helm-M-x)
     :init
     ($leader-set-key
       "ff" 'helm-find-files
       "fr" 'helm-recentf
       "r"  'helm-resume
       "bh" 'helm-buffers-list
-      "M-x" 'helm-M-x
       "SPC" 'helm-M-x
       "bb" 'helm-mini)
-    (setq
+    (csetq
      helm-split-window-inside-p t
      helm-always-two-windows t
      helm-buffer-max-length 60
      helm-ff-candidate-number-limit 1000
-     helm-display-function '$display-helm-window)
+     helm-display-function '$display-helm-window
+     helm-buffer-skip-remote-checking t
+     helm-find-files-ignore-thing-at-point t)
 
     (defun $display-helm-window (buffer &optional resume)
       (let ((display-buffer-alist
@@ -1188,7 +1190,7 @@ action.
     :config
     (helm-mode)
     (dired-async-mode)
-    (setq helm-ff-delete-files-function 'helm-delete-marked-files-async))
+    (csetq helm-ff-delete-files-function 'helm-delete-marked-files-async))
 #+END_SRC
 
 *** sorting
@@ -1416,6 +1418,7 @@ helm builtins
      "C-r"   'helm-find-files-history
      "C-c m" 'helm-ff-bookmark-set
      "C-c b" 'helm-find-files-toggle-to-bookmark
+     "C-c c" 'helm-ff-run-copy-file
      "C-c '" '$helm-ff-switch-to-shell
      "C-c s" '$helm-ag-from-session
      "C-c g" '$magit-from-helm-session))
