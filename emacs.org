@@ -291,9 +291,6 @@ liguatures use a custom symbol to represent two or more
 characters. The haskling font is required to make these work. Another
 option would be FiraCode, but I am pretty happy with Hasklig for now.
 #+BEGIN_SRC emacs-lisp
-
-  (setq prettify-symbols-unprettify-at-point t)
-
   (defvar $prog-prettify-symbols-alist
     `(("&&"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE100)))
       ("||"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE104)))
@@ -308,8 +305,6 @@ option would be FiraCode, but I am pretty happy with Hasklig for now.
       ("!="  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE123)))
       ("..." . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE120)))
       ("->>" . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE126)))
-      ("=<<" . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE10B)))
-      (".=<<" . (?· (Br . Bl) ?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br)  ,(decode-char 'ucs #XE10B)))
       (".="  . (?· (Br . Bl) ?=))
       ("<="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?< (Bc . Bc) ?_))
       (">="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?> (Bc . Bc) ?_))))
@@ -322,6 +317,13 @@ option would be FiraCode, but I am pretty happy with Hasklig for now.
     (prettify-symbols-mode))
 
   (add-hook 'prog-mode-hook '$prettify-base-symbols)
+#+END_SRC
+
+compose symbols (ligatures) no matter where they are. also unformat at
+point so we can easily see the representation
+#+BEGIN_SRC emacs-lisp
+  (csetq prettify-symbols-unprettify-at-point t
+         prettify-symbols-compose-predicate (defun $prettify-symbols-all-p (_ _ _) t))
 #+END_SRC
 
 *** vnc size
