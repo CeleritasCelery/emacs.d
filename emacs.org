@@ -1698,30 +1698,27 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-multiedit
     :init
-    (general-define-key
-     :states 'visual
-     "R" 'evil-multiedit-match-all
-     "M-d" 'evil-multiedit-match-and-next
-     "M-D" 'evil-multiedit-match-and-prev
-     "C-M-D" 'evil-multiedit-restore)
-    (general-define-key
-     :states 'normal
-     "M-d" 'evil-multiedit-match-symbol-and-next
-     "M-D" 'evil-multiedit-match-symbol-and-prev)
-    (general-define-key
-     :states 'insert
-     "M-d" 'evil-multiedit-toggle-marker-here)
-    (general-define-key
-     :states 'motion
-     "RET" 'evil-multiedit-toggle-or-restrict-region)
-    (general-define-key
-     :keymaps 'evil-multiedit-state-map
-     "RET" 'evil-multiedit-toggle-or-restrict-region)
-    (general-define-key
-     :keymaps '(evil-multiedit-state-map
+    (csetq evil-multiedit-use-symbols t)
+    ($leader-set-key
+      "se" 'evil-multiedit-match-all)
+    :general
+    (:states 'visual
+             "M-d" 'evil-multiedit-match-and-next
+             "M-D" 'evil-multiedit-match-and-prev
+             "C-M-D" 'evil-multiedit-restore)
+    (:states 'normal
+             "M-d" 'evil-multiedit-match-symbol-and-next
+             "M-D" 'evil-multiedit-match-symbol-and-prev)
+    (:states 'insert
+             "M-d" 'evil-multiedit-toggle-marker-here)
+    (:states 'motion
+             "RET" 'evil-multiedit-toggle-or-restrict-region)
+    (:keymaps 'evil-multiedit-state-map
+              "RET" 'evil-multiedit-toggle-or-restrict-region)
+    (:keymaps '(evil-multiedit-state-map
                 evil-multiedit-insert-state-map)
-     "C-n" 'evil-multiedit-next
-     "C-p" 'evil-multiedit-prev))
+              "C-n" 'evil-multiedit-next
+              "C-p" 'evil-multiedit-prev))
 #+END_SRC
 
 *** hex decimal conversion
