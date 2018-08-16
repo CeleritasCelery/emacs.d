@@ -658,7 +658,6 @@ minor modes that I commonly toggle on and off
     "tl" 'toggle-truncate-lines
     "te" 'toggle-debug-on-error
     "tq" 'toggle-debug-on-quit
-    "tw" 'whitespace-mode
     "tg" 'git-gutter-mode)
 #+END_SRC
 
@@ -1578,30 +1577,48 @@ general editing configuration. We only want to use tabs in specific major modes
   (csetq indent-tabs-mode nil)
 #+END_SRC
 
-*always* add a final newline. some really poor languages (looking at
-you tcsh) require a final newline or the last line of a script never
-gets executed.
-#+BEGIN_SRC emacs-lisp
-  (csetq require-final-newline t)
-#+END_SRC
-
 my filesystem generates regular backups, so having Emacs create
 backups is redundant.
 #+BEGIN_SRC emacs-lisp
   (setq make-backup-files nil)
 #+END_SRC
 
+*** whitespace
+
+use ws-butler to only fix trailing whitespace on lines that I
+touch. That way it won't unnecessarily effect git diffs, but still
+keeps me from being sloppy.
+#+BEGIN_SRC emacs-lisp
+  (use-package ws-butler
+    :hook (prog-mode org-mode))
+#+END_SRC
+
+*always* add a final newline. some really stupid languages (looking at
+you tcsh) require a final newline or the last line of a script never
+gets executed.
+#+BEGIN_SRC emacs-lisp
+  (csetq require-final-newline t)
+#+END_SRC
+
 don't show me long lines in whitespace mode
 #+BEGIN_SRC emacs-lisp
-  (delq 'lines whitespace-style)
+  (with-eval-after-load 'whitespace
+    (delq 'lines whitespace-style))
 #+END_SRC
+
+whitespace managment keybindings
+#+BEGIN_SRC emacs-lisp
+  ($leader-set-key
+    "tw" 'whitespace-mode
+    "xd" 'delete-trailing-whitespace)
+#+END_SRC
+
 *** keybindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
     "xa" 'align
     "xr" 'align-regexp
-    "xt" 'untabify
-    "xd" 'delete-trailing-whitespace)
+    "xt" 'untabify)
 #+END_SRC
 
 *** narrowing
@@ -2705,7 +2722,6 @@ collect usage statistics and filter candidates based on that
     :config
     (company-statistics-mode))
 #+END_SRC
-
 
 helm company provides a helm interface to helm completion
 #+BEGIN_SRC emacs-lisp
