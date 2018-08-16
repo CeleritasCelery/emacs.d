@@ -1664,9 +1664,8 @@ line only
      "F" 'evilem-motion-find-char-backward
      "t" 'evilem-motion-find-char-to
      "T" 'evilem-motion-find-char-to-backward)
-    (general-define-key
-     :states 'normal
-     "s" '(:keymap evilem-map)))
+    ($leader-set-key
+      "j" '(:keymap evilem-map)))
 #+END_SRC
 
 *** yasnippet
