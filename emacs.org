@@ -1923,6 +1923,7 @@ this gives me the power to do that.
 
   ($leader-set-key
     "gd" '$magit-status-current-dir
+    "C-c g" '$magit-status-current-dir
     "gs" '$magit-status)
 #+END_SRC
 
@@ -2167,7 +2168,8 @@ the proper env scripts so that all these variables are set
   (use-package shell-pop
     :init
     ($leader-set-key
-      "'" 'shell-pop))
+      "'" 'shell-pop
+      "C-c '" 'shell-pop))
 #+END_SRC
 
 only send a cd command if we are not already in that directory
