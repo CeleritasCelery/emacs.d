@@ -1496,12 +1496,32 @@ this still needs to be setup, as I am currently using counsel
     (push '((nil . "helm-projectile") . (nil . "proj")) which-key-replacement-alist)
     ($leader-set-key
       "p" '(:ignore t :wk "project")
-      "pp" 'helm-projectile
-      "pP" 'helm-projectile-switch-project
+      "pp" 'helm-projectile-switch-project
+      "pP" 'helm-projectile
       "ps" 'helm-projectile-ag
       "pf" 'helm-projectile-find-file
       "pb" 'helm-projectile-switch-to-buffer
-      "pd" 'helm-projectile-find-dir))
+      "pd" 'helm-projectile-find-dir)
+    :config
+    (defun $helm-projectile-pop-to-shell (dir)
+      "open shell in project root"
+      ($shell-pop helm-current-prefix-arg (dired-noselect dir) dir))
+    (general-define-key
+     :keymaps 'helm-projectile-projects-map
+     "C-c '" '$helm-projectile-pop-to-shell
+     "C-c s" 'helm-projectile-ag)
+
+    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
+          (append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list) '(helm-adaptive-sort)))
+    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-projects)
+          '(helm-fuzzy-matching-default-sort-fn helm-fuzzy-highlight-matches helm-adaptive-sort))
+    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-dired-files-list)
+          '(helm-fuzzy-highlight-matches helm-adaptive-sort))
+    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-directories-list)
+          '(helm-fuzzy-matching-default-sort-fn helm-fuzzy-highlight-matches helm-adaptive-sort)))
+
+
+
 #+END_SRC
 
 *** org
