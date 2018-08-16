@@ -2877,7 +2877,8 @@ helm company provides a helm interface to helm completion
           org-agenda-files "~/org/.agenda-files"
           org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen")
                                        ("d" "development" tags-todo "dev")
-                                       ("p" "pvim" tags-todo "pvim+now")))
+                                       ("p" "pvim" tags-todo "pvim+now|next"
+                                        ((org-agenda-files '("~/org/projects/mdf_pvim.org"))))))
     ($leader-set-key
       "a" 'org-agenda)
     :config
