@@ -1324,7 +1324,8 @@ email. automatically add the tramp header if from a different site
            (target-site (if (string-match (rx bos "/nfs/" (group (1+ (not (any "/"))))) file)
                             (match-string 1 file)
                           current-site))
-           (tramp (if (equal current-site target-site)
+           (tramp (if (or (equal target-site "site")
+                          (equal current-site target-site))
                       ""
                     (concat "/ssh:"
                             (if (equal target-site "sc")
