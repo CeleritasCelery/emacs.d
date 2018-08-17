@@ -1014,6 +1014,9 @@ that removes additional lines at the end of the file.
 #+END_SRC
 
 *** escape
+
+use a quick key combo to enter normal state. We don't want to escape
+magit because I do that by accident all the time.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-escape
     :delight
@@ -1022,7 +1025,8 @@ that removes additional lines at the end of the file.
     (setq evil-escape-unordered-key-sequence t
           evil-escape-key-sequence "jk")
     :config
-    (evil-escape-mode))
+    (evil-escape-mode)
+    (advice-add 'evil-escape--is-magit-buffer :override (defun $dont-escape-magit () nil)))
 #+END_SRC
 
 *** collection
