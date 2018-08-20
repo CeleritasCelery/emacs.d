@@ -3509,6 +3509,13 @@ collection of major modes that I use for different file types.
       "g" 'spfspec-goto-definition))
 #+END_SRC
 
+itools is a conf file
+
+#+BEGIN_SRC emacs-lisp
+  (use-package conf-mode
+    :mode (rx "itools" eos))
+#+END_SRC
+
 *** compilation mode
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'compile
