@@ -3319,7 +3319,10 @@ variables. also shows interpolated parts of backquoted sexps.
 
 #+BEGIN_SRC emacs-lisp
   (use-package lisp-extra-font-lock
-    :hook emacs-lisp-mode)
+    :hook emacs-lisp-mode
+    :config
+    (dolist (fn '("when-let" "when-let*" "if-let" "if-let*" "-let" "-let*"))
+      (add-to-list 'lisp-extra-font-lock-let-functions fn)))
 #+END_SRC
 
 *** quick expand
