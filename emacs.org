@@ -3339,10 +3339,8 @@ https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
   (use-package tramp
     :straight nil
     :init
-    (setq tramp-default-method "ssh"
-          tramp-verbose 3
-          tramp-inline-compress-start-size 1000000
-          tramp-copy-size-limit 1000000)
+    (csetq tramp-default-method "ssh"
+           tramp-verbose 3)
     :config
     (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))
 #+END_SRC
