@@ -1202,12 +1202,72 @@ action.
 we want use adaptive sorting whenever possible. Also we want to keep
 the intial buffer sorting intact
 #+BEGIN_SRC emacs-lisp
+  (csetq helm-adaptive-history-length 100)
   (with-eval-after-load 'helm
     (helm-adaptive-mode)
     (advice-add 'helm-buffers-sort-transformer :around
-                (defun helm-buffers-sort-transformer@donot-sort (_ candidates _)
+                (defun $helm-buffers-sort-transformer@donot-sort (_x candidates _y)
                   candidates))
-    (setq helm-adaptive-history-length 100))
+
+    (defun $helm-sort-hardlink (candidates _source)
+      "move to the hardlink to the top of the list when adaptive sorting"
+      (if-let ((adaptivep helm-adaptive-mode)
+               (hardlink (--first (string-suffix-p "/." (if (consp it) (cdr it) ""))
+                                  candidates)))
+          (cons hardlink (remove hardlink candidates))
+        candidates))
+
+    (defun $helm-sort-symbol-at-point (candidates _source)
+      "move symbol at point to the start of list"
+      (if-let ((adaptivep helm-adaptive-mode)
+               (symbol (with-helm-current-buffer
+                         (thing-at-point 'symbol)))
+               (valid (member symbol candidates)))
+          (cons symbol (remove symbol candidates))
+        candidates))
+
+    (setf (alist-get 'filtered-candidate-transformer helm-source-find-files)
+          (append (alist-get 'filtered-candidate-transformer helm-source-find-files) '(helm-adaptive-sort $helm-sort-hardlink)))
+
+    (el-patch-defun helm-completing-read-symbols
+      (prompt _collection test _require-match init
+              hist default _inherit-input-method name buffer)
+      "Specialized function for fast symbols completion in `helm-mode'."
+      (require 'helm-elisp)
+      (or
+       (helm
+        :sources (helm-build-in-buffer-source name
+                   :init (lambda ()
+                           (helm-apropos-init (lambda (x)
+                                                (and (funcall test x)
+                                                     (not (keywordp x))))
+                                              (or (car-safe default) default)))
+                   :filtered-candidate-transformer (el-patch-swap 'helm-apropos-default-sort-fn
+                                                                  '(helm-apropos-default-sort-fn
+                                                                    helm-adaptive-sort
+                                                                    $helm-sort-symbol-at-point))
+                   :help-message #'helm-comp-read-help-message
+                   :fuzzy-match helm-mode-fuzzy-match
+                   :persistent-action
+                   (lambda (candidate)
+                     (helm-lisp-completion-persistent-action
+                      candidate name))
+                   :persistent-help (helm-lisp-completion-persistent-help)
+                   :candidate-number-limit 200)
+        :prompt prompt
+        :buffer buffer
+        :input init
+        :history hist
+        :resume 'noresume
+        :default (or default ""))
+       (helm-mode--keyboard-quit)))
+
+    (advice-add 'helm-execute-persistent-action :before
+                (defun $helm-adaptive-files-add (&rest _)
+                  (when (and helm-adaptive-mode
+                             (equal "*helm find files*" helm-buffer))
+                    (let (helm-adaptive-done)
+                      (helm-adaptive-store-selection))))))
 #+END_SRC
 
 *** bookmarks
