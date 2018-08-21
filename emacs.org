@@ -113,9 +113,8 @@ move the custom file to its own loaction so it does not clutter us.
     (interactive)
     (require 'ob-tangle)
     (let ((src (expand-file-name "emacs.org" user-emacs-directory))
-          (target (expand-file-name "emacs.el" user-emacs-directory)))
-      (org-babel-tangle-file src target)
-      (byte-compile-file target)))
+	  (target (expand-file-name "emacs.el" user-emacs-directory)))
+      (org-babel-tangle-file src target)))
 
   (add-hook 'kill-emacs-hook '$tangle-init-file)
 #+END_SRC
