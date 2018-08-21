@@ -1010,7 +1010,9 @@ evil unimpaired binds some usefull functions to some quick keys.
 provides total number of searches in the modeline
 #+BEGIN_SRC emacs-lisp
   (use-package evil-anzu
-    :demand t)
+    :demand t
+    :init
+    (csetq anzu-cons-mode-line-p nil))
 #+END_SRC
 
 *** snipe
