@@ -1231,12 +1231,24 @@ the intial buffer sorting intact
           (cons symbol (remove symbol candidates))
         candidates))
 
-    (setf (alist-get 'filtered-candidate-transformer helm-source-find-files)
-          (append (alist-get 'filtered-candidate-transformer helm-source-find-files) '(helm-adaptive-sort $helm-sort-hardlink)))
+    (defclass $helm-source-ffiles (helm-source-ffiles)
+      ((filtered-candidate-transformer
+        :initform '(helm-ff-sort-candidates
+                    (lambda (candidates _source)
+                      (cl-loop for f in candidates
+                               for ff = (helm-ff-filter-candidate-one-by-one f)
+                               when ff collect ff))
+                    helm-adaptive-sort
+                    $helm-sort-hardlink))))
 
-    (el-patch-defun helm-completing-read-symbols
-      (prompt _collection test _require-match init
-              hist default _inherit-input-method name buffer)
+    (setq helm-source-find-files (helm-make-source
+                                     "Find Files" '$helm-source-ffiles))
+    ;; (setf (alist-get 'filtered-candidate-transformer helm-source-find-files)
+    ;;       (append (alist-get 'filtered-candidate-transformer helm-source-find-files) '(helm-adaptive-sort $helm-sort-hardlink)))
+
+    (defun helm-completing-read-symbols
+        (prompt _collection test _require-match init
+                hist default _inherit-input-method name buffer)
       "Specialized function for fast symbols completion in `helm-mode'."
       (require 'helm-elisp)
       (or
@@ -1247,10 +1259,9 @@ the intial buffer sorting intact
                                                 (and (funcall test x)
                                                      (not (keywordp x))))
                                               (or (car-safe default) default)))
-                   :filtered-candidate-transformer (el-patch-swap 'helm-apropos-default-sort-fn
-                                                                  '(helm-apropos-default-sort-fn
-                                                                    helm-adaptive-sort
-                                                                    $helm-sort-symbol-at-point))
+                   :filtered-candidate-transformer '(helm-apropos-default-sort-fn
+                                                     helm-adaptive-sort
+                                                     $helm-sort-symbol-at-point)
                    :help-message #'helm-comp-read-help-message
                    :fuzzy-match helm-mode-fuzzy-match
                    :persistent-action
