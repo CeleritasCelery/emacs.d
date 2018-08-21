@@ -52,10 +52,18 @@ Let's set some variables with basic user information.
 *** customization
 
 stolen from https://github.com/abo-abo/oremacs/blob/github/init.el
-makes sure that we are using the correct setter for all variables
+and modified to be more flexible
 #+BEGIN_SRC emacs-lisp
-(defmacro csetq (variable value)
-  `(funcall (or (get ',variable 'custom-set) 'set-default) ',variable ,value))
+  (defmacro csetq (&rest pairs)
+    "For each SYMBOL VALUE pair, calls either `custom-set' or `set-default'."
+    (let (forms)
+      (while pairs
+        (let ((variable (pop pairs))
+              (value (pop pairs)))
+          (push `(funcall (or (get ',variable 'custom-set) 'set-default)
+                          ',variable ,value)
+                forms)))
+      `(progn ,@(nreverse forms))))
 #+END_SRC
 
 *** Settings
