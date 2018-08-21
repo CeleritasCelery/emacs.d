@@ -3345,6 +3345,23 @@ using speed of though lisp to quicky create edit emacs-lisp
   (use-package sotlisp
     :hook emacs-lisp-mode)
 #+END_SRC
+
+*** macro step
+#+BEGIN_SRC emacs-lisp
+  (use-package macrostep
+    :init
+    (defhydra macrostep (:exit nil :foreign-keys run)
+      "expand macros one step at a time"
+      ("e" macrostep-expand)
+      ("c" macrostep-collapse)
+      ("n" macrostep-next-macro)
+      ("N" macrostep-prev-macro)
+      ("q" macrostep-collapse-all :exit t))
+    ($leader-local-set-key
+      :keymaps 'emacs-lisp-mode-map
+      "m" 'macrostep/body))
+#+END_SRC
+
 *** tramp
 set TRAMP verbosity to warnings and errors only. default is level 3
 which sends a message every time we connect to a remote host
