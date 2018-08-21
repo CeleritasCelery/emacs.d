@@ -2041,6 +2041,7 @@ this gives me the power to do that.
 
   (defun $magit-status ()
     (interactive)
+    (require 'magit)
     (let ((magit-status-mode-hook (cons '$magit-clear-diff-args-if-not-dir-local
                                         magit-status-mode-hook)))
       (call-interactively 'magit-status)))
