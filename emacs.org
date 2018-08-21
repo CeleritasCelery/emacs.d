@@ -332,7 +332,7 @@ option would be FiraCode, but I am pretty happy with Hasklig for now.
 compose symbols (ligatures) no matter where they are. also unformat at
 point so we can easily see the representation
 #+BEGIN_SRC emacs-lisp
-  (setq prettify-symbols-unprettify-at-point t
+  (csetq prettify-symbols-unprettify-at-point t
          prettify-symbols-compose-predicate (defun $prettify-symbols-all-p (_1 _2 _3) t))
 #+END_SRC
 
@@ -3346,7 +3346,10 @@ unless we turn it back on.
               (add-to-list 'prettify-symbols-alist '("lambda" . ?λ))
               (add-to-list 'prettify-symbols-alist '("." . ?•))
               (prettify-symbols-mode -1)
-              (prettify-symbols-mode 1)))
+              (prettify-symbols-mode 1)
+              (setq-local prettify-symbols-compose-predicate
+                          (defun $prettify-symbols-not-string-p (_1 _2 _3)
+                            (not (nth 3 (syntax-ppss)))))))
 #+END_SRC
 
 *** page breaks
