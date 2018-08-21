@@ -3145,7 +3145,7 @@ this allows me to quickly move headers around files based on these refile target
               "C-c C-c" 'org-edit-src-exit)
     :init
     (setq org-src-fontify-natively t
-          org-src-tab-acts-natively nil)
+          org-src-tab-acts-natively t)
     (defun $org-src-lexical-bindings ()
       (setq-local lexical-binding t)))
 #+END_SRC
