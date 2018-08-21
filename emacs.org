@@ -2753,13 +2753,13 @@ stalls.
                 (alert "Core Assembler stall"
                        :severity 'moderate))))
 
-  (setq compilation-finish-functions
-        (list (defun $notify-compile-done (_buffer exit-string)
-                "notfiy the user that compliation is finished"
-                (alert "compliation finished"
-                       :severity (if (string-prefix-p "exited abnormally" exit-string)
-                                     'high
-                                   'normal)))))
+  (add-hook 'compilation-finish-functions
+            (list (defun $notify-compile-done (_buffer exit-string)
+                    "notfiy the user that compliation is finished"
+                    (alert "compliation finished"
+                           :severity (if (string-prefix-p "exited abnormally" exit-string)
+                                         'high
+                                       'normal)))))
 
   (defun $clear-alert ()
     "clear persistent alert"
