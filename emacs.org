@@ -3299,7 +3299,7 @@ provide a hydra dispatcher based on context
 
 *** elisp
 #+BEGIN_SRC emacs-lisp
-  (use-package emacs-lisp
+  (use-package elisp-mode
     :straight nil
     :init
     ($leader-local-set-key
