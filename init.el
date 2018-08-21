@@ -16,12 +16,13 @@
   "if file is tangled load the .el file, else tangle it"
   (setq dir (or dir user-emacs-directory))
   (let ((file-name-handler-alist nil)
+        (load-prefer-newer t)
         (el-file (expand-file-name (concat name ".el") dir))
         (org-file (expand-file-name (concat name ".org") dir)))
     ;; If config is updated, load it
     (if (and (file-exists-p el-file)
              (file-newer-than-file-p el-file org-file))
-        (load-file el-file)
+        (load-file (file-name-sans-extension el-file))
       ;; Otherwise use org-babel to tangle and load the configuration
       (require 'org)
       (org-babel-load-file org-file))))

@@ -104,8 +104,10 @@ move the custom file to its own loaction so it does not clutter us.
     "tangle my emacs org file before closing to make startup faster."
     (interactive)
     (require 'ob-tangle)
-    (org-babel-tangle-file (expand-file-name "emacs.org" user-emacs-directory)
-                           (expand-file-name "emacs.el" user-emacs-directory)))
+    (let ((src (expand-file-name "emacs.org" user-emacs-directory))
+          (target (expand-file-name "emacs.el" user-emacs-directory)))
+      (org-babel-tangle-file src target)
+      (byte-compile-file target)))
 
   (add-hook 'kill-emacs-hook '$tangle-init-file)
 #+END_SRC
@@ -126,6 +128,7 @@ bootstrap code to download the package manager and run it.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-recipes-gnu-elpa-url  "http://git.savannah.gnu.org/git/emacs/elpa.git")
+  (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 4))
@@ -322,8 +325,8 @@ option would be FiraCode, but I am pretty happy with Hasklig for now.
 compose symbols (ligatures) no matter where they are. also unformat at
 point so we can easily see the representation
 #+BEGIN_SRC emacs-lisp
-  (csetq prettify-symbols-unprettify-at-point t
-         prettify-symbols-compose-predicate (defun $prettify-symbols-all-p (_ _ _) t))
+  (setq prettify-symbols-unprettify-at-point t
+         prettify-symbols-compose-predicate (defun $prettify-symbols-all-p (_1 _2 _3) t))
 #+END_SRC
 
 *** vnc size
@@ -592,12 +595,14 @@ functions. only tweak we need to make is let the window close with q
 we are going to add helpful to the completing read handler for
 helm. This will let us preview the variable with TAB.
 #+BEGIN_SRC emacs-lisp
-  (dolist (help-fn '(helpful-variable
-                     helpful-function
-                     helpful-macro
-                     helpful-key
-                     helpful-callable))
-    (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols))
+  (with-eval-after-load 'helm-mode
+    (require 'map)
+    (dolist (help-fn '(helpful-variable
+                       helpful-function
+                       helpful-macro
+                       helpful-key
+                       helpful-callable))
+      (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols)))
 #+END_SRC
 *** persp-mode
 persp-mode is layout managment package that provides way more
@@ -899,14 +904,14 @@ one key. The =evil-indent-plus= pakcage provides =i=, =I=, and =J=
 texdt objects the select based on indentation.
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'evil
-    (evil-define-text-object evil-inner-buffer (count &optional beg end type)
+    (evil-define-text-object evil-inner-buffer (count &optional _beg _end _type)
       (list (point-min) (point-max)))
 
-    (evil-define-text-object evil-pasted (count &rest args)
+    (evil-define-text-object evil-pasted (count &rest _args)
       (list (save-excursion (evil-goto-mark ?\[) (point))
-            (save-excursion (1+ (evil-goto-mark ?\])) (point))))
+            (save-excursion (evil-goto-mark ?\]) (1+ (point)))))
 
-    (evil-define-text-object evil-filename (count &rest args)
+    (evil-define-text-object evil-filename (count &rest _args)
       (let ((bounds (bounds-of-thing-at-point 'filename)))
         (list (car bounds) (cdr bounds))))
 
@@ -1173,7 +1178,7 @@ action.
       "bh" 'helm-buffers-list
       "SPC" 'helm-M-x
       "bb" 'helm-mini)
-    (csetq
+    (setq
      helm-split-window-inside-p t
      helm-always-two-windows t
      helm-buffer-max-length 60
@@ -1182,7 +1187,7 @@ action.
      helm-buffer-skip-remote-checking t
      helm-find-files-ignore-thing-at-point t)
 
-    (defun $display-helm-window (buffer &optional resume)
+    (defun $display-helm-window (buffer &optional _resume)
       (let ((display-buffer-alist
              '(("*.*Helm.*Help.**")
                ("*.*helm.**"
@@ -1206,7 +1211,7 @@ the intial buffer sorting intact
   (with-eval-after-load 'helm
     (helm-adaptive-mode)
     (advice-add 'helm-buffers-sort-transformer :around
-                (defun $helm-buffers-sort-transformer@donot-sort (_x candidates _y)
+                (defun $helm-buffers-sort-transformer@donot-sort (_1 candidates _3)
                   candidates))
 
     (defun $helm-sort-hardlink (candidates _source)
@@ -1281,9 +1286,10 @@ will be first.
     ($leader-set-key
       "fb" 'helm-filtered-bookmarks)
     :config
+    (require 'dash)
     (setq helm-bookmark-default-filtered-sources
-          (-insert-at 2 (car helm-bookmark-default-filtered-sources)
-                      (cdr helm-bookmark-default-filtered-sources))))
+	  (-insert-at 2 (car helm-bookmark-default-filtered-sources)
+		      (cdr helm-bookmark-default-filtered-sources))))
 
 #+END_SRC
 
@@ -1392,6 +1398,7 @@ email. automatically add the tramp header if from a different site
                                 "zone"
                               target-site)
                             ":" ))))
+      (require 'helm-files)
       (helm-find-files-1 (concat tramp file) (file-name-base file))))
   ($leader-set-key
     "fo" '$open-file-in-clipboard)
@@ -1405,6 +1412,7 @@ naviagation
   the full power of helm"
     (interactive)
     (let ((file ($get-path-at-point)))
+      (require 'helm-files)
       (helm-find-files-1 (concat (or (file-remote-p default-directory) "")
                                  file)
                          (file-name-base file))))
@@ -1730,7 +1738,7 @@ line only
      "t" 'evilem-motion-find-char-to
      "T" 'evilem-motion-find-char-to-backward)
     ($leader-set-key
-      "j" '(:keymap evilem-map)))
+      "j" '(:keymap evilem-map :package evil-easymotion)))
 #+END_SRC
 
 *** yasnippet
@@ -1754,7 +1762,7 @@ provides snippets for adding complex blocks. use it with =M-/=
     :init
     (setq projectile-enable-caching t)
     :config
-    (projectile-global-mode))
+    (projectile-mode))
 #+END_SRC
 
 *** multiedit
@@ -1801,6 +1809,7 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
   (defun $convert-radix-internal (str old-radix new-radix)
     "internal function to convert between two radices"
     (require 'calc-ext) ;; big numbers
+    (require 'calc)
     (message "%s %s = %s %s"
              ($radix-name old-radix)
              str
@@ -2206,6 +2215,7 @@ builtin shell, gives us the best of both worlds.
       (replace-regexp-in-string "$ENV" "$")))
 
   (defun $shx-send-input-or-copy-path ()
+    "send command or copy path at point"
     (interactive)
     (if (shx-point-on-input-p)
         (shx-send-input)
@@ -2588,6 +2598,9 @@ it is often useful to know how long a command runs, but compilation
 mode only gives us the end time normally. These functions will print
 the timestamp in the compilation buffer.
 #+BEGIN_SRC emacs-lisp
+  (defvar $compilation-start-time nil)
+  (make-variable-buffer-local '$compilation-start-time)
+
   (with-eval-after-load 'compile
     (general-add-advice '(compile recompile) :after
                         (defun $compilation-set-start-time (&rest _)
@@ -2702,7 +2715,7 @@ stalls.
                        :severity 'moderate))))
 
   (setq compilation-finish-functions
-        (list (defun $notify-compile-done (buffer exit-string)
+        (list (defun $notify-compile-done (_buffer exit-string)
                 "notfiy the user that compliation is finished"
                 (alert "compliation finished"
                        :severity (if (string-prefix-p "exited abnormally" exit-string)
@@ -2806,7 +2819,7 @@ helm company provides a helm interface to helm completion
       "g" '$org-navigate/body)
     ($leader-set-key
       "ol" 'org-store-link)
-    (csetq org-lowest-priority ?D
+    (setq org-lowest-priority ?D
            org-enforce-todo-dependencies t
            org-tags-column 0
            org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
@@ -2874,16 +2887,16 @@ helm company provides a helm interface to helm completion
       "Show next entry, keeping other entries closed."
       (interactive)
       (if (save-excursion (end-of-line) (outline-invisible-p))
-          (progn (org-show-entry) (show-children))
+          (progn (org-show-entry) (outline-show-children))
         (outline-back-to-heading)
-        (unless (and (bolp) (org-on-heading-p))
+        (unless (and (bolp) (org-at-heading-p))
           (org-up-heading-safe)
-          (hide-subtree)
+          (outline-hide-subtree)
           (error "Boundary reached"))
         (org-overview)
         (org-reveal t)
         (org-show-entry)
-        (show-children)))
+        (outline-show-children)))
     (advice-add 'counsel-org-goto :after '$org-show-current-heading-tidily)
 
     (defun $org-archive-done-tasks ()
@@ -2939,6 +2952,7 @@ helm company provides a helm interface to helm completion
                   'org-schedule)))
         (defvar org-state)
         (let ((org-state "DONE"))
+          (require 'org-clock)
           (org-clock-out-if-current))
         (funcall fn arg "+1d")))
     ($leader-local-set-key
@@ -3303,7 +3317,7 @@ unless we turn it back on.
 make page breaks easier to see
 #+BEGIN_SRC emacs-lisp
   (use-package page-break-lines
-    :hook (emacs-lisp-mode . turn-on-page-break-lines-mode))
+    :hook (emacs-lisp-mode . page-break-lines-mode))
 #+END_SRC
 
 *** indent
@@ -3339,7 +3353,7 @@ https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
   (use-package tramp
     :straight nil
     :init
-    (csetq tramp-default-method "ssh"
+    (setq tramp-default-method "ssh"
            tramp-verbose 3)
     :config
     (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))
@@ -3533,6 +3547,7 @@ into nibbles.
   (use-package digit-groups
     :hook (spfspec-mode itpp-mode)
     :init
+    (require 'dash)
     (setq digit-groups-digits "01LHX"
           digit-groups-groups
           (mapcar (lambda (x) `(,x . digit-groups-default-face))
