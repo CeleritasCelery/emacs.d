@@ -22,7 +22,7 @@
     ;; If config is updated, load it
     (if (and (file-exists-p el-file)
              (file-newer-than-file-p el-file org-file))
-        (load-file (file-name-sans-extension el-file))
+        (load-file el-file)
       ;; Otherwise use org-babel to tangle and load the configuration
       (require 'org)
       (org-babel-load-file org-file))))
