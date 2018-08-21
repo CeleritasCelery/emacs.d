@@ -3523,8 +3523,12 @@ collection of major modes that I use for different file types.
       "g" 'spfspec-goto-definition))
 #+END_SRC
 
-itools is a conf file
+when I break out major-modes into different packages this should not longer be nessary
+#+BEGIN_SRC emacs-lisp
+  (use-package highlight-numbers)
+#+END_SRC
 
+itools is a conf file
 #+BEGIN_SRC emacs-lisp
   (use-package conf-mode
     :mode (rx "itools" eos))
