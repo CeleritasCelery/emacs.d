@@ -1599,6 +1599,10 @@ regex
 this still needs to be setup, as I am currently using counsel
 #+BEGIN_SRC emacs-lisp
   (use-package helm-projectile
+    :commands (helm-projectile-find-file
+               helm-projectile-switch-project
+               helm-projectile-switch-to-buffer
+               helm-projectile-find-dir)
     :init
     (push '((nil . "helm-projectile") . (nil . "proj")) which-key-replacement-alist)
     ($leader-set-key
@@ -2651,7 +2655,6 @@ the timestamp in the compilation buffer.
                   (insert (format " --- Total run time: %s ---\n"
                                   ($time-difference-to-string
                                    (current-time) $compilation-start-time)))))))
-
 
   (cl-defun $time-difference-to-string (time1 time2)
     "take the difference between two time stamps and print it"
