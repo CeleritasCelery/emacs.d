@@ -2060,8 +2060,7 @@ this gives me the power to do that.
     ($magit-status-in-dir default-directory))
 
   (defun $magit-clear-diff-args-if-not-dir-local ()
-    (when (--none? (eq (car it) 'magit-diff-section-file-args)
-                   dir-local-variables-alist)
+    (unless (assq 'magit-diff-section-file-args dir-local-variables-alist)
       (setq-local magit-diff-section-file-args nil)))
 
   (defun $magit-status ()
