@@ -1984,6 +1984,11 @@ don't ask about following symlinks
      (setq vc-follow-symlinks t)
 #+END_SRC
 
+fix the path to use a new version of git
+#+BEGIN_SRC emacs-lisp
+  (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path)
+#+END_SRC
+
 *** magit
 magit is the best git porcelain that exists, so far as I can tell. we
 need to set the git version to a newer version because the default at
