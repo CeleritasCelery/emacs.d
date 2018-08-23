@@ -1460,6 +1460,18 @@ naviagation
    "gf" '$find-file-at-point)
 #+END_SRC
 
+start a find file session from project root
+#+BEGIN_SRC emacs-lisp
+  (defun $find-file-project-root ()
+    "start a helm find files session from project root"
+    (interactive)
+    (require 'helm-files)
+    (helm-find-files-1 (vc-git-root default-directory)))
+
+  ($leader-set-key
+    "fp" '$find-file-project-root)
+#+END_SRC
+
 *** dispatcher
 these are functions that I often want to run, but normally have to
 exit helm to call their keybindings. So we create wrapper thats lets
