@@ -2034,9 +2034,9 @@ every repo. I can use these functions as short hand.
      git config --local user.email t.macman@gmail.com"))
 
   ($leader-set-key
-    "gc" '(:ignore t :wk "credentials")
-    "gcw" '$git-work-user
-    "gcp" '$git-private-user)
+    "gu" '(:ignore t :wk "user")
+    "guw" '$git-work-user
+    "gup" '$git-private-user)
 #+END_SRC
 
 calling =magit-status= on a whole IP can be very time
