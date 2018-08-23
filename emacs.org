@@ -2712,6 +2712,9 @@ that hook and set the alist back to our canonical version.
   (defvar $compilation-error-regexp-alist nil
     "The canonical error regexp alist")
 
+  (defun $find-generic-bman-log (file)
+    (car (file-expand-wildcards (format "target/log/*.%s.log" file))))
+
   (with-eval-after-load 'compile
     (dolist (regex `((ipgen-gmake ,(rx bol "gmake: *** [" (group-n 1 (>= 10 nonl)) "] Error " digit)
                                   1)
@@ -2742,6 +2745,24 @@ that hook and set the alist back to our canonical version.
                      (simregress ,(rx (1+ space) "simregress invocation failed on " (1+ nonl)
                                       "\n" (1+ space) "Refer to " (1+ nonl) ": " (group (1+ nonl)))
                                  1)
+                     (bman-generic-stage ,(rx bol "-E-:FAILED" (1+ space) (1+ (any digit "."))
+                                              (1+ space) (1+ (any digit ".")) "  "
+                                              (group (1+ (not (any space)))))
+                                         (1 "target/log/mdf_10nm.%s.log"))
+                     (upf ,(rx bol "Error-[" (group-n 3 (1+ nonl)) "]" (1+ nonl)
+                               "\n" (group-n 1 (1+ nonl)) ", " (group-n 2 (1+ digit)) )
+                          1 2 nil nil nil (3 font-lock-warning-face))
+                     (emu ,(rx bol "-E-:FAILED: emubuild" (1+ nonl) "REASON : failed LOG :  "
+                               (group (1+ (not (any space)))))
+                          1)
+                     (vcs-log ,(rx bol "  Log: " (group (1+ (not space))))
+                              1)
+                     (upfsem ,(rx bol "UPFSEM_4" (1+ space) (1+ word) (1+ space)
+                                  (group-n 1 (1+ (not space))) (1+ space) (group-n 2 (1+ digit)))
+                             1 2)
+                     (fail-open ,(rx bol "Errormessage   : Failed to open input file ["
+                                     (group (1+ nonl)) "]")
+                                1)
                      (json ,(rx bol "-E- Unable to parse JSON file " (group-n 1 (1+ (not space))) ":"
                                 (1+ nonl) "line " (group-n 2 (1+ digit))
                                 " offset " (group-n 3 (1+ digit)))
@@ -2750,7 +2771,10 @@ that hook and set the alist back to our canonical version.
 
     (setq compilation-error-regexp-alist
           (setq $compilation-error-regexp-alist
-                '(json simregress ipgen-hdl-copy sgdft ipgen-gmake core-assembler connection-error bman-stage bman-verilog))))
+                '(json upf upfsem emu vcs-log simregress fail-open
+                       ipgen-hdl-copy sgdft ipgen-gmake core-assembler
+                       connection-error bman-stage bman-generic-stage
+                       bman-verilog))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
