@@ -1003,6 +1003,9 @@ evil unimpaired binds some usefull functions to some quick keys.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-unimpaired
     :defer 2
+    :straight
+    (evil-unimpaired
+     :type git :host github :repo "zmaas/evil-unimpaired")
     :init
     (setq evil-unimpaired-leader-keys '("gk" . "gj"))
     :config
