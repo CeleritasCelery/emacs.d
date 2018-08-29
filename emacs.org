@@ -2067,17 +2067,16 @@ this gives me the power to do that.
     (unless (assq 'magit-diff-section-file-args dir-local-variables-alist)
       (setq-local magit-diff-section-file-args nil)))
 
-  (defun $magit-status ()
-    (interactive)
-    (require 'magit)
-    (let ((magit-status-mode-hook (cons '$magit-clear-diff-args-if-not-dir-local
-                                        magit-status-mode-hook)))
-      (call-interactively 'magit-status)))
+  (advice-add 'magit-status :around
+              (defun $magit-remove-diff-args (fn &rest args)
+                (let ((magit-status-mode-hook (cons '$magit-clear-diff-args-if-not-dir-local
+                                                    magit-status-mode-hook)))
+                  (apply fn args))))
 
   ($leader-set-key
     "gd" '$magit-status-current-dir
     "C-c g" '$magit-status-current-dir
-    "gs" '$magit-status)
+    "gs" 'magit-status)
 #+END_SRC
 
 *** evil
