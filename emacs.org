@@ -992,6 +992,10 @@ general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
     "U" 'undo-tree-visualize)
+  (general-define-key
+   :states '(normal visual)
+   "u" 'undo-tree-undo
+   "C-r" 'undo-tree-redo)
 #+END_SRC
 
 *** unimpaired
