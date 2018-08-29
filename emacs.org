@@ -1636,11 +1636,10 @@ this still needs to be setup, as I am currently using counsel
     :config
     (defun $helm-projectile-pop-to-shell (dir)
       "open shell in project root"
+      (interactive)
       ($shell-pop helm-current-prefix-arg (dired-noselect dir) dir))
-    (general-define-key
-     :keymaps 'helm-projectile-projects-map
-     "C-c '" '$helm-projectile-pop-to-shell
-     "C-c s" 'helm-projectile-ag)
+    (helm-projectile-define-key helm-projectile-projects-map
+      (kbd "C-c '") '$helm-projectile-pop-to-shell)
 
     (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
           (append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list) '(helm-adaptive-sort)))
