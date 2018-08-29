@@ -2715,8 +2715,9 @@ that hook and set the alist back to our canonical version.
   (defvar $compilation-error-regexp-alist nil
     "The canonical error regexp alist")
 
-  (defun $find-generic-bman-log (file)
-    (car (file-expand-wildcards (format "target/log/*.%s.log" file))))
+  (defun $find-generic-bman-log ()
+    (car (file-expand-wildcards (format "target/log/*.%s.log"
+                                        (match-string-no-properties 1)))))
 
   (with-eval-after-load 'compile
     (dolist (regex `((ipgen-gmake ,(rx bol "gmake: *** [" (group-n 1 (>= 10 nonl)) "] Error " digit)
@@ -2751,7 +2752,7 @@ that hook and set the alist back to our canonical version.
                      (bman-generic-stage ,(rx bol "-E-:FAILED" (1+ space) (1+ (any digit "."))
                                               (1+ space) (1+ (any digit ".")) "  "
                                               (group (1+ (not (any space)))))
-                                         (1 "target/log/mdf_10nm.%s.log"))
+                                         $find-generic-bman-log)
                      (upf ,(rx bol "Error-[" (group-n 3 (1+ nonl)) "]" (1+ nonl)
                                "\n" (group-n 1 (1+ nonl)) ", " (group-n 2 (1+ digit)) )
                           1 2 nil nil nil (3 font-lock-warning-face))
@@ -2770,7 +2771,7 @@ that hook and set the alist back to our canonical version.
                                 (1+ nonl) "line " (group-n 2 (1+ digit))
                                 " offset " (group-n 3 (1+ digit)))
                            1 2 3)))
-      (add-to-list 'compilation-error-regexp-alist-alist regex))
+      (setf (alist-get (car regex) compilation-error-regexp-alist-alist) (cdr regex)))
 
     (setq compilation-error-regexp-alist
           (setq $compilation-error-regexp-alist
@@ -2801,12 +2802,12 @@ stalls.
                        :severity 'moderate))))
 
   (add-hook 'compilation-finish-functions
-            (list (defun $notify-compile-done (_buffer exit-string)
-                    "notfiy the user that compliation is finished"
-                    (alert "compliation finished"
-                           :severity (if (string-prefix-p "exited abnormally" exit-string)
-                                         'high
-                                       'normal)))))
+            (defun $notify-compile-done (_buffer exit-string)
+              "notfiy the user that compliation is finished"
+              (alert "compliation finished"
+                     :severity (if (string-prefix-p "exited abnormally" exit-string)
+                                   'high
+                                 'normal))))
 
   (defun $clear-alert ()
     "clear persistent alert"
