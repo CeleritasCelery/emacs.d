@@ -395,25 +395,20 @@ just end up making my own modeline from scratch.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-    (use-package doom-modeline
-      :straight
-      (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
-      :hook (after-init . doom-modeline-init)
-      :config
-      (csetq eldoc-eval-preferred-function 'eval-expression)
-      (column-number-mode)
-      (defun doom-modeline-project-root ()
-        "Get the path to the root of your project.
+  (use-package doom-modeline
+    :straight
+    (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
+    :hook (after-init . doom-modeline-init)
+    :config
+    (csetq eldoc-eval-preferred-function 'eval-expression)
+    (column-number-mode)
+    (defun doom-modeline-project-root ()
+      "Get the path to the root of your project.
   If non-remote return root otherwise `default-directory'."
-        (if (file-remote-p default-directory)
-            default-directory
-          (let (projectile-require-project-root)
-            (projectile-project-root))))
-
-      (doom-modeline-def-modeline custom
-                                  (workspace-number window-number bar matches " " buffer-info buffer-position  " " selection-info)
-                                  (global buffer-encoding major-mode process vcs flycheck))
-      (doom-modeline-set-modeline 'custom t))
+      (if (file-remote-p default-directory)
+          default-directory
+        (let (projectile-require-project-root)
+          (projectile-project-root)))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
