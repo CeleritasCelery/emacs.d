@@ -3183,6 +3183,16 @@ this allows me to quickly move headers around files based on these refile target
           ("info" . ?f)))
 #+END_SRC
 
+*** links
+there is no good function to copy a link in org mode
+#+BEGIN_SRC emacs-lisp
+  (use-package link-hint
+    :commands link-hint-copy-link-at-point
+    :general
+    (:keymaps 'org-mode-map
+              "C-c l" 'link-hint-copy-link-at-point))
+#+END_SRC
+
 *** src blocks
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
