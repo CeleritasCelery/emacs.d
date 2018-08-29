@@ -1002,11 +1002,6 @@ general leader key bindings
 evil unimpaired binds some usefull functions to some quick keys.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-unimpaired
-    :straight
-    (evil-unimpaired
-     :type git :host github :repo "CeleritasCelery/evil-unimpaired"
-     :upstream (:host github
-                      :repo "zmaas/evil-unimpaired"))
     :defer 2
     :init
     (setq evil-unimpaired-leader-keys '("gk" . "gj"))
