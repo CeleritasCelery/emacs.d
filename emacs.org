@@ -358,6 +358,7 @@ not match the resolution of my monitor results in weird text sizes.
     ("m" (vnc-resize "1536x864") "mobile")
     ("w" (vnc-resize "3840x1200") "double monitor (wide)")
     ("s" (vnc-resize "1920x1080") "short")
+    ("h" (vnc-resize "2400x1350") "huge")
     ("r" (vnc-resize "1600x1200") "square"))
   ($leader-set-key
     "zn"  'vnc-resize/body)
