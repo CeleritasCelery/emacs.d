@@ -1109,17 +1109,6 @@ behave better with evil.
      "S" 'evil-substitute))
 #+END_SRC
 
-*** ediff
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-ediff
-    :commands evil-ediff-startup-hook
-    :hook (ediff-startup . evil-ediff-startup-hook)
-    :init
-    (evil-set-initial-state 'ediff-mode 'motion)
-    :config
-    (evil-ediff-adjust-help))
-#+END_SRC
-
 *** commenting
 #+BEGIN_SRC emacs-lisp
   (use-package evil-nerd-commenter
@@ -1985,10 +1974,11 @@ we don't need so many dired confirmation prompts
 #+END_SRC
 
 *** ediff
-I like to keep everything in one frame. I am not mutli-window heathen
-from 2003
+I like to keep everything in one frame. I am not a mutli-window
+heathen from 2003
 #+BEGIN_SRC emacs-lisp
   (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (evil-collection-init 'ediff)
 #+END_SRC
 
 ** git
