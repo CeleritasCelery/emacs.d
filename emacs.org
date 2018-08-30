@@ -363,7 +363,11 @@ modify them.
 #+BEGIN_SRC emacs-lisp
   (use-package challenger-deep-theme)
   (use-package gruvbox-theme)
-  (use-package darktooth-theme)
+  (use-package darktooth-theme
+    :straight
+    (darktooth-theme
+     :type git  :host github :repo "CeleritasCelery/emacs-theme-darktooth"
+     :upstream (:host github :repo "emacsfodder/emacs-theme-darktooth")))
   (use-package spacemacs-theme)
   (use-package dracula-theme)
   (use-package moe-theme
