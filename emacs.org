@@ -200,13 +200,21 @@ and smarter.
   (use-package general
     :demand t
     :config
+
     (general-create-definer $leader-set-key
       :prefix $leader-key
       :states 'motion
       :keymaps 'override)
+
     (general-create-definer $leader-local-set-key
       :prefix $mm-leader-key
-      :states 'motion))
+      :states 'motion)
+
+    (defun general-leader-define-key (_state keymap key def _orig-def _kargs)
+      "define a new key based on leader"
+      (if (eq keymap 'global)
+          (eval `($leader-set-key ,key ',def))
+        (eval `($leader-local-set-key :keymaps ',keymap ,key ',def)))))
 #+END_SRC
 
 Use tab for indentation and symbol completion
@@ -460,11 +468,12 @@ pretty well, but I have a couple of things I would like to change.
    unintuitive for me and I have to think about it every time.
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
+    :general
+    (:definer 'leader
+              "w" 'ace-window)
     :init
     (setq aw-dispatch-always t
           aw-background nil)
-    ($leader-set-key
-      "w" 'ace-window)
     :config
     (add-to-list 'aw-dispatch-alist '(?w $toggle-maximize-window))
     (add-to-list 'aw-dispatch-alist '(?d aw-delete-window "delete window"))
@@ -1791,15 +1800,14 @@ scope, but that makes it too complex, so we will limit that to current
 line only
 #+BEGIN_SRC emacs-lisp
   (use-package evil-easymotion
-    :init
-    (general-define-key
-     :states '(normal visual)
-     "f" 'evilem-motion-find-char
-     "F" 'evilem-motion-find-char-backward
-     "t" 'evilem-motion-find-char-to
-     "T" 'evilem-motion-find-char-to-backward)
-    ($leader-set-key
-      "j" '(:keymap evilem-map :package evil-easymotion)))
+    :general
+    (:states '(normal visual)
+             "f" 'evilem-motion-find-char
+             "F" 'evilem-motion-find-char-backward
+             "t" 'evilem-motion-find-char-to
+             "T" 'evilem-motion-find-char-to-backward)
+    (:definer 'leader
+              "j" '(:keymap evilem-map)))
 #+END_SRC
 
 *** yasnippet
