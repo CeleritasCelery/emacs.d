@@ -3530,6 +3530,23 @@ I use regular perl-mode for files that are considered read-only.
     (add-to-list 'hes-mode-alist `(cperl-mode . ,hes-common-escape-sequence-re)))
 #+END_SRC
 
+
+*** perltidy
+perltidy is a perl foratting tool
+#+BEGIN_SRC emacs-lisp
+  (use-package perltidy
+    :general
+    (:definer
+     'leader
+     :keymaps '(perl-mode-map
+                cperl-mode-map)
+     "f" '(:ignore t :wk "format")
+     "fr" 'perltidy-region
+     "ff" 'perltidy-dwim-safe
+     "fb" 'perltidy-buffer
+     "fs" 'perltidy-subroutine))
+#+END_SRC
+
 ** verilog
 we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
