@@ -3427,11 +3427,11 @@ using speed of though lisp to quicky create edit emacs-lisp
     :init
     (defhydra macrostep (:exit nil :foreign-keys run)
       "expand macros one step at a time"
-      ("e" macrostep-expand)
-      ("c" macrostep-collapse)
-      ("n" macrostep-next-macro)
-      ("N" macrostep-prev-macro)
-      ("q" macrostep-collapse-all :exit t))
+      ("e" macrostep-expand "expand")
+      ("c" macrostep-collapse "collapse")
+      ("n" macrostep-next-macro "next")
+      ("N" macrostep-prev-macro "prev")
+      ("q" macrostep-collapse-all "quit" :exit t))
     ($leader-local-set-key
       :keymaps 'emacs-lisp-mode-map
       "m" 'macrostep/body))
