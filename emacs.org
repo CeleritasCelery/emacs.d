@@ -1688,9 +1688,8 @@ touch. That way it won't unnecessarily effect git diffs, but still
 keeps me from being sloppy.
 #+BEGIN_SRC emacs-lisp
   (use-package ws-butler
-    :demand t
+    :hook (org-mode prog-mode)
     :config
-    (ws-butler-global-mode)
     (setq ws-butler-convert-leading-tabs-or-spaces t))
 #+END_SRC
 
