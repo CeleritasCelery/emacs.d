@@ -1211,7 +1211,11 @@ week to copy some files, so it is not a big deal.
      helm-ff-candidate-number-limit 1000
      helm-display-function '$display-helm-window
      helm-buffer-skip-remote-checking t
-     helm-find-files-ignore-thing-at-point t)
+     helm-echo-input-in-header-line t
+     ;; helm-find-files-ignore-thing-at-point t
+     )
+
+    (evil-collection-init 'helm)
 
     (defun $display-helm-window (buffer &optional _resume)
       (let ((display-buffer-alist
@@ -1358,25 +1362,6 @@ some hacks to make helm more evil compatible See
                     '($helm-prevent-minibuffer-escape
                       $helm-hide-cursor-in-buffer))
   (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
-#+END_SRC
-
-*** minibuffer
-sice we are echoing the prompt in the helm buffer there is no reason
-to have it in the minibuffer as well.
-#+BEGIN_SRC emacs-lisp
-  (setq helm-echo-input-in-header-line t)
-
-  (defun $helm-hide-minibuffer-maybe ()
-    "Hide minibuffer in Helm session if we use the header line as input field."
-    (when (with-helm-buffer helm-echo-input-in-header-line)
-      (let ((ov (make-overlay (point-min) (point-max) nil nil t)))
-        (overlay-put ov 'window (selected-window))
-        (overlay-put ov 'face
-                     (let ((bg-color (face-background 'default nil)))
-                       `(:background ,bg-color :foreground ,bg-color)))
-        (setq-local cursor-type nil))))
-
-  (add-hook 'helm-minibuffer-set-up-hook '$helm-hide-minibuffer-maybe)
 #+END_SRC
 
 *** files
