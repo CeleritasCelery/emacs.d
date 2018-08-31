@@ -2230,15 +2230,18 @@ builtin shell, gives us the best of both worlds.
               "C-<return>" '$shx-send-input-or-copy-path))
 
   (defun $get-path-at-point ()
-    (thread-last
-        (apply 'buffer-substring-no-properties
-               (--map (save-excursion
-                        (funcall it "-{}[:alnum:]$/._~\"")
-                        (point))
-                      '(skip-chars-backward skip-chars-forward)))
-      (replace-regexp-in-string "\"" "")
-      (replace-regexp-in-string "/+" "/")
-      (replace-regexp-in-string "$ENV" "$")))
+    (or (when (and (memq major-mode '(cperl-mode perl-mode))
+                   (require 'ffap-perl-module nil 'noerror))
+          (ffap-perl-module-file-at-point))
+        (thread-last
+            (apply 'buffer-substring-no-properties
+                   (--map (save-excursion
+                            (funcall it "-{}[:alnum:]$/._~\"")
+                            (point))
+                          '(skip-chars-backward skip-chars-forward)))
+          (replace-regexp-in-string "\"" "")
+          (replace-regexp-in-string "/+" "/")
+          (replace-regexp-in-string "$ENV" "$"))))
 
   (defun $shx-send-input-or-copy-path ()
     "send command or copy path at point"
@@ -3534,6 +3537,16 @@ perltidy is a perl foratting tool
      "fb" 'perltidy-buffer
      "fs" 'perltidy-subroutine))
 #+END_SRC
+
+*** ffap module
+when using ffap expand modules to their source
+#+BEGIN_SRC emacs-lisp
+  (use-package ffap-perl-module
+    :config
+    (ffap-perl-module-unload-function))
+#+END_SRC
+
+
 
 ** verilog
 we have some nonstandard extensions for SV
