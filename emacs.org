@@ -105,8 +105,7 @@ move the custom file to its own loaction so it does not clutter us.
 #+END_SRC
 
 *** tangling
-    we want to tangle on exit so that it will make startup time
-    quicker.
+we want to tangle on exit so that it will make startup time quicker.
 #+BEGIN_SRC emacs-lisp
   (defun $tangle-init-file ()
     "tangle my emacs org file before closing to make startup faster."
@@ -119,10 +118,18 @@ move the custom file to its own loaction so it does not clutter us.
   (add-hook 'kill-emacs-hook '$tangle-init-file)
 #+END_SRC
 
-    by setting the initial mode we won't have to load lisp at startup
+by setting the initial mode we won't have to load lisp at startup
 #+BEGIN_SRC emacs-lisp
   (setq initial-major-mode 'fundamental-mode)
 #+END_SRC
+
+*** git version
+
+fix the path to use a new version of git
+#+BEGIN_SRC emacs-lisp
+  (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
+#+END_SRC
+
 * Packages
 :PROPERTIES:
 :VISIBILITY: children
@@ -138,9 +145,7 @@ bootstrap code to download the package manager and run it.
   (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 4)
-        (process-environment process-environment))
-    (setenv "PATH" (replace-regexp-in-string "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" "" (getenv "PATH")))
+        (bootstrap-version 5))
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
           (url-retrieve-synchronously
@@ -1949,13 +1954,9 @@ heathen from 2003
 
 don't ask about following symlinks
 #+BEGIN_SRC emacs-lisp
-     (setq vc-follow-symlinks t)
+  (setq vc-follow-symlinks t)
 #+END_SRC
 
-fix the path to use a new version of git
-#+BEGIN_SRC emacs-lisp
-  (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path)
-#+END_SRC
 
 *** magit
 magit is the best git porcelain that exists, so far as I can tell. we
