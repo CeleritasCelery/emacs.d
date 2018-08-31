@@ -1211,7 +1211,6 @@ week to copy some files, so it is not a big deal.
      helm-ff-candidate-number-limit 1000
      helm-display-function '$display-helm-window
      helm-buffer-skip-remote-checking t
-     helm-echo-input-in-header-line t
      ;; helm-find-files-ignore-thing-at-point t
      )
 
