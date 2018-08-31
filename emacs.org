@@ -138,7 +138,9 @@ bootstrap code to download the package manager and run it.
   (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-        (bootstrap-version 4))
+        (bootstrap-version 4)
+        (process-environment process-environment))
+    (setenv "PATH" (replace-regexp-in-string "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" "" (getenv "PATH")))
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
           (url-retrieve-synchronously
