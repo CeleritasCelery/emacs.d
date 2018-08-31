@@ -3619,6 +3619,12 @@ the following ways:
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
 #+END_SRC
+
+** markdown
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode)
+#+END_SRC
+
 ** other
 collection of major modes that I use for different file types.
 #+BEGIN_SRC emacs-lisp
