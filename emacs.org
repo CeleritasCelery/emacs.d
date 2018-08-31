@@ -3485,9 +3485,9 @@ punctuation character to match perl mode. This fixes a ligature issue.
 
     (setq flycheck-perl-executable "/usr/intel/pkgs/perl/5.14.1/bin/perl"
           flycheck-perl-perlcritic-executable "/usr/intel/pkgs/perl/5.14.1-threads/bin/perlcritic"
-          flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5" ;; SPF library
-                                       "../lib/perl5" ;; DTEG ultiscan
-                                       "../../lib/perl5" ;; DTEG STF
+          flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5"
+                                       "../lib/perl5"
+                                       "../../lib/perl5"
                                        "..")) ;; library files need to see the library ¯\_(ツ)_/¯
     (setenv "SPF_ROOT" "/p/hdk/cad/spf/latest")
     (setenv "SPF_PERL_LIB" "/p/hdk/cad/spf/latest/lib/perl5")
@@ -3516,7 +3516,7 @@ I use regular perl-mode for files that are considered read-only.
     :mode (rx ".ip_info" eos)
     :init
     (setq perl-indent-parens-as-block t
-          perl-continued-brace-offset 0))
+          perl-continued-brace-offset -4))
 #+END_SRC
 
 *** highlight escape sequences
