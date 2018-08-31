@@ -1177,13 +1177,6 @@ will have to look into seeing what can be done about that. But the
 code is so intimidating. But thankfully I only use tramp about once a
 week to copy some files, so it is not a big deal.
 
-I am using helm-adaptive, but it only seems to work for helm-bookmark,
-and some grep functions. I want to create an adaptive sort of the
-describe functions and one for helm find files. I will have to see how
-hard that is to do. I am trying to create something similar to
-ivy-precient without all the limitations. Also by creating my own
-describe functions, I allow helpful and still have a persistent
-action.
 #+BEGIN_SRC emacs-lisp
   (use-package helm
     :general
@@ -1237,8 +1230,10 @@ action.
 #+END_SRC
 
 *** sorting
-we want use adaptive sorting whenever possible. Also we want to keep
-the intial buffer sorting intact
+I am using helm-adaptive, but it only seems to work for helm-bookmark,
+and some grep functions. I want to create an adaptive sort of the
+describe functions and one for helm find files. Also we want to
+prevent the buffer list from being resorted
 #+BEGIN_SRC emacs-lisp
   (csetq helm-adaptive-history-length 100)
   (with-eval-after-load 'helm
