@@ -268,18 +268,6 @@ highlight the current line with a background face
     (global-hl-line-mode))
 #+END_SRC
 
-*** keybings
-use =key-freq= to see your key usage.
-#+BEGIN_SRC emacs-lisp
-  (use-package keyfreq
-    :defer 1
-    :init
-    (setq keyfreq-excluded-commands '(org-self-insert-command self-insert-command))
-    :config
-    (keyfreq-mode)
-    (keyfreq-autosave-mode))
-#+END_SRC
-
 *** font
 Setup the font that I want to use. Hasklig is a fork of /Source Code
 Pro/ that contains ligatures.
