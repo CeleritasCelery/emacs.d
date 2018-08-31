@@ -1196,21 +1196,23 @@ week to copy some files, so it is not a big deal.
               "C-l" 'helm-execute-persistent-action
               "C-h" 'helm-find-files-up-one-level)
     ("M-x" 'helm-M-x)
+    (:definer 'leader
+              "ff" 'helm-find-files
+              "fr" 'helm-recentf
+              "r"  'helm-resume
+              "bh" 'helm-buffers-list
+              "bb" 'helm-mini)
     :init
-    ($leader-set-key
-      "ff" 'helm-find-files
-      "fr" 'helm-recentf
-      "r"  'helm-resume
-      "bh" 'helm-buffers-list
-      "SPC" 'helm-M-x
-      "bb" 'helm-mini)
-    (setq
+    ($leader-set-key "SPC" 'helm-M-x)
+    (csetq
      helm-split-window-inside-p t
      helm-always-two-windows t
      helm-buffer-max-length 60
      helm-ff-candidate-number-limit 1000
      helm-display-function '$display-helm-window
      helm-buffer-skip-remote-checking t
+     helm-echo-input-in-header-line t
+     helm-ff-delete-files-function 'helm-delete-marked-files-async
      ;; helm-find-files-ignore-thing-at-point t
      )
 
@@ -1228,8 +1230,7 @@ week to copy some files, so it is not a big deal.
         (helm-default-display-buffer buffer)))
     :config
     (helm-mode)
-    (dired-async-mode)
-    (csetq helm-ff-delete-files-function 'helm-delete-marked-files-async))
+    (dired-async-mode))
 #+END_SRC
 
 *** sorting
@@ -1245,14 +1246,6 @@ prevent the buffer list from being resorted
                 (defun $helm-buffers-sort-transformer@donot-sort (_1 candidates _3)
                   candidates))
 
-    (defun $helm-sort-hardlink (candidates _source)
-      "move to the hardlink to the top of the list when adaptive sorting"
-      (if-let ((adaptivep helm-adaptive-mode)
-               (hardlink (--first (string-suffix-p "/." (if (consp it) (cdr it) ""))
-                                  candidates)))
-          (cons hardlink (remove hardlink candidates))
-        candidates))
-
     (defun $helm-sort-symbol-at-point (candidates _source)
       "move symbol at point to the start of list"
       (if-let ((adaptivep helm-adaptive-mode)
@@ -1261,21 +1254,6 @@ prevent the buffer list from being resorted
                (valid (member symbol candidates)))
           (cons symbol (remove symbol candidates))
         candidates))
-
-    ;; (defclass $helm-source-ffiles (helm-source-ffiles)
-    ;;   ((filtered-candidate-transformer
-    ;;     :initform '(helm-ff-sort-candidates
-    ;;                 (lambda (candidates _source)
-    ;;                   (cl-loop for f in candidates
-    ;;                            for ff = (helm-ff-filter-candidate-one-by-one f)
-    ;;                            when ff collect ff))
-    ;;                 helm-adaptive-sort
-    ;;                 $helm-sort-hardlink))))
-
-    (setq helm-source-find-files (helm-make-source
-                                     "Find Files" 'helm-source-ffiles))
-    (setf (alist-get 'filtered-candidate-transformer helm-source-find-files)
-          (append (alist-get 'filtered-candidate-transformer helm-source-find-files) '(helm-adaptive-sort $helm-sort-hardlink)))
 
     (defun helm-completing-read-symbols
         (prompt _collection test _require-match init
@@ -1307,7 +1285,22 @@ prevent the buffer list from being resorted
         :history hist
         :resume 'noresume
         :default (or default ""))
-       (helm-mode--keyboard-quit)))
+       (helm-mode--keyboard-quit))))
+
+  (with-eval-after-load 'helm-files
+
+    (defun $helm-sort-hardlink (candidates _source)
+      "move to the hardlink to the top of the list when adaptive sorting"
+      (if-let ((adaptivep helm-adaptive-mode)
+               (hardlink (--first (string-suffix-p "/." (if (consp it) (cdr it) ""))
+                                  candidates)))
+          (cons hardlink (remove hardlink candidates))
+        candidates))
+
+    (setq helm-source-find-files (helm-make-source
+                                     "Find Files" 'helm-source-ffiles))
+    (setf (alist-get 'filtered-candidate-transformer helm-source-find-files)
+          (append (alist-get 'filtered-candidate-transformer helm-source-find-files) '(helm-adaptive-sort $helm-sort-hardlink)))
 
     (advice-add 'helm-execute-persistent-action :before
                 (defun $helm-adaptive-files-add (&rest _)
@@ -1649,9 +1642,9 @@ use helm to quickly navigate org headings
 switch themes using helm
 #+BEGIN_SRC emacs-lisp
   (use-package helm-themes
-    :init
-    ($leader-set-key
-      "T" 'helm-themes))
+    :general
+    (:definer 'leader
+              "T" 'helm-themes))
 #+END_SRC
 
 *** ediff
