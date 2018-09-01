@@ -1144,19 +1144,16 @@ want to give Ivy a good try because it seems snappier on large files,
 but there are still some issues that gives helm the advantage
 - =helm-ag= supports out of order matching
 - helm doesn't break when using "regex" characters in pattern
-- helm is integrated with dired.
+- helm is integrated with dired
 - helm file sorting is more sane
 - helm-mini has better recentf functionality
-- helm supports frames, which makes swoop easier
+- helm supports windows, which makes swoop easier
 - =counsel-fzf= is broken, but =helm-fzf= works great
 - helm supports marking, which is very efficent.
 
 *** general
-my biggest beef with helm is that when using tramp it very slow. I
-will have to look into seeing what can be done about that. But the
-code is so intimidating. But thankfully I only use tramp about once a
-week to copy some files, so it is not a big deal.
-
+we want to make the helm keybindings more evil friendly. also change
+the display function to be more consistent.
 #+BEGIN_SRC emacs-lisp
   (use-package helm
     :general
@@ -1193,8 +1190,7 @@ week to copy some files, so it is not a big deal.
      helm-buffer-skip-remote-checking t
      helm-echo-input-in-header-line t
      helm-ff-delete-files-function 'helm-delete-marked-files-async
-     ;; helm-find-files-ignore-thing-at-point t
-     )
+     helm-find-files-ignore-thing-at-point t)
 
     (evil-collection-init 'helm)
 
