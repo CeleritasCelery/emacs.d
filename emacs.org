@@ -1668,6 +1668,12 @@ backups is redundant.
   (setq make-backup-files nil)
 #+END_SRC
 
+some log files are *really* large, so don't warn about opening files less the 500 MB
+#+BEGIN_SRC emacs-lisp
+  (csetq large-file-warning-threshold 500000000)
+#+END_SRC
+
+
 *** whitespace
 
 use ws-butler to only fix trailing whitespace on lines that I
