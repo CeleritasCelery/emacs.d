@@ -1074,8 +1074,9 @@ behave better with evil.
     :demand t
     :config
     (add-hook 'evil-collection-setup-hook
-              (defun $unmap-leader (_m keymaps)
-                (when keymaps
+              (defun $unmap-leader (_mode keymaps)
+                (when (and keymaps
+                           (not (memq 'ediff-mode-map keymaps)))
                   (general-define-key
                    :states 'normal
                    :keymaps keymaps
