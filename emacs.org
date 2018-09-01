@@ -3332,6 +3332,7 @@ it will split the current window instead of replacing it. See
     :keymaps 'emacs-lisp-mode-map
     "'" 'ielm)
 
+  (el-patch-feature 'ielm)
   (with-eval-after-load 'ielm
     (el-patch-defun ielm ()
       "Interactively evaluate Emacs Lisp expressions.
