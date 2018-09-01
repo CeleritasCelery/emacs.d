@@ -801,7 +801,6 @@ less useful
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-prescient
     :after ivy
-    :demand t
     :config
     (ivy-prescient-mode)
     (prescient-persist-mode))
