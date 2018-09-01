@@ -181,12 +181,6 @@ unless explicitly stated otherwise.
         use-package-always-defer t)
 #+END_SRC
 
-*** delight
-This allows us to remove mode-line lighters
-#+BEGIN_SRC emacs-lisp
-  (use-package delight)
-#+END_SRC
-
 *** emacs startup profiler
 The "Emacs Startup profiler". This allows us to see what parts of the
 config are most heavily impacting start up time. you can't optimize
@@ -438,7 +432,6 @@ which key is an awesome package that shows me the key I can press
 after choosing a prefix key.
 #+BEGIN_SRC emacs-lisp
   (use-package which-key
-    :delight
     :demand t
     :init
     (setq which-key-idle-delay 0.5
@@ -719,7 +712,6 @@ it though.
      :type git :host github :repo "CeleritasCelery/swiper"
      :upstream (:host github
                       :repo "abo-abo/swiper"))
-    :delight
     :general
     (:keymaps 'ivy-minibuffer-map
               "C-j" 'ivy-next-line
@@ -776,8 +768,7 @@ it though.
     (counsel
      :type git :host github :repo "CeleritasCelery/swiper"
      :upstream (:host github
-                      :repo "abo-abo/swiper"))
-    :delight)
+                      :repo "abo-abo/swiper")))
 #+END_SRC
 
 *** rich foratting
@@ -1049,7 +1040,6 @@ empty. eventually I just want to replace this with a save buffer hook
 that removes additional lines at the end of the file.
 #+BEGIN_SRC emacs-lisp
   (use-package vi-tilde-fringe
-    :delight
     :demand t
     :config
     (global-vi-tilde-fringe-mode))
@@ -1061,7 +1051,6 @@ use a quick key combo to enter normal state. We don't want to escape
 magit because I do that by accident all the time.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-escape
-    :delight
     :demand t
     :init
     (setq evil-escape-unordered-key-sequence t
@@ -1126,13 +1115,11 @@ lisp. There are several things I want to change however.
   functions are smarter then their equivalents in lispyville.
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
-    :delight
     :hook emacs-lisp-mode
     :init
     (setq lispy-colon-p nil))
 
   (use-package lispyville
-    :delight
     :hook lispy-mode
     :init
     (setq lispyville-key-theme
@@ -2811,7 +2798,6 @@ interferces with just regular typing. So i have gotten in the habit of
 just using =C-l=
 #+BEGIN_SRC emacs-lisp
   (use-package company
-    :delight
     :general
     (:keymaps 'company-active-map
               "RET" nil
@@ -3191,7 +3177,6 @@ there is no good function to copy a link in org mode
 *** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
-    :delight
     :hook org-mode
     :init (add-hook 'org-insert-heading-hook 'evil-insert-state))
 
@@ -3591,7 +3576,6 @@ the following ways:
                   (goto-char beg)
                   (while (re-search-forward (rx ": null") end 'noerror)
                     (replace-match ": {}")))))
-
 
   (el-patch-defun json-encode-alist (alist)
     "Return a JSON representation of ALIST."
