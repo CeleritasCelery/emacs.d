@@ -1916,6 +1916,49 @@ collection of functions stolen from spacemacs
     "fR" '$rename-file)
 #+END_SRC
 
+*** find similar file
+search up the directory stack looking for files that only differ from
+the current file by one directory. This is useful for mulitply
+instantiated files that use the same path with a different parent. For example
+
+foo/bar/baz.txt
+foo/bat/baz.txt
+foo/ban/baz.txt
+
+would all be considered similar files.
+#+BEGIN_SRC emacs-lisp
+  (defun $switch-to-similar-file ()
+    "find a file of the same name with only one directory different"
+    (interactive)
+    (require 'f)
+    (if-let ((file (buffer-file-name))
+             (parts (f-split file))
+             (other-files ($find-similar-file (butlast parts 2) (car (last parts 2)) (last parts)))
+             (common-parent (f-common-parent other-files))
+             (unique-file (completing-read "select other file: " (f-uniquify other-files))))
+        (find-file (f-join common-parent unique-file))
+      (cond ((buffer-file-name) (user-error "No similar file found"))
+            (t (user-error "buffer not visitng a file")))))
+
+
+  (defun $find-similar-file (head dir tail)
+    "search up the directory path for paths that very by only one
+  directory pointing to the same file name"
+    ;; anything above 5 depth is not worth searching becase we are out
+    ;; of the disk
+    (when (>= (length head) 5)
+      (let* ((parent (apply 'f-join head))
+             (child (apply 'f-join tail))
+             (dirs (delete (f-join parent dir) (f-directories parent)))
+             (valid-paths (-filter 'file-exists-p
+                                   (--map (f-join it child) dirs))))
+        (or valid-paths
+            ($find-similar-file (butlast head) (car (last head)) (cons dir tail))))))
+
+  ($leader-set-key
+    "fs" '$switch-to-similar-file)
+#+END_SRC
+
 *** dired
 we don't need so many dired confirmation prompts
 #+BEGIN_SRC emacs-lisp
