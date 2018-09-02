@@ -1987,6 +1987,11 @@ don't ask about following symlinks
   (setq vc-follow-symlinks t)
 #+END_SRC
 
+*** vc-git
+Emacs built in version control
+#+BEGIN_SRC emacs-lisp
+  (autoload (function vc-git-root) "vc-git")
+#+END_SRC
 
 *** magit
 magit is the best git porcelain that exists, so far as I can tell. we
