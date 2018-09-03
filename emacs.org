@@ -3126,17 +3126,62 @@ this allows me to quickly move headers around files based on these refile target
 #+END_SRC
 
 *** export
+org has the awesome functionality to export org markup to HTML. My
+most common use case is to write an email in an org capture buffer and
+then export that to HTML and insert it into outlook. Therefore we are
+going to set our defaults based on that use case. For other exports we
+are going to have to override these variables explicitly
+
+don't add section numbers
 #+BEGIN_SRC emacs-lisp
-  (use-package ox
-    :straight nil
-    :init
-    (setq org-export-with-section-numbers nil
-          org-export-with-toc nil
-          org-export-with-sub-superscripts '{}
-          org-export-with-priority t
-          org-export-preserve-breaks t
-          org-html-postamble nil)
-    :config
+  (setq org-export-with-section-numbers nil)
+#+END_SRC
+
+don't add a table of contents
+#+BEGIN_SRC emacs-lisp
+  (setq org-export-with-toc nil)
+#+END_SRC
+
+only make something a subscript if we had braces around
+it. i.e. make 5_{4} a subscript but not 5_4. Otherwise we end up
+with subscripts anytime we don't markup a variable name.
+#+BEGIN_SRC emacs-lisp
+  (setq org-export-with-sub-superscripts '{})
+#+END_SRC
+
+include a priority element when exporting todos
+#+BEGIN_SRC emacs-lisp
+  (setq org-export-with-priority t)
+#+END_SRC
+
+preserve line breaks when exporting. This makes the exported format
+closer to my markup, which keeps unwated suprises
+#+BEGIN_SRC emacs-lisp
+  (setq org-export-preserve-breaks t)
+#+END_SRC
+
+don't use the default preamble. We are creating our own css preamble
+and we don't want the default one interfering
+#+BEGIN_SRC emacs-lisp
+  (setq org-html-postamble nil)
+#+END_SRC
+
+I program on a dark background because I am not heathen. But this
+means that when we use the default inline CSS for syntax highlighting
+we get really hard to read colors on a white background like email. So
+instead org will just define css elements for the different syntax
+elements and our =email.css= can define the colors for those. that way
+we always have good colors for reading on white background regardless
+of our theme.
+#+BEGIN_SRC emacs-lisp
+  (setq org-html-htmlize-output-type 'css)
+#+END_SRC
+
+create a custom HTML preamble that includes our default CSS to make
+things more clean and modern. load it after the export libraries are
+loaded so it does not effect startup time.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'ox-html
     (setq org-html-head
           (concat
            "<style type=\"text/css\">\n"
@@ -3149,51 +3194,58 @@ this allows me to quickly move headers around files based on these refile target
            "</style>\n")))
 #+END_SRC
 
+A simple function to export the current buffer as HTML and put it in
+the clipboard
+#+BEGIN_SRC emacs-lisp
+  (defun $export-org-email ()
+      "Export the current org email and copy it to the clipboard"
+      (interactive)
+      (defvar org-export-show-temporary-export-buffer)
+      (let (org-export-show-temporary-export-buffer)
+        (org-html-export-as-html)
+        (with-current-buffer "*Org HTML Export*"
+          (kill-new (buffer-string)))
+        (message "HTML copied to clipboard")))
+#+END_SRC
+
+The built-in version of =htmlize= does not support exporting code
+blocks
 #+BEGIN_SRC emacs-lisp
   (use-package htmlize)
 #+END_SRC
 
 *** capture
 #+BEGIN_SRC emacs-lisp
-  (use-package org-capture
-    :straight nil
-    :init
-    ($leader-set-key
-      "c" 'org-capture)
-    ($leader-local-set-key
-      :definer 'minor-mode
-      :keymaps 'org-capture-mode
-      "e" '$export-org-email)
-    :config
-    (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
-          org-default-email-file (expand-file-name "email.org" org-directory)
-          org-default-journal-file (expand-file-name "journal.org" org-directory)
-          org-capture-templates
-          '(("t" "Todo" entry (file+headline org-default-notes-file "Tasks")
-             "* TODO [#C] %?\n %t\n" :empty-lines 1)
-            ("l" "Todo Link" entry (file+headline org-default-notes-file "Tasks")
-             "* TODO [#C] %?\n %i\n %a" :empty-lines 1)
-            ("s" "Scheduled TODO" entry (file+headline org-default-notes-file "Tasks")
-             "* TODO [#C] %?\n  SCHEDULED: %^T\n" :empty-lines 1)
-            ("T" "Todo from Clipboard" entry (file+headline org-default-notes-file "Tasks")
-             "* TODO [#C] %?\n  %c" :empty-lines 1)
-            ("n" "Note" entry (file+headline org-default-notes-file "Notes")
-             "* %?" :empty-lines 1)
-            ("N" "Note with Clipboard" entry (file+headline org-default-notes-file "Notes")
-             "* %?\n   %c" :empty-lines 1)
-            ("e" "Email" entry (file org-default-email-file)
-             "* %?" :empty-lines 1)
-            ("j" "Journal" entry (file org-default-journal-file)
-             "* %<%a %b %e, %l:%M> -  %?" :empty-lines 1))))
-
-     (defun $export-org-email ()
-       "Export the current org email and copy it to the clipboard"
-       (interactive)
-       (let ((org-export-show-temporary-export-buffer nil))
-         (org-html-export-as-html)
-         (with-current-buffer "*Org HTML Export*"
-           (kill-new (buffer-string)))
-         (message "HTML copied to clipboard")))
+    (use-package org-capture
+      :straight nil
+      :init
+      ($leader-set-key
+        "c" 'org-capture)
+      ($leader-local-set-key
+        :definer 'minor-mode
+        :keymaps 'org-capture-mode
+        "e" '$export-org-email)
+      :config
+      (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
+            org-default-email-file (expand-file-name "email.org" org-directory)
+            org-default-journal-file (expand-file-name "journal.org" org-directory)
+            org-capture-templates
+            '(("t" "Todo" entry (file+headline org-default-notes-file "Tasks")
+               "* TODO [#C] %?\n %t\n" :empty-lines 1)
+              ("l" "Todo Link" entry (file+headline org-default-notes-file "Tasks")
+               "* TODO [#C] %?\n %i\n %a" :empty-lines 1)
+              ("s" "Scheduled TODO" entry (file+headline org-default-notes-file "Tasks")
+               "* TODO [#C] %?\n  SCHEDULED: %^T\n" :empty-lines 1)
+              ("T" "Todo from Clipboard" entry (file+headline org-default-notes-file "Tasks")
+               "* TODO [#C] %?\n  %c" :empty-lines 1)
+              ("n" "Note" entry (file+headline org-default-notes-file "Notes")
+               "* %?" :empty-lines 1)
+              ("N" "Note with Clipboard" entry (file+headline org-default-notes-file "Notes")
+               "* %?\n   %c" :empty-lines 1)
+              ("e" "Email" entry (file org-default-email-file)
+               "* %?" :empty-lines 1)
+              ("j" "Journal" entry (file org-default-journal-file)
+               "* %<%a %b %e, %l:%M> -  %?" :empty-lines 1))))
 #+END_SRC
 
 *** tags
