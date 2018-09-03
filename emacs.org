@@ -1683,6 +1683,10 @@ some log files are *really* large, so don't warn about opening files less the 50
   (csetq large-file-warning-threshold 500000000)
 #+END_SRC
 
+Only communists end sentences with two spaces.
+#+BEGIN_SRC emacs-lisp
+  (csetq sentence-end-double-space nil)
+#+END_SRC
 
 *** whitespace
 
