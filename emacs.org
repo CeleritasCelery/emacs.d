@@ -110,10 +110,11 @@ we want to tangle on exit so that it will make startup time quicker.
   (defun $tangle-init-file ()
     "tangle my emacs org file before closing to make startup faster."
     (interactive)
-    (require 'ob-tangle)
     (let ((src (expand-file-name "emacs.org" user-emacs-directory))
-	  (target (expand-file-name "emacs.el" user-emacs-directory)))
-      (org-babel-tangle-file src target)))
+          (target (expand-file-name "emacs.el" user-emacs-directory)))
+      (when (file-newer-than-file-p src target)
+        (require 'ob-tangle)
+        (org-babel-tangle-file src target))))
 
   (add-hook 'kill-emacs-hook '$tangle-init-file)
 #+END_SRC
