@@ -441,7 +441,8 @@ after choosing a prefix key.
           which-key-idle-secondary-delay 0.1
           which-key-allow-evil-operators t)
     :config
-    (which-key-mode))
+    (which-key-mode)
+    (push '((nil . "\\$") . (nil . "")) which-key-replacement-alist))
 #+END_SRC
 
 *** ace window
