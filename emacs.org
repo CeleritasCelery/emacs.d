@@ -3543,17 +3543,28 @@ using speed of though lisp to quicky create edit emacs-lisp
 *** tramp
 set TRAMP verbosity to warnings and errors only. default is level 3
 which sends a message every time we connect to a remote host
-https://emacs.stackexchange.com/questions/29286/tramp-unable-to-open-some-files
 #+BEGIN_SRC emacs-lisp
-  (use-package tramp
-    :straight nil
-    :init
-    (setq tramp-default-method "ssh"
-           tramp-verbose 3)
-    :config
-    (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))
+  (csetq tramp-default-method "ssh"
+         tramp-verbose 3)
 #+END_SRC
 
+by default tramp tries to parse =/etc/ssh2/hostkeys= for the hostkey
+names but this file does not exist. This leads to an error everytime
+we try to get the hostkey names. I tried just defining the completion
+functions after tramp was loaded, something is still setting it back
+to the defaults. So I created a function to be called as part of helm
+that will set the completion functions right before tramp tries to use
+them. I would love to remove this advice and only set it once.
+#+BEGIN_SRC emacs-lisp
+  (advice-add 'helm-ff--tramp-hostnames :before
+              (defun $helm-set-tramp-host-names ()
+                (unless  (equal '("ssh" (tramp-parse-hosts "~/.ssh2/ssh2_config"))
+                                (assoc "ssh" tramp-completion-function-alist))
+                  (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config")))
+                  (tramp-set-completion-function "scp" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))))
+#+END_SRC
+
+*** rainbow delimiters
 packages to help manage parens
 #+BEGIN_SRC emacs-lisp
   (use-package rainbow-delimiters
