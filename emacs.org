@@ -2928,24 +2928,29 @@ helm company provides a helm interface to helm completion
     ($leader-set-key
       "ol" 'org-store-link)
     (setq org-lowest-priority ?D
-           org-enforce-todo-dependencies t
-           org-tags-column 0
-           org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
-                               (sequence "|" "CANCELED(c@)"))
-           org-priority-faces '((?A . (:foreground "OrangeRed"))
-                                (?B . (:foreground "yellow3"))
-                                (?C . (:foreground "ForestGreen"))))
+          org-enforce-todo-dependencies t
+          org-tags-column 0
+          org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
+                              (sequence "|" "CANCELED(c@)"))
+          org-priority-faces '((?A . (:foreground "OrangeRed"))
+                               (?B . (:foreground "yellow3"))
+                               (?C . (:foreground "ForestGreen"))))
     (defun $org-truncate-lines ()
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
     :config
+
+    (general-advice-add '(org-insert-subheading org-insert-todo-subheading)
+                        :before
+                        (defun $org-insert-subheading (ARG)
+                          (let ((undo-inhibit-record-point t))
+                            (end-of-line))))
     (general-define-key
      :keymaps 'org-mode-map
      "C-c C-<return>" 'org-insert-subheading
-     "C-c C-M-<return>" 'org-insert-todo-subheading)
+     "C-c C-SPC" 'org-insert-todo-subheading)
     (add-to-list 'org-structure-template-alist
-                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))
-    )
+                 '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
 #+END_SRC
 
 *** navigation
