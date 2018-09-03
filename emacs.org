@@ -1457,6 +1457,17 @@ us call them from helm.
        '$magit-status-in-dir
        helm-ff-default-directory)))
 
+  (defun $meld-from-helm-session ()
+    "run meld from a helm session"
+    (interactive)
+    (with-helm-alive-p
+      (helm-run-after-exit
+       (lambda (paths)
+         (async-start-process "Helm Meld" "meld" nil
+                              (nth 0 paths)
+                              (nth 1 paths)))
+       (helm-marked-candidates))))
+
   (defun $helm-ff-switch-to-shell ()
     "Run switch to shell action from `helm-source-find-files'."
     (interactive)
@@ -1498,11 +1509,11 @@ helm builtins
     (general-define-key
      :keymaps '(helm-find-files-map helm-read-file-map helm-generic-files-map)
      "C-r"   'helm-find-files-history
-     "C-c m" 'helm-ff-bookmark-set
      "C-c b" 'helm-find-files-toggle-to-bookmark
      "C-c c" 'helm-ff-run-copy-file
      "C-c '" '$helm-ff-switch-to-shell
      "C-c s" '$helm-ag-from-session
+     "C-c m" '$meld-from-helm-session
      "C-c g" '$magit-from-helm-session))
 #+END_SRC
 
