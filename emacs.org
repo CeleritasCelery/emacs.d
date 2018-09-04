@@ -3465,6 +3465,8 @@ it will split the current window instead of replacing it. See
     :keymaps 'emacs-lisp-mode-map
     "'" 'ielm)
 
+  (add-to-list 'shackle-rules '("*ielm*" :select t :popup t))
+
   (el-patch-feature 'ielm)
   (with-eval-after-load 'ielm
     (el-patch-defun ielm ()
@@ -3478,8 +3480,7 @@ it will split the current window instead of replacing it. See
             (unless (zerop (buffer-size)) (setq old-point (point)))
             (inferior-emacs-lisp-mode)))
         (el-patch-swap (pop-to-buffer-same-window "*ielm*")
-                       (progn (split-window)
-                              (pop-to-buffer "*ielm*")))
+                       (display-buffer  "*ielm*"))
         (when old-point (push-mark old-point)))))
 #+END_SRC
 
