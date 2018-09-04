@@ -88,6 +88,11 @@ possible.
   (add-hook 'focus-in-hook 'redraw-display)
 #+END_SRC
 
+don't load x-resources. Everything we need for our config should be in here
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-x-resources t)
+#+END_SRC
+
 #+BEGIN_SRC emacs-lisp
   (electric-pair-mode)
 #+END_SRC
