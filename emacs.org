@@ -3493,6 +3493,7 @@ provide a hydra dispatcher based on context
     :init
     ($leader-local-set-key
       :keymaps 'emacs-lisp-mode-map
+      "ee" 'eval-last-sexp
       "eb" 'eval-buffer
       "er" 'eval-region
       "ef" 'eval-defun))
