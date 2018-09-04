@@ -1123,12 +1123,11 @@ lisp. There are several things I want to change however.
   functions are smarter then their equivalents in lispyville.
 #+BEGIN_SRC emacs-lisp
   (use-package lispy
-    :hook emacs-lisp-mode
     :init
     (setq lispy-colon-p nil))
 
   (use-package lispyville
-    :hook lispy-mode
+    :hook emacs-lisp-mode
     :init
     (setq lispyville-key-theme
           '(operators
