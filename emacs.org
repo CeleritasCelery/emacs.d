@@ -1150,6 +1150,48 @@ lisp. There are several things I want to change however.
       "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual))
 #+END_SRC
 
+*** parens
+
+#+BEGIN_SRC emacs-lisp
+  (use-package paredit
+    :straight
+    (paredit
+     :files ("paredit.el")
+     :type git
+     :repo "http://mumble.net/~campbell/git/paredit.git"))
+
+  (use-package evil-cleverparens
+    :demand t
+    :after elisp-mode
+    :config
+    (general-define-key
+     :states 'normal
+     "i" 'evil-cp-insert
+     "a" 'evil-cp-append))
+
+  (defhydra lisp-quick (:pre (progn (require 'evil-cleverparens)
+                                    (require 'evil-lisp-state)))
+    "quick commands evil-lisp-state"
+    ;; ("j" lisp-state-next-closing-paren "next" :exit nil)
+    ;; ("k" lisp-state-prev-opening-paren "prev" :exit nil)
+    ;; ("h" sp-backward-symbol "up" :exit nil)
+    ;; ("l" sp-forward-symbol "down" :exit nil)
+    ("v" evil-visual-char "visual" :exit nil)
+    ("I" lispyville-insert-at-beginning-of-list "insert list")
+    ("A" lispyville-insert-at-end-of-list "append list")
+    ("O" lispyville-open-above-list "open above")
+    ("o" lispyville-open-below-list "open below")
+    ("J" lispy-join "join")
+    ("r" sp-raise-sexp "raise")
+    ("R" lispyville-raise-list "raise list")
+    ("w" (sp-wrap-with-pair "(") "wrap" :exit nil))
+
+  ($leader-set-key
+    "m" 'lisp-quick/body)
+
+  (use-package evil-lisp-state)
+#+END_SRC
+
 ** Helm
 helm is the more powerfull of the two between itself and ivy. I really
 want to give Ivy a good try because it seems snappier on large files,
