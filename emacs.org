@@ -1778,8 +1778,9 @@ line only
              "F" 'evilem-motion-find-char-backward
              "t" 'evilem-motion-find-char-to
              "T" 'evilem-motion-find-char-to-backward)
-    (:definer 'leader
-              "j" '(:keymap evilem-map)))
+    :init
+    ($leader-set-key
+      "j" '(:keymap evilem-map :package evil-easymotion)))
 #+END_SRC
 
 *** yasnippet
