@@ -1132,11 +1132,15 @@ lisp. There are several things I want to change however.
     (setq lispyville-key-theme
           '(operators
             c-w
-            slurp/barf-cp
-            additional
+            prettify
+            text-objects
             additional-movement
+            slurp/barf-cp
+            wrap
+            additional
             additional-insert
-            additional-wrap))
+            additional-wrap
+            arrow))
 
     :config
     (eval `(defhydra lispyville-mark (:exit nil)
