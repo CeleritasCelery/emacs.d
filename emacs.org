@@ -1115,17 +1115,13 @@ behave better with evil.
 #+END_SRC
 
 *** lispy
-These packages are great at providing editor shortcuts for editing
-lisp. There are several things I want to change however.
-- I am starting to think that I would be better off just using the
-  evil lisp state, and then binding some of the most convient
-  functions from both to the new state. Some of the evil-cleverparens
-  functions are smarter then their equivalents in lispyville.
+I tried lispy for a long time, and tried hard to like it. But
+eventually I had to admit that it is clahses with the design patterns
+of modal editing. Even using lispville (Lispy + evil) can't save it.
+However I will keep using lispyville. Not because of its lispy
+integration but because it reimplements evil-cleverparens in a nice
+package.
 #+BEGIN_SRC emacs-lisp
-  (use-package lispy
-    :init
-    (setq lispy-colon-p nil))
-
   (use-package lispyville
     :hook emacs-lisp-mode
     :init
@@ -1139,13 +1135,12 @@ lisp. There are several things I want to change however.
             wrap
             additional
             additional-insert
-            additional-wrap
-            arrow))
-
-    :config
-    (eval `(defhydra lispyville-mark (:exit nil)
-             ("v" ,(lispyville-wrap-command lispy-mark-symbol visual) "symbol")
-             ("V" ,(lispyville-wrap-command lispy-mark visual) "sexp")))
+            additional-wrap))
+    (defhydra lispyville-mark (:pre
+                               (require 'lispyville)
+                               :exit nil)
+      ("v" (lispyville-wrap-command lispy-mark-symbol visual) "symbol")
+      ("V" (lispyville-wrap-command lispy-mark visual) "sexp"))
     ($leader-set-key
       "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual))
 #+END_SRC
