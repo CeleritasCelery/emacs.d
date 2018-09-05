@@ -1147,6 +1147,9 @@ package.
 
 *** parens
 
+=evil-cleverparens= requires paredit, unfortunately the default
+paredit recipe does not work for me and I need to update it.
+Thankfully, straight.el makes that super easy!
 #+BEGIN_SRC emacs-lisp
   (use-package paredit
     :straight
@@ -1154,15 +1157,32 @@ package.
      :files ("paredit.el")
      :type git
      :repo "http://mumble.net/~campbell/git/paredit.git"))
+#+END_SRC
 
+even cleverparens is a smartparens based paren editor. Lispyville
+reimplements all of this functionality, but evil-cleverparens
+implements it better. Some examples:
+
+- when entering insert state cleverparens will automatically add a
+  space. Lispville can't because it has to leave you in "special"
+- when wrapping a form, lispy will try and wrap the quote (='foo ->
+  ('foo)=) which is almost never what I want. Smartparens will leave
+  the whole sexp wrapped (='foo -> '(foo)=)
+
+However for the most part, I can just use lispyville with lispy
+disabled. And a lot of cleverparens functionality requires
+=evil-cleverparens= or =smartparens= to be enabled, which I would
+prefer not to do.
+#+BEGIN_SRC emacs-lisp
   (use-package evil-cleverparens
-    :demand t
-    :after elisp-mode
-    :config
-    (general-define-key
-     :states 'normal
+    :commands (evil-cp-insert
+               evil-cp-append)
+    :general
+    (:states
+     'normal
      "i" 'evil-cp-insert
      "a" 'evil-cp-append))
+#+END_SRC
 
   (defhydra lisp-quick (:pre (progn (require 'evil-cleverparens)
                                     (require 'evil-lisp-state)))
