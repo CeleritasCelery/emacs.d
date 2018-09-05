@@ -1184,27 +1184,25 @@ prefer not to do.
      "a" 'evil-cp-append))
 #+END_SRC
 
-  (defhydra lisp-quick (:pre (progn (require 'evil-cleverparens)
-                                    (require 'evil-lisp-state)))
+For a long time I used =evil-lisp-state= and loved it. However I
+realized that it was overkill for what I wanted, and it relied
+exclusivly on smartparens. So instead I created my own hydra that
+takes the best functions from lispy, evil-cleverparens, and
+smartparens and puts them into one dispatcher.
+#+BEGIN_SRC emacs-lisp
+  (defhydra lisp-quick (:pre (progn (require 'evil-cleverparens)))
     "quick commands evil-lisp-state"
-    ;; ("j" lisp-state-next-closing-paren "next" :exit nil)
-    ;; ("k" lisp-state-prev-opening-paren "prev" :exit nil)
-    ;; ("h" sp-backward-symbol "up" :exit nil)
-    ;; ("l" sp-forward-symbol "down" :exit nil)
-    ("v" evil-visual-char "visual" :exit nil)
-    ("I" lispyville-insert-at-beginning-of-list "insert list")
-    ("A" lispyville-insert-at-end-of-list "append list")
+    ("I" evil-cp-insert-at-beginning-of-form "insert list")
+    ("A" evil-cp-insert-at-end-of-form "append list")
     ("O" lispyville-open-above-list "open above")
     ("o" lispyville-open-below-list "open below")
-    ("J" lispy-join "join")
-    ("r" sp-raise-sexp "raise")
-    ("R" lispyville-raise-list "raise list")
+    ("J" lispy-join "join" :exit nil)
+    ("r" sp-raise-sexp "raise" :exit nil)
+    ("R" lispyville-raise-list "raise list" :exit nil)
     ("w" (sp-wrap-with-pair "(") "wrap" :exit nil))
 
   ($leader-set-key
     "m" 'lisp-quick/body)
-
-  (use-package evil-lisp-state)
 #+END_SRC
 
 ** Helm
