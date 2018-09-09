@@ -3282,15 +3282,29 @@ loaded so it does not effect startup time.
 A simple function to export the current buffer as HTML and put it in
 the clipboard
 #+BEGIN_SRC emacs-lisp
-  (defun $export-org-email ()
-      "Export the current org email and copy it to the clipboard"
-      (interactive)
-      (defvar org-export-show-temporary-export-buffer)
-      (let (org-export-show-temporary-export-buffer)
-        (org-html-export-as-html)
-        (with-current-buffer "*Org HTML Export*"
-          (kill-new (buffer-string)))
-        (message "HTML copied to clipboard")))
+  (defun $org-export-buffer ()
+    "Export the current org email and copy it to the clipboard"
+    (interactive)
+    (defvar org-export-show-temporary-export-buffer)
+    (let (org-export-show-temporary-export-buffer)
+      (org-html-export-as-html)
+      (with-current-buffer "*Org HTML Export*"
+        (kill-new (buffer-string)))
+      (message "HTML copied to clipboard")))
+
+  (defun $export-code-region (beg end)
+    "Export the current region as formatted HTML"
+    (interactive "r")
+    (let ((region (buffer-substring-no-properties beg end))
+          (mode (string-remove-suffix "-mode" (symbol-name major-mode))))
+      (with-temp-buffer
+        (insert "#+BEGIN_SRC " mode "\n")
+        (insert region "\n")
+        (insert "#+END_SRC\n")
+        ($org-export-buffer))))
+
+  ($leader-set-key
+    "xe" '$export-code-region)
 #+END_SRC
 
 The built-in version of =htmlize= does not support exporting code
@@ -3309,7 +3323,7 @@ blocks
       ($leader-local-set-key
         :definer 'minor-mode
         :keymaps 'org-capture-mode
-        "e" '$export-org-email)
+        "e" '$org-export-buffer)
       :config
       (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
             org-default-email-file (expand-file-name "email.org" org-directory)
