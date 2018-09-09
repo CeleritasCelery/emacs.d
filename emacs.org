@@ -404,6 +404,10 @@ just end up making my own modeline from scratch.
     (sml/setup))
 #+END_SRC
 
+Doom modeline works great, but a couple of small tweaks. First we
+don't need the evil-state in the modeline, it is obvious enough.
+Second we want to make sure that all "buffer info" flags can be
+displayed at the same time.
 #+BEGIN_SRC emacs-lisp
   (use-package doom-modeline
     :straight
@@ -412,6 +416,41 @@ just end up making my own modeline from scratch.
     :config
     (csetq eldoc-eval-preferred-function 'eval-expression)
     (column-number-mode)
+    (doom-modeline-def-segment evil-state
+      "Disabled for now"
+      "")
+    (doom-modeline-def-segment buffer-info
+      "Combined information about the current buffer, including the current working
+  directory, the file name, and its state (modified, read-only or non-existent)."
+      (concat (cond (buffer-read-only
+                     (concat (doom-modeline-maybe-icon-octicon
+                              "lock"
+                              :face 'doom-modeline-warning
+                              :v-adjust -0.05)
+                             " "))
+                    ((buffer-modified-p)
+                     (concat (doom-modeline-maybe-icon-faicon
+                              "floppy-o"
+                              :face 'doom-modeline-buffer-modified
+                              :v-adjust -0.0575)
+                             " ")))
+              (when (and buffer-file-name
+                         (not (file-remote-p buffer-file-name))
+                         (not (file-exists-p buffer-file-name)))
+                (concat (doom-modeline-maybe-icon-octicon
+                         "circle-slash"
+                         :face 'doom-modeline-urgent
+                         :v-adjust -0.05)
+                        " "))
+              (when (buffer-narrowed-p)
+                (concat (doom-modeline-maybe-icon-octicon
+                         "fold"
+                         :face 'doom-modeline-warning
+                         :v-adjust -0.05)
+                        " "))
+              (if buffer-file-name
+                  (doom-modeline-buffer-file-name)
+                "%b")))
     (defun doom-modeline-project-root ()
       "Get the path to the root of your project.
   If non-remote return root otherwise `default-directory'."
