@@ -3078,13 +3078,9 @@ inherit the priority of the parent heading
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
+    :init
+    (csetq org-src-window-setup 'current-window)
     :config
-    (general-advice-add '(org-capture-place-template org-edit-src-code)
-                        :around (defun $suppress-delete-other-windows (orig-fn &rest args)
-                                  (cl-letf (((symbol-function 'delete-other-windows)
-                                             (symbol-function 'ignore)))
-                                    (apply orig-fn args))))
-
     (defun $org-show-current-heading-tidily ()
       "Show next entry, keeping other entries closed."
       (interactive)
