@@ -3030,6 +3030,18 @@ helm company provides a helm interface to helm completion
                  '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
 #+END_SRC
 
+**** inherit priority
+inherit the priority of the parent heading
+#+BEGIN_SRC emacs-lisp
+(defun $org-insert-header-priority (&rest _)
+  (when (org-at-heading-p)
+    (let ((parent-priority (save-excursion (org-up-heading-safe)
+                                           (org-show-priority))))
+      (cl-loop do (org-priority (if (string< (org-show-priority) parent-priority) 'up 'down))
+               until (equal parent-priority (org-show-priority))))))
+
+(advice-add 'org-insert-todo-heading :after '$org-insert-header-priority)
+#+END_SRC
 *** navigation
 #+BEGIN_SRC emacs-lisp
   (defhydra $org-navigate ()
