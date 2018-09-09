@@ -1149,10 +1149,13 @@ package.
     (defhydra lispyville-mark (:pre
                                (require 'lispyville)
                                :exit nil)
-      ("v" (lispyville-wrap-command lispy-mark-symbol visual) "symbol")
-      ("V" (lispyville-wrap-command lispy-mark visual) "sexp"))
+      ("v" lispyville-wrap-lispy-mark-symbol-visual "symbol")
+      ("V" lispyville-wrap-lispy-mark-visual "sexp"))
     ($leader-set-key
-      "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual))
+      "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual)
+    :config
+    (lispyville-wrap-command lispy-mark-symbol visual)
+    (lispyville-wrap-command lispy-mark visual))
 #+END_SRC
 
 *** parens
