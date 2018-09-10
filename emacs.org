@@ -1861,6 +1861,15 @@ move me to the start of the line or start of code, based on heuristics
              "C-a" 'mwim-beginning))
 #+END_SRC
 
+*** dumb jump
+dumb jump uses regexp search to try and find the definition of a symbol
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+    :general
+    (:definer
+     'leader
+     "J" 'dumb-jump-go))
+#+END_SRC
 *** avy
 avy is an awesome jump to point package.
 #+BEGIN_SRC emacs-lisp
