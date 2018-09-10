@@ -2850,6 +2850,59 @@ the timestamp in the compilation buffer.
         (format "%d %s%s" value name (if (>= value 1) "s" "")))))
 #+END_SRC
 
+*** status
+set of functions to show the status of all compilations, whether
+finished or running, and easily jump to the associated buffer.
+#+BEGIN_SRC emacs-lisp
+  (defvar $compilation-finished-buffers nil
+    "buffers that have finished compilation")
+
+  (general-advice-add '(compile recompile) :after
+                      (defun $compilation-remove-running-proc (&rest _)
+                        (setq $compilation-finished-buffers
+                              (delete (assoc (current-buffer)
+                                             $compilation-finished-buffers)
+                                      $compilation-finished-buffers))))
+
+  (add-hook 'compilation-finish-functions
+            (defun $compilation-add-buffer (buffer msg)
+              (push (cons buffer (replace-regexp-in-string "\n" "" msg))
+                    $compilation-finished-buffers)))
+
+  (defun $compilation-buffers-candidates ()
+    (append (-map (-lambda ((buffer . msg))
+                    (cons (format "%s\t%s"
+                                  buffer
+                                  (propertize msg
+                                              'face
+                                              (if (string-prefix-p "exited abnormally" msg)
+                                                  'compilation-error
+                                                'compilation-info)))
+                          buffer))
+                  $compilation-finished-buffers)
+            (--map (let ((buffer (process-buffer it)))
+                     (cons (format "%s\t%s"
+                                   buffer
+                                   (propertize "running" 'face 'compilation-line-number))
+                           buffer))
+                   compilation-in-progress)))
+
+  (defun $compilation-jump-to-buffer ()
+    "select from active and finished compilation buffers"
+    (interactive)
+    (helm
+     :buffer "*Helm compilation buffers*"
+     :sources (helm-build-sync-source
+                  "Jump to compilation buffer: "
+                :candidates ($compilation-buffers-candidates)
+                :action helm-type-buffer-actions)))
+
+  ($leader-set-key
+    "oj" '$compilation-jump-to-buffer)
+#+END_SRC
+
+
+
 *** errors
 we need to define what errors look like in compilation and log
 files. compilation mode has some defaults but they are not really
