@@ -25,3 +25,4 @@
      ("Enable wordwrap at 90 columns" . ":eval (shx-wordwrap 90)")))))
 (put 'upcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
