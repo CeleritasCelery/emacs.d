@@ -391,6 +391,42 @@ modify them.
   (load-theme 'doom-one t)
 #+END_SRC
 
+**** colors
+These two packages provide some great tools for editing and analying
+themes visually.
+
+With rainbow mode, colors are highlighted with their actual color. We
+don't want to highlight color "names" in elisp though.
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-mode
+    :init
+    (setq rainbow-x-colors nil))
+#+END_SRC
+
+fontify face will colorize faces with their face. we combine this with
+rainbow mode to make a minor mode that is perfect for editing themes.
+#+BEGIN_SRC emacs-lisp
+  (use-package fontify-face)
+
+  (define-minor-mode $color-mode
+    "turn on rainbow and fontify-face modes"
+    :group '$color-mode
+    (if $color-mode
+        (progn (rainbow-mode)
+               (fontify-face-mode))
+      (rainbow-mode -1)
+      (fontify-face-mode -1)))
+
+  ($leader-set-key
+    "zcc" '$color-mode)
+#+END_SRC
+
+use helm to look at all availible colors
+#+BEGIN_SRC emacs-lisp
+  ($leader-set-key
+    "zcs" 'helm-colors)
+#+END_SRC
+
 *** modeline
 I am still struggling to find a modeline I really like. I have settled
 on doom for now, but there are some segments that I would like to add
