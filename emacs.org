@@ -1201,6 +1201,17 @@ behave better with evil.
       "K" '(evilnc-copy-and-comment-operator :wk "copy-and-comment")))
 #+END_SRC
 
+*** exchange
+swap two regions with evil exchange
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-exchange
+    :general
+    (:states
+     '(visual normal)
+     "gx" 'evil-exchange
+     "gX" 'evil-exchange-cancel))
+#+END_SRC
+
 *** lispy
 I tried lispy for a long time, and tried hard to like it. But
 eventually I had to admit that it is clahses with the design patterns
