@@ -2595,6 +2595,7 @@ environment of my local process with the buffer. very useful.
                                         "XWEAVE_REPO_ROOT"
                                         "SPF_ROOT"
                                         "SPF_PERL_LIB"
+                                        "LD_LIBRARY_PATH"
                                         "DFT_REPO_ROOT"))
     ($leader-local-set-key
       :keymaps 'shell-mode-map
