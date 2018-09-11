@@ -262,6 +262,7 @@ commands
 #+BEGIN_SRC emacs-lisp
   (use-package el-patch)
 #+END_SRC
+
 ** UI
 packages that are used to improve the visuals and interface for Emacs
 
@@ -679,6 +680,7 @@ helm. This will let us preview the variable with TAB.
                        helpful-callable))
       (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols)))
 #+END_SRC
+
 *** persp-mode
 persp-mode is layout managment package that provides way more
 functionality then I want. All I really are about is having named
@@ -1744,6 +1746,7 @@ use helm to quickly navigate org headings
 
   (csetq helm-org-format-outline-path t)
 #+END_SRC
+
 *** themes
 switch themes using helm
 #+BEGIN_SRC emacs-lisp
@@ -1851,6 +1854,7 @@ whitespace managment keybindings
     "nr" 'narrow-to-region
     "nf" 'narrow-to-defun)
 #+END_SRC
+
 *** move where I mean
 move me to the start of the line or start of code, based on heuristics
 #+BEGIN_SRC emacs-lisp
@@ -1870,6 +1874,7 @@ dumb jump uses regexp search to try and find the definition of a symbol
      'leader
      "J" 'dumb-jump-go))
 #+END_SRC
+
 *** avy
 avy is an awesome jump to point package.
 #+BEGIN_SRC emacs-lisp
@@ -2399,6 +2404,7 @@ I want =C-d= to scroll, not delete a character
      :keymaps 'comint-mode-map
      "C-d" nil))
 #+END_SRC
+
 *** shx
 shx mode allows us to call emacs lisp functions from within the
 builtin shell, gives us the best of both worlds.
@@ -3143,6 +3149,7 @@ inherit the priority of the parent heading
 
 (advice-add 'org-insert-todo-heading :after '$org-insert-header-priority)
 #+END_SRC
+
 *** navigation
 #+BEGIN_SRC emacs-lisp
   (defhydra $org-navigate ()
@@ -3940,6 +3947,7 @@ the following ways:
                 ""
               json--encoding-current-indentation)))
 #+END_SRC
+
 ** makefile
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
