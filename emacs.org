@@ -3742,8 +3742,9 @@ unless we turn it back on.
               (prettify-symbols-mode -1)
               (prettify-symbols-mode 1)
               (setq-local prettify-symbols-compose-predicate
-                          (defun $prettify-symbols-not-string-p (_1 _2 _3)
-                            (not (nth 3 (syntax-ppss)))))))
+                          (defun $prettify-symbols-not-string-p (start _end _match)
+                            (not (or (nth 8 (syntax-ppss))
+                                     (eq ?? (char-before start))))))))
 #+END_SRC
 
 *** page breaks
