@@ -3686,9 +3686,9 @@ provide a hydra dispatcher based on context
     )
 #+END_SRC
 
-** lisp
+** elisp
 
-*** elisp
+*** general
 #+BEGIN_SRC emacs-lisp
   (use-package elisp-mode
     :straight nil
@@ -3835,6 +3835,133 @@ packages to help manage parens
     (evil-collection-init 'paren)
     :config
     (show-paren-mode))
+#+END_SRC
+
+*** benchmarking
+Some useful macros for profiling and benchmarking elisp code
+
+#+BEGIN_SRC emacs-lisp
+  (defmacro $profile (&rest body)
+    "generate a CPU profile report for BODY"
+    `(progn (profiler-start 'cpu)
+            ,@body
+            (profiler-report)
+            (profiler-stop)
+            (profiler-reset)))
+
+  (defmacro measure-time (&rest body)
+    "Measure the time it takes to evaluate BODY."
+    `(let ((time (current-time)))
+       ,@body
+       (message "%.06f" (float-time (time-since time)))))
+
+  (cl-defmacro bench (&optional (times 100000) &rest body)
+    "Call `benchmark-run-compiled' on BODY with TIMES iterations, returning list suitable for Org source block evaluation.
+    Garbage is collected before calling `benchmark-run-compiled' to
+    avoid counting existing garbage which needs collection."
+    (declare (indent defun))
+    `(progn
+       (garbage-collect)
+       (list '("Total runtime" "# of GCs" "Total GC runtime")
+             'hline
+             (benchmark-run-compiled ,times
+               (progn
+                 ,@body)))))
+
+  (cl-defmacro bench-multi (&key (times 1) forms ensure-equal)
+    "Run FORMS with `benchmark-run-compiled' for TIMES iterations, returning list suitable for Org source block evaluation.
+
+  When ENSURE-EQUAL is non-nil, compare the results of FORMS and
+  ensure they are `equal'.  If they aren't, raise an error, and if
+  the results are sequences, show the difference between them using
+  `seq-difference'.
+
+  If the first element of a form is a string, the string is used as
+  the form's description in the results; otherwise, forms are
+  numbered from 0.
+
+  Before `benchmark-run-compiled' is called for each form,
+  `garbage-collect' is called."
+    (declare (indent defun))
+    (let ((results (gensym))
+          (result-times (gensym))
+          (header '(("Form" "x faster than next" "Total runtime" "# of GCs" "Total GC runtime")
+                    hline))
+          (descriptions (cl-loop for form in forms
+                                 for i from 0
+                                 collect (if (stringp (car form))
+                                             (prog1 (car form)
+                                               (setf (nth i forms) (cadr (nth i forms))))
+                                           i))))
+      `(let* ((,results (make-hash-table))
+              (,result-times (sort (list ,@(cl-loop for form in forms
+                                                    for i from 0
+                                                    for description = (nth i descriptions)
+                                                    collect `(progn
+                                                               (garbage-collect)
+                                                               (cons ,description
+                                                                     (benchmark-run-compiled ,times
+                                                                       ,(if ensure-equal
+                                                                            `(puthash ,description ,form ,results)
+                                                                          form))))))
+                                   (lambda (a b)
+                                     (< (second a) (second b))))))
+         ,(when ensure-equal
+            `(cl-loop with keys = (hash-table-keys ,results)
+                      for i from 0 to (- (length keys) 2)
+                      unless (equal (gethash (nth i keys) ,results)
+                                    (gethash (nth (1+ i) keys) ,results))
+                      do (if (sequencep (gethash (car (hash-table-keys ,results)) ,results))
+                             (let* ((k1) (k2)
+                                    ;; If the difference in one order is nil, try in other order.
+                                    (difference (or (setq k1 (nth i keys)
+                                                          k2 (nth (1+ i) keys)
+                                                          difference (seq-difference (gethash k1 ,results)
+                                                                                     (gethash k2 ,results)))
+                                                    (setq k1 (nth (1+ i) keys)
+                                                          k2 (nth i keys)
+                                                          difference (seq-difference (gethash k1 ,results)
+                                                                                     (gethash k2 ,results))))))
+                               (user-error "Forms' results not equal: difference (%s - %s): %S"
+                                           k1 k2 difference))
+                           ;; Not a sequence
+                           (user-error "Forms' results not equal: %s:%S  %s:%S"
+                                       (nth i keys) (nth (1+ i) keys)
+                                       (gethash (nth i keys) ,results)
+                                       (gethash (nth (1+ i) keys) ,results)))))
+         ;; Add factors to times and return table
+         (append ',header
+                 (cl-loop with length = (length ,result-times)
+                          for i from 0 to (1- length)
+                          for time = (second (nth i ,result-times))
+                          for description = (car (nth i ,result-times))
+                          for factor = (if (< i (1- length))
+                                           (format "%.2f" (/ (second (nth (1+ i) ,result-times))
+                                                             (second (nth i ,result-times))))
+                                         "slowest")
+                          collect (append (list description factor)
+                                          (cdr (nth i ,result-times))))))))
+
+  (defmacro elp-profile (times prefixes &rest body)
+    (declare (indent defun))
+    `(let (output)
+       (dolist (prefix ,prefixes)
+         (elp-instrument-package (symbol-name prefix)))
+       (dotimes (x ,times)
+         ,@body)
+       (elp-results)
+       (elp-restore-all)
+       (point-min)
+       (forward-line 20)
+       (delete-region (point) (point-max))
+       (setq output (buffer-substring-no-properties (point-min) (point-max)))
+       (kill-buffer)
+       (delete-window)
+       (let ((rows (s-lines output)))
+         (append (list (list "Function" "Times called" "Total time" "Average time")
+                       'hline)
+                 (cl-loop for row in rows
+                          collect (s-split (rx (1+ space)) row 'omit-nulls))))))
 #+END_SRC
 
 ** perl
