@@ -1370,7 +1370,7 @@ the display function to be more consistent.
                 (inhibit-same-window . t)
                 (side . bottom)
                 (window-width . 0.6)
-                (window-height . 0.4)))))
+                (window-height . 0.3)))))
         (helm-default-display-buffer buffer)))
     :config
     (helm-mode)
