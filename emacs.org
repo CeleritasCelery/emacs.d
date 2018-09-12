@@ -1694,13 +1694,13 @@ helm builtins
       "s" '(:ignore t :wk "search")
       "ss" 'helm-swoop
       "sS" '$helm-swoop-region-or-symbol)
+    (general-define-key
+     "C-s" 'helm-swoop)
     :config
     (general-define-key
      :keymaps 'helm-swoop-edit-map
      "C-c C-c" 'helm-swoop--edit-complete
      "C-c C-k" 'helm-swoop--edit-cancel))
-
-
 
   (defun $helm-swoop-region-or-symbol ()
     "Call `helm-swoop' with default input."
