@@ -2560,7 +2560,7 @@ while typing.
      :type git :host github :repo "CeleritasCelery/company-async-files")
     :init
     (add-to-list 'company-backends 'company-async-files)
-    (delete 'company-files company-backends))
+    (setq company-backends (delete 'company-files company-backends)))
 #+END_SRC
 
 *** argument completion
