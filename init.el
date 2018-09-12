@@ -1,4 +1,4 @@
- ;; init.el --- My init file, calls out to the literate code -*- lexical-binding: t -*-
+;; init.el --- My init file, calls out to the literate code -*- lexical-binding: t -*-
 
 
 ;; Copyright (C) 2018  Troy Hinckley
@@ -7,16 +7,21 @@
 
 ;;; Code:
 
-;; Set this to a high value so we don't have a lot of costly garbage collection
-(setq gc-cons-threshold most-positive-fixnum
-      gc-cons-percentage 0.6)
+;; a higher gc threshold will leave to faster overall
+;; performace. Don't set it too high, or you will start o experience
+;; noticable gc pauses.
+(setq gc-cons-threshold 20000000)
 
-;; Don't attempt to find/apply special file handlers to files loaded during startup.
 (defun $load-literate-file (name &optional dir)
   "if file is tangled load the .el file, else tangle it"
   (setq dir (or dir user-emacs-directory))
-  (let ((file-name-handler-alist nil)
-        (load-prefer-newer t)
+  (let ((load-prefer-newer t)
+        ;; Don't attempt to find/apply special file handlers to files
+        ;; loaded during startup.
+        (file-name-handler-alist nil)
+        ;; Set this to a high value so we don't have a lot of costly
+        ;; garbage collection
+        (gc-cons-threshold most-positive-fixnum)
         (el-file (expand-file-name (concat name ".el") dir))
         (org-file (expand-file-name (concat name ".org") dir)))
     ;; If config is updated, load it
@@ -28,8 +33,5 @@
       (org-babel-load-file org-file))))
 
 ($load-literate-file "emacs")
-
-(setq gc-cons-threshold 20000000
-      gc-cons-percentage 0.1)
 
 ;;; init.el ends here
