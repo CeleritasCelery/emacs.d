@@ -274,6 +274,14 @@ highlight the current line with a background face
     :demand t
     :config
     (global-hl-line-mode))
+
+  (general-add-hook '(evil-visual-state-entry-hook evil-insert-state-entry-hook)
+                    (defun $disable-hl-line ()
+                      (global-hl-line-mode -1)))
+
+  (general-add-hook '(evil-visual-state-exit-hook evil-insert-state-exit-hook)
+                    (defun $enable-hl-line ()
+                      (global-hl-line-mode)))
 #+END_SRC
 
 *** font
