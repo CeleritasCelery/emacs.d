@@ -396,7 +396,7 @@ modify them.
   (use-package flatland-theme)
   (use-package monokai-theme)
 
-  (load-theme 'doom-one t)
+  (load-theme 'darktooth t)
 #+END_SRC
 
 **** colors
