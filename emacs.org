@@ -2703,7 +2703,9 @@ a few issues that we are going to resolve now:
    :states 'normal
    :keymaps 'compilation-shell-minor-mode
    "q" 'quit-window
-   "gr" 'recompile)
+   "gr" 'recompile
+   "C-j" 'compilation-next-error
+   "C-k" 'compilation-previous-error)
   (general-define-key
    :states 'motion
    :keymaps 'compilation-mode-map
