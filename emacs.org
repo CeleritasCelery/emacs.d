@@ -3363,19 +3363,16 @@ inherit the priority of the parent heading
   (use-package org-agenda
     :straight nil
     :init
-    (setq org-agenda-todo-ignore-scheduled 'future
-          org-agenda-tags-todo-honor-ignore-options t
-          org-agenda-dim-blocked-tasks 'invisible
-          org-agenda-files "~/org/.agenda-files"
-          org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen")
-                                       ("d" "development" tags-todo "dev")
-                                       ("p" "pvim" tags-todo "pvim+now|next"
-                                        ((org-agenda-files '("~/org/projects/mdf_pvim.org"))))))
+    (csetq org-agenda-todo-ignore-scheduled 'future
+           org-agenda-tags-todo-honor-ignore-options t
+           org-agenda-dim-blocked-tasks 'invisible
+           org-agenda-files "~/org/.agenda-files"
+           org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen")
+                                        ("d" "development" tags-todo "dev")
+                                        ("p" "pvim" tags-todo "pvim+now|next|past")
+                                        ("t" "turnin" tags-todo "turnin")))
     ($leader-set-key
-      "a" 'org-agenda)
-    :config
-    (setf (alist-get 'todo org-agenda-sorting-strategy)
-          '(todo-state-up priority-down category-keep)))
+      "a" 'org-agenda))
 #+END_SRC
 
 *** refile
