@@ -3880,7 +3880,8 @@ packages to help manage parens
     :demand t
     :after prog-mode
     :init
-    (setq evil-show-paren-range 3)
+    (csetq evil-show-paren-range 3
+           show-paren-delay 0)
     (evil-collection-init 'paren)
     :config
     (show-paren-mode))
