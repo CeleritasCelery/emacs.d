@@ -2738,7 +2738,7 @@ them all at once.
                                           "STF_MARSHAL"))
            (compilation-buffer-name-function
             (lambda (major-mode)
-              (format "*%s %s ipgen %s*"
+              (format "*%s ipgen %s %s*"
                       (f-filename model-root)
                       (f-filename dir)
                       (downcase major-mode)))))
@@ -2779,10 +2779,18 @@ we can start compilations in comint-mode with
 =compilation-shell-minor-mode= enabled.  We are adding a hook to alert
 us whenever a run stalls with a prompt, so we can quickly address it.
 #+BEGIN_SRC emacs-lisp
+  (defvar $compilation-stalled-buffers nil
+    "buffers that have a stalled compilation")
+
   (defun $alert-core-assembler-stall (output)
     (when (string-match-p (rx bol "CoreAssembler> " eos) output)
+      (add-to-list '$compilation-stalled-buffers (current-buffer))
       (alert "Core Assembler stall"
              :severity 'moderate)))
+
+  (add-hook 'compilation-finish-functions
+            (defun $compilation-remove-stalled-buffer (buffer _exit)
+              (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers))))
 
   (add-hook 'compilation-shell-minor-mode-hook
             (defun $add-local-output-filter ()
@@ -2934,43 +2942,55 @@ finished or running, and easily jump to the associated buffer.
   (defvar $compilation-finished-buffers nil
     "buffers that have finished compilation")
 
-  (general-advice-add '(compile recompile) :after
-                      (defun $compilation-remove-running-proc (&rest _)
-                        (setq $compilation-finished-buffers
-                              (delete (assoc (current-buffer)
-                                             $compilation-finished-buffers)
-                                      $compilation-finished-buffers))))
-
   (add-hook 'compilation-finish-functions
             (defun $compilation-add-buffer (buffer msg)
               (push (cons buffer (replace-regexp-in-string "\n" "" msg))
                     $compilation-finished-buffers)))
 
   (defun $compilation-buffers-candidates ()
-    (append (-map (-lambda ((buffer . msg))
-                    (cons (format "%s\t%s"
-                                  buffer
-                                  (propertize msg
-                                              'face
-                                              (if (string-prefix-p "exited abnormally" msg)
-                                                  'compilation-error
-                                                'compilation-info)))
-                          buffer))
-                  $compilation-finished-buffers)
-            (--map (let ((buffer (process-buffer it)))
-                     (cons (format "%s\t%s"
-                                   buffer
-                                   (propertize "running" 'face 'compilation-line-number))
-                           buffer))
-                   compilation-in-progress)))
+    (setq $compilation-finished-buffers (seq-uniq $compilation-finished-buffers (lambda (x y) (eq (car x) (car y)))))
+    (let* ((finished-buffers (cl-remove-if (-lambda ((buffer))
+                                             (or (not (buffer-live-p buffer))
+                                                 (memq (get-buffer-process buffer) compilation-in-progress)))
+                                           $compilation-finished-buffers))
+           (stalled-procs (cl-remove-if-not (lambda (proc)
+                                              (memq (process-buffer proc) $compilation-stalled-buffers))
+                                            compilation-in-progress))
+           (running-procs (cl-remove-if (lambda (proc)
+                                          (memq (process-buffer proc) $compilation-stalled-buffers))
+                                        compilation-in-progress))
+           (formatted-stalled-buffers (--map (let ((buffer (process-buffer it)))
+                                               (cons (format "%-50s%s"
+                                                             buffer
+                                                             (propertize "stalled" 'face 'compilation-warning))
+                                                     buffer))
+                                             stalled-procs))
+           (formatted-running-buffers (--map (let ((buffer (process-buffer it)))
+                                               (cons (format "%-50s%s"
+                                                             buffer
+                                                             (propertize "running" 'face 'compilation-line-number))
+                                                     buffer))
+                                             running-procs))
+           (formatted-finished-buffers (mapcar (-lambda ((buffer . msg))
+                                                 (cons (format "%-50s%s"
+                                                               buffer
+                                                               (propertize msg
+                                                                           'face
+                                                                           (if (string-prefix-p "exited abnormally" msg)
+                                                                               'compilation-error
+                                                                             'compilation-info)))
+                                                       buffer))
+                                               finished-buffers)))
+      (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers)))
 
   (defun $compilation-jump-to-buffer ()
     "select from active and finished compilation buffers"
     (interactive)
     (helm
      :buffer "*Helm compilation buffers*"
+     :prompt "jump to compilation buffer: "
      :sources (helm-build-sync-source
-                  "Jump to compilation buffer: "
+                  "compilation buffers"
                 :candidates ($compilation-buffers-candidates)
                 :action helm-type-buffer-actions)))
 
