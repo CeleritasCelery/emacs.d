@@ -1458,8 +1458,8 @@ prevent the buffer list from being resorted
 
     (setq helm-source-find-files (helm-make-source
                                      "Find Files" 'helm-source-ffiles))
-    (setf (alist-get 'filtered-candidate-transformer helm-source-find-files)
-          (append (alist-get 'filtered-candidate-transformer helm-source-find-files) '(helm-adaptive-sort $helm-sort-hardlink)))
+    (cl-callf append (alist-get 'filtered-candidate-transformer helm-source-find-files)
+      '(helm-adaptive-sort $helm-sort-hardlink))
 
     (advice-add 'helm-execute-persistent-action :before
                 (defun $helm-adaptive-files-add (&rest _)
