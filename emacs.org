@@ -1410,6 +1410,7 @@ prevent the buffer list from being resorted
                (valid (member symbol candidates)))
           (cons symbol (remove symbol candidates))
         candidates))
+    (byte-compile #'$helm-sort-symbol-at-point)
 
     (defun helm-completing-read-symbols
         (prompt _collection test _require-match init
@@ -1441,7 +1442,8 @@ prevent the buffer list from being resorted
         :history hist
         :resume 'noresume
         :default (or default ""))
-       (helm-mode--keyboard-quit))))
+       (helm-mode--keyboard-quit)))
+    (byte-compile #'helm-completing-read-symbols))
 
   (with-eval-after-load 'helm-files
 
@@ -1452,6 +1454,7 @@ prevent the buffer list from being resorted
                                   candidates)))
           (cons hardlink (remove hardlink candidates))
         candidates))
+    (byte-compile #'$helm-sort-hardlink)
 
     (setq helm-source-find-files (helm-make-source
                                      "Find Files" 'helm-source-ffiles))
@@ -2669,7 +2672,9 @@ so we supress them
                                1 'font-lock-comment-face)))
     (add-hook 'compilation-filter-hook
               (defun $compilation-apply-ansi-color ()
-                (ansi-color-apply-on-region compilation-filter-start (point)))))
+                (ansi-color-apply-on-region compilation-filter-start (point))))
+    (byte-compile #'$compilation-apply-ansi-color))
+
 #+END_SRC
 
 compillation can either be run in =compilation-mode= or in
@@ -3064,6 +3069,8 @@ stalls.
               (when (looking-back (rx bol "CoreAssembler> ") (line-beginning-position))
                 (alert "Core Assembler stall"
                        :severity 'moderate))))
+
+  (byte-compile #'$complilation-detect-core-assembler-stall)
 
   (add-hook 'compilation-finish-functions
             (defun $notify-compile-done (_buffer exit-string)
