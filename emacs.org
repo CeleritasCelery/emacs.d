@@ -152,7 +152,6 @@ bootstrap code to download the package manager and run it.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
-  (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 5))
