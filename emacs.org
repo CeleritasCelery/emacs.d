@@ -3232,14 +3232,16 @@ helm company provides a helm interface to helm completion
 **** inherit priority
 inherit the priority of the parent heading
 #+BEGIN_SRC emacs-lisp
-(defun $org-insert-header-priority (&rest _)
-  (when (org-at-heading-p)
-    (let ((parent-priority (save-excursion (org-up-heading-safe)
-                                           (org-show-priority))))
-      (cl-loop do (org-priority (if (string< (org-show-priority) parent-priority) 'up 'down))
-               until (equal parent-priority (org-show-priority))))))
+  (defun $org-insert-header-priority (_arg &optional force)
+    (when (org-at-heading-p)
+      (let ((parent-priority (save-excursion (if force
+                                                 (org-up-heading-safe)
+                                               (org-backward-heading-same-level 1))
+                                             (org-show-priority))))
+        (cl-loop do (org-priority (if (string< (org-show-priority) parent-priority) 'up 'down))
+                 until (equal parent-priority (org-show-priority))))))
 
-(advice-add 'org-insert-todo-heading :after '$org-insert-header-priority)
+  (advice-add 'org-insert-todo-heading :after '$org-insert-header-priority)
 #+END_SRC
 
 *** navigation
