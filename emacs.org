@@ -4070,8 +4070,8 @@ I use regular perl-mode for files that are considered read-only.
     :hook ((cperl-mode . hes-mode)
            (perl-mode . hes-mode))
     :config
-    (add-to-list 'hes-mode-alist `(perl-mode . ,hes-common-escape-sequence-re))
-    (add-to-list 'hes-mode-alist `(cperl-mode . ,hes-common-escape-sequence-re)))
+    (add-to-list 'hes-mode-alist (cons 'perl-mode  hes-common-escape-sequence-re))
+    (add-to-list 'hes-mode-alist (cons 'cperl-mode hes-common-escape-sequence-re)))
 #+END_SRC
 
 
