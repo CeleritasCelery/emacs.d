@@ -3206,7 +3206,6 @@ helm company provides a helm interface to helm completion
       "ol" 'org-store-link)
     (setq org-lowest-priority ?D
           org-enforce-todo-dependencies t
-          org-tags-column 0
           org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
                               (sequence "|" "CANCELED(c@)"))
           org-priority-faces '((?A . (:foreground "OrangeRed"))
@@ -3550,6 +3549,8 @@ blocks
 
 *** tags
 #+BEGIN_SRC emacs-lisp
+  (csetq org-tags-column 0)
+
   (setq org-tag-alist
         '(("mdf"  . ?m)
           ("snr"  . ?s)
