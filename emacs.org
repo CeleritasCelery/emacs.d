@@ -1790,11 +1790,19 @@ this still needs to be setup, as I am currently using counsel
       "open shell in project root"
       (interactive)
       ($shell-pop helm-current-prefix-arg (dired-noselect dir) dir))
+    (defun $helm-projectile-find-file (dir)
+      "run `helm-find-files' in root"
+      (interactive)
+      (let ((helm-ff-transformer-show-only-basename t))
+        (helm-find-files-1 dir "target")))
     (helm-projectile-define-key helm-projectile-projects-map
+      (kbd "C-c f") '$helm-projectile-find-file
+      (kbd "C-c g") 'helm-projectile-vc
+      (kbd "C-c s") 'helm-projectile-grep
       (kbd "C-c '") '$helm-projectile-pop-to-shell)
 
-    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
-          (append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list) '(helm-adaptive-sort)))
+    (cl-callf append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
+      '(helm-adaptive-sort))
     (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-projects)
           '(helm-fuzzy-matching-default-sort-fn helm-fuzzy-highlight-matches helm-adaptive-sort))
     (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-dired-files-list)
