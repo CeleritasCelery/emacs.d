@@ -10,7 +10,8 @@
 ;; a higher gc threshold will leave to faster overall
 ;; performace. Don't set it too high, or you will start o experience
 ;; noticable gc pauses.
-(setq gc-cons-threshold 20000000)
+(setq gc-cons-threshold 20000000
+      gc-cons-percentage 0.8)
 
 (defun $load-literate-file (name &optional dir)
   "if file is tangled load the .el file, else tangle it"
