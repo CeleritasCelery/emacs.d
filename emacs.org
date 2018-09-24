@@ -1610,6 +1610,12 @@ start a find file session from project root
     "fp" '$find-file-project-root)
 #+END_SRC
 
+get helm history when writing a file
+[[https://github.com/emacs-helm/helm/issues/2088#issuecomment-421999031][emacs-helm/helm#2088]]
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'helm-completing-read-handlers-alist '(write-file . helm-read-file-name-handler-1))
+#+END_SRC
+
 *** dispatcher
 these are functions that I often want to run, but normally have to
 exit helm to call their keybindings. So we create wrapper thats lets
