@@ -1329,6 +1329,7 @@ but there are still some issues that gives helm the advantage
 - helm supports marking, which is very efficent.
 
 *** general
+
 we want to make the helm keybindings more evil friendly. also change
 the display function to be more consistent.
 #+BEGIN_SRC emacs-lisp
@@ -1349,7 +1350,9 @@ the display function to be more consistent.
                 helm-read-file-map)
               "C-l" 'helm-execute-persistent-action
               "C-h" 'helm-find-files-up-one-level)
-    ("M-x" 'helm-M-x)
+    ("M-x" 'helm-M-x
+     "M-y" 'helm-show-kill-ring
+     "C-x C-x" 'helm-all-mark-rings)
     (:definer 'leader
               "ff" 'helm-find-files
               "fr" 'helm-recentf
