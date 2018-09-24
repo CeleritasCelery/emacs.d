@@ -16,13 +16,9 @@
 (defun $load-literate-file (name &optional dir)
   "if file is tangled load the .el file, else tangle it"
   (setq dir (or dir user-emacs-directory))
-  (let ((load-prefer-newer t)
-        ;; Don't attempt to find/apply special file handlers to files
-        ;; loaded during startup.
-        (file-name-handler-alist nil)
+  (let ((gc-cons-threshold most-positive-fixnum)
         ;; Set this to a high value so we don't have a lot of costly
         ;; garbage collection
-        (gc-cons-threshold most-positive-fixnum)
         (el-file (expand-file-name (concat name ".el") dir))
         (org-file (expand-file-name (concat name ".org") dir)))
     ;; If config is updated, load it
