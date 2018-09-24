@@ -109,6 +109,10 @@ move the custom file to its own loaction so it does not clutter us.
   (load-file custom-file)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (csetq load-prefer-newer t)
+#+END_SRC
+
 *** tangling
 we want to tangle on exit so that it will make startup time quicker.
 #+BEGIN_SRC emacs-lisp
