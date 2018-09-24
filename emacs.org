@@ -3559,7 +3559,8 @@ blocks
           ("val"  . ?v)
           ("gen"  . ?g)
           ("hsd"  . ?h)
-          ("info" . ?f)))
+          ("info" . ?f)
+          ("turnin" . ?t)))
 #+END_SRC
 
 *** links
