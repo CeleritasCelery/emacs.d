@@ -2710,7 +2710,8 @@ a few issues that we are going to resolve now:
   (general-define-key
    :definer 'minor-mode
    :states 'normal
-   :keymaps 'compilation-shell-minor-mode
+   :keymaps '(compilation-minor-mode-map
+              compilation-shell-minor-mode)
    "q" 'quit-window
    "gr" 'recompile
    "C-j" 'compilation-next-error
@@ -4214,14 +4215,6 @@ itools is a conf file
     :mode (rx "itools" eos))
 #+END_SRC
 
-*** compilation mode
-#+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'compile
-    (general-define-key
-     :keymaps 'compilation-minor-mode-map
-     "C-j" 'compilation-next-error
-     "C-k" 'compilation-previous-error))
-#+END_SRC
 
 *** digit groups
 allows us to more easily read binary numbers by visually grouping them
