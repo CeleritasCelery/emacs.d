@@ -4124,6 +4124,11 @@ we have some nonstandard extensions for SV
     :mode (rx ".hier" eos))
 #+END_SRC
 
+** TCL
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'auto-mode-alist `(,(rx ".upf" eos) . tcl-mode))
+#+END_SRC
+
 ** json
 add hide-show support to json mode and make comments properly font
 locked
