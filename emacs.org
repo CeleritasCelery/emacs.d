@@ -3313,9 +3313,11 @@ inherit the priority of the parent heading
 #+END_SRC
 
 ** refile
-this allows me to quickly move headers around files based on these refile targets
+this allows me to quickly move headers around files based on these
+refile targets. we enable caching because we do not expect these files
+to change outside of Emacs.
 #+BEGIN_SRC emacs-lisp
-  (csetq org-refile-use-outline-path 'file
+  (csetq org-refile-use-cache t
          org-refile-targets '((nil :maxlevel . 2)
                               ("~/org/integration.org" :maxlevel . 2)
                               ("~/org/validation.org" :maxlevel . 2)
@@ -3325,6 +3327,13 @@ this allows me to quickly move headers around files based on these refile target
                               ("~/org/meeting-notes/mdf_meet.org" :maxlevel . 2)
                               ("~/org/meeting-notes/integ_meet.org" :maxlevel . 2)
                               ("~/org/dev/development.org" :maxlevel . 1)))
+#+END_SRC
+
+since I am using helm, it makes the most sense to show the whole
+outline path instead of trying to refile in steps.
+#+BEGIN_SRC emacs-lisp
+  (csetq org-refile-use-outline-path 'file
+         org-outline-path-complete-in-steps nil)
 #+END_SRC
 
 ** clock
