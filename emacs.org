@@ -31,7 +31,6 @@ Never override a function when an advice will do. when I actually do
 need to override a function, I will try to use the package =el-patch=
 to make it maintainable.
 
-
 ** Emacs Initialization
 
 *** lexical bindings
@@ -3127,82 +3126,8 @@ stalls.
     "oa" '$clear-alert)
 #+END_SRC
 
-
-* Languages
-:PROPERTIES:
-:VISIBILITY: children
-:END:
-** General
-
-make scripts executable on save
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
-#+END_SRC
-
-*** flycheck
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck
-    :init
-    ($leader-set-key
-      "tf" 'flycheck-mode))
-#+END_SRC
-
-*** company
-I don't want to use return for completion because that often
-interferces with just regular typing. So i have gotten in the habit of
-just using =C-l=
-#+BEGIN_SRC emacs-lisp
-  (use-package company
-    :general
-    (:keymaps 'company-active-map
-              "RET" nil
-              [return] nil
-              "C-l" 'company-complete-selection)
-    :hook '(prog-mode org-mode ielm-mode)
-    :init
-    (setq company-idle-delay 0.2
-          evil-collection-company-use-tng nil
-          company-require-match nil)
-    (evil-collection-init 'company)
-    ($leader-set-key
-      "tc" 'company-mode)
-    :config
-    (defun $company-select-prev-or-comint-match-input (&optional _)
-      (when (and (eq major-mode 'shell-mode)
-                 (eq company-selection 0))
-        (company-abort)
-        (call-interactively 'comint-previous-matching-input-from-input)))
-    (advice-add 'company-select-previous :before-until #'$company-select-prev-or-comint-match-input))
-
-  (with-eval-after-load 'company-dabbrev-code
-    (add-to-list 'company-dabbrev-code-modes 'shell-mode))
-
-
-  (use-package company-shell
-    :after company)
-#+END_SRC
-
-collect usage statistics and filter candidates based on that
-
-#+BEGIN_SRC emacs-lisp
-  (use-package company-statistics
-    :demand t
-    :after company
-    :config
-    (company-statistics-mode))
-#+END_SRC
-
-helm company provides a helm interface to helm completion
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-company
-    :init
-    :general
-    (:keymaps '(company-mode-map company-active-map)
-              "C-/" 'helm-company))
-#+END_SRC
-
-** Org
-*** todos and general
+* Org
+** todos and general
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
@@ -3239,7 +3164,7 @@ helm company provides a helm interface to helm completion
                  '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
 #+END_SRC
 
-**** inherit priority
+*** inherit priority
 inherit the priority of the parent heading
 #+BEGIN_SRC emacs-lisp
   (defun $org-insert-header-priority (_arg &optional force)
@@ -3254,7 +3179,7 @@ inherit the priority of the parent heading
   (advice-add 'org-insert-todo-heading :after '$org-insert-header-priority)
 #+END_SRC
 
-*** navigation
+** navigation
 #+BEGIN_SRC emacs-lisp
   (defhydra $org-navigate ()
     "navigate through org headers"
@@ -3286,7 +3211,7 @@ inherit the priority of the parent heading
    "C-l" 'org-down-element)
 #+END_SRC
 
-*** functions
+** functions
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
@@ -3370,7 +3295,7 @@ inherit the priority of the parent heading
       "s" '$org-procrastinate))
 #+END_SRC
 
-*** agenda
+** agenda
 #+BEGIN_SRC emacs-lisp
   (use-package org-agenda
     :straight nil
@@ -3387,7 +3312,7 @@ inherit the priority of the parent heading
       "a" 'org-agenda))
 #+END_SRC
 
-*** refile
+** refile
 this allows me to quickly move headers around files based on these refile targets
 #+BEGIN_SRC emacs-lisp
   (setq org-refile-targets '((nil :maxlevel . 2)
@@ -3401,7 +3326,7 @@ this allows me to quickly move headers around files based on these refile target
                              ("~/org/dev/development.org" :maxlevel . 1)))
 #+END_SRC
 
-*** clock
+** clock
 #+BEGIN_SRC emacs-lisp
   (use-package org-clock
     :straight nil
@@ -3419,7 +3344,7 @@ this allows me to quickly move headers around files based on these refile target
       "o" 'org-agenda-clock-out))
 #+END_SRC
 
-*** export
+** export
 org has the awesome functionality to export org markup to HTML. My
 most common use case is to write an email in an org capture buffer and
 then export that to HTML and insert it into outlook. Therefore we are
@@ -3522,7 +3447,7 @@ blocks
   (use-package htmlize)
 #+END_SRC
 
-*** capture
+** capture
 #+BEGIN_SRC emacs-lisp
     (use-package org-capture
       :straight nil
@@ -3556,7 +3481,7 @@ blocks
                "* %<%a %b %e, %l:%M> -  %?" :empty-lines 1))))
 #+END_SRC
 
-*** tags
+** tags
 #+BEGIN_SRC emacs-lisp
   (csetq org-tags-column 0)
 
@@ -3572,7 +3497,7 @@ blocks
           ("turnin" . ?t)))
 #+END_SRC
 
-*** links
+** links
 there is no good function to copy a link in org mode
 #+BEGIN_SRC emacs-lisp
   (use-package link-hint
@@ -3582,7 +3507,7 @@ there is no good function to copy a link in org mode
               "C-c l" 'link-hint-copy-link-at-point))
 #+END_SRC
 
-*** src blocks
+** src blocks
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
     :straight nil
@@ -3610,7 +3535,7 @@ there is no good function to copy a link in org mode
    "C-c C-c" '$org-ctrl-c-ctrl-c)
 #+END_SRC
 
-*** evil
+** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
     :hook org-mode
@@ -3634,7 +3559,7 @@ there is no good function to copy a link in org mode
    "t" '$org-todo-or-evil-t)
 #+END_SRC
 
-*** visuals
+** visuals
 These packages are used to make org mode look better and take
 advantage of unicode
 #+BEGIN_SRC emacs-lisp
@@ -3648,7 +3573,7 @@ advantage of unicode
     (setq org-fancy-priorities-list '("⬆" "⬅" "⬇" "☕")))
 #+END_SRC
 
-*** dispatcher
+** dispatcher
 https://gist.github.com/dfeich/1df4e174d45f05fb5798ca514d28c68a
 provide a hydra dispatcher based on context
 #+BEGIN_SRC emacs-lisp
@@ -3742,6 +3667,79 @@ provide a hydra dispatcher based on context
       ("q" nil :color blue))
 
     )
+#+END_SRC
+
+* Languages
+:PROPERTIES:
+:VISIBILITY: children
+:END:
+** General
+
+make scripts executable on save
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+#+END_SRC
+
+*** flycheck
+#+BEGIN_SRC emacs-lisp
+  (use-package flycheck
+    :init
+    ($leader-set-key
+      "tf" 'flycheck-mode))
+#+END_SRC
+
+*** company
+I don't want to use return for completion because that often
+interferces with just regular typing. So i have gotten in the habit of
+just using =C-l=
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :general
+    (:keymaps 'company-active-map
+              "RET" nil
+              [return] nil
+              "C-l" 'company-complete-selection)
+    :hook '(prog-mode org-mode ielm-mode)
+    :init
+    (setq company-idle-delay 0.2
+          evil-collection-company-use-tng nil
+          company-require-match nil)
+    (evil-collection-init 'company)
+    ($leader-set-key
+      "tc" 'company-mode)
+    :config
+    (defun $company-select-prev-or-comint-match-input (&optional _)
+      (when (and (eq major-mode 'shell-mode)
+                 (eq company-selection 0))
+        (company-abort)
+        (call-interactively 'comint-previous-matching-input-from-input)))
+    (advice-add 'company-select-previous :before-until #'$company-select-prev-or-comint-match-input))
+
+  (with-eval-after-load 'company-dabbrev-code
+    (add-to-list 'company-dabbrev-code-modes 'shell-mode))
+
+
+  (use-package company-shell
+    :after company)
+#+END_SRC
+
+collect usage statistics and filter candidates based on that
+
+#+BEGIN_SRC emacs-lisp
+  (use-package company-statistics
+    :demand t
+    :after company
+    :config
+    (company-statistics-mode))
+#+END_SRC
+
+helm company provides a helm interface to helm completion
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-company
+    :init
+    :general
+    (:keymaps '(company-mode-map company-active-map)
+              "C-/" 'helm-company))
 #+END_SRC
 
 ** elisp
@@ -4110,7 +4108,6 @@ when using ffap expand modules to their source
     :config
     (ffap-perl-module-unload-function))
 #+END_SRC
-
 
 
 ** verilog
