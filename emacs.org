@@ -4064,13 +4064,16 @@ punctuation character to match perl mode. This fixes a ligature issue.
 highlight variables in strings
 #+BEGIN_SRC emacs-lisp
   (font-lock-add-keywords 'perl-mode
-                          `((,(rx (group-n 1 "$") (group-n 2 (1+ (any alnum "_"))))
+                          `((,(rx (group-n 1 "$" (opt "{")) (group-n 2 (1+ (any alnum "_"))) (group-n 3 (opt "}")))
                              (1 (when (not (nth 4 (syntax-ppss)))
                                   'default)
-                                t)
+                                prepend)
                              (2 (when (not (nth 4 (syntax-ppss)))
                                   font-lock-variable-name-face)
-                                t))))
+                                prepend)
+                             (3 (when (not (nth 4 (syntax-ppss)))
+                                  'default)
+                                prepend))))
 #+END_SRC
 
 I use regular perl-mode for files that are considered read-only.
