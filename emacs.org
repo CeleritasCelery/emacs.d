@@ -164,7 +164,7 @@ bootstrap code to download the package manager and run it.
     (load bootstrap-file nil 'nomessage))
 #+END_SRC
 
-** packages
+** use package
 
 =use-package= is a macro that allows to easily define and load other
 packages.  It is the first thing we want to install. I am using my own
