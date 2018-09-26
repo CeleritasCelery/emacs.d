@@ -139,10 +139,6 @@ fix the path to use a new version of git
   (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
 #+END_SRC
 
-* Packages
-:PROPERTIES:
-:VISIBILITY: children
-:END:
 ** Package Manager
 We are going to use =straight.el= as package manager because it allows
 us to easily maintain private repos of packages. This is still slower
@@ -197,7 +193,11 @@ until you have good info
   (use-package esup)
 #+END_SRC
 
-** bootstrap
+* Packages
+:PROPERTIES:
+:VISIBILITY: children
+:END:
+** setup
 packages that are used to setup my emacs enviroment. They are
 needed as dependaceies for other packages later on.
 
