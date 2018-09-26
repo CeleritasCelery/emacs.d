@@ -1704,34 +1704,32 @@ helm builtins
 *** swoop
 #+BEGIN_SRC emacs-lisp
   (use-package helm-swoop
-    :ghook ('after-revert-hook 'helm-swoop--clear-cache)
     :init
     (setq helm-swoop-split-with-multiple-windows t
           helm-swoop-speed-or-color t
-          helm-swoop-candidate-number-limit 1000
-          helm-swoop-pre-input-function (lambda () ""))
-    ($leader-set-key
-      "s" '(:ignore t :wk "search")
-      "ss" 'helm-swoop
-      "sS" '$helm-swoop-region-or-symbol)
+          helm-swoop-candidate-number-limit 1000)
     (general-define-key
-     "C-s" 'helm-swoop)
+     "C-s" '$helm-swoop)
     :config
+    (add-hook 'after-revert-hook 'helm-swoop--clear-cache)
     (general-define-key
      :keymaps 'helm-swoop-edit-map
      "C-c C-c" 'helm-swoop--edit-complete
      "C-c C-k" 'helm-swoop--edit-cancel))
 
-  (defun $helm-swoop-region-or-symbol ()
-    "Call `helm-swoop' with default input."
-    (interactive)
-    (let ((helm-swoop-pre-input-function
-           (lambda ()
-             (if (region-active-p)
-                 (buffer-substring (region-beginning)
-                                   (region-end))
-               (or (thing-at-point 'symbol t) "")))))
-      (call-interactively 'helm-swoop)))
+  (defun $helm-swoop (arg)
+    (interactive "P")
+    (require 'helm-swoop)
+    (let* ((prefix (equal arg '(4)))
+           (helm-swoop-pre-input-function
+            (if prefix
+                (lambda ()
+                  (if (region-active-p)
+                      (buffer-substring (region-beginning)
+                                        (region-end))
+                    (or (thing-at-point 'symbol t) "")))
+              (lambda () ""))))
+      (helm-swoop :$multiline (unless prefix arg))))
 #+END_SRC
 
 *** ag
