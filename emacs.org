@@ -928,12 +928,10 @@ Vim instead of like Emacs.
   (use-package evil
     :demand t
     :init
-    (setq evil-jumps-cross-buffers nil
-          evil-want-C-u-scroll t
-          evil-want-C-d-scroll t
-          evil-want-C-w-delete t
-          evil-want-C-i-jump t
-          evil-want-Y-yank-to-eol t)
+    (csetq evil-jumps-cross-buffers nil
+           evil-want-C-w-delete t
+           evil-want-C-i-jump t
+           evil-want-Y-yank-to-eol t)
     :config
     (general-swap-key nil 'motion "0" "^")
     (evil-mode 1))
