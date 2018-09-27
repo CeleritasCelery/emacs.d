@@ -1610,7 +1610,8 @@ start a find file session from project root
 get helm history when writing a file
 [[https://github.com/emacs-helm/helm/issues/2088#issuecomment-421999031][emacs-helm/helm#2088]]
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'helm-completing-read-handlers-alist '(write-file . helm-read-file-name-handler-1))
+  (with-eval-after-load 'helm-mode
+    (add-to-list 'helm-completing-read-handlers-alist '(write-file . helm-read-file-name-handler-1)))
 #+END_SRC
 
 *** dispatcher
