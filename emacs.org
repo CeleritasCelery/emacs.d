@@ -3099,6 +3099,37 @@ that hook and set the alist back to our canonical version.
     (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
 #+END_SRC
 
+**** font lock fix
+There is any issue where an error message spans multiple lines, the
+font lock engine will sometimes stop parsing in the middle of it and
+therefore it will never get highlighted. We fix this by creating our
+own =font-lock-extend-region= function that makes sure we do not stop
+on error messages.
+#+BEGIN_SRC emacs-lisp
+  (defun $font-lock-extend-region-error-message ()
+    (save-excursion
+      (goto-char font-lock-end)
+      (beginning-of-line)
+      (when (looking-at-p (rx (opt "-I-:")
+                              (or "Error: "
+                                  " Error"
+                                  "Error-"
+                                  "Errormessage"
+                                  "-E-:"
+                                  "-F-:")))
+        (forward-line 2)
+        (setq font-lock-end (point)))))
+
+  (general-add-hook '(compilation-mode-hook
+                      compilation-minor-mode-hook
+                      compilation-shell-minor-mode-hook)
+                    (defun $set-font-lock-error-function ()
+                      (add-hook 'font-lock-extend-region-functions
+                                '$font-lock-extend-region-error-message
+                                'append
+                                'local)))
+#+END_SRC
+
 *** alert
 the alert package lets us creat notification for any event we want. In
 this case we are intersted in knowing when a compliation finishes or
