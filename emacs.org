@@ -3196,24 +3196,29 @@ some basic font lock to make compilation and log buffers easier to
 read. We want to see labels and delimiters very quick so we can tell
 what part of a buffer we are in
 #+BEGIN_SRC emacs-lisp
+
+  (define-arx log-rx
+    (append $rx-defaults
+            '((I (: bol (opt "-I-")))
+              (I: (: bol (opt "-I-:"))))))
+
   (defvar $compilation-font-lock-keywords
-    `((,($rx bol (opt "-I-:") spc*
-             (group (any "#*") (any " \t#*=") ->)
-             eol)
+    `((,(log-rx I: spc* (group (in "#*") (in " \t#*=") ->) eol)
        1 'compilation-line-number)
-      (,($rx bol (opt "-I-:") spc*
-             (group (repeat 4 "=") ->)
-             eol)
+      (,(log-rx I: spc* (group (repeat 4 "=") ->) eol)
        1 'compilation-line-number)
-      (,($rx bol (opt "-I-") spc*
-             (group (repeat 3 "-") ->)
-             eol)
+      (,(log-rx I spc* (group (repeat 3 "-") ->) eol)
        1 'compilation-line-number)
-      (,(rx bol (opt (or "-I-" "-I-:"))  (group (not (in "-")) (1+ (in alnum " \t_-"))) ":") 1 'font-lock-function-name-face)
-      (,(rx bol (group "-I-") ) 1 'compilation-info prepend)
-      (,(rx bol (opt "-I-:") (group (or "-I-" "Note-" "NOTE" "OVM_INFO"))) 1 'compilation-info prepend)
-      (,(rx bol (opt "-I-:") (group (or "-E-" "-F-" "Error-" "Fatal-" "OVM_ERROR" "ERROR" "OVM_FATAL"))) 1 'compilation-error prepend)
-      (,(rx bol (opt "-I-:") (group (or "-W-" "Warning-" "WARNING" "OVM_WARNING"))) 1 'compilation-warning prepend)))
+      (,(log-rx I (opt ":")  (group (not (in "-")) (1+ (in alnum " \t_-"))) ":")
+       1 'font-lock-function-name-face)
+      (,(log-rx bol (group "-I-"))
+       1 'compilation-info prepend)
+      (,(log-rx I: (group (or "-I-" "Note-" "NOTE" "OVM_INFO")))
+       1 'compilation-info prepend)
+      (,(log-rx I: (group (or "-E-" "-F-" "Error-" "Fatal-" "OVM_ERROR" "ERROR" "OVM_FATAL")))
+       1 'compilation-error prepend)
+      (,(log-rx I: (group (or "-W-" "Warning-" "WARNING" "OVM_WARNING")))
+       1 'compilation-warning prepend)))
 
   (with-eval-after-load 'compile
     (font-lock-add-keywords 'compilation-mode $compilation-font-lock-keywords))
