@@ -4288,9 +4288,16 @@ collection of major modes that I use for different file types.
       "g" 'spfspec-goto-definition))
 #+END_SRC
 
-when I break out major-modes into different packages this should not longer be nessary
+when I break out major-modes into different packages this should not
+longer be necessary
 #+BEGIN_SRC emacs-lisp
-  (use-package highlight-numbers)
+  (use-package highlight-numbers
+    :hook log-mode
+    :config
+    (setq highlight-numbers-generic-regexp
+          (rx (and
+               symbol-start
+               (1+ digit)))))
 #+END_SRC
 
 itools is a conf file
