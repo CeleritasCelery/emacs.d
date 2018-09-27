@@ -1742,9 +1742,6 @@ regex
       "sf" 'helm-do-ag
       "sF" '$helm-do-ag-region-or-symbol))
 
-  (use-package pcre2el
-    :commands reb-change-syntax)
-
   (defun $helm-do-ag-region-or-symbol (&optional dir)
     "Search with `ag' with a default input."
     (interactive)
@@ -2093,6 +2090,34 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
     "xc" '$convert-radix
     "xh" '$convert-hex-binary)
 
+#+END_SRC
+
+*** regex
+
+ample regexps lets us define =rx= short hand that we can use to make
+writing regexp clearer.
+#+BEGIN_SRC emacs-lisp
+  (defvar $rx-defaults
+    '((spc (any " \t"))
+      (spc+ (1+ spc))
+      (spc* (0+ spc))
+      (-> (1+ any))
+      (file (1+ (any alnum "-_/.")))
+      (nums (1+ num))
+      (fp (1+ (any num "."))))
+    "modified rx forms that are really usefull")
+
+  (use-package ample-regexps
+    :commands $rx
+    :config
+    (define-arx $rx $rx-defaults))
+#+END_SRC
+
+pcre2el lets us convert between Emacs regexp and PCRE. very
+usefull for debugging.
+#+BEGIN_SRC emacs-lisp
+  (use-package pcre2el
+    :commands reb-change-syntax)
 #+END_SRC
 
 ** files
