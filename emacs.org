@@ -2718,10 +2718,15 @@ a few issues that we are going to resolve now:
   (general-define-key
    :definer 'minor-mode
    :states 'normal
-   :keymaps '(compilation-minor-mode-map
-              compilation-shell-minor-mode)
+   :keymaps 'compilation-shell-minor-mode
    "q" 'quit-window
    "gr" 'recompile
+   "gf" '$find-file-at-point
+   "C-j" 'compilation-next-error
+   "C-k" 'compilation-previous-error)
+  (general-define-key
+   :states 'normal
+   :keymaps 'compilation-minor-mode-map
    "C-j" 'compilation-next-error
    "C-k" 'compilation-previous-error)
   (general-define-key
