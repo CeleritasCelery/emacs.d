@@ -2248,8 +2248,9 @@ files can quickly fill up my home disk.
 #+BEGIN_SRC emacs-lisp
   (use-package magit
     :init
-    (setq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git"
-          magit-delete-by-moving-to-trash nil)
+    (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git"
+           magit-delete-by-moving-to-trash nil
+           magit-remote-add-set-remote.pushDefault 'ask)
     ($leader-set-key
       "g" '(:ignore t :wk "git")
       "gs" 'magit-status
