@@ -4202,9 +4202,11 @@ I use regular perl-mode for files that are considered read-only.
   (use-package perl-mode
     :straight nil
     :mode (rx ".ip_info" eos)
+    :mode (rx ".espflist" eos)
     :init
     (setq perl-indent-parens-as-block t
-          perl-continued-brace-offset -4))
+          perl-continued-brace-offset -4
+          perl-continued-statement-offset 0))
 #+END_SRC
 
 *** highlight escape sequences
