@@ -3229,7 +3229,7 @@ what part of a buffer we are in
        1 'compilation-line-number)
       (,(log-rx I spc* (group (repeat 3 "-") ->) eol)
        1 'compilation-line-number)
-      (,(log-rx I (opt ":")  (group (not (in "-")) (1+ (in alnum " \t_-"))) ":")
+      (,(log-rx I (opt ":")  (group (not (in "-")) (1+ (in alnum " \t_-"))) ": ")
        1 'font-lock-function-name-face)
       (,(log-rx bol (group "-I-"))
        1 'compilation-info prepend)
