@@ -2745,6 +2745,141 @@ a few issues that we are going to resolve now:
   (add-hook 'compilation-shell-minor-mode-hook 'evil-normal-state)
 #+END_SRC
 
+*** errors
+we need to define what errors look like in compilation and log
+files. compilation mode has some defaults but they are not really
+applicable to us. Also the built in verilog mode tries to add all of
+its error regexp's to the alist everytime it is loaded. This results
+in a lot of extra processing that we don't want. Therefore we remove
+that hook and set the alist back to our canonical version.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar $compilation-error-regexp-alist nil
+    "The canonical error regexp alist")
+
+  (defun $find-generic-bman-log ()
+    (car (file-expand-wildcards (format "target/log/*.%s.log"
+                                        (match-string-no-properties 1)))))
+
+  (define-arx err-rx
+    (append $rx-defaults
+            '((fill (1+ (not (any " \t"))))
+              (filename (group-n 1 file))
+              (line (group-n 2 nums))
+              (col (group-n 3 nums))
+              (info (opt "-I-:")))))
+
+  (with-eval-after-load 'compile
+    (dolist (regex `((ipgen-gmake ,(err-rx bol "gmake: *** [" (group-n 1 (>= 10 any)) "] Error " num)
+                                  1)
+                     (core-assembler ,(err-rx bol "Information: script '" filename
+                                              "'\n" spc+ "stopped at line " line ->)
+                                     1 2)
+                     (connection-error ,(err-rx bol info "Error: " (group-n 3 ->)
+                                                "\n" info "-" (or "E" "F") "-: [CRT-" nums "] Error in "
+                                                -> " file " filename spc*
+                                                "\n" info " Error at line# " line ->)
+                                       1 2 nil nil nil (3 compilation-info-face))
+                     (bman-verilog ,(err-rx bol "-I-:Error-" ->
+                                            "\n-I-:" filename ", " line)
+                                   1 2)
+                     (ipgen-hdl-copy ,(err-rx bol "-I-:Error-[MPD] Module previously declared"
+                                              "\n-I-:  The module was previously declared at: "
+                                              "\n-I-:  \"" (group fill) "/" fill (or ".vs" ".sv") "\",")
+                                     (1 "%s/dft_ipgen.hdl"))
+                     (sgdft ,(err-rx bol "-E-:SGDFT" -> "FAILED"
+                                     "\n-I-:  Error" ->
+                                     "\n-I-:  Use" ->
+                                     "\n-I-:Report: " filename)
+                            1)
+                     (simregress ,(err-rx spc+ "simregress invocation failed on " ->
+                                          "\n" spc+ "Refer to " -> ": " filename)
+                                 1)
+                     (upf ,(err-rx bol "Error-[" (group-n 3 ->) "]" ->
+                                   "\n" filename ", " line)
+                          1 2 nil nil nil (3 font-lock-warning-face))
+                     (emu ,(err-rx bol "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
+                                   filename)
+                          1)
+                     (vcs-log ,(err-rx bol "  Log: " filename)
+                              1)
+                     (upfsem ,(err-rx bol "UPFSEM_4" spc+ (1+ word) spc+
+                                      filename spc+ line)
+                             1 2)
+                     (fail-open ,(err-rx bol "Errormessage   : Failed to open input file ["
+                                         filename "]")
+                                1)
+                     (json ,(err-rx bol "-E- Unable to parse JSON file " filename ":"
+                                    -> "line " line
+                                    " offset " col)
+                           1 2 3)
+                     (at-file ,(err-rx bol info "  Error occurred at File: " filename " Line: " line)
+                              1 2)
+                     ))
+      ;; -I-:  Error occurred at File: /p/hdk/rtl/proj_tools/buildman/master/1.00.10/stages//vc_common.pm Line: 245
+
+      ;; -F-: [CRT-023] Error in conncection file adhoc connection file /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-xtal-con/tools/ipgen/mdf_s_h_0/collage_work/dft/gen_subsystem/manual_network/collage/adhoc_connection.txt
+      ;; Error at line# 78 - "ubpc_x12clk_dfxact_xtalclk_pulstrech/clk x12clk_mucc_trig_clkstop_rpt_0_9/clk" : Illegal line  "ubpc_x12clk_dfxact_xtalclk_pulstrech/clk x12clk_mucc_trig_clkstop_rpt_0_9/clk" in the adhoc connection file /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-xtal-con/tools/ipgen/mdf_s_h_0/collage_work/dft/gen_subsystem/manual_network/collage/adhoc_connection.txt
+
+      ;; -I-:-E-:mdf_s_v_0: invalid HSD waiver: 'hsdid' attribute is missing or invalid in IP_tjhinckl_1537547355, file '/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-ip-uprev/tools/lint/waivers/tmp/mdf_mdfc_h_tmp_waivers_w.xml'
+
+      ;; 537683: OVM_ERROR /p/hdk/rtl/cad/x86-64_linux26/dteg/itpp_reader/0.7.0/src/tlm_cmd_pipe_tap.sv:559 @ 29140000000 (dft_itpp_test.env.i_dft_common_val_env.itpp_sqr.i_tlm_cmd_pipe_tap0) [TAP0_ITPP_READER_TLM_ERROR] Capture fifo op 'greater' on line '352' - FAIL
+
+      ;; -I-:ERROR: mdf_s_v_0 has 1 upf error
+      ;; -I-:Check: /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-turnin/target/mdf_10nm/lp/vclp/mdf_s_v_0/mdf_s_v_0/reports/uncompressed.rpt
+
+      ;; -I-:Detailed violation log for sgdft_drc for mdf_s_v_0: /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-turnin/target/mdf_10nm/SG/sgdft/mdf_s_v_0/mdf_s_v_0/logs/sgdft_drc.log
+
+      ;; -E-:Error in stage bman.mdf_10nm.vclp.vclp_mdf_s_v_0:
+      ;; -I-:***** Cat'ing logs *****
+      ;; -I-:Executing: cat /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-afd/target/mdf_10nm/lp/vclp/mdf_s_v_0/mdf_s_v_0/vclp.log
+      (setf (alist-get (car regex) compilation-error-regexp-alist-alist) (cdr regex)))
+
+    (setq compilation-error-regexp-alist
+          (setq $compilation-error-regexp-alist
+                '(json upf upfsem emu vcs-log simregress fail-open
+                       ipgen-hdl-copy sgdft ipgen-gmake core-assembler
+                       connection-error bman-stage bman-generic-stage
+                       bman-verilog))))
+
+  (with-eval-after-load 'verilog-mode
+    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
+    (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
+#+END_SRC
+
+**** font lock fix
+There is any issue where an error message spans multiple lines, the
+font lock engine will sometimes stop parsing in the middle of it and
+therefore it will never get highlighted. We fix this by creating our
+own =font-lock-extend-region= function that makes sure we do not stop
+on error messages.
+#+BEGIN_SRC emacs-lisp
+  (defun $font-lock-extend-region-error-message ()
+    (defvar font-lock-end)
+    (save-excursion
+      (goto-char font-lock-end)
+      (beginning-of-line)
+      (when (looking-at-p (rx (opt "-I-:")
+                              (or "Error: "
+                                  " Error"
+                                  "Error-"
+                                  "Errormessage"
+                                  "-E-:"
+                                  "-F-:")))
+        (forward-line 2)
+        (setq font-lock-end (point)))))
+  (byte-compile '$font-lock-extend-region-error-message)
+
+  (general-add-hook '(compilation-mode-hook
+                      compilation-minor-mode-hook
+                      compilation-shell-minor-mode-hook)
+                    (defun $set-font-lock-error-function ()
+                      (add-hook 'font-lock-extend-region-functions
+                                '$font-lock-extend-region-error-message
+                                'append
+                                'local)))
+#+END_SRC
+
 *** functions
 functions that are used for compilation of ipgen and bman or turnin.
 
@@ -2895,7 +3030,6 @@ run a turnin command
     "o" '(:ignore t :wk "compile")
     "ot" '$run-turnin)
 #+END_SRC
-
 *** utility
 we are doing two things here to make compliation more convient
 
@@ -3038,142 +3172,6 @@ finished or running, and easily jump to the associated buffer.
 
   ($leader-set-key
     "oj" '$compilation-jump-to-buffer)
-#+END_SRC
-
-
-*** errors
-we need to define what errors look like in compilation and log
-files. compilation mode has some defaults but they are not really
-applicable to us. Also the built in verilog mode tries to add all of
-its error regexp's to the alist everytime it is loaded. This results
-in a lot of extra processing that we don't want. Therefore we remove
-that hook and set the alist back to our canonical version.
-
-#+BEGIN_SRC emacs-lisp
-  (defvar $compilation-error-regexp-alist nil
-    "The canonical error regexp alist")
-
-  (defun $find-generic-bman-log ()
-    (car (file-expand-wildcards (format "target/log/*.%s.log"
-                                        (match-string-no-properties 1)))))
-
-  (define-arx err-rx
-    (append $rx-defaults
-            '((fill (1+ (not (any " \t"))))
-              (filename (group-n 1 file))
-              (line (group-n 2 nums))
-              (col (group-n 3 nums))
-              (info (opt "-I-:")))))
-
-  (with-eval-after-load 'compile
-    (dolist (regex `((ipgen-gmake ,(err-rx bol "gmake: *** [" (group-n 1 (>= 10 any)) "] Error " num)
-                                  1)
-                     (core-assembler ,(err-rx bol "Information: script '" filename
-                                              "'\n" spc+ "stopped at line " line ->)
-                                     1 2)
-                     (connection-error ,(err-rx bol info "Error: " (group-n 3 ->)
-                                                "\n" info "-" (or "E" "F") "-: [CRT-" nums "] Error in "
-                                                -> " file " filename spc*
-                                                "\n" info " Error at line# " line ->)
-                                       1 2 nil nil nil (3 compilation-info-face))
-                     (bman-verilog ,(err-rx bol "-I-:Error-" ->
-                                            "\n-I-:" filename ", " line)
-                                   1 2)
-                     (ipgen-hdl-copy ,(err-rx bol "-I-:Error-[MPD] Module previously declared"
-                                              "\n-I-:  The module was previously declared at: "
-                                              "\n-I-:  \"" (group fill) "/" fill (or ".vs" ".sv") "\",")
-                                     (1 "%s/dft_ipgen.hdl"))
-                     (sgdft ,(err-rx bol "-E-:SGDFT" -> "FAILED"
-                                     "\n-I-:  Error" ->
-                                     "\n-I-:  Use" ->
-                                     "\n-I-:Report: " filename)
-                            1)
-                     (simregress ,(err-rx spc+ "simregress invocation failed on " ->
-                                          "\n" spc+ "Refer to " -> ": " filename)
-                                 1)
-                     (upf ,(err-rx bol "Error-[" (group-n 3 ->) "]" ->
-                                   "\n" filename ", " line)
-                          1 2 nil nil nil (3 font-lock-warning-face))
-                     (emu ,(err-rx bol "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
-                                   filename)
-                          1)
-                     (vcs-log ,(err-rx bol "  Log: " filename)
-                              1)
-                     (upfsem ,(err-rx bol "UPFSEM_4" spc+ (1+ word) spc+
-                                      filename spc+ line)
-                             1 2)
-                     (fail-open ,(err-rx bol "Errormessage   : Failed to open input file ["
-                                         filename "]")
-                                1)
-                     (json ,(err-rx bol "-E- Unable to parse JSON file " filename ":"
-                                    -> "line " line
-                                    " offset " col)
-                           1 2 3)
-                     (at-file ,(err-rx bol info "  Error occurred at File: " filename " Line: " line)
-                              1 2)
-                     ))
-      ;; -I-:  Error occurred at File: /p/hdk/rtl/proj_tools/buildman/master/1.00.10/stages//vc_common.pm Line: 245
-
-      ;; -F-: [CRT-023] Error in conncection file adhoc connection file /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-xtal-con/tools/ipgen/mdf_s_h_0/collage_work/dft/gen_subsystem/manual_network/collage/adhoc_connection.txt
-      ;; Error at line# 78 - "ubpc_x12clk_dfxact_xtalclk_pulstrech/clk x12clk_mucc_trig_clkstop_rpt_0_9/clk" : Illegal line  "ubpc_x12clk_dfxact_xtalclk_pulstrech/clk x12clk_mucc_trig_clkstop_rpt_0_9/clk" in the adhoc connection file /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-xtal-con/tools/ipgen/mdf_s_h_0/collage_work/dft/gen_subsystem/manual_network/collage/adhoc_connection.txt
-
-      ;; -I-:-E-:mdf_s_v_0: invalid HSD waiver: 'hsdid' attribute is missing or invalid in IP_tjhinckl_1537547355, file '/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-ip-uprev/tools/lint/waivers/tmp/mdf_mdfc_h_tmp_waivers_w.xml'
-
-      ;; 537683: OVM_ERROR /p/hdk/rtl/cad/x86-64_linux26/dteg/itpp_reader/0.7.0/src/tlm_cmd_pipe_tap.sv:559 @ 29140000000 (dft_itpp_test.env.i_dft_common_val_env.itpp_sqr.i_tlm_cmd_pipe_tap0) [TAP0_ITPP_READER_TLM_ERROR] Capture fifo op 'greater' on line '352' - FAIL
-
-      ;; -I-:ERROR: mdf_s_v_0 has 1 upf error
-      ;; -I-:Check: /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-turnin/target/mdf_10nm/lp/vclp/mdf_s_v_0/mdf_s_v_0/reports/uncompressed.rpt
-
-      ;; -I-:Detailed violation log for sgdft_drc for mdf_s_v_0: /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-turnin/target/mdf_10nm/SG/sgdft/mdf_s_v_0/mdf_s_v_0/logs/sgdft_drc.log
-
-      ;; -E-:Error in stage bman.mdf_10nm.vclp.vclp_mdf_s_v_0:
-      ;; -I-:***** Cat'ing logs *****
-      ;; -I-:Executing: cat /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-afd/target/mdf_10nm/lp/vclp/mdf_s_v_0/mdf_s_v_0/vclp.log
-      (setf (alist-get (car regex) compilation-error-regexp-alist-alist) (cdr regex)))
-
-    (setq compilation-error-regexp-alist
-          (setq $compilation-error-regexp-alist
-                '(json upf upfsem emu vcs-log simregress fail-open
-                       ipgen-hdl-copy sgdft ipgen-gmake core-assembler
-                       connection-error bman-stage bman-generic-stage
-                       bman-verilog))))
-
-  (with-eval-after-load 'verilog-mode
-    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
-    (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
-#+END_SRC
-
-**** font lock fix
-There is any issue where an error message spans multiple lines, the
-font lock engine will sometimes stop parsing in the middle of it and
-therefore it will never get highlighted. We fix this by creating our
-own =font-lock-extend-region= function that makes sure we do not stop
-on error messages.
-#+BEGIN_SRC emacs-lisp
-  (defun $font-lock-extend-region-error-message ()
-    (defvar font-lock-end)
-    (save-excursion
-      (goto-char font-lock-end)
-      (beginning-of-line)
-      (when (looking-at-p (rx (opt "-I-:")
-                              (or "Error: "
-                                  " Error"
-                                  "Error-"
-                                  "Errormessage"
-                                  "-E-:"
-                                  "-F-:")))
-        (forward-line 2)
-        (setq font-lock-end (point)))))
-  (byte-compile '$font-lock-extend-region-error-message)
-
-  (general-add-hook '(compilation-mode-hook
-                      compilation-minor-mode-hook
-                      compilation-shell-minor-mode-hook)
-                    (defun $set-font-lock-error-function ()
-                      (add-hook 'font-lock-extend-region-functions
-                                '$font-lock-extend-region-error-message
-                                'append
-                                'local)))
 #+END_SRC
 
 *** alert
