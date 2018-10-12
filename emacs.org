@@ -3151,6 +3151,7 @@ own =font-lock-extend-region= function that makes sure we do not stop
 on error messages.
 #+BEGIN_SRC emacs-lisp
   (defun $font-lock-extend-region-error-message ()
+    (defvar font-lock-end)
     (save-excursion
       (goto-char font-lock-end)
       (beginning-of-line)
@@ -3163,6 +3164,7 @@ on error messages.
                                   "-F-:")))
         (forward-line 2)
         (setq font-lock-end (point)))))
+  (byte-compile '$font-lock-extend-region-error-message)
 
   (general-add-hook '(compilation-mode-hook
                       compilation-minor-mode-hook
