@@ -2694,6 +2694,10 @@ so we supress them
      :keymaps 'compilation-mode-map
      "SPC" nil)
 
+    (setq compilation-buffer-name-function
+          (defun $compilation-buffer-name (mode)
+            (format "*%s %s*" (file-name-nondirectory (vc-git-root default-directory)) (downcase mode))))
+
     (add-hook 'compilation-filter-hook
               (defun $compilation-apply-ansi-color ()
                 (ansi-color-apply-on-region compilation-filter-start (point))))
@@ -2837,6 +2841,16 @@ what models can be run.
     ("s" ($run-bman "-s all +s sgdft") "spyglass")
     ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only"))
 
+  (defvar bman-error-regexp-alist-alist
+    `((stage ,(err-rx bol "-" (or "E" "I") "-:" (opt spc) "FAILED:"
+                      -> (or ";" ":") " LOG " (opt ": ") filename)
+             1)
+      (generic-stage ,(err-rx bol "-E-:FAILED" spc+ fp
+                              spc+ fp "  "
+                              filename)
+                     $find-generic-bman-log))
+    "Regex for errors encountered in bman runs")
+
   (defun $run-bman (filter)
     "run dft ipgen in the current model"
     (let* ((model-root (file-truename (vc-git-root default-directory)))
@@ -2851,6 +2865,10 @@ what models can be run.
 
   ($leader-set-key
     "ob" 'bman-cmd/body)
+
+  (define-compilation-mode bman-mode "bman"
+    "compilation mode for bman runs"
+    )
 #+END_SRC
 
 **** turnin
@@ -3061,9 +3079,6 @@ that hook and set the alist back to our canonical version.
                      (bman-verilog ,(err-rx bol "-I-:Error-" ->
                                             "\n-I-:" filename ", " line)
                                    1 2)
-                     (bman-stage ,(err-rx bol "-" (or "E" "I") "-:" (opt spc) "FAILED:"
-                                          -> (or ";" ":") " LOG " (opt ": ") filename)
-                                 1)
                      (ipgen-hdl-copy ,(err-rx bol "-I-:Error-[MPD] Module previously declared"
                                               "\n-I-:  The module was previously declared at: "
                                               "\n-I-:  \"" (group fill) "/" fill (or ".vs" ".sv") "\",")
@@ -3076,10 +3091,6 @@ that hook and set the alist back to our canonical version.
                      (simregress ,(err-rx spc+ "simregress invocation failed on " ->
                                           "\n" spc+ "Refer to " -> ": " filename)
                                  1)
-                     (bman-generic-stage ,(err-rx bol "-E-:FAILED" spc+ fp
-                                                  spc+ fp "  "
-                                                  filename)
-                                         $find-generic-bman-log)
                      (upf ,(err-rx bol "Error-[" (group-n 3 ->) "]" ->
                                    "\n" filename ", " line)
                           1 2 nil nil nil (3 font-lock-warning-face))
@@ -3097,7 +3108,10 @@ that hook and set the alist back to our canonical version.
                      (json ,(err-rx bol "-E- Unable to parse JSON file " filename ":"
                                     -> "line " line
                                     " offset " col)
-                           1 2 3)))
+                           1 2 3)
+                     (at-file ,(err-rx bol info "  Error occurred at File: " filename " Line: " line)
+                              1 2)
+                     ))
       ;; -I-:  Error occurred at File: /p/hdk/rtl/proj_tools/buildman/master/1.00.10/stages//vc_common.pm Line: 245
 
       ;; -F-: [CRT-023] Error in conncection file adhoc connection file /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-xtal-con/tools/ipgen/mdf_s_h_0/collage_work/dft/gen_subsystem/manual_network/collage/adhoc_connection.txt
@@ -3112,6 +3126,9 @@ that hook and set the alist back to our canonical version.
 
       ;; -I-:Detailed violation log for sgdft_drc for mdf_s_v_0: /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-turnin/target/mdf_10nm/SG/sgdft/mdf_s_v_0/mdf_s_v_0/logs/sgdft_drc.log
 
+      ;; -E-:Error in stage bman.mdf_10nm.vclp.vclp_mdf_s_v_0:
+      ;; -I-:***** Cat'ing logs *****
+      ;; -I-:Executing: cat /nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/mdf-afd/target/mdf_10nm/lp/vclp/mdf_s_v_0/mdf_s_v_0/vclp.log
       (setf (alist-get (car regex) compilation-error-regexp-alist-alist) (cdr regex)))
 
     (setq compilation-error-regexp-alist
