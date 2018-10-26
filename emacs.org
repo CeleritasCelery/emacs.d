@@ -3023,17 +3023,30 @@ run any command
     ("c" ($run-bman "-s all +s collage") "collage")
     ("p" ($run-bman "-s all +s sglp") "spyglass compile")
     ("s" ($run-bman "-s all +s sgdft") "spyglass")
-    ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only"))
+    ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only")
+    ("g" ($run-bman (read-string "run bman as: ")) "generic"))
+#+END_SRC
 
-  (defvar bman-error-regexp-alist-alist
-    `((stage ,(err-rx bol "-" (or "E" "I") "-:" (opt spc) "FAILED:"
-                      -> (or ";" ":") " LOG " (opt ": ") filename)
-             1)
-      (generic-stage ,(err-rx bol "-E-:FAILED" spc+ fp
-                              spc+ fp "  "
-                              filename)
-                     $find-generic-bman-log))
+there are very few errors that show up in bman, but we need a special
+handler function to find the right log as the full path is not
+availible
+#+BEGIN_SRC emacs-lisp
+  (defun $find-generic-bman-log ()
+    (car (file-expand-wildcards (format "target/log/*.%s.log"
+                                        (match-string-no-properties 1)))))
+
+  (defvar bman-error-regexp-alist
+    `((,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
+       1)
+      (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
+       $find-generic-bman-log))
     "Regex for errors encountered in bman runs")
+#+END_SRC
+
+define a custom compliation mode that is run based on the hydra above
+#+BEGIN_SRC emacs-lisp
+  (define-compilation-mode bman-mode "bman"
+    "compilation mode for bman runs")
 
   (defun $run-bman (filter)
     "run dft ipgen in the current model"
@@ -3041,18 +3054,15 @@ run any command
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
            (default-directory model-root)
            (compilation-buffer-name-function
-            (lambda (major-mode)
-              (format "*%s bman %s*"
-                      (f-filename model-root)
-                      (downcase major-mode)))))
-      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman -dut mdf_10nm " filter))))
+            (lambda (_mode)
+              (format "*%s bman*"
+                      (f-filename model-root)))))
+      (compilation-start (concat (when current-prefix-arg "mv target target.del && (rm -rf target.del 2>/dev/null &) && ")
+                                 "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman -dut mdf_10nm " filter)
+                         'bman-mode)))
 
   ($leader-set-key
     "ob" 'bman-cmd/body)
-
-  (define-compilation-mode bman-mode "bman"
-    "compilation mode for bman runs"
-    )
 #+END_SRC
 
 **** turnin
