@@ -2549,8 +2549,8 @@ builtin shell, gives us the best of both worlds.
                             (funcall it "-{}[:alnum:]$/._~\"")
                             (point))
                           '(skip-chars-backward skip-chars-forward)))
-          (replace-regexp-in-string "\"" "")
-          (replace-regexp-in-string "/+" "/")
+          (replace-regexp-in-string (rx (1+ (any space "\""))) "")
+          (replace-regexp-in-string (rx (1+ "/")) "/")
           (replace-regexp-in-string "$ENV" "$"))))
 
   (defun $shx-send-input-or-copy-path ()
