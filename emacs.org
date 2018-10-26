@@ -185,7 +185,7 @@ unless explicitly stated otherwise.
         use-package-always-defer t)
 #+END_SRC
 
-*** emacs startup profiler
+** emacs startup profiler
 The "Emacs Startup profiler". This allows us to see what parts of the
 config are most heavily impacting start up time. you can't optimize
 until you have good info
