@@ -2346,8 +2346,9 @@ this gives me the power to do that.
 
   ($leader-set-key
     "gd" '$magit-status-current-dir
-    "C-c g" '$magit-status-current-dir
     "gs" 'magit-status)
+  (general-define-key
+   "C-c g" '$magit-status-current-dir)
 #+END_SRC
 
 *** evil
