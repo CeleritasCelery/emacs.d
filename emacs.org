@@ -193,6 +193,17 @@ until you have good info
   (use-package esup)
 #+END_SRC
 
+** garbage collection performance
+based on the discussion [[http://bling.github.io/blog/2016/01/18/why-are-you-changing-gc-cons-threshold/][here]] this is good way to prevent freezing but
+also get good performance during large operations
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'minibuffer-setup-hook
+            (defun $disable-garbage-collection ()
+              (setq gc-cons-threshold most-positive-fixnum)))
+  (add-hook 'minibuffer-exit-hook
+            (defun $enable-garbage-collection ()
+              (setq gc-cons-threshold (default-value 'gc-cons-threshold))))
+#+END_SRC
 * Packages
 :PROPERTIES:
 :VISIBILITY: children
