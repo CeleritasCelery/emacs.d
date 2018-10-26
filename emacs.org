@@ -2897,8 +2897,67 @@ on error messages.
 functions that are used for compilation of ipgen and bman or turnin.
 
 **** ipgen
-a function to run IPGen. using helm me can mark the candidates and run
-them all at once.
+
+all the errors I have encountered in IPGen
+#+BEGIN_SRC emacs-lisp
+  (defvar ipgen-error-regexp-alist
+    `((,(err-rx ^ "gmake: *** [" (group-n 1 (>= 10 any)) "] Error " num)
+       1)
+      (,(err-rx ^ "Information: script '" filename
+                "'\n" spc+ "stopped at line " line ->)
+       1 2)
+      (,(err-rx ^ info "Error: " (group-n 3 ->)
+                "\n" info "-" (or "E" "F") "-: [CRT-" nums "] Error in "
+                -> " file " filename spc*
+                "\n" info " Error at line# " line ->)
+       1 2 nil nil nil (3 compilation-info-face))
+      (,(err-rx ^ "-I-:Error-[MPD] Module previously declared"
+                "\n-I-:  The module was previously declared at: "
+                "\n-I-:  \"" (group fill) "/" fill (or ".vs" ".sv") "\",")
+       (1 "%s/dft_ipgen.hdl"))
+      (,(err-rx ^ "-E- Unable to parse JSON file " filename ":"
+                -> "line " line
+                " offset " col)
+       1 2 3)
+      (,(err-rx ^ "-F-: [CRT-023] Error in conncection file adhoc connection file " filename
+                "\nError at line# " line)
+       1 2))
+    "errors seen while running ipgen")
+#+END_SRC
+
+ipgen will some times pull up a coreassembler prompt when it fails.
+this can lead to a test being suck for a long time without alerting
+the user. So we check for the CoreAssembler prompt and alert the user
+if that is the case. We also add the buffer to a list of stalled runs
+so that status is acurate when we list all compilations.
+#+BEGIN_SRC emacs-lisp
+  (defvar $compilation-stalled-buffers nil
+    "buffers that have a stalled compilation")
+
+  (defun $alert-core-assembler-stall (output)
+    (when (string-match-p (rx bol "CoreAssembler> " eos) output)
+      (add-to-list '$compilation-stalled-buffers (current-buffer))
+      (alert "Core Assembler stall"
+             :severity 'moderate)))
+  (byte-compile '$alert-core-assembler-stall)
+
+  (defun $compilation-apply-ansi-color ()
+    (ansi-color-apply-on-region compilation-filter-start (point)))
+  (byte-compile #'$compilation-apply-ansi-color)
+
+  (add-hook 'compilation-finish-functions
+            (defun $compilation-remove-stalled-buffer (buffer _exit)
+              (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers))))
+
+  (define-compilation-mode ipgen-mode "ipgen"
+    "compilation mode for running IPGen tool"
+    (add-hook 'comint-output-filter-functions '$alert-core-assembler-stall nil 'local)
+    (add-hook 'compilation-filter-hook '$compilation-apply-ansi-color nil 'local))
+#+END_SRC
+
+we use helm as the dispatcher for ipgen because it allows to operate
+on multiple candidates at once. This lets us run for all models or
+only the models we choose.
 #+BEGIN_SRC emacs-lisp
   (defun $run-ipgen-internal (dir &optional no-clean)
     (let* ((default-directory dir)
@@ -2913,14 +2972,15 @@ them all at once.
                                           "STF_SPFSPEC"
                                           "STF_MARSHAL"))
            (compilation-buffer-name-function
-            (lambda (major-mode)
-              (format "*%s ipgen %s %s*"
+            (lambda (mode)
+              (format "*%s %s %s*"
                       (f-filename model-root)
-                      (f-filename dir)
-                      (downcase major-mode)))))
-      (compile (concat "source setup && "
-                       (unless no-clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
-                       "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen") t)))
+                      (downcase mode)
+                      (f-filename dir)))))
+      (compilation-start (concat "source setup && "
+                                 (unless no-clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
+                                 "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen")
+                         'ipgen-mode)))
 
   (defun $helm-get-ipgen-data ()
     (let* ((model-root (vc-git-root default-directory))
@@ -2939,7 +2999,7 @@ them all at once.
     (helm
      :buffer "*Run IPGen*"
      :sources (helm-build-sync-source
-                  "select ipgen model: "
+                  "select ipgen models: "
                 :fuzzy-match t
                 :candidates ($helm-get-ipgen-data)
                 :action '(("run ipgen (C-u to run without clean)" . $helm-ipgen-action)))))
@@ -2948,35 +3008,11 @@ them all at once.
     "oi" '$run-ipgen)
 #+END_SRC
 
-ipgen will some times pull up a coreassembler prompt when it
-fails. This allows us to enter commands to either debug or continue,
-but unfortunately =compilation-mode= does not support input. Therefore
-we can start compilations in comint-mode with
-=compilation-shell-minor-mode= enabled.  We are adding a hook to alert
-us whenever a run stalls with a prompt, so we can quickly address it.
-#+BEGIN_SRC emacs-lisp
-  (defvar $compilation-stalled-buffers nil
-    "buffers that have a stalled compilation")
-
-  (defun $alert-core-assembler-stall (output)
-    (when (string-match-p (rx bol "CoreAssembler> " eos) output)
-      (add-to-list '$compilation-stalled-buffers (current-buffer))
-      (alert "Core Assembler stall"
-             :severity 'moderate)))
-
-  (add-hook 'compilation-finish-functions
-            (defun $compilation-remove-stalled-buffer (buffer _exit)
-              (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers))))
-
-  (add-hook 'compilation-shell-minor-mode-hook
-            (defun $add-local-output-filter ()
-              (add-hook 'comint-output-filter-functions '$alert-core-assembler-stall nil 'local)))
-#+END_SRC
-
 **** bman
 run the bman command based on a dispatcher. At some point I would like
 to make this dynamic so that it could detect all stages and detect
-what models can be run.
+what models can be run. For now I have a "generic" stage that lets me
+run any command
 #+BEGIN_SRC emacs-lisp
   (defhydra bman-cmd (:exit t :columns 2)
     "run a bman command"
