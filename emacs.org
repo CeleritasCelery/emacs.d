@@ -1615,7 +1615,9 @@ start a find file session from project root
     "start a helm find files session from project root"
     (interactive)
     (require 'helm-files)
-    (helm-find-files-1 (vc-git-root default-directory)))
+    (if-let ((root (vc-git-root default-directory)))
+        (helm-find-files-1 root)
+      (user-error "no root found for current file")))
 
   ($leader-set-key
     "fp" '$find-file-project-root)
