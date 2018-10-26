@@ -2593,12 +2593,23 @@ the proper env scripts so that all these variables are set
 #+END_SRC
 
 *** shell pop
+pop up the shell in my current directory
 #+BEGIN_SRC emacs-lisp
   (use-package shell-pop
     :init
     ($leader-set-key
       "'" 'shell-pop
-      "C-c '" 'shell-pop))
+      "\"" '$shell-pop-root)
+    (general-define-key
+     :keymaps '(global org-mode-map)
+     "C-c '" 'shell-pop
+     "C-c \"" '$shell-pop-root))
+
+  (defun $shell-pop-root (arg)
+    "open a shell in the project root"
+    (interactive "P")
+    (let ((default-directory (vc-git-root default-directory)))
+      (shell-pop arg)))
 #+END_SRC
 
 only send a cd command if we are not already in that directory
