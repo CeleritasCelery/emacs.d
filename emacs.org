@@ -1756,7 +1756,14 @@ regex
     :init
     ($leader-set-key
       "sf" 'helm-do-ag
-      "sF" '$helm-do-ag-region-or-symbol))
+      "sF" '$helm-do-ag-region-or-symbol)
+    (general-define-key
+     "C-c s" '$helm-do-ag-current-dir))
+
+  (defun $helm-do-ag-current-dir (arg)
+    "search in the current directory with Ag"
+    (interactive "P")
+    (funcall (if arg '$helm-do-ag-region-or-symbol 'helm-do-ag) default-directory))
 
   (defun $helm-do-ag-region-or-symbol (&optional dir)
     "Search with `ag' with a default input."
