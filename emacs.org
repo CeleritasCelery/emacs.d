@@ -2277,7 +2277,12 @@ heathen from 2003
 
 don't ask about following symlinks
 #+BEGIN_SRC emacs-lisp
-  (setq vc-follow-symlinks t)
+  (csetq vc-follow-symlinks t)
+#+END_SRC
+
+only look for git registered files
+#+BEGIN_SRC emacs-lisp
+  (csetq vc-handled-backends '(Git))
 #+END_SRC
 
 *** vc-git
