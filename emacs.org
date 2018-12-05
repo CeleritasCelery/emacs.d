@@ -3680,19 +3680,17 @@ inherit the priority of the parent heading
 
 ** agenda
 #+BEGIN_SRC emacs-lisp
-  (use-package org-agenda
-    :straight nil
-    :init
-    (csetq org-agenda-todo-ignore-scheduled 'future
-           org-agenda-tags-todo-honor-ignore-options t
-           org-agenda-dim-blocked-tasks 'invisible
-           org-agenda-files "~/org/.agenda-files"
-           org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen")
-                                        ("d" "development" tags-todo "dev")
-                                        ("p" "pvim" tags-todo "pvim+now|next|past")
-                                        ("t" "turnin" tags-todo "turnin")))
-    ($leader-set-key
-      "a" 'org-agenda))
+  (csetq org-agenda-todo-ignore-scheduled 'future
+         org-agenda-tags-todo-honor-ignore-options t
+         org-agenda-dim-blocked-tasks 'invisible
+         org-agenda-files "~/org/.agenda-files"
+         org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen|mem")
+                                      ("d" "development" tags-todo "dev")
+                                      ("p" "pvim" tags-todo "pvim+now|next|past")
+                                      ("m" "mdf" tags-todo "mdf")
+                                      ("u" "turnin" tags-todo "turnin")))
+  ($leader-set-key
+    "a" 'org-agenda)
 #+END_SRC
 
 ** refile
@@ -3842,36 +3840,37 @@ blocks
 
 ** capture
 #+BEGIN_SRC emacs-lisp
-    (use-package org-capture
-      :straight nil
-      :init
-      ($leader-set-key
-        "c" 'org-capture)
-      ($leader-local-set-key
-        :definer 'minor-mode
-        :keymaps 'org-capture-mode
-        "e" '$org-export-buffer)
-      :config
-      (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
-            org-default-email-file (expand-file-name "email.org" org-directory)
-            org-default-journal-file (expand-file-name "journal.org" org-directory)
-            org-capture-templates
-            '(("t" "Todo" entry (file+headline org-default-notes-file "Tasks")
-               "* TODO [#C] %?\n %t\n" :empty-lines 1)
-              ("l" "Todo Link" entry (file+headline org-default-notes-file "Tasks")
-               "* TODO [#C] %?\n %i\n %a" :empty-lines 1)
-              ("s" "Scheduled TODO" entry (file+headline org-default-notes-file "Tasks")
-               "* TODO [#C] %?\n  SCHEDULED: %^T\n" :empty-lines 1)
-              ("T" "Todo from Clipboard" entry (file+headline org-default-notes-file "Tasks")
-               "* TODO [#C] %?\n  %c" :empty-lines 1)
-              ("n" "Note" entry (file+headline org-default-notes-file "Notes")
-               "* %?" :empty-lines 1)
-              ("N" "Note with Clipboard" entry (file+headline org-default-notes-file "Notes")
-               "* %?\n   %c" :empty-lines 1)
-              ("e" "Email" entry (file org-default-email-file)
-               "* %?" :empty-lines 1)
-              ("j" "Journal" entry (file org-default-journal-file)
-               "* %<%a %b %e, %l:%M> -  %?" :empty-lines 1))))
+  (use-package org-capture
+    :straight nil
+    :init
+    ($leader-set-key
+      "c" 'org-capture)
+    ($leader-local-set-key
+      :definer 'minor-mode
+      :keymaps 'org-capture-mode
+      "e" '$org-export-buffer)
+    :config
+    (setq org-default-notes-file (expand-file-name "notes.org" org-directory)
+          org-default-todo-file (expand-file-name "todo.org" org-directory)
+          org-default-email-file (expand-file-name "email.org" org-directory)
+          org-default-journal-file (expand-file-name "journal.org" org-directory)
+          org-capture-templates
+          '(("t" "Todo" entry (file org-default-todo-file)
+             "* TODO [#C] %?\n %t\n" :empty-lines 1)
+            ("l" "Todo Link" entry (file org-default-todo-file)
+             "* TODO [#C] %?\n %i\n %a" :empty-lines 1)
+            ("s" "Scheduled TODO" entry (file org-default-todo-file)
+             "* TODO [#C] %?\n  SCHEDULED: %^T\n" :empty-lines 1)
+            ("T" "Todo from Clipboard" entry (file org-default-todo-file)
+             "* TODO [#C] %?\n  %c" :empty-lines 1)
+            ("n" "Note" entry (file org-default-notes-file)
+             "* %?" :empty-lines 1)
+            ("N" "Note with Clipboard" entry (file org-default-notes-file)
+             "* %?\n   %c" :empty-lines 1)
+            ("e" "Email" entry (file org-default-email-file)
+             "* %?" :empty-lines 1)
+            ("j" "Journal" entry (file org-default-journal-file)
+             "* %<%a %b %e, %l:%M> -  %?" :empty-lines 1))))
 #+END_SRC
 
 ** tags
@@ -3880,6 +3879,7 @@ blocks
 
   (setq org-tag-alist
         '(("mdf"  . ?m)
+          ("mem"  . ?e)
           ("snr"  . ?s)
           ("dev"  . ?d)
           ("int"  . ?i)
