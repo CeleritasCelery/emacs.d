@@ -1168,17 +1168,6 @@ avy is better for the actual sniping
   (add-to-list 'evil-snipe-disabled-modes 'undo-tree-visualizer-mode))
 #+END_SRC
 
-*** vi tilde
-this package adds a tilde to the fringe of every line that is
-empty. eventually I just want to replace this with a save buffer hook
-that removes additional lines at the end of the file.
-#+BEGIN_SRC emacs-lisp
-  (use-package vi-tilde-fringe
-    :demand t
-    :config
-    (global-vi-tilde-fringe-mode))
-#+END_SRC
-
 *** escape
 
 use a quick key combo to enter normal state. We don't want to escape
@@ -1957,12 +1946,18 @@ whitespace managment keybindings
     "xd" 'delete-trailing-whitespace)
 #+END_SRC
 
+show empty lines at the end of files
+#+BEGIN_SRC emacs-lisp
+  (setq-default indicate-empty-lines t)
+#+END_SRC
+
 *** keybindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
     "xa" 'align
     "xr" 'align-regexp
-    "xt" 'untabify)
+    "xt" 'untabify
+    "zq" 'quick-calc)
 #+END_SRC
 
 *** narrowing
