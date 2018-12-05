@@ -3950,7 +3950,7 @@ the default open link behavior
     (interactive)
     (if (org-at-heading-p)
         (org-todo)
-      (call-interactively 'evil-snipe-t)))
+      (evilem-motion-find-char-to)))
 
   (general-define-key
    :keymaps 'org-mode-map
