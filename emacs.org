@@ -425,6 +425,7 @@ rainbow mode to make a minor mode that is perfect for editing themes.
       (fontify-face-mode -1)))
 
   ($leader-set-key
+    "zc" '(:ignore t :wk "color")
     "zcc" '$color-mode)
 #+END_SRC
 
@@ -1034,9 +1035,8 @@ substitute globally by default
 #+END_SRC
 
 *** text objects
-text objects are areas of the buffer that can be easily selected with
-one key. The =evil-indent-plus= pakcage provides =i=, =I=, and =J=
-texdt objects the select based on indentation.
+**** custom
+create text objects for the buffer, pasted region, and filename
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'evil
     (evil-define-text-object evil-inner-buffer (count &optional _beg _end _type)
@@ -1055,6 +1055,7 @@ texdt objects the select based on indentation.
      "g" 'evil-inner-buffer
      "P" 'evil-pasted
      "F" 'evil-filename))
+#+END_SRC
 
 **** indentation
 The =evil-indent-plus= pakcage provides =i=, =I=, and =J= text objects
