@@ -4160,8 +4160,10 @@ using speed of though lisp to quicky create edit emacs-lisp
 set TRAMP verbosity to warnings and errors only. default is level 3
 which sends a message every time we connect to a remote host
 #+BEGIN_SRC emacs-lisp
-  (csetq tramp-default-method "ssh"
-         tramp-verbose 3)
+  (csetq tramp-default-method "ssh")
+
+  (with-eval-after-load 'tramp
+    (add-to-list 'tramp-remote-path "/usr/intel/bin"))
 #+END_SRC
 
 by default tramp tries to parse =/etc/ssh2/hostkeys= for the hostkey
