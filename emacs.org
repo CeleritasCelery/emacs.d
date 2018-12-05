@@ -4372,16 +4372,21 @@ highlight variables in strings
                                 prepend))))
 #+END_SRC
 
+prefer perl mode over cperl mode
+#+BEGIN_SRC emacs-lisp
+  (defalias 'cperl-mode 'perl-mode)
+#+END_SRC
+
 I use regular perl-mode for files that are considered read-only.
 #+BEGIN_SRC emacs-lisp
   (use-package perl-mode
     :straight nil
     :mode (rx ".ip_info" eos)
     :mode (rx ".espflist" eos)
+    :mode (rx ".udf" eos)
     :init
     (setq perl-indent-parens-as-block t
-          perl-continued-brace-offset -4
-          perl-continued-statement-offset 0))
+          perl-continued-brace-offset -4))
 #+END_SRC
 
 *** highlight escape sequences
