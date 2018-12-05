@@ -2313,6 +2313,11 @@ files can quickly fill up my home disk.
      "SPC" nil))
 #+END_SRC
 
+expanding the diffs can often take too long
+#+BEGIN_SRC emacs-lisp
+  (csetq magit-diff-expansion-threshold 20)
+#+END_SRC
+
 start the commit message editor in insert state
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'with-editor
