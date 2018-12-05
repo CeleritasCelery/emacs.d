@@ -2741,16 +2741,27 @@ packages that assist in compiling and building code
     :init
     (add-to-list 'shackle-rules '(compilation-mode :select t))
     (add-to-list 'shackle-rules '(comint-mode :select t))
-    (add-to-list 'shackle-rules '(".* ipgen compilation\\*" :regexp t :select t))
     ($leader-set-key
       "o" '(:ignore t :wk "compile")
-      "oc" 'compile)
+      "oc" '$compile)
     :config
     (evil-collection-init 'compile)
     (general-define-key
      :keymaps 'compilation-mode-map
-     "SPC" nil)
+     "SPC" nil))
+
+  (defun $compile ()
+    "compile with hdk enviroment sourced"
+    (let* ((root (vc-git-root default-directory))
+           (model-root (or (file-truename root) "no-model"))
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (compilation-buffer-name-function
+            (lambda (_mode)
+              (format "*%s compile*"
+                      (f-filename model-root)))))
+      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " (read-string "Compile Command: " nil compile-history)))))
 #+END_SRC
+
 
 compilation mode will throw these warnings when clearing large buffers
 so we supress them
@@ -2875,10 +2886,22 @@ that hook and set the alist back to our canonical version.
                           "\n-I-:***** Cat'ing logs *****"
                           "\n-I-:Executing: cat " filename)
                  1)
-                (,(err-rx ^ "-I-:DIE signal: ERROR 103: Couldn't find directory '" filename "' on path:")
+                (,(err-rx ^ "-I-:" (opt "DIE signal:") " ERROR " nums ": Couldn't find directory '" filename "'")
                  1)
-
                 (,(err-rx ^ "-F-:Failing test in " filename)
+                 1)
+                (,(err-rx ^ "-I-:FAILED: Exit status of pid " nums " was '" nums "', user expected '0'; LOG " filename)
+                 1)
+                ;; this used to be in ipgen, may need to be in both
+                (,(err-rx ^ "Information: script '" filename
+                          "'\n" spc+ "stopped at line " line ->)
+                 1 2)
+                (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
+                 1 2)
+                (,(err-rx ^ "-F-: [CRT-023] Error in conncection file adhoc connection file " filename
+                          "\nError at line# " line)
+                 1 2)
+                (,(err-rx ^ "ERROR: couldn't parse " filename ":")
                  1))))
 
   (with-eval-after-load 'verilog-mode
@@ -2929,9 +2952,6 @@ all the errors I have encountered in IPGen
   (defvar ipgen-error-regexp-alist
     `((,(err-rx ^ "gmake: *** [" (group-n 1 (>= 10 any)) "] Error " num)
        1)
-      (,(err-rx ^ "Information: script '" filename
-                "'\n" spc+ "stopped at line " line ->)
-       1 2)
       (,(err-rx ^ info "Error: " (group-n 3 ->)
                 "\n" info "-" (or "E" "F") "-: [CRT-" nums "] Error in "
                 -> " file " filename spc*
@@ -2960,14 +2980,16 @@ so that status is acurate when we list all compilations.
   (defvar $compilation-stalled-buffers nil
     "buffers that have a stalled compilation")
 
-  (defun $alert-core-assembler-stall (output)
-    (when (string-match-p (rx bol "CoreAssembler> " eos) output)
+  (defun $alert-core-assembler-stall ()
+    (defvar compilation-filter-start)
+    (when (looking-back (rx bol "CoreAssembler> ") (line-beginning-position))
       (add-to-list '$compilation-stalled-buffers (current-buffer))
       (alert "Core Assembler stall"
              :severity 'moderate)))
   (byte-compile '$alert-core-assembler-stall)
 
   (defun $compilation-apply-ansi-color ()
+    (defvar compilation-filter-start)
     (ansi-color-apply-on-region compilation-filter-start (point)))
   (byte-compile #'$compilation-apply-ansi-color)
 
@@ -2975,10 +2997,11 @@ so that status is acurate when we list all compilations.
             (defun $compilation-remove-stalled-buffer (buffer _exit)
               (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers))))
 
-  (define-compilation-mode ipgen-mode "ipgen"
-    "compilation mode for running IPGen tool"
-    (add-hook 'comint-output-filter-functions '$alert-core-assembler-stall nil 'local)
-    (add-hook 'compilation-filter-hook '$compilation-apply-ansi-color nil 'local))
+  (with-eval-after-load 'compile
+    (add-to-list 'shackle-rules '(ipgen-mode :select t))
+    (define-compilation-mode ipgen-mode "ipgen"
+      "compilation mode for running IPGen tool"
+      (general-add-hook 'compilation-filter-hook '($alert-core-assembler-stall $compilation-apply-ansi-color) nil 'local)))
 #+END_SRC
 
 we use helm as the dispatcher for ipgen because it allows to operate
@@ -2998,15 +3021,15 @@ only the models we choose.
                                           "STF_SPFSPEC"
                                           "STF_MARSHAL"))
            (compilation-buffer-name-function
-            (lambda (mode)
+            (defun $ipgen-buffer-name-fn (mode)
               (format "*%s %s %s*"
                       (f-filename model-root)
                       (downcase mode)
                       (f-filename dir)))))
-      (compilation-start (concat "source setup && "
-                                 (unless no-clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
-                                 "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen")
-                         'ipgen-mode)))
+      ($compilation-start (concat "source setup && env && "
+                                  (unless no-clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
+                                  "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen")
+                          'ipgen-mode)))
 
   (defun $helm-get-ipgen-data ()
     (let* ((model-root (vc-git-root default-directory))
@@ -3042,13 +3065,14 @@ run any command
 #+BEGIN_SRC emacs-lisp
   (defhydra bman-cmd (:exit t :columns 2)
     "run a bman command"
-    ("a" ($run-bman "") "all")
+    ("a" ($run-bman "" t) "all")
+    ("A" ($run-bman "+s sgcdc" t) "extra")
     ("l" ($run-bman "-s all +s lintra") "lintra")
     ("v" ($run-bman "-s all +s vcs") "vcs")
     ("e" ($run-bman "-s all +s espfmodel") "espf")
     ("c" ($run-bman "-s all +s collage") "collage")
-    ("p" ($run-bman "-s all +s sglp") "spyglass compile")
-    ("s" ($run-bman "-s all +s sgdft") "spyglass")
+    ("s" ($run-bman "-s all +s sgdft") "SG DFT")
+    ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
     ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only")
     ("g" ($run-bman (read-string "run bman as: ")) "generic"))
 #+END_SRC
@@ -3065,16 +3089,46 @@ availible
     `((,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
        1)
       (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
-       $find-generic-bman-log))
+       $find-generic-bman-log)
+      (,(err-rx ^ "-I-:DIE signal: " (1+ nonl) " (in " filename ")")
+       1)
+      (,(err-rx ^ "-I-:DIE signal: \n-I-:" (1+ nonl) " at " filename)))
     "Regex for errors encountered in bman runs")
+#+END_SRC
+
+use these function to get the cluster therfore the model needed. At
+some point I would like to make this automatic by inspection.
+#+BEGIN_SRC emacs-lisp
+  (defvar $model-cluster-alist '(("mdf" . "mdf_10nm")
+                                 ("mem" "mem" "mcddr")))
+
+  (defun $get-cluster ()
+    (string-trim-right (shell-command-to-string "git config intel.cluster")))
+
+  (defun $get-model-arguments ()
+    "get the command line arguments for the model portion of this build"
+    (let ((model (alist-get ($get-cluster) $model-cluster-alist nil nil 'equal)))
+      (if (listp model)
+          (format " -dut %s -mc %s " (first model) (second model))
+        (format " -dut %s " model))))
 #+END_SRC
 
 define a custom compliation mode that is run based on the hydra above
 #+BEGIN_SRC emacs-lisp
-  (define-compilation-mode bman-mode "bman"
-    "compilation mode for bman runs")
+  (with-eval-after-load 'compile
+    (add-to-list 'shackle-rules '(bman-mode :select t))
+    (define-compilation-mode bman-mode "bman"
+      "compilation mode for bman runs"))
 
-  (defun $run-bman (filter)
+  (defun $remove-file-async (file)
+    (when (file-exists-p file)
+      (async-start
+       (lambda ()
+         (shell-command (format "mv %s %s.del && rm -rf %s.del 2>/dev/null" file)))
+       (lambda (result)
+         (message "async delete done")))))
+
+  (defun $run-bman (filter &optional clean)
     "run dft ipgen in the current model"
     (let* ((model-root (file-truename (vc-git-root default-directory)))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
@@ -3083,9 +3137,11 @@ define a custom compliation mode that is run based on the hydra above
             (lambda (_mode)
               (format "*%s bman*"
                       (f-filename model-root)))))
-      (compilation-start (concat (when current-prefix-arg "mv target target.del && (rm -rf target.del 2>/dev/null &) && ")
-                                 "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman -dut mdf_10nm " filter)
-                         'bman-mode)))
+      ($compilation-start (concat (when (and (file-exists-p "target")
+                                             (or current-prefix-arg clean))
+                                    "mv target target.del && (rm -rf target.del 2>/dev/null &) && ")
+                                  "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman" ($get-model-arguments) filter)
+                          'bman-mode)))
 
   ($leader-set-key
     "ob" 'bman-cmd/body)
@@ -3094,28 +3150,60 @@ define a custom compliation mode that is run based on the hydra above
 **** turnin
 run a turnin command
 #+BEGIN_SRC emacs-lisp
+  (defun $find-latest-gk-log ()
+    "this will stop working in the year 3000. Built-in
+  obsolescence"
+    (first (sort (file-expand-wildcards "GATEKEEPER/turnin.2*.log") 'string>)))
+
+  (defvar turnin-error-regexp-alist
+    `((,(err-rx ^ "  Turnin privileges denied on the following files:\n" spc+ filename)
+       1)
+      (,(err-rx ^ "%E-pre_turnin_script: Command Failed (Exit = " nums "):")
+       $find-latest-gk-log)
+      (,(err-rx ^ "%E-toolconfig_qc.pl:    ERROR:" (1+ nonl) " at " filename " line " line)
+       1))
+    "Regex for errors encountered during turnin")
+#+END_SRC
+
+a custom compilation command for running a turnin
+#+BEGIN_SRC emacs-lisp
+  (define-compilation-mode turnin-mode "turnin"
+    "compilation mode for turnins")
+
   (defun $run-turnin ()
     "run a turnin command"
     (interactive)
     (let* ((model-root (file-truename (vc-git-root default-directory)))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
-           (mock (yes-or-no-p "Run as Mock? "))
-           (clone (yes-or-no-p "Clone ToT? "))
+           (mock (y-or-n-p "Run as Mock? "))
+           (clone (when mock (y-or-n-p "Clone ToT? ")))
+           (eco (when (and (not mock)
+                           (y-or-n-p "bug fix? "))
+                  (read-string "Bug or ECO number(s): ")))
+           (comment (unless mock
+                      (read-string "turnin comment: ")))
            (compilation-buffer-name-function
             (lambda (major-mode)
-              (format "*%s %sturnin %s*"
+              (format "*%s %s%s*"
                       (f-filename model-root)
                       (if mock "mock " "")
                       (downcase major-mode)))))
-      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c mdf -s srvr10nm"
-                       (when mock " -mock")
-                       (unless clone " -no_clone")))))
+      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c "
+                                  ($get-cluster)
+                                  " -s srvr10nm"
+                                  (when mock " -mock")
+                                  (when (and mock (not clone)) " -no_clone")
+                                  (when eco (concat " -bugecos '" eco "'"))
+                                  (when comment (concat " -comments \"" comment "\"")))
+                          'turnin-mode)))
 
   ($leader-set-key
     "o" '(:ignore t :wk "compile")
     "ot" '$run-turnin)
 #+END_SRC
 *** utility
+
+**** enviroment
 we are doing two things here to make compliation more convient
 
 1. we want to compile with tcsh because that is the standard login shell
