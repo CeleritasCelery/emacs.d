@@ -3243,6 +3243,7 @@ it trying prompt us to save all buffers.
     (advice-add 'compilation-start :before #'$set-compilation-dir))
 #+END_SRC
 
+**** timestamps
 it is often useful to know how long a command runs, but compilation
 mode only gives us the end time normally. These functions will print
 the timestamp in the compilation buffer.
@@ -3287,6 +3288,70 @@ the timestamp in the compilation buffer.
       (let ((value (car unit))
             (name (cdr unit)))
         (format "%d %s%s" value name (if (>= value 1) "s" "")))))
+#+END_SRC
+
+**** chaining
+A series of functions for chaining together compliation that are going
+to require previous steps. It checks to see if the new compilation is
+using the same root as a current complilation. If that is the case it,
+it blocks until the current one is done.
+
+#+BEGIN_SRC emacs-lisp
+  (defun $command-requires-blocking (mode)
+    "return non-nil if compilations are being run using the current
+  root"
+    (cl-some (lambda (proc)
+               (let ((buffer (process-buffer proc)))
+                 (and (process-live-p proc)
+                      (not (eq mode (with-current-buffer buffer major-mode)))
+                      ($same-root default-directory buffer))))
+             compilation-in-progress))
+
+  (defun $same-root (buffer1 buffer2)
+    (apply 'file-equal-p
+           (--map (vc-git-root (if (bufferp it)
+                                   (with-current-buffer it default-directory)
+                                 it))
+                  (list buffer1 buffer2))))
+
+  (defvar $compilation-command-queue nil
+    "compilation commands that are queued to be run once their
+    dependaceies have finished")
+
+  (defvar $compilation-dynamic-closures '(compilation-buffer-name-function
+                                          compilation-environment
+                                          default-directory))
+
+  (defun $compilation-start (command mode &rest args)
+    "start compilation if there are not other compliations running
+    in the same root. If there are, defer till those compilations
+    complete successfully"
+    (if ($command-requires-blocking mode)
+        (add-to-list '$compilation-command-queue
+                     (list (mapcar (lambda (var)
+                                     (list var `',(symbol-value var)))
+                                   $compilation-dynamic-closures)
+                           command mode args))
+      (apply 'compilation-start command mode args)))
+
+  ;; I need to make this smarter so that is will only launch when the
+  ;; command it was waiting on has completed successfully
+  (add-hook 'compilation-finish-functions
+            (defun $compilation-pop-command-queue (buffer exit-string)
+              (setq $compilation-command-queue
+                    (cl-loop for (closure command mode args) in $compilation-command-queue
+                             unless (eval `(let ,closure
+                                             (if (and (string-prefix-p "exited abnormally" exit-string)
+                                                      ($same-root default-directory buffer))
+                                                 ;; if we return t, we will
+                                                 ;; not collect this command,
+                                                 ;; essenstially removing for
+                                                 ;; the queue
+                                                 t
+                                               (unless ($command-requires-blocking mode)
+                                                 (apply 'compilation-start command mode args))))
+                                          (cadr #'(lambda)))
+                             collect (list closure command mode args)))))
 #+END_SRC
 
 *** status
