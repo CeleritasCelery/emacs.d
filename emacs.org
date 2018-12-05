@@ -1619,7 +1619,11 @@ naviagation
     (let ((file ($get-path-at-point)))
       (when-let ((root (and (string-match-p (rx "$" (opt "{") "MODEL_ROOT" ) file)
                             (vc-git-root default-directory))))
-        (setenv "MODEL_ROOT" (string-remove-suffix "/" (file-truename root))))
+        (--> root
+             (file-truename it)
+             (string-remove-suffix "/" it)
+             (string-remove-prefix (or (file-remote-p it) "") it)
+             (setenv "MODEL_ROOT" it)))
       (require 'helm-files)
       (helm-find-files-1 (concat (or (file-remote-p default-directory) "")
                                  file)
