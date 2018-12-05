@@ -3600,8 +3600,6 @@ inherit the priority of the parent heading
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
-    :init
-    (csetq org-src-window-setup 'current-window)
     :config
     (defun $org-show-current-heading-tidily ()
       "Show next entry, keeping other entries closed."
@@ -3911,13 +3909,14 @@ there is no good function to copy a link in org mode
     (:keymaps 'org-src-mode-map
               "C-c C-c" 'org-edit-src-exit)
     :init
-    (setq org-src-fontify-natively t
-          org-src-tab-acts-natively t)
+    (csetq org-src-fontify-natively t
+           org-src-window-setup 'current-window
+           org-src-tab-acts-natively t)
     (defun $org-src-lexical-bindings ()
       (setq-local lexical-binding t)))
 #+END_SRC
 
-=C-c C-C= is more usefull to edit src code blocks then to eval them
+=C-c C-C= is more useful to edit src code blocks then to eval them
 #+BEGIN_SRC emacs-lisp
   (defun $org-ctrl-c-ctrl-c (&optional arg)
     (interactive "P")
