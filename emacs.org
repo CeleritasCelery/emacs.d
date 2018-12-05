@@ -1056,10 +1056,28 @@ texdt objects the select based on indentation.
      "P" 'evil-pasted
      "F" 'evil-filename))
 
+**** indentation
+The =evil-indent-plus= pakcage provides =i=, =I=, and =J= text objects
+the select based on indentation.
+#+BEGIN_SRC emacs-lisp
   (use-package evil-indent-plus
     :demand t
     :config
     (evil-indent-plus-default-bindings))
+#+END_SRC
+
+**** syntax
+a text object that highlights everything with the same font lock
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-textobj-syntax
+    :straight
+    (evil-textobj-syntax
+     :type git :host github :repo "laishulu/evil-textobj-syntax")
+    :general
+    (:keymaps 'evil-inner-text-objects-map
+              "h" 'evil-i-syntax)
+    (:keymaps 'evil-outer-text-objects-map
+              "h" 'evil-a-syntax))
 #+END_SRC
 
 *** keybindings
