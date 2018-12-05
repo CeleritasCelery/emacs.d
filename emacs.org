@@ -3891,13 +3891,18 @@ blocks
 #+END_SRC
 
 ** links
-there is no good function to copy a link in org mode
+there is no good function to copy a link in org mode, so we override
+the default open link behavior
 #+BEGIN_SRC emacs-lisp
-  (use-package link-hint
-    :commands link-hint-copy-link-at-point
-    :general
-    (:keymaps 'org-mode-map
-              "C-c l" 'link-hint-copy-link-at-point))
+  (add-hook 'org-open-at-point-functions
+            (defun $org-copy-url ()
+              "in my current setup, the builtin browswer does not
+  work, so I copy links and paste them into chrome."
+              (let ((context (org-element-context)))
+                (when (member (org-element-property :type context)
+                              '("http" "https"))
+                  (message "copied org link: %s"
+                           (kill-new (org-element-property :raw-link context)))))))
 #+END_SRC
 
 ** src blocks
