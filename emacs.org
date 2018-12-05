@@ -941,6 +941,17 @@ Vim instead of like Emacs.
     (evil-mode 1))
 #+END_SRC
 
+I want to preserve the functionality of =C=u=, but still want to use
+standard keys to scroll. =C-f= and =C-b= are used for scrolling in
+vim/less, but they scroll a whole page, which is too much. So we
+rebind these to the normal scroll function.
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :states '(normal visual)
+   "C-f" 'evil-scroll-down
+   "C-b" 'evil-scroll-up)
+#+END_SRC
+
 Using =*= and =#=, search foward for symbols, not words
 #+BEGIN_SRC emacs-lisp
   (csetq evil-symbol-word-search t)
