@@ -3368,6 +3368,14 @@ finished or running, and easily jump to the associated buffer.
 
   (defun $compilation-buffers-candidates ()
     (setq $compilation-finished-buffers (seq-uniq $compilation-finished-buffers (lambda (x y) (eq (car x) (car y)))))
+    ;; remove dead processes and buffers. If I kill buffers with helm
+    ;; but they were still running then they will never get updated. So
+    ;; we check for that at the start of every status.
+    (setq compilation-in-progress (cl-remove-if-not (lambda (proc)
+                                                      (let ((buf (process-buffer proc)))
+                                                        (and (buffer-live-p buf)
+                                                             (process-live-p proc))))
+                                                    compilation-in-progress))
     (let* ((finished-buffers (cl-remove-if (-lambda ((buffer))
                                              (or (not (buffer-live-p buffer))
                                                  (memq (get-buffer-process buffer) compilation-in-progress)))
@@ -3378,6 +3386,14 @@ finished or running, and easily jump to the associated buffer.
            (running-procs (cl-remove-if (lambda (proc)
                                           (memq (process-buffer proc) $compilation-stalled-buffers))
                                         compilation-in-progress))
+           (waiting-buffers (mapcar  (lambda (command)
+                                       (get-buffer-create (let ((env (car command))
+                                                                (mode (string-remove-suffix "-mode" (symbol-name (caddr command)))))
+                                                            (eval `(let ,env
+                                                                     (if compilation-buffer-name-function
+                                                                         (funcall compilation-buffer-name-function ,mode)
+                                                                       "*generic compilation placeholder*"))))))
+                                     $compilation-command-queue))
            (formatted-stalled-buffers (--map (let ((buffer (process-buffer it)))
                                                (cons (format "%-50s%s"
                                                              buffer
@@ -3399,8 +3415,16 @@ finished or running, and easily jump to the associated buffer.
                                                                                'compilation-error
                                                                              'compilation-info)))
                                                        buffer))
-                                               finished-buffers)))
-      (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers)))
+                                               finished-buffers))
+           (formatted-waiting-buffers (mapcar (lambda (buffer)
+                                                (cons (format "%-50s%s"
+                                                              buffer
+                                                              (propertize "waiting" 'face 'term-color-cyan))
+                                                      buffer))
+                                              waiting-buffers))
+           )
+      (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers formatted-waiting-buffers)))
+
 
   (defun $compilation-jump-to-buffer ()
     "select from active and finished compilation buffers"
