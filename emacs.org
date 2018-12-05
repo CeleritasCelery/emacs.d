@@ -582,6 +582,11 @@ try a more powerful package like popwin.
     :config
     (add-to-list 'shackle-rules '("*Help*" :select t :align below))
     (shackle-mode))
+
+  (defmacro $shacklize (fn)
+    "change the function signature of display-buffer functions to
+  account for shackle calling convetion"
+    `(lambda (buf alist _plist) (,fn buf alist)))
 #+END_SRC
 
 *** buffers
@@ -3941,7 +3946,7 @@ it will split the current window instead of replacing it. See
     :keymaps 'emacs-lisp-mode-map
     "'" 'ielm)
 
-  (add-to-list 'shackle-rules '("*ielm*" :select t :popup t))
+  (add-to-list 'shackle-rules `("*ielm*" :custom ,($shacklize display-buffer-below-selected) :select t))
 
   (el-patch-feature 'ielm)
   (with-eval-after-load 'ielm
