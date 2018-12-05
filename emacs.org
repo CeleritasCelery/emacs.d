@@ -4529,9 +4529,11 @@ longer be necessary
     :hook log-mode
     :config
     (setq highlight-numbers-generic-regexp
-          (rx (and
-               symbol-start
-               (1+ digit)))))
+          ($rx (or (seq "0x" (1+ hex))
+                   (seq "'" nums "'")
+                   (seq (or bol spc ":")
+                        (or (seq nums (any "./-") nums)
+                            nums))))))
 #+END_SRC
 
 itools is a conf file
