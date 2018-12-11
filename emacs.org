@@ -1909,7 +1909,8 @@ in evil
   (fset 'evil-visual-update-x-selection 'ignore)
 #+END_SRC
 
-general editing configuration. We only want to use tabs in specific major modes
+general editing configuration. We only want to use tabs in specific
+major modes
 #+BEGIN_SRC emacs-lisp
   (csetq indent-tabs-mode nil)
 #+END_SRC
@@ -1920,7 +1921,8 @@ backups is redundant.
   (setq make-backup-files nil)
 #+END_SRC
 
-some log files are *really* large, so don't warn about opening files less the 500 MB
+some log files are *really* large, so don't warn about opening files
+less the 500 MB
 #+BEGIN_SRC emacs-lisp
   (csetq large-file-warning-threshold 500000000)
 #+END_SRC
@@ -1967,6 +1969,38 @@ show empty lines at the end of files
   (setq-default indicate-empty-lines t)
 #+END_SRC
 
+*** normalization
+Outlook is stupid and tries to replace the normal accent characters
+with nonascii versions. This can cause problems when copying from the
+an email or word doc. The function below will replace the formating
+with their ascii equiviments.
+#+BEGIN_SRC emacs-lisp
+  (defun $normalize-text (beg end)
+    "normalize characters used in Microsoft formatting"
+    (let* ((orig-text (buffer-substring beg end))
+           (normalized-text
+            (thread-last orig-text
+              (replace-regexp-in-string "–" "--")
+              (replace-regexp-in-string (rx (char "‘’")) "'")
+              (replace-regexp-in-string (rx (char "“”")) "\""))))
+      (unless (equal orig-text normalized-text)
+        (save-excursion
+          (goto-char beg)
+          (delete-region beg end)
+          (insert normalized-text)))))
+
+  (defun $normalize-region (beg end)
+    "normalzie the last paste, or if region is selected, normalize
+  that region."
+    (interactive "r")
+    (if (region-active-p)
+        (progn ($normalize-text beg end)
+               (deactivate-mark))
+      (apply #'$normalize-text (cl-sort (list (point) (mark t)) '<))))
+
+  ($leader-set-key
+    "xn" '$normalize-region)
+#+END_SRC
 *** keybindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
