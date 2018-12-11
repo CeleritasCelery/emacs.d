@@ -3027,7 +3027,14 @@ that hook and set the alist back to our canonical version.
                           "\nError at line# " line)
                  1 2)
                 (,(err-rx ^ "ERROR: couldn't parse " filename ":")
-                 1))))
+                 1)
+                (,(err-rx ^ "FATAL                (F) Exception caught: " (1+ nonl) " at " filename " line " line)
+                 1 2)
+                (,(err-rx ^ "//  Error: File: " filename ", Line: " line ": " (1+ nonl))
+                 1 2)
+                (,(err-rx ^ filename ":" line ": [Error]" (1+ nonl))
+                 1 2))))
+
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
