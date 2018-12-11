@@ -3618,7 +3618,7 @@ what part of a buffer we are in
        1 'compilation-info prepend)
       (,(log-rx I: (group (or "-I-" "Note-" "NOTE" "OVM_INFO")))
        1 'compilation-info prepend)
-      (,(log-rx I: (group (or "-E-" "-F-" "Error-" "Fatal-" "OVM_ERROR" "ERROR" "OVM_FATAL")))
+      (,(log-rx I: (group (or "-E-" "-F-" "Error-" "Fatal-" "OVM_ERROR" "ERROR" "FATAL" "OVM_FATAL")))
        1 'compilation-error prepend)
       (,(log-rx I: (group (or "-W-" "Warning-" "WARNING" "OVM_WARNING")))
        1 'compilation-warning prepend)))
