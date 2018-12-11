@@ -3205,7 +3205,7 @@ run any command
     ("c" ($run-bman "-s all +s collage") "collage")
     ("s" ($run-bman "-s all +s sgdft") "SG DFT")
     ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
-    ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only")
+    ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra" t) "RTL only")
     ("g" ($run-bman (read-string "run bman as: ")) "generic"))
 #+END_SRC
 
@@ -3228,7 +3228,7 @@ availible
     "Regex for errors encountered in bman runs")
 #+END_SRC
 
-use these function to get the cluster therfore the model needed. At
+use these function to get the cluster and therefore the model needed. At
 some point I would like to make this automatic by inspection.
 #+BEGIN_SRC emacs-lisp
   (defvar $model-cluster-alist '(("mdf" . "mdf_10nm")
@@ -3252,14 +3252,6 @@ define a custom compliation mode that is run based on the hydra above
     (define-compilation-mode bman-mode "bman"
       "compilation mode for bman runs"))
 
-  (defun $remove-file-async (file)
-    (when (file-exists-p file)
-      (async-start
-       (lambda ()
-         (shell-command (format "mv %s %s.del && rm -rf %s.del 2>/dev/null" file)))
-       (lambda (result)
-         (message "async delete done")))))
-
   (defun $run-bman (filter &optional clean)
     "run dft ipgen in the current model"
     (let* ((model-root (file-truename (vc-git-root default-directory)))
@@ -3269,10 +3261,9 @@ define a custom compliation mode that is run based on the hydra above
             (lambda (_mode)
               (format "*%s bman*"
                       (f-filename model-root)))))
-      ($compilation-start (concat (when (and (file-exists-p "target")
-                                             (or current-prefix-arg clean))
-                                    "mv target target.del && (rm -rf target.del 2>/dev/null &) && ")
-                                  "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman" ($get-model-arguments) filter)
+      (when (or current-prefix-arg clean)
+        ($async-delete-file "target"))
+      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman" ($get-model-arguments) filter)
                           'bman-mode)))
 
   ($leader-set-key
