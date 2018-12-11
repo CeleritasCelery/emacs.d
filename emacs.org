@@ -3995,17 +3995,18 @@ blocks
 #+BEGIN_SRC emacs-lisp
   (csetq org-tags-column 0)
 
-  (setq org-tag-alist
-        '(("mdf"  . ?m)
-          ("mem"  . ?e)
-          ("snr"  . ?s)
-          ("dev"  . ?d)
-          ("int"  . ?i)
-          ("val"  . ?v)
-          ("gen"  . ?g)
-          ("hsd"  . ?h)
-          ("info" . ?f)
-          ("turnin" . ?t)))
+  (csetq org-tag-alist
+         '(("mdf"  . ?m)
+           ("mem"  . ?e)
+           ("snr"  . ?s)
+           ("dev"  . ?d)
+           ("int"  . ?i)
+           ("val"  . ?v)
+           ("gen"  . ?g)
+           ("hsd"  . ?h)
+           ("info" . ?f)
+           ("hai"  . ?a)
+           ("turnin" . ?t)))
 #+END_SRC
 
 ** links
