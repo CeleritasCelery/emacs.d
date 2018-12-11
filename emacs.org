@@ -2381,7 +2381,8 @@ we don't need so many dired confirmation prompts
 #+BEGIN_SRC emacs-lisp
   (use-package recentf
     :init
-    (setq recentf-max-saved-items 500))
+    (setq recentf-max-saved-items 500
+          recentf-auto-cleanup "11:00pm"))
 #+END_SRC
 
 *** ediff
