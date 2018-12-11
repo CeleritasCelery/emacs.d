@@ -2302,6 +2302,23 @@ collection of functions stolen from spacemacs
     (interactive)
     (kill-buffer (current-buffer)))
 
+  (defun $async-delete-file (file)
+    "delete a file or directory by moving it to a tmp location and
+  then removing in the background"
+    (interactive "D")
+    (if (not (file-exists-p file))
+        (message (format "file %s does not exist" file))
+      (message (format "deleting %s asynchronously" file))
+      (async-start
+       (lambda ()
+         (let ((tmp-file (make-temp-name (concat file ".del."))))
+           (rename-file file tmp-file)
+           (if (file-directory-p tmp-file)
+               (delete-directory tmp-file 'recursive)
+             (delete-file tmp-file))))
+       (lambda (_result)
+         (message (format "file %s deleted successfully" file))))))
+
   ($leader-set-key
     "f" '(:ignore t :wk "files")
     "fe" '$find-user-config-file
