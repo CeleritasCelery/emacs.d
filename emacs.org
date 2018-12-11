@@ -1379,7 +1379,8 @@ the display function to be more consistent.
               "C-h" 'helm-find-files-up-one-level)
     ("M-x" 'helm-M-x
      "M-y" 'helm-show-kill-ring
-     "C-x C-x" 'helm-all-mark-rings)
+     "C-x C-x" 'helm-all-mark-rings
+     "C-c C-f" 'helm-find-files)
     (:definer 'leader
               "ff" 'helm-find-files
               "fr" 'helm-recentf
@@ -1735,8 +1736,10 @@ helm builtins
      "C-c c" 'helm-ff-run-copy-file
      "C-c '" '$helm-ff-switch-to-shell
      "C-c s" '$helm-ag-from-session
+     "C-c C-s" '$helm-ag-from-session
      "C-c m" '$meld-from-helm-session
-     "C-c g" '$magit-from-helm-session))
+     "C-c g" '$magit-from-helm-session
+     "C-c C-g" '$magit-from-helm-session)
 #+END_SRC
 
 *** swoop
@@ -1781,7 +1784,8 @@ regex
       "sf" 'helm-do-ag
       "sF" '$helm-do-ag-region-or-symbol)
     (general-define-key
-     "C-c s" '$helm-do-ag-current-dir))
+     "C-c s" '$helm-do-ag-current-dir
+     "C-c C-s" '$helm-do-ag-current-dir))
 
   (defun $helm-do-ag-current-dir (arg)
     "search in the current directory with Ag"
@@ -1836,8 +1840,11 @@ this still needs to be setup, as I am currently using counsel
         (helm-find-files-1 dir "target")))
     (helm-projectile-define-key helm-projectile-projects-map
       (kbd "C-c f") '$helm-projectile-find-file
+      (kbd "C-c C-f") '$helm-projectile-find-file
       (kbd "C-c g") 'helm-projectile-vc
+      (kbd "C-c C-g") 'helm-projectile-vc
       (kbd "C-c s") 'helm-projectile-grep
+      (kbd "C-c C-s") 'helm-projectile-grep
       (kbd "C-c '") '$helm-projectile-pop-to-shell)
 
     (cl-callf append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
