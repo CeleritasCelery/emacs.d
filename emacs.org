@@ -65,6 +65,13 @@ and modified to be more flexible
       `(progn ,@(nreverse forms))))
 #+END_SRC
 
+a simple function to convert from a cons cell to list for use with
+apply.
+#+BEGIN_SRC emacs-lisp
+  (defsubst $flatten-cons (cons)
+    (list (car cons) (cdr cons)))
+#+END_SRC
+
 *** Settings
 
 #+BEGIN_SRC emacs-lisp
