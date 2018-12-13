@@ -2424,6 +2424,21 @@ we don't need so many dired confirmation prompts
           recentf-auto-cleanup "11:00pm"))
 #+END_SRC
 
+*** midnight mode
+midnight mode is mode to automatically kill old buffers at midnight
+based on a set of rules. We want to follow all of the default rules
+execept for compilation buffers. We keep those because they provide
+clear status.
+#+BEGIN_SRC emacs-lisp
+  (midnight-mode)
+
+  (defun $never-kill-compilation-buffers (buffer)
+    (with-current-buffer buffer
+      (derived-mode-p 'compilation-mode)))
+
+  (add-to-list 'clean-buffer-list-kill-never-regexps '$never-kill-compilation-buffers)
+#+END_SRC
+
 *** ediff
 I like to keep everything in one frame. I am not a mutli-window
 heathen from 2003
