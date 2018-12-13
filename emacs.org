@@ -3182,7 +3182,8 @@ on error messages.
                                   "Error-"
                                   "Errormessage"
                                   "-E-:"
-                                  "-F-:")))
+                                  "-F-:"
+                                  "Information:")))
         (forward-line 2)
         (setq font-lock-end (point)))))
   (byte-compile '$font-lock-extend-region-error-message)
