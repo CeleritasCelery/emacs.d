@@ -4615,9 +4615,7 @@ I use regular perl-mode for files that are considered read-only.
 #+BEGIN_SRC emacs-lisp
   (use-package perl-mode
     :straight nil
-    :mode (rx ".ip_info" eos)
-    :mode (rx ".espflist" eos)
-    :mode (rx ".udf" eos)
+    :mode (rx "." (or "ip_info" "espflist" "udf" "hdl") eos)
     :init
     (setq perl-indent-parens-as-block t
           perl-continued-brace-offset -4))
