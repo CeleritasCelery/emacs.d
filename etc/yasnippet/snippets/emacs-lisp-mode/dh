@@ -1,0 +1,6 @@
+# name: dh (defhydra  ...)
+# key: dh
+# --
+(defhydra ${1:name} (${2::exit t})
+      "${3:description}"
+      $0)

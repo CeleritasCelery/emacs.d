@@ -1,0 +1,4 @@
+# name: er (,(err-rx ...))
+# key: er
+# --
+(,(err-rx ^ "$0"))
