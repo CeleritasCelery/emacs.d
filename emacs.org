@@ -1164,7 +1164,10 @@ provides total number of searches in the modeline
      :upstream (:host github
                       :repo "syohex/emacs-evil-anzu"))
     :init
-    (csetq anzu-cons-mode-line-p nil))
+    (csetq anzu-cons-mode-line-p nil)
+    :config
+    ($leader-set-key
+      "ta" 'anzu-mode))
 #+END_SRC
 
 *** snipe
