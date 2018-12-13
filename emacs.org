@@ -2484,6 +2484,11 @@ Emacs built in version control
   (autoload (function vc-git-root) "vc-git")
 #+END_SRC
 
+use evil keybindings in vc files
+#+BEGIN_SRC emacs-lisp
+  (evil-collection-init 'vc-dir)
+#+END_SRC
+
 *** magit
 magit is the best git porcelain that exists, so far as I can tell. we
 need to set the git version to a newer version because the default at
