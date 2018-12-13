@@ -4241,6 +4241,12 @@ make scripts executable on save
       "tf" 'flycheck-mode))
 #+END_SRC
 
+these are warning about not unquoted expansions, but I feel like I am
+usually aware enough to know when that is going to be a problem
+#+BEGIN_SRC emacs-lisp
+  (csetq flycheck-shellcheck-excluded-warnings '("SC2086" "SC2046"))
+#+END_SRC
+
 *** company
 I don't want to use return for completion because that often
 interferces with just regular typing. So i have gotten in the habit of
