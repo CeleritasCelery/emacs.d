@@ -1103,6 +1103,14 @@ We want to hybridize some usefull emacs commands with better evil keybindings
    "C-y" 'yank)
 #+END_SRC
 
+use my standard up and down for evil ex history
+#+BEGIN_SRC emacs-lisp
+(general-define-key
+ :keymaps 'evil-ex-completion-map
+ "C-k" 'previous-complete-history-element
+ "C-j" 'next-complete-history-element)
+#+END_SRC
+
 general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
