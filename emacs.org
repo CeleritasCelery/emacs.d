@@ -3272,8 +3272,7 @@ only the models we choose.
   (defun $run-ipgen-internal (dir &optional no-clean)
     (let* ((default-directory dir)
            (model-root (vc-git-root dir))
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)
-                                          "PATH=/usr/intel/bin:/usr/bin:/usr/sbin:/bin"
+           (compilation-environment (list "PATH=/usr/intel/bin:/usr/bin:/usr/sbin:/bin"
                                           "TAP_MARSHAL"
                                           "TAP2STF_MAP_FILE"
                                           "XWEAVE"
@@ -3287,9 +3286,12 @@ only the models we choose.
                       (f-filename model-root)
                       (downcase mode)
                       (f-filename dir)))))
-      ($compilation-start (concat "source setup && env && "
+      ($compilation-start (concat "source setup && "
                                   (unless no-clean "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen clean && ")
-                                  "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen")
+                                  "$DFT_REPO_ROOT/DFTNetworkGen/run_dft_ipgen"
+                                  (let ((hack-file "scripts/post_ipgen_hacks.bash") )
+                                    (when (file-exists-p (expand-file-name hack-file model-root))
+                                      (format " && $MODEL_ROOT/%s" hack-file))))
                           'ipgen-mode)))
 
   (defun $helm-get-ipgen-data ()
