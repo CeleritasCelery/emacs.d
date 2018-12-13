@@ -1868,6 +1868,38 @@ this still needs to be setup, as I am currently using counsel
 
 #+END_SRC
 
+*** git
+helm-ls-git is an awesome package that lets me quickly operate on any
+git controlled files in the current repo. for things like staging it
+is faster then magit because I don't need to load a diff. This is
+especially true for files that are in different directories but are
+similar. In magit they are spaced out because they are not in the same
+part of the hierarchy, so I have to stage one, wait, stage the next
+one, wait, etc. With helm-ls-git I can just narrow the files and stage
+or commit them all at once.
+
+Also in my limited testing $helm-browse-project is faster at listing
+files then projectile. I will have to see if that holds true for large
+repos.
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-ls-git
+    :init
+    (csetq helm-ls-git-default-sources '(helm-source-ls-git-status)
+           helm-ls-git-status-command 'magit-status-internal)
+    :general
+    (:definer
+     'leader
+     "gh" 'helm-ls-git-ls
+     "sg" 'helm-grep-do-git-grep
+     "pf" '$helm-browse-project))
+
+  (defun $helm-browse-project (arg)
+    "find files in current project with git ls"
+    (interactive "P")
+    (let ((helm-ls-git-default-sources '(helm-source-ls-git)))
+      (helm-ls-git-ls)))
+#+END_SRC
+
 *** org
 use helm to quickly navigate org headings
 #+BEGIN_SRC emacs-lisp
