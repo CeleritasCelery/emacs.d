@@ -1787,7 +1787,7 @@ regex
 #+BEGIN_SRC emacs-lisp
   (use-package helm-ag
     :init
-    (csetq helm-ag-base-command "/p/hdk/rtl/proj_dbin/shdk74/ag --nocolor --nogroup --search-zip")
+    (csetq helm-ag-base-command "ag --nocolor --nogroup --search-zip")
     ($leader-set-key
       "sf" 'helm-do-ag
       "sF" '$helm-do-ag-region-or-symbol)
