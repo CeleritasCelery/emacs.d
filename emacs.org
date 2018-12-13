@@ -2148,13 +2148,13 @@ the most expensive part of loading a file with projectile is
 reserializing the cache. So we remove that step and make sure that
 everything is updated before we quit.
 #+BEGIN_SRC emacs-lisp
-  (advice-add 'projectile-cache-current-file :around
-              (defun $no-cache-write (fn)
-                (cl-letf* (((symbol-function 'projectile-serialize-cache)
-                            (lambda () nil)))
-                  (funcall fn))))
+  (with-eval-after-load 'projectile
+    (defun $projectile-serialize-cache nil)
+    (fset '$projectile-serialize-cache (symbol-function 'projectile-serialize-cache))
+    (fset 'projectile-serialize-cache (lambda ()))
 
-  (add-hook 'kill-emacs-hook 'projectile-serialize-cache)
+    (add-hook 'kill-emacs-hook '$projectile-serialize-cache)
+    (add-hook 'midnight-hook '$projectile-serialize-cache))
 #+END_SRC
 
 *** multiedit
