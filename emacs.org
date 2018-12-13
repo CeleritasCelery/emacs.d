@@ -2447,6 +2447,25 @@ heathen from 2003
   (evil-collection-init 'ediff)
 #+END_SRC
 
+*** vdiff
+Vdiff is based on vim-diff. Rather then using native elisp for the
+diffing algorithm it uses an external backend like git or diff. This
+means that we can use better diffing algorithms like patient or
+historgram that are not part of ediff. Also this supports auto
+folding, which looks nice.
+#+BEGIN_SRC emacs-lisp
+  (use-package vdiff
+    :general
+    (:definer
+     'leader
+     "fvf" 'vdiff-files
+     "fvb" 'vdiff-buffers)
+    (:keymaps
+     'vdiff-mode-map
+     "C-c" 'vdiff-mode-prefix-map)
+    :init
+    (csetq vdiff-diff-algorithm 'git-diff-patience))
+#+END_SRC
 ** git
 
 don't ask about following symlinks
