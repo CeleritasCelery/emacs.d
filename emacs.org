@@ -3205,6 +3205,9 @@ functions that are used for compilation of ipgen and bman or turnin.
 
 all the errors I have encountered in IPGen
 #+BEGIN_SRC emacs-lisp
+  (defun $find-ult-log ()
+    (concat "collage_work/ultiscan/logs/" (match-string 1) ".log"))
+
   (defvar ipgen-error-regexp-alist
     `((,(err-rx ^ "gmake: *** [" (group-n 1 (>= 10 any)) "] Error " num)
        1)
@@ -3221,9 +3224,11 @@ all the errors I have encountered in IPGen
                 -> "line " line
                 " offset " col)
        1 2 3)
-      (,(err-rx ^ "-F-: [CRT-023] Error in conncection file adhoc connection file " filename
-                "\nError at line# " line)
-       1 2))
+      (,(err-rx ^ "Information: script '" filename "'"
+                "\n\tstopped at line " line " due to error. " (1+ nonl))
+       1 2)
+      (,(err-rx ^ "gmake[2]: *** [" filename "] Error " nums)
+       $find-ult-log))
     "errors seen while running ipgen")
 #+END_SRC
 
