@@ -986,8 +986,6 @@ much better default, but the evil people don't like it and won't add
 an option to support it. Nice thing about Emacs though, is we can do
 it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897]]
 #+BEGIN_SRC emacs-lisp
-  (defvar evil-v$-gets-eol nil)
-
   (evil-define-motion evil-end-of-line (count)
     "Move the cursor to the end of the current line. If COUNT is
       given, move COUNT - 1 lines downward first."
@@ -996,11 +994,9 @@ it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897
     (when evil-track-eol
       (setq temporary-goal-column most-positive-fixnum
             this-command 'next-line))
-    (unless (and (evil-visual-state-p) evil-v$-gets-eol)
-      (evil-adjust-cursor)
-      (when (eolp)
-        ;; prevent "c$" and "d$" from deleting blank lines
-        (setq evil-this-type 'exclusive))))
+    (evil-adjust-cursor)
+    (when (eolp)
+      (setq evil-this-type 'exclusive)))
 #+END_SRC
 
 prevent "vimmers" from quiting my Emacs. Old habbits die hard.
