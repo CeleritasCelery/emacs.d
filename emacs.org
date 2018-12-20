@@ -3088,10 +3088,11 @@ packages that assist in compiling and building code
 #+END_SRC
 
 
-compilation mode will throw these warnings when clearing large buffers
-so we supress them
+compilation mode will throw warnings about clearing large buffers, but
+we don't need undo in compilation buffers anyways so we can just turn
+that off
 #+BEGIN_SRC emacs-lisp
-  (setq warning-suppress-types '(undo discard-info))
+  (add-hook 'compilation-mode-hook 'buffer-disable-undo)
 #+END_SRC
 
 *** keybindings
