@@ -4828,7 +4828,7 @@ we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
   (use-package verilog-mode
     :straight nil
-    :mode (rx "." (or "hier" "vf" "svh" "vg" "vs") eos))
+    :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl") eos))
 #+END_SRC
 
 ** TCL
