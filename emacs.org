@@ -167,6 +167,7 @@ bootstrap code to download the package manager and run it.
 
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
+  (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
         (bootstrap-version 5))
@@ -1928,7 +1929,8 @@ repos.
 #+END_SRC
 
 *** org
-use helm to quickly navigate org headings
+use helm to quickly navigate org headings. We can also use this to
+jump to a init header from anywhere.
 #+BEGIN_SRC emacs-lisp
   ($leader-local-set-key
     :keymaps 'org-mode-map
@@ -3541,18 +3543,18 @@ a custom compilation command for running a turnin
            (comment (unless mock
                       (read-string "turnin comment: ")))
            (compilation-buffer-name-function
-            (lambda (major-mode)
+            (lambda (mm)
               (format "*%s %s%s*"
                       (f-filename model-root)
                       (if mock "mock " "")
-                      (downcase major-mode)))))
+                      (downcase mm)))))
       ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c "
                                   ($get-cluster)
                                   " -s srvr10nm"
                                   (when mock " -mock")
                                   (when (and mock (not clone)) " -no_clone")
-                                  (when eco (concat " -bugecos '" eco "'"))
-                                  (when comment (concat " -comments \"" comment "\"")))
+                                  (when eco (concat " -bugecos " eco))
+                                  (when comment (format " -comments \"%s\"" comment)))
                           'turnin-mode)))
 
   ($leader-set-key
@@ -3909,7 +3911,7 @@ what part of a buffer we are in
 
     (general-advice-add '(org-insert-subheading org-insert-todo-subheading)
                         :before
-                        (defun $org-insert-subheading (ARG)
+                        (defun $org-insert-subheading (_arg)
                           (let ((undo-inhibit-record-point t))
                             (end-of-line))))
     (general-define-key
@@ -3921,7 +3923,7 @@ what part of a buffer we are in
 #+END_SRC
 
 *** inherit priority
-inherit the priority of the parent heading
+inherit the priority of the parent heading and make sure the default state is always todo
 #+BEGIN_SRC emacs-lisp
   (defun $org-insert-header-priority (_arg &optional force)
     (when (org-at-heading-p)
@@ -4125,6 +4127,9 @@ outline path instead of trying to refile in steps.
 #+END_SRC
 
 ** clock
+I am trying to always be clocked into a task. Not so much so that I
+can see how I am using my time, though that is useful, more just to
+keep me on task.
 #+BEGIN_SRC emacs-lisp
   (use-package org-clock
     :straight nil
