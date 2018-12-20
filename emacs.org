@@ -4091,6 +4091,15 @@ everything more annoying. So we disable it.
                "k" '$org-agenda-prev-visual-line))
             'append)
 #+END_SRC
+
+** projects
+projects allow to me to manage progess and see what items are stuck
+#+BEGIN_SRC emacs-lisp
+  (csetq org-stuck-projects
+         '("/PROJ"
+           ("TODO")
+           nil ""))
+#+END_SRC
 ** refile
 this allows me to quickly move headers around files based on these
 refile targets. we enable caching because we do not expect these files
