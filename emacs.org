@@ -2571,29 +2571,6 @@ start the commit message editor in insert state
     (add-hook 'with-editor-mode-hook 'evil-insert-state))
 #+END_SRC
 
-I don't like to commit to my github repos using my work credentials,
-but I can't use my private credentials on my work repos. therefore I
-set ~useconfigonly = true~ so that I have to set the credentials for
-every repo. I can use these functions as short hand.
-#+BEGIN_SRC emacs-lisp
-  (defun $git-work-user ()
-    "Set my work credentials"
-    (interactive)
-    (shell-command "git config --local user.name \"Hinckley, Troy J\" &&
-     git config --local user.email troy.j.hinckley@intel.com"))
-
-  (defun $git-private-user ()
-    "Set my work credentials"
-    (interactive)
-    (shell-command "git config --local user.name CeleritasCelery &&
-     git config --local user.email t.macman@gmail.com"))
-
-  ($leader-set-key
-    "gu" '(:ignore t :wk "user")
-    "guw" '$git-work-user
-    "gup" '$git-private-user)
-#+END_SRC
-
 calling =magit-status= on a whole IP can be very time
 consumuing. Often I am just trying to look at a single directory, and
 this gives me the power to do that.
@@ -2775,6 +2752,25 @@ open magit and doing it manually
           (shell-command-to-string (format "git commit -m \"%s\"" msg))
           (message "done"))
       (user-error "index not clean")))
+#+END_SRC
+
+
+I don't like to commit to my github repos using my work credentials,
+but I can't use my private credentials on my work repos. therefore I
+set ~useconfigonly = true~ so that I have to set the credentials for
+every repo. This hook will automatically set my credentials based on
+where the repo is located
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'magit-status-mode-hook
+            (defun $git-set-user ()
+              "set the git user based on where the repo is located."
+              (when (equal "" (shell-command-to-string "git config --local user.name"))
+                (shell-command-to-string
+                 (apply 'format "git config --local user.name %s && git config --local user.email %s"
+                        (if (f-child-of-p (file-truename default-directory) "~/custom")
+                            '("CeleritasCelery" "t.macman@gmail.com")
+                          '("\"Hinckley, Troy J\"" "troy.j.hinckley@intel.com"))))
+                (message "setting git user credentials"))))
 #+END_SRC
 
 ** shell
