@@ -119,6 +119,19 @@ move the custom file to its own loaction so it does not clutter us.
   (csetq load-prefer-newer t)
 #+END_SRC
 
+We never use right to left scripts, so disable that feature for better
+performace
+#+BEGIN_SRC emacs-lisp
+  (setq-default bidi-display-reordering nil)
+#+END_SRC
+
+[[https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag/28746][fix movement lag]] not sure if this will do anything. But since I don't
+see any positive improvment from having it enabled I might as well
+turn it off.
+#+BEGIN_SRC emacs-lisp
+  (setq auto-window-vscroll nil)
+#+END_SRC
+
 *** tangling
 we want to tangle on exit so that it will make startup time quicker.
 #+BEGIN_SRC emacs-lisp
