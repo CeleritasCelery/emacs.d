@@ -2501,7 +2501,7 @@ folding, which looks nice.
      "fvb" 'vdiff-buffers)
     (:keymaps
      'vdiff-mode-map
-     "C-c" 'vdiff-mode-prefix-map)
+     "C-c" '(:keymap vdiff-mode-prefix-map :package vdiff))
     :init
     (csetq vdiff-diff-algorithm 'git-diff-patience))
 #+END_SRC
