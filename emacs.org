@@ -2756,6 +2756,27 @@ automatically refreshing when we switch to a tramp buffer.
                                    (git-gutter)))))
 #+END_SRC
 
+*** functions
+some general purpose git functions that make life easier in my
+particular work enviroment
+
+commit all generated files from IPGen. This is much faster then try to
+open magit and doing it manually
+#+BEGIN_SRC emacs-lisp
+  (defun $git-commit-ipgen-output ()
+    (interactive)
+    (if (equal 0 (call-process "git" nil nil nil "diff-index" "--quiet" "--cached" "HEAD"))
+        (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory))))
+              (msg (read-string "output files commit message: ")))
+          (message "staging output files...")
+          (cl-loop for model in models
+                   do (shell-command-to-string (concat "git add --all " model)))
+          (message "committing output files...")
+          (shell-command-to-string (format "git commit -m \"%s\"" msg))
+          (message "done"))
+      (user-error "index not clean")))
+#+END_SRC
+
 ** shell
 *** comint
 comint is the generic backend for REPL's and shells. We are giving it
