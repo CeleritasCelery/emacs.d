@@ -2180,8 +2180,14 @@ everything is updated before we quit.
     (fset '$projectile-serialize-cache (symbol-function 'projectile-serialize-cache))
     (fset 'projectile-serialize-cache (lambda ()))
 
-    (add-hook 'kill-emacs-hook '$projectile-serialize-cache)
-    (add-hook 'midnight-hook '$projectile-serialize-cache))
+    (general-add-hook '(midnight-hook kill-emacs-hook) '$projectile-serialize-cache))
+#+END_SRC
+
+don't use projectiles compilation find file function because we don't
+need it
+#+BEGIN_SRC emacs-lisp
+  (ad-disable-advice 'compilation-find-file 'around 'projectile-compilation-find-file)
+  (ad-activate 'compilation-find-file)
 #+END_SRC
 
 *** multiedit
