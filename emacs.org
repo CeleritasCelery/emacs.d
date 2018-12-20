@@ -3895,13 +3895,13 @@ what part of a buffer we are in
       "g" '$org-navigate/body)
     ($leader-set-key
       "ol" 'org-store-link)
-    (setq org-lowest-priority ?D
-          org-enforce-todo-dependencies t
-          org-todo-keywords '((sequence "TODO(t)" "BLOCK(b@!)" "DOING(g)" "|" "DONE(d)")
-                              (sequence "|" "CANCELED(c@)"))
-          org-priority-faces '((?A . (:foreground "OrangeRed"))
-                               (?B . (:foreground "yellow3"))
-                               (?C . (:foreground "ForestGreen"))))
+    (csetq org-lowest-priority ?D
+           org-enforce-todo-dependencies t
+           org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "BLOCK(b@!)" "PROJ(p)" "|" "DONE(d)")
+                               (sequence "|" "CANCELED(c@)"))
+           org-priority-faces '((?A . (:foreground "OrangeRed"))
+                                (?B . (:foreground "yellow3"))
+                                (?C . (:foreground "ForestGreen"))))
     (defun $org-truncate-lines ()
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
