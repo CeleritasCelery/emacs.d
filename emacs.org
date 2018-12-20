@@ -2741,6 +2741,21 @@ with =q= and the window is selected.
     (pop-to-buffer git-gutter:popup-buffer))
 #+END_SRC
 
+since git-gutter is so slow over tramp we want to disable it from
+automatically refreshing when we switch to a tramp buffer.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'git-gutter
+    (ad-disable-advice 'quit-window 'after 'git-gutter:quit-window)
+    (ad-activate 'quit-window)
+    (ad-disable-advice 'switch-to-buffer 'after 'git-gutter:switch-to-buffer)
+    (ad-activate 'switch-to-buffer)
+    (general-advice-add '(switch-to-buffer quit-window)
+                        :after (defun $git-gutter-reload (&rest _)
+                                 (when (and (not (file-remote-p default-directory))
+                                            git-gutter-mode)
+                                   (git-gutter)))))
+#+END_SRC
+
 ** shell
 *** comint
 comint is the generic backend for REPL's and shells. We are giving it
