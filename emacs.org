@@ -3675,11 +3675,29 @@ it blocks until the current one is done.
                                           compilation-environment
                                           default-directory))
 
+  (defvar $compilation-queue-enabled t
+    "allow comands to be added to command queue and run when all
+    other runs on the same model have completed")
+
+  (defun $compilation-clear-command-queue ()
+    (interactive)
+    (setq $compilation-command-queue nil))
+
+  (defun $compilation-toggle-command-queue ()
+    "Toggle the use of the command queue"
+    (interactive)
+    (if $compilation-queue-enabled
+        (progn (message "compilation command queue disabled")
+               (setq $compilation-queue-enabled nil))
+      (message "compilation command queue enabled")
+      (setq $compilation-queue-enabled t)))
+
   (defun $compilation-start (command mode &rest args)
     "start compilation if there are not other compliations running
     in the same root. If there are, defer till those compilations
     complete successfully"
-    (if ($command-requires-blocking mode)
+    (if (and $compilation-queue-enabled
+             ($command-requires-blocking mode))
         (add-to-list '$compilation-command-queue
                      (list (mapcar (lambda (var)
                                      (list var `',(symbol-value var)))
