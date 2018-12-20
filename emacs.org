@@ -2340,6 +2340,13 @@ them. I would love to remove this advice and only set it once.
 #+END_SRC
 
 ** files
+
+don't ask me to revert files that I have not changed.
+
+#+BEGIN_SRC emacs-lisp
+  (csetq revert-without-query `(,(rx (1+ nonl))))
+#+END_SRC
+
 *** functions
 collection of functions stolen from spacemacs
 #+BEGIN_SRC emacs-lisp
