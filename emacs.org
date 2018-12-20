@@ -1853,7 +1853,8 @@ this still needs to be setup, as I am currently using counsel
                helm-projectile-find-dir)
     :init
     (push '((nil . "helm-projectile") . (nil . "proj")) which-key-replacement-alist)
-    (csetq projectile-use-git-grep t)
+    (csetq projectile-use-git-grep t
+           helm-projectile-fuzzy-match nil)
     ($leader-set-key
       "p" '(:ignore t :wk "project")
       "pp" 'helm-projectile-switch-project
