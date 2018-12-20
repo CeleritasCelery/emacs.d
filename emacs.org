@@ -418,6 +418,14 @@ modify them.
   (load-theme 'darktooth t)
 #+END_SRC
 
+Get face at point for inspection
+#+BEGIN_SRC emacs-lisp
+  (defun $whatis-face ()
+    (interactive)
+    (message "CurrentFace: %s"
+             (get-text-property (point) 'face)))
+#+END_SRC
+
 **** colors
 These two packages provide some great tools for editing and analying
 themes visually.
