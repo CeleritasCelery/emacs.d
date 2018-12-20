@@ -4068,6 +4068,29 @@ inherit the priority of the parent heading
     "a" 'org-agenda)
 #+END_SRC
 
+The default cursor movement requires one press per hierarchy level.
+Don't ask me why, but I have never found it useful. It just makes
+everything more annoying. So we disable it.
+#+BEGIN_SRC emacs-lisp
+
+  (defun $org-agenda-next-visual-line ()
+    (interactive)
+    (evil-next-visual-line)
+    (org-agenda-do-context-action))
+  (defun $org-agenda-prev-visual-line ()
+    (interactive)
+    (evil-previous-visual-line)
+    (org-agenda-do-context-action))
+
+  (add-hook 'org-agenda-mode-hook
+            (defun $org-agenda-visual-lines ()
+              (general-define-key
+               :keymaps 'org-agenda-mode-map
+               :states 'motion
+               "j" '$org-agenda-next-visual-line
+               "k" '$org-agenda-prev-visual-line))
+            'append)
+#+END_SRC
 ** refile
 this allows me to quickly move headers around files based on these
 refile targets. we enable caching because we do not expect these files
