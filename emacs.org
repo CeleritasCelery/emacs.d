@@ -3102,7 +3102,8 @@ is needed when we want to interact with the running process. This has
 a few issues that we are going to resolve now:
 
 1. There is a weird issue where the recompile buffer is not the same
-   as the original buffer. Therefore we force the buffer name to remain the same by overriding the =compilation-arguments=.
+   as the original buffer. Therefore we force the buffer name to
+   remain the same by overriding the =compilation-arguments=.
 
 2. It is really convient to dismiss the compilation window with =q= so
    we are going to bind that. regular compilation-mode supports this
@@ -3168,6 +3169,14 @@ that hook and set the alist back to our canonical version.
   (defvar $compilation-error-regexp-alist nil
     "The canonical error regexp alist")
 
+  (defun $prev-declaration-file ()
+    (save-excursion
+      (forward-line 2)
+      (forward-char)
+      (thread-last (thing-at-point 'line)
+        (string-remove-prefix "  \"")
+        (string-remove-suffix "\",\n"))))
+
   (setq compilation-error-regexp-alist
         (setq $compilation-error-regexp-alist
               `((,(err-rx ^ "-I-:Error-" ->
@@ -3224,8 +3233,9 @@ that hook and set the alist back to our canonical version.
                  1 2)
                 (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
                  1 2)
-                (,(err-rx ^ "-F-: [CRT-023] Error in conncection file adhoc connection file " filename
-                          "\nError at line# " line)
+                ;; added space
+                (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file adhoc connection file " filename
+                          " \n Error at line# " line)
                  1 2)
                 (,(err-rx ^ "ERROR: couldn't parse " filename ":")
                  1)
@@ -3234,8 +3244,14 @@ that hook and set the alist back to our canonical version.
                 (,(err-rx ^ "//  Error: File: " filename ", Line: " line ": " (1+ nonl))
                  1 2)
                 (,(err-rx ^ filename ":" line ": [Error]" (1+ nonl))
-                 1 2))))
-
+                 1 2)
+                (,(err-rx ^ "Failed Logs:"
+                          "\n\t" filename)
+                 1)
+                (,(err-rx ^ "-E- Can't add parameter '" symbol "' because it already exists at " filename " line " line)
+                 1 2)
+                (,(err-rx ^ "Error-[MPD] Module previously declare" (group-n 1 nonl))
+                 $prev-declaration-file))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
@@ -3287,9 +3303,7 @@ all the errors I have encountered in IPGen
     (concat "collage_work/ultiscan/logs/" (match-string 1) ".log"))
 
   (defvar ipgen-error-regexp-alist
-    `((,(err-rx ^ "gmake: *** [" (group-n 1 (>= 10 any)) "] Error " num)
-       1)
-      (,(err-rx ^ info "Error: " (group-n 3 ->)
+    `((,(err-rx ^ info "Error: " (group-n 3 ->)
                 "\n" info "-" (or "E" "F") "-: [CRT-" nums "] Error in "
                 -> " file " filename spc*
                 "\n" info " Error at line# " line ->)
@@ -3305,8 +3319,8 @@ all the errors I have encountered in IPGen
       (,(err-rx ^ "Information: script '" filename "'"
                 "\n\tstopped at line " line " due to error. " (1+ nonl))
        1 2)
-      (,(err-rx ^ "gmake[2]: *** [" filename "] Error " nums)
-       $find-ult-log))
+      (,(err-rx ^ "gmake" (opt "[" num "]") ": *** [" filename "] Error " nums)
+       (1 "%s.run" "collage_work/ultiscan/logs/%s.log")))
     "errors seen while running ipgen")
 #+END_SRC
 
@@ -3422,18 +3436,30 @@ there are very few errors that show up in bman, but we need a special
 handler function to find the right log as the full path is not
 availible
 #+BEGIN_SRC emacs-lisp
-  (defun $find-generic-bman-log ()
-    (car (file-expand-wildcards (format "target/log/*.%s.log"
-                                        (match-string-no-properties 1)))))
+  (defun $bman-find-generic-log ()
+    ($bman-skip-intermediate-log
+     (car (or (file-expand-wildcards (format "target/log/*.%s.log"
+                                             (match-string-no-properties 1)))
+              (file-expand-wildcards (format "log/*.%s.log"
+                                             (match-string-no-properties 1)))))))
+
+  (cl-defun $bman-skip-intermediate-log (&optional (file (match-string 1)))
+    (let ((line (shell-command-to-string
+                 (concat "egrep -m1 '^(-F-:Failing test in |-I-:FAILED: Exit status of pid)' " file))))
+      (save-match-data
+        (if (string-match (err-rx (or "test in " "; LOG ") filename) line)
+            (match-string 1 line)
+          file))))
 
   (defvar bman-error-regexp-alist
     `((,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
-       1)
+       $bman-skip-intermediate-log)
       (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
-       $find-generic-bman-log)
+       $bman-find-generic-log)
       (,(err-rx ^ "-I-:DIE signal: " (1+ nonl) " (in " filename ")")
        1)
-      (,(err-rx ^ "-I-:DIE signal: \n-I-:" (1+ nonl) " at " filename)))
+      (,(err-rx ^ "-I-:DIE signal: \n-I-:" (1+ nonl) " at " filename))
+      (,(err-rx ^ "-E-: FAILED: " fill " : LOG : (Missing) " filename) 1))
     "Regex for errors encountered in bman runs")
 #+END_SRC
 
