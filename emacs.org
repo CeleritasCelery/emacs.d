@@ -1614,47 +1614,52 @@ ignore lockfiles and backups when looking through the filesystem
 open file in clipboard. Usually something I copied from an
 email. automatically add the tramp header if from a different site
 #+BEGIN_SRC emacs-lisp
-  (defun $open-file-in-clipboard ()
-    (interactive)
-    (let* ((file (string-trim (current-kill 0)))
-           (current-site (getenv "EC_SITE"))
+  (defun $normalize-file-name (file)
+    "This functions does 3 things:
+  1. update MODEL_ROOT to the current model
+  2. automatically add remote prefix if required
+  3. Remove problematic formating from files "
+    ;; set MODEL_ROOT if variable if present in file name
+    (when-let ((root (and (string-match-p (rx "$" (opt "{") "MODEL_ROOT" ) file)
+                          (vc-git-root default-directory))))
+      (--> root
+           (file-truename it)
+           (string-remove-suffix "/" it)
+           (string-remove-prefix (or (file-remote-p it) "") it)
+           (setenv "MODEL_ROOT" it)))
+    ;; add remote url if required
+    (let* ((current-site (getenv "EC_SITE"))
            (target-site (if (string-match (rx bos "/nfs/" (group (1+ (not (any "/"))))) file)
                             (match-string 1 file)
                           current-site))
-           (tramp (if (or (equal target-site "site")
-                          (equal current-site target-site))
-                      ""
-                    (concat "/ssh:"
-                            (if (equal target-site "sc")
-                                "zone"
-                              target-site)
-                            ":" ))))
-      (require 'helm-files)
-      (helm-find-files-1 (concat tramp file) (file-name-base file))))
-  ($leader-set-key
-    "fo" '$open-file-in-clipboard)
-#+END_SRC
+           (remote-url (if (or (equal target-site "site")
+                               (equal current-site target-site))
+                           ""
+                         (format "/%s:%s:" tramp-default-method target-site))))
+      ;; remove problematic formatting from files
+      (thread-last (concat remote-url file)
+        (replace-regexp-in-string (rx (1+ (any space "\""))) "")
+        (replace-regexp-in-string (rx (1+ "/")) "/")
+        (replace-regexp-in-string "$ENV" "$"))))
 
-a better fild-file-at-point function that allows full directory
-naviagation
-#+BEGIN_SRC emacs-lisp
+  (defun $open-file-in-clipboard ()
+    (interactive)
+    (let* ((file ($normalize-file-name (string-trim (current-kill 0)))))
+      (require 'helm-files)
+      (helm-find-files-1 file (file-name-base file))))
+
   (defun $find-file-at-point ()
     "A better replacement for `find-file-at-point' that gives me
   the full power of helm"
     (interactive)
-    (let ((file ($get-path-at-point)))
-      (when-let ((root (and (string-match-p (rx "$" (opt "{") "MODEL_ROOT" ) file)
-                            (vc-git-root default-directory))))
-        (--> root
-             (file-truename it)
-             (string-remove-suffix "/" it)
-             (string-remove-prefix (or (file-remote-p it) "") it)
-             (setenv "MODEL_ROOT" it)))
+    (let ((file ($normalize-file-name (concat (or (file-remote-p default-directory)
+                                                  "")
+                                              ($get-path-at-point)))))
       (require 'helm-files)
-      (helm-find-files-1 (concat (or (file-remote-p default-directory) "")
-                                 file)
-                         (file-name-base file))))
+      (helm-find-files-1 file (file-name-base file))))
 
+  ($leader-set-key
+    "fo" '$open-file-in-clipboard)
   (general-define-key
    :states '(normal visual motion)
    :keymaps 'global
@@ -2840,15 +2845,11 @@ builtin shell, gives us the best of both worlds.
     (or (when (and (memq major-mode '(cperl-mode perl-mode))
                    (require 'ffap-perl-module nil 'noerror))
           (ffap-perl-module-file-at-point))
-        (thread-last
-            (apply 'buffer-substring-no-properties
-                   (--map (save-excursion
-                            (funcall it "-{}[:alnum:]$/._~\"")
-                            (point))
-                          '(skip-chars-backward skip-chars-forward)))
-          (replace-regexp-in-string (rx (1+ (any space "\""))) "")
-          (replace-regexp-in-string (rx (1+ "/")) "/")
-          (replace-regexp-in-string "$ENV" "$"))))
+        (apply 'buffer-substring-no-properties
+               (--map (save-excursion
+                        (funcall it "-{}[:alnum:]$/._~\"")
+                        (point))
+                      '(skip-chars-backward skip-chars-forward)))))
 
   (defun $shx-send-input-or-copy-path ()
     "send command or copy path at point"
