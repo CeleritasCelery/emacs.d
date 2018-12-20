@@ -4282,7 +4282,8 @@ blocks
 
 ** tags
 #+BEGIN_SRC emacs-lisp
-  (csetq org-tags-column 0)
+  (csetq org-tags-column 0
+         org-fast-tag-selection-single-key t)
 
   (csetq org-tag-alist
          '(("mdf"  . ?m)
