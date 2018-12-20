@@ -2537,7 +2537,6 @@ files can quickly fill up my home disk.
   (use-package magit
     :init
     (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git"
-           magit-delete-by-moving-to-trash nil
            magit-remote-add-set-remote.pushDefault 'ask)
     ($leader-set-key
       "g" '(:ignore t :wk "git")
@@ -2548,6 +2547,17 @@ files can quickly fill up my home disk.
     (general-define-key
      :keymaps 'magit-diff-mode-map
      "SPC" nil))
+#+END_SRC
+
+the trash at Intel is in the home disk, which is only 100 MB.
+Therefore we must delete without moving to trash.
+#+BEGIN_SRC emacs-lisp
+  (csetq magit-delete-by-moving-to-trash nil)
+#+END_SRC
+
+improve [[https://magit.vc/manual/magit/Performance.html][performance]] by only reverting buffers in the local repo
+#+BEGIN_SRC emacs-lisp
+  (setq auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffer-p)
 #+END_SRC
 
 expanding the diffs can often take too long
