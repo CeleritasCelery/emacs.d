@@ -3929,6 +3929,7 @@ inherit the priority of the parent heading
                                                  (org-up-heading-safe)
                                                (org-backward-heading-same-level 1))
                                              (org-show-priority))))
+        (org-todo "TODO")
         (cl-loop do (org-priority (if (string< (org-show-priority) parent-priority) 'up 'down))
                  until (equal parent-priority (org-show-priority))))))
 
