@@ -518,7 +518,7 @@ pretty well, but I have a couple of things I would like to change.
   (use-package ace-window
     :general
     (:definer 'leader
-              "w" 'ace-window)
+     "w" 'ace-window)
     :init
     (setq aw-dispatch-always t
           aw-background nil)
@@ -755,12 +755,12 @@ it though.
   (use-package ivy
     :general
     (:keymaps 'ivy-minibuffer-map
-              "C-j" 'ivy-next-line
-              "C-k" 'ivy-previous-line
-              "C-h" "DEL"
-              "C-S-H" help-map
-              "C-l" 'ivy-alt-done
-              "<C-return>" 'ivy-immediate-done)
+     "C-j" 'ivy-next-line
+     "C-k" 'ivy-previous-line
+     "C-h" "DEL"
+     "C-S-H" help-map
+     "C-l" 'ivy-alt-done
+     "<C-return>" 'ivy-immediate-done)
     :init
     (setq ivy-height 15
           ivy-use-virtual-buffers t
@@ -953,9 +953,9 @@ a text object that highlights everything with the same font lock
      :type git :host github :repo "laishulu/evil-textobj-syntax")
     :general
     (:keymaps 'evil-inner-text-objects-map
-              "h" 'evil-i-syntax)
+     "h" 'evil-i-syntax)
     (:keymaps 'evil-outer-text-objects-map
-              "h" 'evil-a-syntax))
+     "h" 'evil-a-syntax))
 #+END_SRC
 
 *** keybindings
@@ -1121,8 +1121,7 @@ swap two regions with evil exchange
 #+BEGIN_SRC emacs-lisp
   (use-package evil-exchange
     :general
-    (:states
-     '(visual normal)
+    (:states '(visual normal)
      "gx" 'evil-exchange
      "gX" 'evil-exchange-cancel))
 #+END_SRC
@@ -1149,8 +1148,7 @@ package.
             additional
             additional-insert
             additional-wrap))
-    (defhydra lispyville-mark (:pre
-                               (require 'lispyville)
+    (defhydra lispyville-mark (:pre (require 'lispyville)
                                :exit nil)
       ("v" lispyville-wrap-lispy-mark-symbol-visual "symbol")
       ("V" lispyville-wrap-lispy-mark-visual "sexp"))
@@ -1194,8 +1192,7 @@ prefer not to do.
     :commands (evil-cp-insert
                evil-cp-append)
     :general
-    (:states
-     'normal
+    (:states 'normal
      "i" 'evil-cp-insert
      "a" 'evil-cp-append))
 #+END_SRC
@@ -1242,30 +1239,30 @@ the display function to be more consistent.
   (use-package helm
     :general
     (:keymaps 'minibuffer-local-map
-              "C-c C-l" 'helm-minibuffer-history)
+     "C-c C-l" 'helm-minibuffer-history)
     (:keymaps 'helm-map
-              "C-j" 'helm-next-line
-              "C-k" 'helm-previous-line
-              "C-h" 'helm-next-source
-              "C-S-h" 'helm-help
-              "C-c C-h" 'describe-key
-              "C-l" "RET"
-              "C-z" 'helm-select-action
-              "TAB" 'helm-execute-persistent-action)
+     "C-j" 'helm-next-line
+     "C-k" 'helm-previous-line
+     "C-h" 'helm-next-source
+     "C-S-h" 'helm-help
+     "C-c C-h" 'describe-key
+     "C-l" "RET"
+     "C-z" 'helm-select-action
+     "TAB" 'helm-execute-persistent-action)
     (:keymaps '(helm-find-files-map
                 helm-read-file-map)
-              "C-l" 'helm-execute-persistent-action
-              "C-h" 'helm-find-files-up-one-level)
+     "C-l" 'helm-execute-persistent-action
+     "C-h" 'helm-find-files-up-one-level)
     ("M-x" 'helm-M-x
      "M-y" 'helm-show-kill-ring
      "C-x C-x" 'helm-all-mark-rings
      "C-c C-f" 'helm-find-files)
     (:definer 'leader
-              "ff" 'helm-find-files
-              "fr" 'helm-recentf
-              "r"  'helm-resume
-              "bh" 'helm-buffers-list
-              "bb" 'helm-mini)
+     "ff" 'helm-find-files
+     "fr" 'helm-recentf
+     "r"  'helm-resume
+     "bh" 'helm-buffers-list
+     "bb" 'helm-mini)
     :init
     ($leader-set-key "SPC" 'helm-M-x)
     (csetq
@@ -1764,8 +1761,7 @@ repos.
     (csetq helm-ls-git-default-sources '(helm-source-ls-git-status)
            helm-ls-git-status-command 'magit-status-internal)
     :general
-    (:definer
-     'leader
+    (:definer 'leader
      "gh" 'helm-ls-git-ls
      "sg" 'helm-grep-do-git-grep
      "pf" '$helm-browse-project))
@@ -1794,7 +1790,7 @@ switch themes using helm
   (use-package helm-themes
     :general
     (:definer 'leader
-              "T" 'helm-themes))
+     "T" 'helm-themes))
 #+END_SRC
 
 *** ediff
@@ -1942,8 +1938,8 @@ move me to the start of the line or start of code, based on heuristics
   (use-package mwim
     :general
     (:states 'insert
-             "C-e" 'mwim-end
-             "C-a" 'mwim-beginning))
+     "C-e" 'mwim-end
+     "C-a" 'mwim-beginning))
 #+END_SRC
 
 *** dumb jump
@@ -1951,8 +1947,7 @@ dumb jump uses regexp search to try and find the definition of a symbol
 #+BEGIN_SRC emacs-lisp
   (use-package dumb-jump
     :general
-    (:definer
-     'leader
+    (:definer 'leader
      "J" 'dumb-jump-go))
 #+END_SRC
 
@@ -1962,8 +1957,9 @@ avy is an awesome jump to point package.
   (use-package avy
     :init
     (setq avy-timeout-seconds 0.3)
-    :general (:states 'motion
-                      ";" 'avy-goto-char-timer))
+    :general
+    (:states 'motion
+     ";" 'avy-goto-char-timer))
 #+END_SRC
 
 *** easy motion
@@ -1974,10 +1970,10 @@ line only
   (use-package evil-easymotion
     :general
     (:states '(normal visual)
-             "f" 'evilem-motion-find-char
-             "F" 'evilem-motion-find-char-backward
-             "t" 'evilem-motion-find-char-to
-             "T" 'evilem-motion-find-char-to-backward)
+     "f" 'evilem-motion-find-char
+     "F" 'evilem-motion-find-char-backward
+     "t" 'evilem-motion-find-char-to
+     "T" 'evilem-motion-find-char-to-backward)
     :init
     ($leader-set-key
       "j" '(:keymap evilem-map :package evil-easymotion)))
@@ -2050,22 +2046,22 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
       "se" 'evil-multiedit-match-all)
     :general
     (:states 'visual
-             "M-d" 'evil-multiedit-match-and-next
-             "M-D" 'evil-multiedit-match-and-prev
-             "C-M-D" 'evil-multiedit-restore
-             "R" 'evil-multiedit-match-all)
+     "M-d" 'evil-multiedit-match-and-next
+     "M-D" 'evil-multiedit-match-and-prev
+     "C-M-D" 'evil-multiedit-restore
+     "R" 'evil-multiedit-match-all)
     (:states 'normal
-             "M-d" 'evil-multiedit-match-symbol-and-next
-             "M-D" 'evil-multiedit-match-symbol-and-prev
-             "R" 'evil-multiedit-match-all)
+     "M-d" 'evil-multiedit-match-symbol-and-next
+     "M-D" 'evil-multiedit-match-symbol-and-prev
+     "R" 'evil-multiedit-match-all)
     (:states 'insert
-             "M-d" 'evil-multiedit-toggle-marker-here)
+     "M-d" 'evil-multiedit-toggle-marker-here)
     (:keymaps 'evil-multiedit-state-map
-              "RET" 'evil-multiedit-toggle-or-restrict-region)
+     "RET" 'evil-multiedit-toggle-or-restrict-region)
     (:keymaps '(evil-multiedit-state-map
                 evil-multiedit-insert-state-map)
-              "C-n" 'evil-multiedit-next
-              "C-p" 'evil-multiedit-prev))
+     "C-n" 'evil-multiedit-next
+     "C-p" 'evil-multiedit-prev))
 #+END_SRC
 
 *** hex decimal conversion
@@ -2344,12 +2340,10 @@ folding, which looks nice.
 #+BEGIN_SRC emacs-lisp
   (use-package vdiff
     :general
-    (:definer
-     'leader
+    (:definer 'leader
      "fvf" 'vdiff-files
      "fvb" 'vdiff-buffers)
-    (:keymaps
-     'vdiff-mode-map
+    (:keymaps 'vdiff-mode-map
      "C-c" '(:keymap vdiff-mode-prefix-map :package vdiff))
     :init
     (csetq vdiff-diff-algorithm 'git-diff-patience))
@@ -2635,11 +2629,11 @@ previous command it will automatically move us the the command line.
     :straight nil
     :general
     (:keymaps 'comint-mode-map
-              "C-k" 'comint-previous-matching-input-from-input
-              "C-j" 'comint-next-matching-input-from-input
-              "C-S-k" 'comint-previous-prompt
-              "C-S-j" 'comint-next-prompt
-              [remap comint-dynamic-list-input-ring] 'helm-comint-input-ring)
+     "C-k" 'comint-previous-matching-input-from-input
+     "C-j" 'comint-next-matching-input-from-input
+     "C-S-k" 'comint-previous-prompt
+     "C-S-j" 'comint-next-prompt
+     [remap comint-dynamic-list-input-ring] 'helm-comint-input-ring)
     :init
     (setq comint-scroll-to-bottom-on-input t
           comint-process-echoes t
@@ -2744,7 +2738,7 @@ builtin shell, gives us the best of both worlds.
     :hook shell-mode
     :general
     (:keymaps 'shx-mode-map
-              "C-<return>" '$shx-send-input-or-copy-path))
+     "C-<return>" '$shx-send-input-or-copy-path))
 
   (defun $get-path-at-point ()
     (or (when (and (memq major-mode '(cperl-mode perl-mode))
@@ -3383,7 +3377,7 @@ the default open link behavior
     :gfhook #'$org-src-lexical-bindings
     :general
     (:keymaps 'org-src-mode-map
-              "C-c C-c" 'org-edit-src-exit)
+     "C-c C-c" 'org-edit-src-exit)
     :init
     (csetq org-src-fontify-natively t
            org-src-window-setup 'current-window
@@ -3476,9 +3470,9 @@ just using =C-l=
   (use-package company
     :general
     (:keymaps 'company-active-map
-              "RET" nil
-              [return] nil
-              "C-l" 'company-complete-selection)
+     "RET" nil
+     [return] nil
+     "C-l" 'company-complete-selection)
     :hook '(prog-mode org-mode ielm-mode)
     :init
     (setq company-idle-delay 0.2
@@ -3519,7 +3513,7 @@ helm company provides a helm interface to helm completion
     :init
     :general
     (:keymaps '(company-mode-map company-active-map)
-              "C-/" 'helm-company))
+     "C-/" 'helm-company))
 #+END_SRC
 
 ** elisp
@@ -3596,6 +3590,62 @@ never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :hook emacs-lisp-mode)
+#+END_SRC
+
+fix indentation of plists so that all properties align. From
+#+BEGIN_SRC emacs-lisp
+  (defun $lisp-indent-function (indent-point state)
+    "Override `lisp-indent-function' to properly handle plists. See the original function fo full description"
+    (let ((normal-indent (current-column))
+          (orig-point (point)))
+      (goto-char (1+ (elt state 1)))
+      (parse-partial-sexp (point) calculate-lisp-indent-last-sexp 0 t)
+      (cond
+       ;; car of form doesn't seem to be a symbol, or is a keyword
+       ((and (elt state 2)
+             (or (not (looking-at "\\sw\\|\\s_"))
+                 (looking-at ":")))
+        (if (not (> (save-excursion (forward-line 1) (point))
+                    calculate-lisp-indent-last-sexp))
+            (progn (goto-char calculate-lisp-indent-last-sexp)
+                   (beginning-of-line)
+                   (parse-partial-sexp (point)
+                                       calculate-lisp-indent-last-sexp 0 t)))
+        ;; Indent under the list or under the first sexp on the same
+        ;; line as calculate-lisp-indent-last-sexp.  Note that first
+        ;; thing on that line has to be complete sexp since we are
+        ;; inside the innermost containing sexp.
+        (backward-prefix-chars)
+        (current-column))
+       ((and (save-excursion
+               (goto-char indent-point)
+               (skip-syntax-forward " ")
+               (not (looking-at ":")))
+             (save-excursion
+               (goto-char orig-point)
+               (looking-at ":")))
+        (save-excursion
+          (goto-char (+ 2 (elt state 1)))
+          (current-column)))
+       (t
+        (let ((function (buffer-substring (point)
+                                          (progn (forward-sexp 1) (point))))
+              method)
+          (setq method (or (function-get (intern-soft function)
+                                         'lisp-indent-function)
+                           (get (intern-soft function) 'lisp-indent-hook)))
+          (cond ((or (eq method 'defun)
+                     (and (null method)
+                          (> (length function) 3)
+                          (string-match "\\`def" function)))
+                 (lisp-indent-defform state indent-point))
+                ((integerp method)
+                 (lisp-indent-specform method state
+                                       indent-point normal-indent))
+                (method
+                 (funcall method indent-point state))))))))
+
+  (setq lisp-indent-function '$lisp-indent-function)
 #+END_SRC
 
 *** extra font lock
@@ -3864,8 +3914,7 @@ perltidy is a perl foratting tool
 #+BEGIN_SRC emacs-lisp
   (use-package perltidy
     :general
-    (:definer
-     'leader
+    (:definer 'leader
      :keymaps '(perl-mode-map
                 cperl-mode-map)
      "f" '(:ignore t :wk "format")
