@@ -1784,6 +1784,24 @@ jump to a init header from anywhere.
   (csetq helm-org-format-outline-path t)
 #+END_SRC
 
+use this function to jump to any part of the config, whether it is in
+this file or not
+#+BEGIN_SRC emacs-lisp
+  (defun $helm-org-init-files-headings ()
+    "Helm for init file headings."
+    (interactive)
+    (let (helm-org-show-filename)
+      (helm :sources (helm-source-org-headings-for-files
+                      $emacs-init-files)
+            :candidate-number-limit 99999
+            :preselect (helm-org-in-buffer-preselect)
+            :truncate-lines helm-org-truncate-lines
+            :buffer "*helm org inbuffer*")))
+
+  ($leader-set-key
+    "fj" '$helm-org-init-files-headings)
+#+END_SRC
+
 *** themes
 switch themes using helm
 #+BEGIN_SRC emacs-lisp
