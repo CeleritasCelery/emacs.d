@@ -464,19 +464,6 @@ use helm to look at all availible colors
 #+END_SRC
 
 *** modeline
-I am still struggling to find a modeline I really like. I have settled
-on doom for now, but there are some segments that I would like to add
-such as compilation exit status. My biggest beef with doom-modeline is
-it does not play nice non-doom themes. I think powerlines are cool
-looking, but I am honestly becomeling less of a fan of them. I may
-just end up making my own modeline from scratch.
-#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
-  (use-package smart-mode-line
-    :demand t
-    :config
-    (sml/setup))
-#+END_SRC
-
 Doom modeline works great, but a couple of small tweaks. First we
 don't need the evil-state in the modeline, it is obvious enough.
 Second we want to make sure that all "buffer info" flags can be
@@ -491,53 +478,7 @@ displayed at the same time.
     (column-number-mode)
     (doom-modeline-def-segment evil-state
       "Disabled for now"
-      "")
-    (doom-modeline-def-segment buffer-info
-      "Combined information about the current buffer, including the current working
-  directory, the file name, and its state (modified, read-only or non-existent)."
-      (concat (cond (buffer-read-only
-                     (concat (doom-modeline-maybe-icon-octicon
-                              "lock"
-                              :face 'doom-modeline-warning
-                              :v-adjust -0.05)
-                             " "))
-                    ((buffer-modified-p)
-                     (concat (doom-modeline-maybe-icon-faicon
-                              "floppy-o"
-                              :face 'doom-modeline-buffer-modified
-                              :v-adjust -0.0575)
-                             " ")))
-              (when (and buffer-file-name
-                         (not (file-remote-p buffer-file-name))
-                         (not (file-exists-p buffer-file-name)))
-                (concat (doom-modeline-maybe-icon-octicon
-                         "circle-slash"
-                         :face 'doom-modeline-urgent
-                         :v-adjust -0.05)
-                        " "))
-              (when (buffer-narrowed-p)
-                (concat (doom-modeline-maybe-icon-octicon
-                         "fold"
-                         :face 'doom-modeline-warning
-                         :v-adjust -0.05)
-                        " "))
-              (if buffer-file-name
-                  (doom-modeline-buffer-file-name)
-                "%b"))))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
-  (use-package telephone-line
-    :init
-    (setq telephone-line-primary-left-separator 'telephone-line-cubed-left
-          telephone-line-secondary-left-separator 'telephone-line-cubed-hollow-left
-          telephone-line-primary-right-separator 'telephone-line-cubed-right
-          telephone-line-secondary-right-separator 'telephone-line-cubed-hollow-right
-          telephone-line-lhs '((evil   . (telephone-line-evil-tag-segment))
-                               (accent . (telephone-line-vc-segment
-                                          telephone-line-process-segment))
-                               (nil    . (telephone-line-buffer-segment))))
-    (telephone-line-mode))
+      ""))
 #+END_SRC
 
 *** which key
@@ -749,32 +690,6 @@ helm. This will let us preview the variable with TAB.
       (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols)))
 #+END_SRC
 
-*** persp-mode
-persp-mode is layout managment package that provides way more
-functionality then I want. All I really are about is having named
-groups of eyebrowse window configs. I could probably drop persp mode
-and create a wrapper around =eyebrowse= that could group the window
-configs under a name. I would use only eyebrowse, but then I would
-have to try to remember what windows go to what project, and that can
-get a little confusing. Also I have created some fuctions that make
-shell-pop perspective local, and I really like that feature.
-#+BEGIN_SRC emacs-lisp
-  (use-package persp-mode
-    :init
-    (setq persp-auto-save-opt 0)
-    (defhydra persp (:exit t :pre (persp-mode))
-      "Perspective"
-      ("l" persp-switch "switch")
-      ("n" persp-next "next" :exit nil)
-      ("p" persp-prev "previous" :exit nil)
-      ("r" persp-rename "rename")
-      ("a" persp-add-buffer "add buffer")
-      ("k" persp-remove-buffer "remove buffer")
-      ("D" persp-kill "Delete perspective"))
-    ($leader-set-key
-      "l" 'persp/body))
-#+END_SRC
-
 *** eyebrowse
 minimal window managment package.
 #+BEGIN_SRC emacs-lisp
@@ -827,7 +742,6 @@ changing the volume on my mic triggers these bindings. So we ignore them.
 #+END_SRC
 
 ** Ivy
-
 *** ivy
 I feel like ivy is simpler to setup so I am going to give it a try. I am going
 to have to try to fix =counsel-ag= out of order matching if I want to live with
@@ -835,11 +749,6 @@ it though.
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
-    :straight
-    (ivy
-     :type git :host github :repo "CeleritasCelery/swiper"
-     :upstream (:host github
-                      :repo "abo-abo/swiper"))
     :general
     (:keymaps 'ivy-minibuffer-map
               "C-j" 'ivy-next-line
@@ -867,23 +776,12 @@ it though.
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-hydra
-    :straight
-    (ivy-hydra
-     :type git :host github :repo "CeleritasCelery/swiper"
-     :upstream (:host github
-                      :repo "abo-abo/swiper"))
     :after (ivy hydra))
 #+END_SRC
 
 *** swiper
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
-    :straight
-    (swiper
-     :files ("swiper.el")
-     :type git :host github :repo "CeleritasCelery/swiper"
-     :upstream (:host github
-                      :repo "abo-abo/swiper"))
     :init
     ($leader-set-key
       "os" 'swiper))
@@ -891,47 +789,7 @@ it though.
 
 *** counsel
 #+BEGIN_SRC emacs-lisp
-  (use-package counsel
-    :straight
-    (counsel
-     :type git :host github :repo "CeleritasCelery/swiper"
-     :upstream (:host github
-                      :repo "abo-abo/swiper")))
-#+END_SRC
-
-*** rich foratting
-This package makes =ivy-switch-buffer= behave more like =helm-mini=
-(i.e. displays the buffer type and full path to recentf files). This
-is just too slow to use right now though.
-#+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
-  (use-package ivy-rich
-    :demand t
-    :after ivy
-    :config
-    (setq ivy-virtual-abbreviate 'full
-          ivy-rich-switch-buffer-align-virtual-buffer t)
-    (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer))
-#+END_SRC
-
-*** smex
-smex is an enchanced version of =M-x= that will record history and is
-integrated into ivy
-#+BEGIN_SRC emacs-lisp
-  (use-package smex
-    :init
-    (setq smex-history-length 32))
-#+END_SRC
-
-*** prescient
-keeps track of statistics for usage and presents most familiar
-candiates first. Currently does not support regex, which makes it much
-less useful
-#+BEGIN_SRC emacs-lisp
-  (use-package ivy-prescient
-    :after ivy
-    :config
-    (ivy-prescient-mode)
-    (prescient-persist-mode))
+  (use-package counsel)
 #+END_SRC
 
 ** evil
