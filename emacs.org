@@ -192,9 +192,8 @@ keyword (essentially it automatically adds the =-mode= suffix).
 #+BEGIN_SRC emacs-lisp
   (straight-use-package
    '(use-package
-      :type git :host github :repo "CeleritasCelery/use-package"
-      :upstream (:host github
-                       :repo "jwiegley/use-package")))
+      :host github :repo "jwiegley/use-package"
+      :fork (:host github :repo "CeleritasCelery/use-package")))
 #+END_SRC
 
 Setting =straight-use-package-by-default= to =t= we can ensure that
@@ -401,8 +400,8 @@ modify them.
   (use-package darktooth-theme
     :straight
     (darktooth-theme
-     :type git  :host github :repo "CeleritasCelery/emacs-theme-darktooth"
-     :upstream (:host github :repo "emacsfodder/emacs-theme-darktooth")))
+     :host github :repo "emacsfodder/emacs-theme-darktooth"
+     :fork (:host github :repo "CeleritasCelery/emacs-theme-darktooth")))
   (use-package spacemacs-theme)
   (use-package dracula-theme)
   (use-package moe-theme
@@ -524,14 +523,7 @@ displayed at the same time.
                         " "))
               (if buffer-file-name
                   (doom-modeline-buffer-file-name)
-                "%b")))
-    (defun doom-modeline-project-root ()
-      "Get the path to the root of your project.
-  If non-remote return root otherwise `default-directory'."
-      (if (file-remote-p default-directory)
-          default-directory
-        (let (projectile-require-project-root)
-          (projectile-project-root)))))
+                "%b"))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle ~/.emacs.d/ignore.el
@@ -740,10 +732,8 @@ functions. only tweak we need to make is let the window close with q
       "hdf" 'helpful-callable
       "hdv" 'helpful-variable
       "hdk" 'helpful-key)
-    (general-define-key
-     :keymaps 'helpful-mode-map
-     :states 'normal
-     "q" 'quit-window))
+    :config
+    (evil-collection-init 'helpful))
 #+END_SRC
 
 we are going to add helpful to the completing read handler for
@@ -951,9 +941,9 @@ without the draw back of using vimscript for config.
 *** general
 
 because we are using evil collection, we need to disable evil's
-builtin integration *before* evil is loaded.
+builtin keybindings *before* evil is loaded.
 #+BEGIN_SRC emacs-lisp
-  (setq evil-want-integration nil)
+  (setq evil-want-keybinding nil)
 #+END_SRC
 
 we want to overide most control keybindings to make them behave like
@@ -1167,8 +1157,7 @@ evil unimpaired binds some usefull functions to some quick keys.
   (use-package evil-unimpaired
     :defer 2
     :straight
-    (evil-unimpaired
-     :type git :host github :repo "zmaas/evil-unimpaired")
+    (evil-unimpaired :host github :repo "zmaas/evil-unimpaired")
     :init
     (setq evil-unimpaired-leader-keys '("gk" . "gj"))
     :config
@@ -1182,9 +1171,8 @@ provides total number of searches in the modeline
     :demand t
     :straight
     (evil-anzu
-     :type git :host github :repo "CeleritasCelery/emacs-evil-anzu"
-     :upstream (:host github
-                      :repo "syohex/emacs-evil-anzu"))
+     :host github :repo "syohex/emacs-evil-anzu"
+     :fork (:host github :repo "CeleritasCelery/emacs-evil-anzu"))
     :init
     (csetq anzu-cons-mode-line-p nil)
     :config
@@ -1237,7 +1225,7 @@ behave better with evil.
                    $leader-key nil
                    $mm-leader-key nil))))
     (evil-collection-init '(calc calendar custom debug doc-view
-                                 eldoc elisp-mode dired help info
+                                 elisp-mode dired help info
                                  integration occur popup profiler
                                  wgrep wdired which-key)))
 #+END_SRC
@@ -1539,9 +1527,8 @@ will be first.
     :config
     (require 'dash)
     (setq helm-bookmark-default-filtered-sources
-	  (-insert-at 2 (car helm-bookmark-default-filtered-sources)
-		      (cdr helm-bookmark-default-filtered-sources))))
-
+          (-insert-at 2 (car helm-bookmark-default-filtered-sources)
+                      (cdr helm-bookmark-default-filtered-sources))))
 #+END_SRC
 
 *** evil
@@ -1773,7 +1760,7 @@ helm builtins
      "C-c C-s" '$helm-ag-from-session
      "C-c m" '$meld-from-helm-session
      "C-c g" '$magit-from-helm-session
-     "C-c C-g" '$magit-from-helm-session)
+     "C-c C-g" '$magit-from-helm-session))
 #+END_SRC
 
 *** swoop
@@ -2114,9 +2101,7 @@ avy is an awesome jump to point package.
     :init
     (setq avy-timeout-seconds 0.3)
     :general (:states 'motion
-                      ";" 'avy-goto-char-timer)
-    :config
-    (evil-collection-init 'avy))
+                      ";" 'avy-goto-char-timer))
 #+END_SRC
 
 *** easy motion
@@ -2188,8 +2173,8 @@ everything is updated before we quit.
 don't use projectiles compilation find file function because we don't
 need it
 #+BEGIN_SRC emacs-lisp
-  (ad-disable-advice 'compilation-find-file 'around 'projectile-compilation-find-file)
-  (ad-activate 'compilation-find-file)
+  (with-eval-after-load 'projectile
+    (advice-remove 'compilation-find-file #'compilation-find-file-projectile-find-compilation-buffer))
 #+END_SRC
 
 *** multiedit
@@ -2809,7 +2794,7 @@ these are utility functions used to setting up the Emacs shell.
 #+BEGIN_SRC emacs-lisp
   (use-package shell
     :straight nil
-    :gfhook company-mode)
+    :gfhook #'company-mode)
 
   (defvar $dir-history nil
     "previous shell directories")
@@ -3527,8 +3512,9 @@ run a turnin command
 
 a custom compilation command for running a turnin
 #+BEGIN_SRC emacs-lisp
-  (define-compilation-mode turnin-mode "turnin"
-    "compilation mode for turnins")
+  (with-eval-after-load 'compile
+    (define-compilation-mode turnin-mode "turnin"
+      "compilation mode for turnins"))
 
   (defun $run-turnin ()
     "run a turnin command"
@@ -3889,7 +3875,7 @@ what part of a buffer we are in
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight nil
-    :gfhook org-indent-mode $org-truncate-lines
+    :gfhook #'org-indent-mode #'$org-truncate-lines
     :init
     ($leader-local-set-key
       :keymaps 'org-mode-map
@@ -4589,7 +4575,6 @@ packages to help manage parens
     :init
     (csetq evil-show-paren-range 3
            show-paren-delay 0)
-    (evil-collection-init 'paren)
     :config
     (show-paren-mode))
 #+END_SRC
