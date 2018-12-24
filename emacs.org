@@ -979,12 +979,12 @@ We want to hybridize some usefull emacs commands with better evil keybindings
    "C-y" 'yank)
 #+END_SRC
 
-use my standard up and down for evil ex history
+Use our next and previous commands to navigate minibuffer history
 #+BEGIN_SRC emacs-lisp
-(general-define-key
- :keymaps 'evil-ex-completion-map
- "C-k" 'previous-complete-history-element
- "C-j" 'next-complete-history-element)
+  (general-define-key
+   :keymaps 'minibuffer-local-map
+   "C-j" 'next-complete-history-element
+   "C-k" 'previous-complete-history-element)
 #+END_SRC
 
 general leader key bindings
