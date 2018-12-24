@@ -134,6 +134,8 @@ turn it off.
 *** tangling
 we want to tangle on exit so that it will make startup time quicker.
 #+BEGIN_SRC emacs-lisp
+  (require 'cl)
+
   (defvar $emacs-init-files
     (cl-loop for file in '("emacs" "src/compilation")
              collect (expand-file-name (concat file ".org") user-emacs-directory))
@@ -1790,6 +1792,7 @@ this file or not
   (defun $helm-org-init-files-headings ()
     "Helm for init file headings."
     (interactive)
+    (require 'helm-org)
     (let (helm-org-show-filename)
       (helm :sources (helm-source-org-headings-for-files
                       $emacs-init-files)
