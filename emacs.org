@@ -477,7 +477,7 @@ displayed at the same time.
 #+BEGIN_SRC emacs-lisp
   (use-package doom-modeline
     :straight
-    (doom-modeline :type git :host github :repo "seagle0128/doom-modeline")
+    (doom-modeline :host github :repo "seagle0128/doom-modeline")
     :hook (after-init . doom-modeline-init)
     :config
     (csetq eldoc-eval-preferred-function 'eval-expression)
@@ -952,7 +952,7 @@ a text object that highlights everything with the same font lock
   (use-package evil-textobj-syntax
     :straight
     (evil-textobj-syntax
-     :type git :host github :repo "laishulu/evil-textobj-syntax")
+     :host github :repo "laishulu/evil-textobj-syntax")
     :general
     (:keymaps 'evil-inner-text-objects-map
      "h" 'evil-i-syntax)
@@ -1171,11 +1171,10 @@ Thankfully, straight.el makes that super easy!
     :straight
     (paredit
      :files ("paredit.el")
-     :type git
      :repo "http://mumble.net/~campbell/git/paredit.git"))
 #+END_SRC
 
-even cleverparens is a smartparens based paren editor. Lispyville
+evil cleverparens is a smartparens based paren editor. Lispyville
 reimplements all of this functionality, but evil-cleverparens
 implements it better. Some examples:
 
@@ -2903,7 +2902,7 @@ while typing.
     :after company
     :straight
     (company-async-files
-     :type git :host github :repo "CeleritasCelery/company-async-files")
+     :host github :repo "CeleritasCelery/company-async-files")
     :init
     (add-to-list 'company-backends 'company-async-files)
     (setq company-backends (delete 'company-files company-backends)))
@@ -2917,7 +2916,7 @@ at point.
     :after company
     :straight
     (company-arguments
-     :type git :host github :repo "CeleritasCelery/company-arguments")
+     :host github :repo "CeleritasCelery/company-arguments")
     :init
     (add-to-list 'company-backends 'company-arguments))
 #+END_SRC
@@ -2928,10 +2927,10 @@ environment of my local process with the buffer. very useful.
 #+BEGIN_SRC emacs-lisp
   (use-package local-env
     :straight
-    (local-env :type git
-               :host github
-               :repo "CeleritasCelery/local-env-mode"
-               :files ("local-env.el"))
+    (local-env
+     :host github
+     :repo "CeleritasCelery/local-env-mode"
+     :files ("local-env.el"))
     :init
     (setq local-env-capture-variables '("MODEL_ROOT"
                                         "STF_SPFSPEC"
@@ -2949,17 +2948,17 @@ environment of my local process with the buffer. very useful.
 
   (use-package company-env
     :straight
-    (company-env :type git
-                 :host github
-                 :repo "CeleritasCelery/local-env-mode"
-                 :files ("company-env.el")))
+    (company-env
+     :host github
+     :repo "CeleritasCelery/local-env-mode"
+     :files ("company-env.el")))
 
   (use-package company-command
     :straight
-    (company-command :type git
-                     :host github
-                     :repo "CeleritasCelery/local-env-mode"
-                     :files ("company-command.el")))
+    (company-command
+     :host github
+     :repo "CeleritasCelery/local-env-mode"
+     :files ("company-command.el")))
 #+END_SRC
 
 ** compilation
@@ -4080,7 +4079,7 @@ collection of major modes that I use for different file types.
   (use-package major-modes
     :straight
     (major-modes
-     :type git :host github :repo "CeleritasCelery/major-modes")
+     :host gitlab :repo "CeleritasCelery/major-modes")
     :init
     ($leader-local-set-key
       :keymaps 'spfspec-mode-map
