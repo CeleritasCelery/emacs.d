@@ -454,6 +454,7 @@ run a turnin command
 
 a custom compilation command for running a turnin
 #+BEGIN_SRC emacs-lisp
+  (add-to-list 'shackle-rules '(turnin-mode :select t))
   (define-compilation-mode turnin-mode "turnin"
     "compilation mode for turnins")
 
