@@ -5,6 +5,11 @@
 * compilation
 packages that assist in compiling and building code
 
+jump to the first error automatically to save time
+#+BEGIN_SRC emacs-lisp
+  (csetq compilation-auto-jump-to-first-error t)
+#+END_SRC
+
 ** compile
 #+BEGIN_SRC emacs-lisp
   (defun $compile ()
