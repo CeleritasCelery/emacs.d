@@ -1037,6 +1037,7 @@ provides total number of searches in the modeline
     (evil-anzu
      :host github :repo "syohex/emacs-evil-anzu"
      :fork (:host github :repo "CeleritasCelery/emacs-evil-anzu"))
+    :hook (prog-mode . anzu-mode)
     :init
     (csetq anzu-cons-mode-line-p nil)
     :config
