@@ -23,7 +23,9 @@ can be confusing if a function is only used as a named lambda or if it
 is being used elsewhere. Therefore I will put named functions (using
 =defun=) inside of =add-hook= or =advice-add=. This allows me to
 clearly associate the function with the purpose but also avoids the
-confusion surrounding anonymous functions.
+confusion surrounding anonymous functions. However unless it is
+necessary, I am not going to add a doc string to these named lambda
+functions.
 
 *** overrides
 Never override a function when an advice will do. when I actually do
@@ -381,6 +383,7 @@ using. Since I always run my VNC fullscreen having the VNC resolution
 not match the resolution of my monitor results in weird text sizes.
 #+BEGIN_SRC emacs-lisp
   (defun vnc-resize (size)
+    "Use xrandr to resize my VNC window"
     (shell-command (concat "xrandr --size " size)))
 
   (defhydra vnc-resize (:columns 2 :exit t)
@@ -427,6 +430,7 @@ modify them.
 Get face at point for inspection
 #+BEGIN_SRC emacs-lisp
   (defun $whatis-face ()
+    "Display the face at point"
     (interactive)
     (message "CurrentFace: %s"
              (get-text-property (point) 'face)))
@@ -894,6 +898,7 @@ only works if the search module is =evil-search=.
         evil-ex-search-vim-style-regexp t)
 
   (defmacro $make-magic (cmd)
+    "make an evil ex command magic"
     `(defun ,(intern (concat "$magic-" (symbol-name cmd))) ()
        (interactive)
        (let ((evil-magic 'very-magic))
@@ -1281,6 +1286,7 @@ the display function to be more consistent.
     (evil-collection-init 'helm)
 
     (defun $display-helm-window (buffer &optional _resume)
+      "display the helm buffer from the bottom of the frame"
       (let ((display-buffer-alist
              '(("*.*Helm.*Help.**")
                ("*.*helm.**"
@@ -1399,9 +1405,9 @@ some hacks to make helm more evil compatible See
   (defun $helm-unprevent-minibuffer-escape ()
     (when helm-prevent-escaping-from-minibuffer
       (general-define-key :states 'motion
-                          [down-mouse-1] 'evil-mouse-drag-region)
+        [down-mouse-1] 'evil-mouse-drag-region)
       (general-define-key :states 'normal
-                          [mouse-2] 'mouse-yank-primary)))
+        [mouse-2] 'mouse-yank-primary)))
 
   (defun $helm-prevent-minibuffer-escape ()
     (when helm-prevent-escaping-from-minibuffer
@@ -1432,6 +1438,8 @@ set of function to make helm find files more usable.
 
 #+BEGIN_SRC emacs-lisp
   (defun $helm-skip-dots ()
+    "when opening a new directory will helm ff, don't preselect the
+  dot hardlinks"
     (let ((cands (helm-marked-candidates))
           (sel   (helm-get-selection)))
       (if (and sel
@@ -1492,6 +1500,7 @@ email. automatically add the tramp header if from a different site
         (replace-regexp-in-string "$ENV" "$"))))
 
   (defun $open-file-in-clipboard ()
+    "Open the file name in the clipboard with helm-ff"
     (interactive)
     (let* ((file ($normalize-file-name (string-trim (current-kill 0)))))
       (require 'helm-files)
@@ -1641,6 +1650,9 @@ helm builtins
      "C-c C-k" 'helm-swoop--edit-cancel))
 
   (defun $helm-swoop (arg)
+    "If called with a prefix argument, search for the symbol or
+  region at point. If called with a numeric prefix argument, enable
+  multiline searches"
     (interactive "P")
     (require 'helm-swoop)
     (let* ((prefix (equal arg '(4)))
@@ -2198,11 +2210,12 @@ them. I would love to remove this advice and only set it once.
 #+BEGIN_SRC emacs-lisp
   (advice-add 'helm-ff--tramp-hostnames :before
               (defun $helm-set-tramp-host-names ()
+                "parse the ssh2_config if hostnames are not set"
                 (unless  (equal '("ssh" (tramp-parse-hosts "~/.ssh2/ssh2_config"))
                                 (assoc "ssh" tramp-completion-function-alist))
-                  (tramp-set-completion-function "ssh" '((tramp-parse-hosts "~/.ssh2/ssh2_config")))
-                  (tramp-set-completion-function "rsync" '((tramp-parse-hosts "~/.ssh2/ssh2_config")))
-                  (tramp-set-completion-function "scp" '((tramp-parse-hosts "~/.ssh2/ssh2_config"))))))
+                  (cl-loop for method in '("ssh" "scp" "rsync")
+                           do (tramp-set-completion-function
+                               method '((tramp-parse-hosts "~/.ssh2/ssh2_config")))))))
 #+END_SRC
 
 ** files
@@ -2217,6 +2230,7 @@ don't ask me to revert files that I have not changed.
 collection of functions stolen from spacemacs
 #+BEGIN_SRC emacs-lisp
   (defun $copy-file ()
+    "Copy the current file and create any directories along the way"
     (interactive)
     (let* ((destination (read-file-name "Write File: "))
            (dir (file-name-directory destination)))
@@ -2225,10 +2239,12 @@ collection of functions stolen from spacemacs
       (write-file destination 'confirm)))
 
   (defun $delete-file ()
+    "Delete current file"
     (interactive)
     (delete-file (buffer-file-name)))
 
   (defun $rename-file ()
+    "rename current file, creating any directories along the way"
     (interactive)
     (let* ((destination (read-file-name "Rename File: "))
            (dir (file-name-directory destination)))
@@ -2605,6 +2621,7 @@ commit all generated files from IPGen. This is much faster then try to
 open magit and doing it manually
 #+BEGIN_SRC emacs-lisp
   (defun $git-commit-ipgen-output ()
+    "Add stage ipgen output and commit it"
     (interactive)
     (if (equal 0 (call-process "git" nil nil nil "diff-index" "--quiet" "--cached" "HEAD"))
         (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory))))
@@ -2625,16 +2642,17 @@ set ~useconfigonly = true~ so that I have to set the credentials for
 every repo. This hook will automatically set my credentials based on
 where the repo is located
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'magit-status-mode-hook
-            (defun $git-set-user ()
-              "set the git user based on where the repo is located."
-              (when (equal "" (shell-command-to-string "git config --local user.name"))
-                (shell-command-to-string
-                 (apply 'format "git config --local user.name %s && git config --local user.email %s"
-                        (if (f-child-of-p (file-truename default-directory) "~/custom")
-                            '("CeleritasCelery" "t.macman@gmail.com")
-                          '("\"Hinckley, Troy J\"" "troy.j.hinckley@intel.com"))))
-                (message "setting git user credentials"))))
+  (defun $git-set-user ()
+    "set the git user based on where the repo is located."
+    (when (equal "" (shell-command-to-string "git config --local user.name"))
+      (shell-command-to-string
+       (apply 'format "git config --local user.name %s && git config --local user.email %s"
+              (if (f-child-of-p (file-truename default-directory) "~/custom")
+                  '("CeleritasCelery" "t.macman@gmail.com")
+                '("\"Hinckley, Troy J\"" "troy.j.hinckley@intel.com"))))
+      (message "setting git user credentials")))
+
+  (add-hook 'magit-status-mode-hook '$git-set-user)
 #+END_SRC
 
 ** shell
@@ -2678,6 +2696,7 @@ these are utility functions used to setting up the Emacs shell.
   (make-variable-buffer-local '$dir-history)
 
   (defun $select-shell-history ()
+    "Select a previous directory using completing read"
     (interactive)
     (goto-char (point-max))
     (insert (concat "cd " (string-remove-prefix (or (file-remote-p default-directory) "")
@@ -2761,6 +2780,8 @@ builtin shell, gives us the best of both worlds.
      "C-<return>" '$shx-send-input-or-copy-path))
 
   (defun $get-path-at-point ()
+    "Get the filepath at point. This includes remote paths and
+  enviroment variables."
     (or (when (and (memq major-mode '(cperl-mode perl-mode))
                    (require 'ffap-perl-module nil 'noerror))
           (ffap-perl-module-file-at-point))
@@ -3421,15 +3442,17 @@ blocks
 there is no good function to copy a link in org mode, so we override
 the default open link behavior
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'org-open-at-point-functions
-            (defun $org-copy-url ()
-              "in my current setup, the builtin browswer does not
+  (defun $org-copy-url ()
+    "in my current setup, the builtin browswer does not
   work, so I copy links and paste them into chrome."
-              (let ((context (org-element-context)))
-                (when (member (org-element-property :type context)
-                              '("http" "https"))
-                  (message "copied org link: %s"
-                           (kill-new (org-element-property :raw-link context)))))))
+    (let ((context (org-element-context)))
+      (when (member (org-element-property :type context)
+                    '("http" "https"))
+        (message "copied org link: %s"
+                 (kill-new (org-element-property :raw-link context))))))
+
+
+  (add-hook 'org-open-at-point-functions '$org-copy-url)
 #+END_SRC
 
 ** src blocks
@@ -3545,6 +3568,8 @@ just using =C-l=
       "tc" 'company-mode)
     :config
     (defun $company-select-prev-or-comint-match-input (&optional _)
+      "Disable company mode when when we are selecting a previous
+  prompt in shell mode"
       (when (and (eq major-mode 'shell-mode)
                  (eq company-selection 0))
         (company-abort)
@@ -3627,17 +3652,19 @@ make things look a litle nicer. we have to "cycle"
 therefore it won't process any changes to =prettify-symbols-alist=
 unless we turn it back on.
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'emacs-lisp-mode-hook
-            (defun $prettify-cons ()
-              (add-to-list 'prettify-symbols-alist '("lambda" . ?λ))
-              (add-to-list 'prettify-symbols-alist '("." . ?•))
-              (prettify-symbols-mode -1)
-              (prettify-symbols-mode 1)
-              (setq-local prettify-symbols-compose-predicate
-                          (defun $prettify-symbols-handle-dot (start end match)
-                            (if (equal "." match)
-                                (prettify-symbols-default-compose-p start end match)
-                              t)))))
+  (defun $prettify-cons ()
+    "make cons cells and lambda better formatted in elisp"
+    (add-to-list 'prettify-symbols-alist '("lambda" . ?λ))
+    (add-to-list 'prettify-symbols-alist '("." . ?•))
+    (prettify-symbols-mode -1)
+    (prettify-symbols-mode 1)
+    (setq-local prettify-symbols-compose-predicate
+                (defun $prettify-symbols-handle-dot (start end match)
+                  (if (equal "." match)
+                      (prettify-symbols-default-compose-p start end match)
+                    t))))
+
+  (add-hook 'emacs-lisp-mode-hook '$prettify-cons)
 #+END_SRC
 
 *** page breaks
