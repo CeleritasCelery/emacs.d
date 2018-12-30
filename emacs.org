@@ -1277,25 +1277,12 @@ the display function to be more consistent.
      helm-always-two-windows t
      helm-buffer-max-length 60
      helm-ff-candidate-number-limit 1000
-     helm-display-function '$display-helm-window
      helm-buffer-skip-remote-checking t
      helm-echo-input-in-header-line t
      helm-ff-delete-files-function 'helm-delete-marked-files-async
      helm-find-files-ignore-thing-at-point t)
 
     (evil-collection-init 'helm)
-
-    (defun $display-helm-window (buffer &optional _resume)
-      "display the helm buffer from the bottom of the frame"
-      (let ((display-buffer-alist
-             '(("*.*Helm.*Help.**")
-               ("*.*helm.**"
-                (display-buffer-in-side-window)
-                (inhibit-same-window . t)
-                (side . bottom)
-                (window-width . 0.6)
-                (window-height . 0.3)))))
-        (helm-default-display-buffer buffer)))
     :config
     (helm-mode)
     (dired-async-mode))
