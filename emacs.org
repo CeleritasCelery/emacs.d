@@ -1455,6 +1455,23 @@ ignore lockfiles and backups when looking through the filesystem
   (csetq helm-ff-skip-boring-files t)
 #+END_SRC
 
+Create a key dispatcher for commonly used commands
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'helm
+    (general-define-key
+     :prefix ";"
+     :keymaps '(helm-find-files-map
+                helm-read-file-map
+                helm-generic-files-map)
+     "b" 'helm-find-files-toggle-to-bookmark
+     "c" 'helm-ff-run-copy-file
+     "'" '$helm-ff-switch-to-shell
+     "s" '$helm-ag-from-session
+     "m" '$meld-from-helm-session
+     "g" '$magit-from-helm-session
+     "d" 'helm-ff-run-delete-file))
+#+END_SRC
+
 open file in clipboard. Usually something I copied from an
 email. automatically add the tramp header if from a different site
 #+BEGIN_SRC emacs-lisp
@@ -1692,7 +1709,6 @@ regex
 #+END_SRC
 
 *** projectile
-this still needs to be setup, as I am currently using counsel
 #+BEGIN_SRC emacs-lisp
   (use-package helm-projectile
     :commands (helm-projectile-find-file
@@ -1711,7 +1727,6 @@ this still needs to be setup, as I am currently using counsel
       "pf" 'helm-projectile-find-file
       "pb" 'helm-projectile-switch-to-buffer
       "pd" 'helm-projectile-find-dir)
-    :config
     (defun $helm-projectile-pop-to-shell (dir)
       "open shell in project root"
       (interactive)
@@ -1721,14 +1736,26 @@ this still needs to be setup, as I am currently using counsel
       (interactive)
       (let ((helm-ff-transformer-show-only-basename t))
         (helm-find-files-1 dir "target")))
-    (helm-projectile-define-key helm-projectile-projects-map
-      (kbd "C-c f") '$helm-projectile-find-file
-      (kbd "C-c C-f") '$helm-projectile-find-file
-      (kbd "C-c g") 'helm-projectile-vc
-      (kbd "C-c C-g") 'helm-projectile-vc
-      (kbd "C-c s") 'helm-projectile-grep
-      (kbd "C-c C-s") 'helm-projectile-grep
-      (kbd "C-c '") '$helm-projectile-pop-to-shell)
+    (with-eval-after-load 'helm
+      (csetq helm-source-projectile-projects-actions
+             (helm-make-actions
+              "find file from project" #'$helm-projectile-find-file
+              "Open Dired in project's directory `C-d'" #'dired
+              "Open project root in vc-dir or magit `M-g'" #'helm-projectile-vc
+              "Switch to Eshell `M-e'" #'helm-projectile-switch-to-eshell
+              "Grep in projects `C-s'" #'helm-projectile-grep
+              "Compile project `M-c'. With C-u, new compile command" #'helm-projectile-compile-project
+              "Remove project(s) from project list `M-D'" #'helm-projectile-remove-known-project)))
+    :config
+    (defun $helm-projectile-switch-to-project (project)
+      (let ((projectile-completion-system 'helm))
+        (projectile-switch-project-by-name project)))
+    (helm-projectile-define-key
+     helm-projectile-projects-map
+     (kbd "; f") '$helm-projectile-switch-to-project
+     (kbd "; g") 'helm-projectile-vc
+     (kbd "; s") 'helm-projectile-grep
+     (kbd "; '") '$helm-projectile-pop-to-shell)
 
     (cl-callf append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
       '(helm-adaptive-sort))
@@ -1765,7 +1792,12 @@ repos.
     (:definer 'leader
      "gh" 'helm-ls-git-ls
      "sg" 'helm-grep-do-git-grep
-     "pf" '$helm-browse-project))
+     "pf" '$helm-browse-project)
+    (:prefix ";"
+     :keymaps 'helm-ls-git-map
+     "s" 'helm-ls-git-stage-files
+     "u" 'helm-ls-git-unstage-files
+     "c" 'helm-ls-git-stage-marked-and-commit))
 
   (defun $helm-browse-project (arg)
     "find files in current project with git ls"
@@ -3913,6 +3945,7 @@ forms.
      :keymaps 'emacs-lisp-mode-map
      "s" 'suggest))
 #+END_SRC
+
 ** perl
 all the enviroment variables are set so as to make it easier for
 flycheck to get a clean compile. We also change =:= to be a
