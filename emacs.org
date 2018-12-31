@@ -1478,6 +1478,7 @@ us call them from helm.
                       (lambda (c)
                         (format "%s" (if (and (null helm-current-prefix-arg)
                                               (stringp c)
+                                              (not (file-remote-p c))
                                               (file-exists-p c))
                                          (file-truename c)
                                        c)))
