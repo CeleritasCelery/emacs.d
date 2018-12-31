@@ -1244,6 +1244,9 @@ we want to make the helm keybindings more evil friendly. also change
 the display function to be more consistent.
 #+BEGIN_SRC emacs-lisp
   (use-package helm
+    :straight
+    (:host github :repo "emacs-helm/helm"
+     :fork (:host github :repo "CeleritasCelery/helm"))
     :general
     (:keymaps 'minibuffer-local-map
      "C-c C-l" 'helm-minibuffer-history)
@@ -1265,6 +1268,7 @@ the display function to be more consistent.
      "C-x C-x" 'helm-all-mark-rings
      "C-c C-f" 'helm-find-files)
     (:definer 'leader
+     "fb" 'helm-filtered-bookmarks
      "ff" 'helm-find-files
      "fr" 'helm-recentf
      "r"  'helm-resume
@@ -1273,116 +1277,20 @@ the display function to be more consistent.
     :init
     ($leader-set-key "SPC" 'helm-M-x)
     (csetq
-     helm-split-window-inside-p t
-     helm-always-two-windows t
+     helm-split-window-default-side 'other
      helm-buffer-max-length 60
      helm-ff-candidate-number-limit 1000
      helm-buffer-skip-remote-checking t
      helm-echo-input-in-header-line t
      helm-ff-delete-files-function 'helm-delete-marked-files-async
+     helm-adaptive-history-length 100
      helm-find-files-ignore-thing-at-point t)
 
     (evil-collection-init 'helm)
     :config
     (helm-mode)
-    (dired-async-mode))
-#+END_SRC
-
-*** sorting
-I am using helm-adaptive, but it only seems to work for helm-bookmark,
-and some grep functions. I want to create an adaptive sort of the
-describe functions and one for helm find files. Also we want to
-prevent the buffer list from being resorted
-#+BEGIN_SRC emacs-lisp
-  (csetq helm-adaptive-history-length 100)
-  (with-eval-after-load 'helm
     (helm-adaptive-mode)
-    (advice-add 'helm-buffers-sort-transformer :around
-                (defun $helm-buffers-sort-transformer@donot-sort (_1 candidates _3)
-                  candidates))
-
-    (defun $helm-sort-symbol-at-point (candidates _source)
-      "move symbol at point to the start of list"
-      (if-let ((adaptivep helm-adaptive-mode)
-               (symbol (with-helm-current-buffer
-                         (thing-at-point 'symbol t)))
-               (valid (member symbol candidates)))
-          (cons symbol (remove symbol candidates))
-        candidates))
-    (byte-compile #'$helm-sort-symbol-at-point)
-
-    (defun helm-completing-read-symbols
-        (prompt _collection test _require-match init
-                hist default _inherit-input-method name buffer)
-      "Specialized function for fast symbols completion in `helm-mode'."
-      (require 'helm-elisp)
-      (or
-       (helm
-        :sources (helm-build-in-buffer-source name
-                   :init (lambda ()
-                           (helm-apropos-init (lambda (x)
-                                                (and (funcall test x)
-                                                     (not (keywordp x))))
-                                              (or (car-safe default) default)))
-                   :filtered-candidate-transformer '(helm-apropos-default-sort-fn
-                                                     helm-adaptive-sort
-                                                     $helm-sort-symbol-at-point)
-                   :help-message #'helm-comp-read-help-message
-                   :fuzzy-match helm-mode-fuzzy-match
-                   :persistent-action
-                   (lambda (candidate)
-                     (helm-lisp-completion-persistent-action
-                      candidate name))
-                   :persistent-help (helm-lisp-completion-persistent-help)
-                   :candidate-number-limit 200)
-        :prompt prompt
-        :buffer buffer
-        :input init
-        :history hist
-        :resume 'noresume
-        :default (or default ""))
-       (helm-mode--keyboard-quit)))
-    (byte-compile #'helm-completing-read-symbols))
-
-  (with-eval-after-load 'helm-files
-
-    (defun $helm-sort-hardlink (candidates _source)
-      "move to the hardlink to the top of the list when adaptive sorting"
-      (if-let ((adaptivep helm-adaptive-mode)
-               (hardlink (--first (string-suffix-p "/." (if (consp it) (cdr it) ""))
-                                  candidates)))
-          (cons hardlink (remove hardlink candidates))
-        candidates))
-    (byte-compile #'$helm-sort-hardlink)
-
-    (setq helm-source-find-files (helm-make-source
-                                     "Find Files" 'helm-source-ffiles))
-    (cl-callf append (alist-get 'filtered-candidate-transformer helm-source-find-files)
-      '(helm-adaptive-sort $helm-sort-hardlink))
-
-    (advice-add 'helm-execute-persistent-action :before
-                (defun $helm-adaptive-files-add (&rest _)
-                  (when (and helm-adaptive-mode
-                             (equal "*helm find files*" helm-buffer))
-                    (let (helm-adaptive-done)
-                      (helm-adaptive-store-selection))))))
-#+END_SRC
-
-*** bookmarks
-don't set the org source as the first one in the book marks. Ideally
-since I am using helm-adaptive-mode the most commonly used bookmarks
-will be first.
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-bookmark
-    :straight nil
-    :init
-    ($leader-set-key
-      "fb" 'helm-filtered-bookmarks)
-    :config
-    (require 'dash)
-    (setq helm-bookmark-default-filtered-sources
-          (-insert-at 2 (car helm-bookmark-default-filtered-sources)
-                      (cdr helm-bookmark-default-filtered-sources))))
+    (dired-async-mode))
 #+END_SRC
 
 *** evil
@@ -1399,55 +1307,15 @@ some hacks to make helm more evil compatible See
   (defun $helm-prevent-minibuffer-escape ()
     (when helm-prevent-escaping-from-minibuffer
       (general-define-key :states 'motion
-                          [down-mouse-1] nil)
+        [down-mouse-1] nil)
       (general-define-key :states 'normal
-                          [mouse-2] nil)))
+        [mouse-2] nil)))
 
-  (defun $helm-hide-cursor-in-buffer ()
-    (with-helm-buffer
-      (setq cursor-in-non-selected-windows nil)))
-
-  (general-add-hook 'helm-after-initialize-hook
-                    '($helm-prevent-minibuffer-escape
-                      $helm-hide-cursor-in-buffer))
+  (add-hook 'helm-after-initialize-hook #'$helm-prevent-minibuffer-escape)
   (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
 #+END_SRC
 
 *** files
-set of function to make helm find files more usable.
-- remove the parent hardlink from the list (we can always go up a
-  directory).
-- make sure current directory is not selected by default. rarely am I
-  going to just select the current directory. This is especially
-  useful when I want to quickly navigate through multiple directories
-  with only one entry. I can just use tab over and over again instead
-  of having to type.
-
-#+BEGIN_SRC emacs-lisp
-  (defun $helm-skip-dots ()
-    "when opening a new directory will helm ff, don't preselect the
-  dot hardlinks"
-    (let ((cands (helm-marked-candidates))
-          (sel   (helm-get-selection)))
-      (if (and sel
-               (not (cdr cands))
-               (file-directory-p sel)
-               (string= "." (helm-basename sel)))
-          (helm-next-line))))
-
-  (advice-add 'helm-ff-setup-update-hook :after
-              (defun $helm-add-skip-dot ()
-                (add-hook 'helm-after-update-hook '$helm-skip-dots)))
-
-  (advice-add 'helm-find-files-cleanup :after
-              (defun $helm-remove-skip-dot ()
-                (remove-hook 'helm-after-update-hook '$helm-skip-dots)))
-
-  (advice-add 'helm-ff-filter-candidate-one-by-one
-              :before-while (defun $helm-ff-not-parent-hardlink-p (file)
-                              (not (string-suffix-p ".." file))))
-#+END_SRC
-
 ignore lockfiles and backups when looking through the filesystem
 #+BEGIN_SRC emacs-lisp
   (csetq helm-boring-file-regexp-list
