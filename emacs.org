@@ -1011,9 +1011,6 @@ Use our next and previous commands to navigate minibuffer history
 general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
-    "hde" 'describe-face
-    "hdm" 'describe-mode
-    "hdc" 'describe-char
     "hs"  'profiler-start
     "hS"  'profiler-stop
     "hr"  'profiler-report
