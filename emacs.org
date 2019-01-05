@@ -2569,11 +2569,20 @@ open magit and doing it manually
               (msg (read-string "output files commit message: ")))
           (message "staging output files...")
           (cl-loop for model in models
-                   do (shell-command-to-string (concat "git add --all " model)))
+                   do (shell-command-to-string (concat "git add --all -- " model)))
           (message "committing output files...")
           (shell-command-to-string (format "git commit -m \"%s\"" msg))
           (message "done"))
       (user-error "index not clean")))
+
+  (defun $git-discard-ipgen-output ()
+    "Discard all IPGen output"
+    (interactive)
+    (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory)))))
+      (message "discarding output files...")
+      (cl-loop for model in models
+               do (shell-command-to-string (concat "git checkout HEAD -- " model)))
+      (message "done")))
 #+END_SRC
 
 
