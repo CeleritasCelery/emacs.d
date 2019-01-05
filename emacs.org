@@ -2597,7 +2597,7 @@ where the repo is located
     (when (equal "" (shell-command-to-string "git config --local user.name"))
       (shell-command-to-string
        (apply 'format "git config --local user.name %s && git config --local user.email %s"
-              (if (f-child-of-p (file-truename default-directory) "~/custom")
+              (if (string-prefix-p "/nfs/pdx/disks/sdg74_1172/tjhinckl/custom" (file-truename default-directory))
                   '("CeleritasCelery" "t.macman@gmail.com")
                 '("\"Hinckley, Troy J\"" "troy.j.hinckley@intel.com"))))
       (message "setting git user credentials")))
