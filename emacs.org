@@ -169,10 +169,15 @@ fix the path to use a new version of git
 
 ** Package Manager
 We are going to use =straight.el= as package manager because it allows
-us to easily maintain private repos of packages. This is still slower
-then using package.el, but I think it is worth it. below is the
-bootstrap code to download the package manager and run it.
+us to easily maintain private repos of packages.
+The intel proxy does not work with HTTPS so we need to use the http repo
+#+BEGIN_SRC emacs-lisp
+  (csetq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git")
+#+END_SRC
 
+This is still slower then using package.el, but I think it is worth
+it. below is the bootstrap code to download the package manager and
+run it.
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
   (defvar bootstrap-version)
