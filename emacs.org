@@ -1110,7 +1110,7 @@ behave better with evil.
     (evil-collection-init '(calc calendar custom debug doc-view
                                  elisp-mode dired help info
                                  integration occur popup profiler
-                                 wgrep wdired which-key)))
+                                 simple wgrep wdired which-key)))
 #+END_SRC
 
 *** surround
