@@ -1596,68 +1596,6 @@ regex
       (helm-do-ag dir)))
 #+END_SRC
 
-*** projectile
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-projectile
-    :commands (helm-projectile-find-file
-               helm-projectile-switch-project
-               helm-projectile-switch-to-buffer
-               helm-projectile-find-dir)
-    :init
-    (push '((nil . "helm-projectile") . (nil . "proj")) which-key-replacement-alist)
-    (csetq projectile-use-git-grep t
-           helm-projectile-fuzzy-match nil)
-    ($leader-set-key
-      "p" '(:ignore t :wk "project")
-      "pp" 'helm-projectile-switch-project
-      "pP" 'helm-projectile
-      "ps" 'helm-projectile-ag
-      "pf" 'helm-projectile-find-file
-      "pb" 'helm-projectile-switch-to-buffer
-      "pd" 'helm-projectile-find-dir)
-    (defun $helm-projectile-pop-to-shell (dir)
-      "open shell in project root"
-      (interactive)
-      ($shell-pop helm-current-prefix-arg (dired-noselect dir) dir))
-    (defun $helm-projectile-find-file (dir)
-      "run `helm-find-files' in root"
-      (interactive)
-      (let ((helm-ff-transformer-show-only-basename t))
-        (helm-find-files-1 dir "target")))
-    (with-eval-after-load 'helm
-      (csetq helm-source-projectile-projects-actions
-             (helm-make-actions
-              "find file from project" #'$helm-projectile-find-file
-              "Open Dired in project's directory `C-d'" #'dired
-              "Open project root in vc-dir or magit `M-g'" #'helm-projectile-vc
-              "Switch to Eshell `M-e'" #'helm-projectile-switch-to-eshell
-              "Grep in projects `C-s'" #'helm-projectile-grep
-              "Compile project `M-c'. With C-u, new compile command" #'helm-projectile-compile-project
-              "Remove project(s) from project list `M-D'" #'helm-projectile-remove-known-project)))
-    :config
-    (defun $helm-projectile-switch-to-project (project)
-      (let ((projectile-completion-system 'helm))
-        (projectile-switch-project-by-name project)))
-    (helm-projectile-define-key
-     helm-projectile-projects-map
-     (kbd "; f") '$helm-projectile-switch-to-project
-     (kbd "; g") 'helm-projectile-vc
-     (kbd "; s") 'helm-projectile-grep
-     (kbd "; '") '$helm-projectile-pop-to-shell)
-
-    (cl-callf append (alist-get 'filtered-candidate-transformer helm-source-projectile-files-list)
-      '(helm-adaptive-sort))
-    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-projects)
-          '(helm-fuzzy-matching-default-sort-fn helm-fuzzy-highlight-matches helm-adaptive-sort))
-    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-dired-files-list)
-          '(helm-fuzzy-highlight-matches helm-adaptive-sort))
-    (setf (alist-get 'filtered-candidate-transformer helm-source-projectile-directories-list)
-          '(helm-fuzzy-matching-default-sort-fn helm-fuzzy-highlight-matches helm-adaptive-sort)))
-
-
-
-#+END_SRC
-
 *** git
 helm-ls-git is an awesome package that lets me quickly operate on any
 git controlled files in the current repo. for things like staging it
@@ -1953,48 +1891,6 @@ provides snippets for adding complex blocks. use it with =M-/=
   (use-package yasnippet-snippets
     :diminish
     :after yasnippet)
-#+END_SRC
-
-*** projectile
-#+BEGIN_SRC emacs-lisp
-  (use-package projectile
-    :defer 3
-    :init
-    (setq projectile-enable-caching t)
-    :config
-    (projectile-mode))
-#+END_SRC
-
-**** performance
-finding the root of the project can sometimes be costly. Since I am
-always using git I can just locate the vc-git-root function and ignore
-remote files.
-#+BEGIN_SRC emacs-lisp
-  (defun $git-root-unless-remote (dir)
-    (unless (file-remote-p dir)
-      (require 'vc-git)
-      (vc-git-root dir)))
-
-  (csetq projectile-project-root-files-functions '($git-root-unless-remote))
-#+END_SRC
-
-the most expensive part of loading a file with projectile is
-reserializing the cache. So we remove that step and make sure that
-everything is updated before we quit.
-#+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'projectile
-    (defun $projectile-serialize-cache nil)
-    (fset '$projectile-serialize-cache (symbol-function 'projectile-serialize-cache))
-    (fset 'projectile-serialize-cache (lambda ()))
-
-    (general-add-hook '(midnight-hook kill-emacs-hook) '$projectile-serialize-cache))
-#+END_SRC
-
-don't use projectiles compilation find file function because we don't
-need it
-#+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'projectile
-    (advice-remove 'compilation-find-file #'compilation-find-file-projectile-find-compilation-buffer))
 #+END_SRC
 
 *** multiedit
