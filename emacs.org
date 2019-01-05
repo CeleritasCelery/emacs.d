@@ -1626,7 +1626,8 @@ repos.
     (:definer 'leader
      "gh" 'helm-ls-git-ls
      "sg" 'helm-grep-do-git-grep
-     "pf" '$helm-browse-project)
+     "pf" '$helm-browse-project
+     "pb" '$helm-project-buffers)
     (:prefix ";"
      :keymaps 'helm-ls-git-map
      "s" 'helm-ls-git-stage-files
@@ -1637,7 +1638,13 @@ repos.
     "find files in current project with git ls"
     (interactive "P")
     (let ((helm-ls-git-default-sources '(helm-source-ls-git)))
-      (helm-ls-git-ls)))
+      (helm-ls-git-ls arg)))
+
+  (defun $helm-project-buffers (arg)
+    "open buffers in the current project"
+    (interactive "P")
+    (let ((helm-ls-git-default-sources '(helm-source-ls-git-buffers))
+      (helm-ls-git-ls arg)))
 #+END_SRC
 
 *** org
