@@ -2234,13 +2234,24 @@ would all be considered similar files.
     (require 'f)
     (if-let ((file (buffer-file-name))
              (parts (f-split file))
-             (other-files ($find-similar-file (butlast parts 2) (car (last parts 2)) (last parts)))
+             (head (butlast parts 2))
+             (dir (car (last parts 2)))
+             (tail (last parts))
+             (other-files (or ($find-similar-file head dir tail)
+                              ($find-similar-file head dir
+                                                  (list (concat "*" ($file-name-extension (car tail)))))))
              (common-parent (f-common-parent other-files))
-             (unique-file (completing-read "select other file: " (f-uniquify other-files))))
+             (unique-file (completing-read "select other file: "
+                                           (mapcar (lambda (f)
+                                                     (string-remove-prefix common-parent f))
+                                                   other-files))))
         (find-file (f-join common-parent unique-file))
       (cond ((buffer-file-name) (user-error "No similar file found"))
             (t (user-error "buffer not visitng a file")))))
 
+  (defun $file-name-extension (file)
+    (when (string-match (rx "." (1+ nonl) eos) file)
+      (match-string 0 file)))
 
   (defun $find-similar-file (head dir tail)
     "search up the directory path for paths that very by only one
@@ -2250,14 +2261,14 @@ would all be considered similar files.
     (when (>= (length head) 5)
       (let* ((parent (apply 'f-join head))
              (child (apply 'f-join tail))
-             (dirs (delete (f-join parent dir) (f-directories parent)))
-             (valid-paths (-filter 'file-exists-p
-                                   (--map (f-join it child) dirs))))
-        (or valid-paths
-            ($find-similar-file (butlast head) (car (last head)) (cons dir tail))))))
-
-  ($leader-set-key
-    "fs" '$switch-to-similar-file)
+             (rootp (file-exists-p (f-join parent ".git")))
+             (valid-paths (delete (car (file-expand-wildcards
+                                        (f-join parent dir child)))
+                                  (file-expand-wildcards
+                                   (f-join parent "*" child)))))
+        (unless rootp
+          (or valid-paths
+              ($find-similar-file (butlast head) (car (last head)) (cons dir tail)))))))
 #+END_SRC
 
 *** dired
