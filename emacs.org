@@ -3146,7 +3146,7 @@ inherit the priority of the parent heading and make sure the default state is al
                                       ("p" "pvim" ((tags-todo "pvim//-FUTURE")
                                                    (tags-todo "pvim//FUTURE"))
                                        ((org-agenda-files '("~/org/projects/mdf_pvim.org"))))
-                                      ("m" "mdf" tags-todo "mdf")
+                                      ("m" "mdf" tags-todo "mdf//-FUTURE")
                                       ("u" "turnin" tags-todo "turnin")))
 
   ($leader-set-key
