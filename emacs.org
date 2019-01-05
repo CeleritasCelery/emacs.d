@@ -692,13 +692,10 @@ helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
 #+BEGIN_SRC emacs-lisp
   (use-package helpful
-    :init
-    ($leader-set-key
-      "h" '(:ignore t :wk "help")
-      "hd" '(:ignore t :wk "describe")
-      "hdf" 'helpful-callable
-      "hdv" 'helpful-variable
-      "hdk" 'helpful-key)
+    :general
+    ("C-h f" 'helpful-callable
+     "C-h v" 'helpful-variable
+     "C-h k" 'helpful-key)
     :config
     (evil-collection-init 'helpful))
 #+END_SRC
