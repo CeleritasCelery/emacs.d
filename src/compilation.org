@@ -592,15 +592,18 @@ using the same root as a current complilation. If that is the case it,
 it blocks until the current one is done.
 
 #+BEGIN_SRC emacs-lisp
-  (defun $command-requires-blocking (mode)
+  (cl-defun $command-requires-blocking (mode &optional (running compilation-in-progress))
     "return non-nil if compilations are being run using the current
   root"
     (cl-some (lambda (proc)
-               (let ((buffer (process-buffer proc)))
+               (let ((buffer (process-buffer proc))
+                     (dependancies (alist-get mode $compilation-model-dependancies)))
                  (and (process-live-p proc)
-                      (not (eq mode (with-current-buffer buffer major-mode)))
+                      (cl-some (lambda (m)
+                                 (eq m (buffer-local-value 'major-mode buffer)))
+                               dependancies)
                       ($same-root default-directory buffer))))
-             compilation-in-progress))
+             running))
 
   (defun $same-root (buffer1 buffer2)
     (apply 'file-equal-p
@@ -608,6 +611,12 @@ it blocks until the current one is done.
                                    (with-current-buffer it default-directory)
                                  it))
                   (list buffer1 buffer2))))
+
+  (defvar $compilation-model-dependancies
+    '((bman-mode ipgen-mode)
+      (ipgen-mode)
+      (turnin-mode bman-mode ipgen-mode))
+    "Build order for the models to determine blocking")
 
   (defvar $compilation-command-queue nil
     "compilation commands that are queued to be run once their
@@ -647,24 +656,23 @@ it blocks until the current one is done.
                            command mode args))
       (apply 'compilation-start command mode args)))
 
-  ;; I need to make this smarter so that is will only launch when the
-  ;; command it was waiting on has completed successfully
-  (add-hook 'compilation-finish-functions
-            (defun $compilation-pop-command-queue (buffer exit-string)
-              (setq $compilation-command-queue
-                    (cl-loop for (closure command mode args) in $compilation-command-queue
-                             unless (eval `(let ,closure
-                                             (if (and (string-prefix-p "exited abnormally" exit-string)
-                                                      ($same-root default-directory buffer))
-                                                 ;; if we return t, we will
-                                                 ;; not collect this command,
-                                                 ;; essenstially removing for
-                                                 ;; the queue
-                                                 t
-                                               (unless ($command-requires-blocking mode)
-                                                 (apply 'compilation-start command mode args))))
-                                          (cadr #'(lambda)))
-                             collect (list closure command mode args)))))
+  (defun $compilation-pop-command-queue (buffer exit-string)
+    (setq $compilation-command-queue
+          (cl-loop for (closure command mode args) in $compilation-command-queue
+                   unless (eval `(let ,closure
+                                   (if (and (string-prefix-p "exited abnormally" exit-string)
+                                            ($command-requires-blocking mode (list (get-buffer-process buffer))))
+                                       ;; if we return t, we will
+                                       ;; not collect this command,
+                                       ;; essenstially removing for
+                                       ;; the queue
+                                       t
+                                     (unless ($command-requires-blocking mode)
+                                       (apply 'compilation-start command mode args))))
+                                (cadr #'(lambda)))
+                   collect (list closure command mode args))))
+
+  (add-hook 'compilation-finish-functions '$compilation-pop-command-queue)
 #+END_SRC
 
 ** status
