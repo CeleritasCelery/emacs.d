@@ -1060,19 +1060,6 @@ provides total number of searches in the modeline
       "ta" 'anzu-mode))
 #+END_SRC
 
-*** snipe
-we only want evil snipe for the ability to repeat =f,F,t,T=. I find
-avy is better for the actual sniping
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package evil-snipe
-    :demand t
-    :init
-    (setq evil-snipe-override-evil-repeat-keys nil)
-    :config
-    (evil-snipe-override-mode)
-  (add-to-list 'evil-snipe-disabled-modes 'undo-tree-visualizer-mode))
-#+END_SRC
-
 *** escape
 
 use a quick key combo to enter normal state. We don't want to escape
