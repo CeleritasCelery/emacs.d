@@ -2361,8 +2361,9 @@ files can quickly fill up my home disk.
     ($leader-set-key
       "g" '(:ignore t :wk "git")
       "gs" 'magit-status
-      "gb" 'magit-blame
-      "gf" 'magit-file-popup)
+      "gb" 'magit-blame-addition
+      "gf" 'magit-file-popup
+      "ga" 'magit-dispatch-popup)
     :config
     (general-define-key
      :keymaps 'magit-diff-mode-map
