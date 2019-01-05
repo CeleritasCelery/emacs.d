@@ -1724,6 +1724,17 @@ this file or not
     "fj" '$helm-org-init-files-headings)
 #+END_SRC
 
+
+*** navi
+use helm for outshine navigation with navi
+#+BEGIN_SRC emacs-lisp
+  (use-package helm-navi
+    :general
+    (:definer 'leader
+     :keymaps 'emacs-lisp-mode-map
+     "j" 'helm-navi))
+#+END_SRC
+
 *** themes
 switch themes using helm
 #+BEGIN_SRC emacs-lisp
@@ -1891,7 +1902,18 @@ dumb jump uses regexp search to try and find the definition of a symbol
      "J" 'dumb-jump-go))
 #+END_SRC
 
-*** avy
+**** outshine
+The outshine package is an advanced version of outline mode that aims
+to add more org like features. It may eventually replace my literate
+config. Navi allows navigation of outshine headers.
+#+BEGIN_SRC emacs-lisp
+  (use-package outshine
+    :hook emacs-lisp-mode)
+
+  (use-package navi-mode)
+#+END_SRC
+
+**** avy
 avy is an awesome jump to point package.
 #+BEGIN_SRC emacs-lisp
   (use-package avy
