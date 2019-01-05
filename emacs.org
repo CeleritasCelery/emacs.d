@@ -1379,7 +1379,7 @@ email. automatically add the tramp header if from a different site
            (setenv "MODEL_ROOT" it)))
     ;; add remote url if required
     (let* ((current-site (getenv "EC_SITE"))
-           (target-site (if (string-match (rx bos "/nfs/" (group (1+ (not (any "/"))))) file)
+           (target-site (if (string-match (rx bos "/nfs/" (group (1+ word))) file)
                             (match-string 1 file)
                           current-site))
            (remote-url (if (or (equal target-site "site")
@@ -1811,6 +1811,7 @@ with their ascii equiviments.
   ($leader-set-key
     "xn" '$normalize-region)
 #+END_SRC
+
 *** keybindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
@@ -1829,7 +1830,8 @@ with their ascii equiviments.
     "nf" 'narrow-to-defun)
 #+END_SRC
 
-*** move where I mean
+*** navigation
+**** move where I mean
 move me to the start of the line or start of code, based on heuristics
 #+BEGIN_SRC emacs-lisp
   (use-package mwim
@@ -1839,7 +1841,7 @@ move me to the start of the line or start of code, based on heuristics
      "C-a" 'mwim-beginning))
 #+END_SRC
 
-*** dumb jump
+**** dumb jump
 dumb jump uses regexp search to try and find the definition of a symbol
 #+BEGIN_SRC emacs-lisp
   (use-package dumb-jump
@@ -1870,7 +1872,7 @@ avy is an awesome jump to point package.
      ";" 'avy-goto-char-timer))
 #+END_SRC
 
-*** easy motion
+**** easy motion
 a evil motion package. by default the =F,f,T,t= bindings have buffer
 scope, but that makes it too complex, so we will limit that to current
 line only
@@ -2296,9 +2298,9 @@ start the commit message editor in insert state
     (add-hook 'with-editor-mode-hook 'evil-insert-state))
 #+END_SRC
 
-calling =magit-status= on a whole IP can be very time
-consumuing. Often I am just trying to look at a single directory, and
-this gives me the power to do that.
+calling =magit-status= on a whole IP can be very time consumuing.
+Often I am just trying to look at a single directory, and this gives
+me the power to do that.
 
 #+BEGIN_SRC emacs-lisp
   (defun $magit-status-in-dir (dir)

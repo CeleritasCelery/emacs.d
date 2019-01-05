@@ -688,6 +688,8 @@ finished or running, and easily jump to the associated buffer.
                     $compilation-finished-buffers)))
 
   (defun $compilation-buffers-candidates ()
+    "show the status of all current compilations and allow easy
+  access with helm"
     (setq $compilation-finished-buffers (seq-uniq $compilation-finished-buffers (lambda (x y) (eq (car x) (car y)))))
     ;; remove dead processes and buffers. If I kill buffers with helm
     ;; but they were still running then they will never get updated. So
@@ -742,8 +744,7 @@ finished or running, and easily jump to the associated buffer.
                                                               buffer
                                                               (propertize "waiting" 'face 'term-color-cyan))
                                                       buffer))
-                                              waiting-buffers))
-           )
+                                              waiting-buffers)))
       (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers formatted-waiting-buffers)))
 
 
