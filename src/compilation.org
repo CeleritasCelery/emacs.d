@@ -38,6 +38,15 @@ that off
   (add-hook 'compilation-mode-hook 'buffer-disable-undo)
 #+END_SRC
 
+** windows
+Don't pop windows for compilation buffers
+#+BEGIN_SRC emacs-lisp
+  (defun $compile-no-display-buffer (fn &rest args)
+    (cl-letf (((symbol-function 'display-buffer) (lambda (&rest args))))
+      (apply fn args)))
+
+  (advice-add 'compilation-start :around '$compile-no-display-buffer)
+#+END_SRC
 ** keybindings
 compillation can either be run in =compilation-mode= or in
 =comint-mode= with =compilation-shell-minor-mode= enabled. The later
