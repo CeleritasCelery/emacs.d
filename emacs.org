@@ -1401,8 +1401,14 @@ email. automatically add the tramp header if from a different site
       (require 'helm-files)
       (helm-find-files-1 file (file-name-base file))))
 
+  (defun $change-model ()
+    "Open a model in workspace"
+    (interactive)
+    (helm-find-files-1 "~/workspace/"))
+
   ($leader-set-key
-    "fo" '$open-file-in-clipboard)
+    "fo" '$open-file-in-clipboard
+    "fw" '$change-model)
   (general-define-key
    :states '(normal visual motion)
    :keymaps 'global
