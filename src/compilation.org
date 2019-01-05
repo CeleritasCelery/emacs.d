@@ -5,6 +5,12 @@
 * compilation
 packages that assist in compiling and building code
 
+use lexical bindings in the file
+make this file lexically bound
+#+BEGIN_SRC emacs-lisp
+  ;;; init.el --- personal emacs config file -*- lexical-binding: t -*-
+#+END_SRC
+
 jump to the first error automatically to save time
 #+BEGIN_SRC emacs-lisp
   (csetq compilation-auto-jump-to-first-error t)
