@@ -488,12 +488,14 @@ displayed at the same time.
     :straight
     (doom-modeline :host github :repo "seagle0128/doom-modeline")
     :hook (after-init . doom-modeline-init)
+    :init
+    (csetq doom-modeline-buffer-file-name-style 'relative-from-project
+           doom-modeline-github nil
+           doom-modeline-major-mode-color-icon t)
     :config
     (csetq eldoc-eval-preferred-function 'eval-expression)
     (column-number-mode)
-    (doom-modeline-def-segment evil-state
-      "Disabled for now"
-      ""))
+    (doom-modeline-def-segment evil-state "Disabled for now" ""))
 #+END_SRC
 
 *** which key
