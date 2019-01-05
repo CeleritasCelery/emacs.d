@@ -655,7 +655,16 @@ switch back to minibuffer when it is active.
     "bm" '$switch-to-minibuffer-window)
 #+END_SRC
 
-*** winum
+**** rotate
+rotate the window configuration
+#+BEGIN_SRC emacs-lisp
+  (use-package rotate
+    :general
+    (:definer 'leader
+     "bw" 'rotate-layout))
+#+END_SRC
+
+**** winum
 winum adds the window number to the mode-line and gives us easy
 bindings to jump between windows. We need to update
 =winum-assign-functions= so that we are using the same ordering as
