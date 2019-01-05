@@ -203,7 +203,10 @@ that hook and set the alist back to our canonical version.
                 (,(err-rx ^ "-E- Can't add parameter '" symbol "' because it already exists at " filename " line " line)
                  1 2)
                 (,(err-rx ^ "Error-[MPD] Module previously declare" (group-n 1 nonl))
-                 $prev-declaration-file))))
+                 $prev-declaration-file)
+                (,(err-rx ^ "    FileName     : " filename
+                          "\n    LineNumber   : " line)
+                 1 2))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
