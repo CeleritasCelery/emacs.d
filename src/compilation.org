@@ -418,7 +418,7 @@ some point I would like to make this automatic by inspection.
                                  ("mem" "mem" "mcddr")))
 
   (defun $get-cluster ()
-    (string-trim-right (shell-command-to-string "git config intel.cluster")))
+    (string-trim-right (shell-command-to-string "/usr/intel/bin/git config intel.cluster")))
 
   (defun $get-model-arguments ()
     "get the command line arguments for the model portion of this build"
