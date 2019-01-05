@@ -3745,6 +3745,9 @@ Some useful macros for profiling and benchmarking elisp code
 #+BEGIN_SRC emacs-lisp
   (defmacro $profile (&rest body)
     "generate a CPU profile report for BODY"
+    (when (profiler-running-p)
+      (profiler-stop)
+      (profiler-reset))
     `(progn (profiler-start 'cpu)
             ,@body
             (profiler-report)
