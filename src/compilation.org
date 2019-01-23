@@ -435,6 +435,18 @@ some point I would like to make this automatic by inspection.
       (if (listp model)
           (format " -dut %s -mc %s " (first model) (second model))
         (format " -dut %s " model))))
+
+  (defun $model-root (&optional dir)
+    "current model root"
+    (file-truename (vc-git-root (or dir default-directory))))
+
+  (defun $temp-link-git-worktree ()
+    "create a temporary link to the parent repo of the git worktree
+  so that we can get the right cluster and qslot"
+    (let ((link-script "~/scripts/git-worktree-temp-link.bash"))
+      (when (and (file-regular-p ".git")
+                 (file-exists-p link-script))
+        (message "%s" (shell-command-to-string link-script)))))
 #+END_SRC
 
 define a custom compliation mode that is run based on the hydra above
