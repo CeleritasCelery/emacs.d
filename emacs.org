@@ -3856,9 +3856,38 @@ forms.
 #+END_SRC
 
 ** perl
-all the enviroment variables are set so as to make it easier for
-flycheck to get a clean compile. We also change =:= to be a
-punctuation character to match perl mode. This fixes a ligature issue.
+
+cperl-mode is considered by the better perl mode, and it certainly has
+more features. However I prefer to use perl-mode for the following
+reasons:
+1. the font lock cperl HERE docs and perldocs are broken. If you
+   insert a newline in the middle of one of those multiline
+   constructs, it will break for the rest of the document
+2. cperl overhighlights, it tries to highlight array's and hashes in
+   comments, and hash keys are highlighted in the same face as has
+   values. Makes it harder to read
+3. cperl defines a custom face for arrays and hashs that is really
+   jarring. It can be overriden, but you have to do that for every
+   theme that you are using
+4. I don't really use any of the features in cperl mode, so I don't
+   think it is worth using
+
+#+BEGIN_SRC emacs-lisp
+  (defalias 'cperl-mode 'perl-mode)
+#+END_SRC
+
+I use regular perl-mode for files that are considered read-only.
+#+BEGIN_SRC emacs-lisp
+  (use-package perl-mode
+    :straight nil
+    :mode (rx "." (or "ip_info" "espflist" "udf" "hdl" "map") eos)
+    :init
+    (setq perl-indent-parens-as-block t
+          perl-continued-statement-offset 0))
+#+END_SRC
+
+We also change =:= to be a punctuation character to match perl mode.
+This fixes a ligature issue.
 #+BEGIN_SRC emacs-lisp
   (use-package cperl-mode
     :straight nil
@@ -3870,21 +3899,25 @@ punctuation character to match perl mode. This fixes a ligature issue.
      cperl-close-paren-offset -4 ; indent the closing paren back four spaces
      cperl-continued-statement-offset 4 ; if a statement continues indent it to four spaces
      cperl-indent-parens-as-block t)
-
-    (setq flycheck-perl-executable "/usr/intel/pkgs/perl/5.14.1/bin/perl"
-          flycheck-perl-perlcritic-executable "/usr/intel/pkgs/perl/5.14.1-threads/bin/perlcritic"
-          flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5"
-                                       "../lib/perl5"
-                                       "../../lib/perl5"
-                                       "..")) ;; library files need to see the library ¯\_(ツ)_/¯
-    (setenv "SPF_ROOT" "/p/hdk/cad/spf/latest")
-    (setenv "SPF_PERL_LIB" "/p/hdk/cad/spf/latest/lib/perl5")
-    (setenv "XWEAVE_REPO_ROOT" "/p/hdk/rtl/ip_releases/shdk74/xweave/v17ww43a")
-    (setenv "IDS_HOME" "/p/hdk/rtl/cad/x86-64_linux26/dteg/ideas_shell/0.15.1")
     :config
     (modify-syntax-entry ?: "." cperl-mode-syntax-table))
 #+END_SRC
 
+*** flycheck
+#+BEGIN_SRC emacs-lisp
+  (setq flycheck-perl-executable "/usr/intel/pkgs/perl/5.14.1/bin/perl"
+          flycheck-perl-perlcritic-executable "/usr/intel/pkgs/perl/5.14.1-threads/bin/perlcritic"
+          flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5"
+                                       "../lib/perl5"
+                                       "../../lib/perl5"
+                                       ".."))
+      (setenv "SPF_ROOT" "/p/hdk/cad/spf/latest")
+      (setenv "SPF_PERL_LIB" "/p/hdk/cad/spf/latest/lib/perl5")
+      (setenv "XWEAVE_REPO_ROOT" "/p/hdk/rtl/ip_releases/shdk74/xweave/v17ww43a")
+      (setenv "IDS_HOME" "/p/hdk/rtl/cad/x86-64_linux26/dteg/ideas_shell/0.15.1")
+#+END_SRC
+
+*** font lock
 highlight variables in strings
 #+BEGIN_SRC emacs-lisp
   (font-lock-add-keywords 'perl-mode
@@ -3898,21 +3931,6 @@ highlight variables in strings
                              (3 (when (not (nth 4 (syntax-ppss)))
                                   'default)
                                 prepend))))
-#+END_SRC
-
-prefer perl mode over cperl mode
-#+BEGIN_SRC emacs-lisp
-  (defalias 'cperl-mode 'perl-mode)
-#+END_SRC
-
-I use regular perl-mode for files that are considered read-only.
-#+BEGIN_SRC emacs-lisp
-  (use-package perl-mode
-    :straight nil
-    :mode (rx "." (or "ip_info" "espflist" "udf" "hdl" "map") eos)
-    :init
-    (setq perl-indent-parens-as-block t
-          perl-continued-brace-offset -4))
 #+END_SRC
 
 *** highlight escape sequences
