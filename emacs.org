@@ -418,8 +418,7 @@ modify them.
   (use-package dracula-theme)
   (use-package moe-theme
     :init
-    (add-to-list 'custom-theme-load-path
-                 "~/.emacs.d/straight/build/moe-theme/"))
+    (add-to-list 'custom-theme-load-path "~/.emacs.d/straight/build/moe-theme/"))
   (use-package doom-themes)
   (use-package solarized-theme)
   (use-package color-theme-sanityinc-tomorrow)
@@ -730,6 +729,7 @@ minimal window managment package.
       ("n" eyebrowse-next-window-config "next" :exit nil)
       ("p" eyebrowse-prev-window-config "previous" :exit nil)
       ("d" eyebrowse-close-window-config-prompt "close")
+      ("r" eyebrowse-rename-window-config "rename")
       ("1" eyebrowse-switch-to-window-config-1)
       ("2" eyebrowse-switch-to-window-config-2)
       ("3" eyebrowse-switch-to-window-config-3)
@@ -1210,7 +1210,7 @@ exclusivly on smartparens. So instead I created my own hydra that
 takes the best functions from lispy, evil-cleverparens, and
 smartparens and puts them into one dispatcher.
 #+BEGIN_SRC emacs-lisp
-  (defhydra lisp-quick (:pre (progn (require 'evil-cleverparens)))
+  (defhydra lisp-quick (:pre (require 'evil-cleverparens))
     "quick commands evil-lisp-state"
     ("I" evil-cp-insert-at-beginning-of-form "insert list")
     ("A" evil-cp-insert-at-end-of-form "append list")
