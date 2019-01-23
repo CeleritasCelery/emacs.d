@@ -167,6 +167,12 @@ fix the path to use a new version of git
   (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
 #+END_SRC
 
+*** server
+use the emacs client server so that we can send output to this emacs instance
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'after-init-hook 'server-start)
+#+END_SRC
+
 ** Package Manager
 We are going to use =straight.el= as package manager because it allows
 us to easily maintain private repos of packages.
