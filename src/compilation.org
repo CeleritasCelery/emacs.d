@@ -11,11 +11,6 @@ make this file lexically bound
   ;;; init.el --- personal emacs config file -*- lexical-binding: t -*-
 #+END_SRC
 
-jump to the first error automatically to save time
-#+BEGIN_SRC emacs-lisp
-  (csetq compilation-auto-jump-to-first-error t)
-#+END_SRC
-
 ** compile
 #+BEGIN_SRC emacs-lisp
   (defun $compile ()
