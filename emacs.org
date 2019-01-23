@@ -2220,6 +2220,27 @@ would all be considered similar files.
         (unless rootp
           (or valid-paths
               ($find-similar-file (butlast head) (car (last head)) (cons dir tail)))))))
+
+  (defun $find-file-other-model ()
+    "find the same file in a different model in the same directory"
+    (interactive)
+    (let* ((file (file-truename (buffer-file-name)))
+           (root (vc-git-root file))
+           (path (string-remove-prefix root file))
+           (workspace (f-parent root))
+           (models (file-expand-wildcards (concat workspace "/*/" path)))
+           (model (completing-read "Select Model: "
+                                   (mapcar (lambda (f)
+                                             (thread-last f
+                                               (string-remove-suffix (concat "/" path))
+                                               (string-remove-prefix (concat workspace "/") )))
+                                           models))))
+      (find-file (format "%s/%s/%s" workspace model path))))
+
+
+  ($leader-set-key
+    "fs" '$switch-to-similar-file
+    "fm" '$find-file-other-model)
 #+END_SRC
 
 *** dired
