@@ -646,11 +646,9 @@ it blocks until the current one is done.
   root"
     (cl-some (lambda (proc)
                (let ((buffer (process-buffer proc))
-                     (dependancies (alist-get mode $compilation-model-dependancies)))
+                     (dependancies (cons 'compilation-mode (alist-get mode $compilation-model-dependancies))))
                  (and (process-live-p proc)
-                      (cl-some (lambda (m)
-                                 (eq m (buffer-local-value 'major-mode buffer)))
-                               dependancies)
+                      (memq (buffer-local-value 'major-mode buffer) dependancies)
                       ($same-root default-directory buffer))))
              running))
 
@@ -663,6 +661,7 @@ it blocks until the current one is done.
 
   (defvar $compilation-model-dependancies
     '((bman-mode ipgen-mode)
+      (compilation-mode ipgen-mode bman-mode)
       (ipgen-mode)
       (turnin-mode bman-mode ipgen-mode))
     "Build order for the models to determine blocking")
@@ -675,29 +674,16 @@ it blocks until the current one is done.
                                           compilation-environment
                                           default-directory))
 
-  (defvar $compilation-queue-enabled t
-    "allow comands to be added to command queue and run when all
-    other runs on the same model have completed")
-
   (defun $compilation-clear-command-queue ()
     (interactive)
     (setq $compilation-command-queue nil))
-
-  (defun $compilation-toggle-command-queue ()
-    "Toggle the use of the command queue"
-    (interactive)
-    (if $compilation-queue-enabled
-        (progn (message "compilation command queue disabled")
-               (setq $compilation-queue-enabled nil))
-      (message "compilation command queue enabled")
-      (setq $compilation-queue-enabled t)))
 
   (defun $compilation-start (command mode &rest args)
     "start compilation if there are not other compliations running
     in the same root. If there are, defer till those compilations
     complete successfully"
-    (if (and $compilation-queue-enabled
-             ($command-requires-blocking mode))
+    (if (and ($command-requires-blocking mode)
+             (y-or-n-p "Add to command queue? "))
         (add-to-list '$compilation-command-queue
                      (list (mapcar (lambda (var)
                                      (list var `',(symbol-value var)))
