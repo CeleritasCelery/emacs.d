@@ -995,7 +995,7 @@ We want to hybridize some usefull emacs commands with better evil keybindings
 Use our next and previous commands to navigate minibuffer history
 #+BEGIN_SRC emacs-lisp
   (general-define-key
-   :keymaps 'minibuffer-local-map
+   :keymaps '(evil-ex-completion-map minibuffer-local-map)
    "C-j" 'next-complete-history-element
    "C-k" 'previous-complete-history-element)
 #+END_SRC
