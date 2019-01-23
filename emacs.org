@@ -2190,7 +2190,7 @@ would all be considered similar files.
              (other-files (or ($find-similar-file head dir tail)
                               ($find-similar-file head dir
                                                   (list (concat "*" ($file-name-extension (car tail)))))))
-             (common-parent (f-common-parent other-files))
+             (common-parent (f-common-parent (cons file other-files)))
              (unique-file (completing-read "select other file: "
                                            (mapcar (lambda (f)
                                                      (string-remove-prefix common-parent f))
@@ -2212,10 +2212,11 @@ would all be considered similar files.
       (let* ((parent (apply 'f-join head))
              (child (apply 'f-join tail))
              (rootp (file-exists-p (f-join parent ".git")))
-             (valid-paths (delete (car (file-expand-wildcards
-                                        (f-join parent dir child)))
-                                  (file-expand-wildcards
-                                   (f-join parent "*" child)))))
+             (orig (car (file-expand-wildcards
+                         (f-join parent dir child))))
+             (paths (delete orig (file-expand-wildcards
+                                  (f-join parent "*" child))))
+             (valid-paths (cl-remove-if (lambda (f) (file-equal-p f orig)) paths)))
         (unless rootp
           (or valid-paths
               ($find-similar-file (butlast head) (car (last head)) (cons dir tail)))))))
