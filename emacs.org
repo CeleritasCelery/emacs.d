@@ -1642,13 +1642,15 @@ repos.
   (defun $helm-browse-project (arg)
     "find files in current project with git ls"
     (interactive "P")
+    (require 'helm-ls-git)
     (let ((helm-ls-git-default-sources '(helm-source-ls-git)))
       (helm-ls-git-ls arg)))
 
   (defun $helm-project-buffers (arg)
     "open buffers in the current project"
     (interactive "P")
-    (let ((helm-ls-git-default-sources '(helm-source-ls-git-buffers))
+    (require 'helm-ls-git)
+    (let ((helm-ls-git-default-sources '(helm-source-ls-git-buffers)))
       (helm-ls-git-ls arg)))
 #+END_SRC
 
