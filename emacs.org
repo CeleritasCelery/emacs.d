@@ -264,13 +264,6 @@ and smarter.
         (eval `($leader-local-set-key :keymaps ',keymap ,key ',def)))))
 #+END_SRC
 
-Use tab for indentation and symbol completion
-#+BEGIN_SRC emacs-lisp
-  (general-define-key :states '(insert normal visual)
-                      "TAB" 'indent-for-tab-command)
-  (setq tab-always-indent 'complete)
-#+END_SRC
-
 *** no littering
 make sure that third party files cannot leave conifg and save files
 all over the place
@@ -847,8 +840,7 @@ Vim instead of like Emacs.
     :demand t
     :init
     (csetq evil-jumps-cross-buffers nil
-           evil-want-C-w-delete t
-           evil-want-C-i-jump t
+           evil-want-C-i-jump nil
            evil-want-Y-yank-to-eol t)
     :config
     (general-swap-key nil 'motion "0" "^")
@@ -992,16 +984,6 @@ a text object that highlights everything with the same font lock
 #+END_SRC
 
 *** keybindings
-=C-i= can be used to move forward in cursor jumps, but Emacs binds it to =TAB=, so
-we rebinding it to =H-i=. Though this won't work in the terminal
-#+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :keymaps 'input-decode-map
-   "C-i" "H-i")
-  (general-define-key
-   :states 'normal
-   "H-i" 'evil-jump-forward)
-#+END_SRC
 
 We want to hybridize some usefull emacs commands with better evil keybindings
 #+BEGIN_SRC emacs-lisp
@@ -1744,6 +1726,36 @@ less the 500 MB
 Only communists end sentences with two spaces.
 #+BEGIN_SRC emacs-lisp
   (csetq sentence-end-double-space nil)
+#+END_SRC
+
+*** TAB key
+Emacs has an interesting way of handling the tab key. Both <tab> and
+C-i share the same terminal keycode. This means that in terminal
+applications, using C-i is the equivalent of pressing tab. Emacs
+distinguishes between the two by assigning C-i to =TAB=. under normal
+circumstances, <tab> will be automatically translated to =TAB= (C-i)
+before being dispatched. However this means that we can't use the C-i
+binding in the GUI for anything other then tab. Evil provides the
+ablitity to use C-i to jump to the next mark. So to get both C-i to
+jump to the next mark and still retain our tab indent behavior, we
+setup the following code. We remap the C-i key to the H-i (hyper)
+keycode in the =input-decode-map=, then we bind =evil-jump-forward=.
+So now pressing C-i will trigger the keycode for H-i, which is bound
+to evil-jump-forward.
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :keymaps 'input-decode-map
+   "C-i" "H-i"
+   "C-[" "H-["
+   "C-m" "H-m")
+  (general-define-key
+   :states 'normal
+   "H-i" 'evil-jump-forward)
+#+END_SRC
+
+Use tab for completion if at a symbol
+#+BEGIN_SRC emacs-lisp
+  (setq tab-always-indent 'complete)
 #+END_SRC
 
 *** whitespace
