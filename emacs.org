@@ -1159,6 +1159,14 @@ package.
     (lispyville-wrap-command lispy-mark visual))
 #+END_SRC
 
+add new keybindings for evil paragraph navigation
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :states 'motion
+   "H-[" 'evil-backward-paragraph
+   "C-]" 'evil-forward-paragraph)
+#+END_SRC
+
 *** parens
 
 =evil-cleverparens= requires paredit, unfortunately the default
