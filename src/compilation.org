@@ -466,8 +466,39 @@ define a custom compliation mode that is run based on the hydra above
                       (f-filename model-root)))))
       (when (or current-prefix-arg clean)
         ($async-delete-file "target"))
+      ($temp-link-git-worktree)
       ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman" ($get-model-arguments) filter)
                           'bman-mode)))
+#+END_SRC
+
+*** simregress
+custom compilation command for running regressions
+#+BEGIN_SRC emacs-lisp
+  (defun $run-simregress (file)
+    "run simgress command for specified list"
+    (interactive `(,(let ((reg-dir (f-join ($model-root) "verif/reglist/")))
+                      (completing-read
+                       "Select test list: "
+                       (cons "other..."
+                             (seq-sort-by 'length '<
+                                          (mapcar (lambda (x) (string-remove-prefix reg-dir x))
+                                                  (directory-files-recursively reg-dir
+                                                                               (rx ".list" eos)))))))))
+    (let* ((model-root ($model-root))
+           (default-directory model-root)
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (test-list (cond ((equal file "other...") (read-file-name "Select test list: "))
+                            ((file-exists-p file) file)
+                            ((stringp file) (f-join model-root "verif/reglist" file))
+                            (t (user-error "invalid file name %s" file))))
+           (compilation-buffer-name-function
+            (lambda (mode)
+              (format "*%s simregress %s*"
+                      (f-filename model-root)
+                      (f-filename test-list)))))
+      ($temp-link-git-worktree)
+      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save" ($get-model-arguments) test-list)
+                          'compilation-mode)))
 #+END_SRC
 
 *** turnin
