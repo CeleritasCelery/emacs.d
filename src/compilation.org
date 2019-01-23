@@ -13,16 +13,23 @@ make this file lexically bound
 
 ** compile
 #+BEGIN_SRC emacs-lisp
-  (defun $compile ()
+  (defun $compile (arg)
     "compile with hdk enviroment sourced"
+    (interactive "P")
     (let* ((root (vc-git-root default-directory))
            (model-root (or (file-truename root) "no-model"))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
            (compilation-buffer-name-function
             (lambda (_mode)
-              (format "*%s compile*"
-                      (f-filename model-root)))))
-      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " (read-string "Compile Command: " nil compile-history)))))
+              (cl-loop for i from 0 to 10
+                       for buf-name = (format "*%s compile-%d*"
+                                              (f-filename model-root)
+                                              i)
+                       for buf = (get-buffer buf-name)
+                       until (or (null buf)
+                                 (not (get-buffer-process buf)))
+                       finally return buf-name))))
+      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " (read-string "Compile Command: " nil 'compile-history)))))
 #+END_SRC
 
 
