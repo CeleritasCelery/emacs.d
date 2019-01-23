@@ -1358,7 +1358,7 @@ email. automatically add the tramp header if from a different site
   2. automatically add remote prefix if required
   3. Remove problematic formating from files "
     ;; set MODEL_ROOT if variable if present in file name
-    (when-let ((root (and (string-match-p (rx "$" (opt "{") "MODEL_ROOT" ) file)
+    (when-let ((root (and (string-match-p "MODEL_ROOT" file)
                           (vc-git-root default-directory))))
       (--> root
            (file-truename it)
@@ -1379,6 +1379,23 @@ email. automatically add the tramp header if from a different site
         (replace-regexp-in-string (rx (1+ (any space "\""))) "")
         (replace-regexp-in-string (rx (1+ "/")) "/")
         (replace-regexp-in-string "$ENV" "$"))))
+
+  (defun $get-path-at-point ()
+    "Get the filepath at point. This includes remote paths and
+    enviroment variables."
+    (or (when (and (memq major-mode '(cperl-mode perl-mode))
+                   (require 'ffap-perl-module nil 'noerror))
+          (ffap-perl-module-file-at-point))
+        (-let* (((start end) (--map (save-excursion
+                                      (funcall it "-{}[:alnum:]$/._~\"")
+                                      (point))
+                                    '(skip-chars-backward skip-chars-forward)))
+                (path (buffer-substring-no-properties start end)))
+          (if (save-excursion
+                (goto-char start)
+                (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position)))
+              (concat "$MODEL_ROOT" path)
+            path))))
 
   (defun $open-file-in-clipboard ()
     "Open the file name in the clipboard with helm-ff"
@@ -2659,18 +2676,6 @@ builtin shell, gives us the best of both worlds.
     :general
     (:keymaps 'shx-mode-map
      "C-<return>" '$shx-send-input-or-copy-path))
-
-  (defun $get-path-at-point ()
-    "Get the filepath at point. This includes remote paths and
-  enviroment variables."
-    (or (when (and (memq major-mode '(cperl-mode perl-mode))
-                   (require 'ffap-perl-module nil 'noerror))
-          (ffap-perl-module-file-at-point))
-        (apply 'buffer-substring-no-properties
-               (--map (save-excursion
-                        (funcall it "-{}[:alnum:]$/._~\"")
-                        (point))
-                      '(skip-chars-backward skip-chars-forward)))))
 
   (defun $shx-send-input-or-copy-path ()
     "send command or copy path at point"
