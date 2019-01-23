@@ -3837,6 +3837,11 @@ Some useful macros for profiling and benchmarking elisp code
                        'hline)
                  (cl-loop for row in rows
                           collect (s-split (rx (1+ space)) row 'omit-nulls))))))
+
+  (defun $set-keyboard-quit ()
+    (setq unread-command-events
+          (mapcar (lambda (e) `(t . ,e))
+                  (listify-key-sequence (kbd "C-g")))))
 #+END_SRC
 
 *** suggest
