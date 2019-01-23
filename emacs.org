@@ -2551,9 +2551,9 @@ open magit and doing it manually
               (msg (read-string "output files commit message: ")))
           (message "staging output files...")
           (cl-loop for model in models
-                   do (shell-command-to-string (concat "git add --all -- " model)))
+                   do (call-process "git" nil nil nil "add" "--all" model))
           (message "committing output files...")
-          (shell-command-to-string (format "git commit -m \"%s\"" msg))
+          (call-process "git" nil nil nil "commit" "-m" msg)
           (message "done"))
       (user-error "index not clean")))
 
@@ -2563,7 +2563,7 @@ open magit and doing it manually
     (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory)))))
       (message "discarding output files...")
       (cl-loop for model in models
-               do (shell-command-to-string (concat "git checkout HEAD -- " model)))
+               do (call-process "git" nil nil nil "checkout" "HEAD" model))
       (message "done")))
 #+END_SRC
 
