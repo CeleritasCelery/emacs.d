@@ -1285,9 +1285,10 @@ the display function to be more consistent.
     :init
     ($leader-set-key "SPC" 'helm-M-x)
     (csetq
-     helm-split-window-default-side 'other
+     helm-split-window-in-side-p t
      helm-buffer-max-length 60
-     helm-ff-candidate-number-limit 1000
+     helm-ff-candidate-number-limit 500
+     helm-ff-fuzzy-matching nil
      helm-buffer-skip-remote-checking t
      helm-echo-input-in-header-line t
      helm-ff-delete-files-function 'helm-delete-marked-files-async
