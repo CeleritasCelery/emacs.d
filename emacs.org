@@ -1135,7 +1135,7 @@ integration but because it reimplements evil-cleverparens in a nice
 package.
 #+BEGIN_SRC emacs-lisp
   (use-package lispyville
-    :hook emacs-lisp-mode
+    :hook (perl-mode emacs-lisp-mode)
     :init
     (setq lispyville-key-theme
           '(operators
