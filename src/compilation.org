@@ -383,8 +383,10 @@ run any command
     ("c" ($run-bman "-s all +s collage") "collage")
     ("s" ($run-bman "-s all +s sgdft") "SG DFT")
     ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
-    ("r" ($run-bman "-s emu -s sgdft -s sglp -s sglp_legacy -s lintra_ol -s FLG -s hip_listgen -s lintra" t) "RTL only")
-    ("g" ($run-bman (read-string "run bman as: ")) "generic"))
+    ("r" ($run-bman "-s emu -s sgdft -s sglp -s vclp -s lintra_ol -s FLG -s hip_listgen -s lintra" t) "RTL only")
+    ("g" ($run-bman (read-string "run bman as: " (car $bman-command-history) '$bman-command-history)) "generic"))
+
+  (defvar $bman-command-history nil)
 #+END_SRC
 
 there are very few errors that show up in bman, but we need a special
