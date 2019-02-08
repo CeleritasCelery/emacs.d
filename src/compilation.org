@@ -212,7 +212,10 @@ that hook and set the alist back to our canonical version.
                           "\n    LineNumber   : " line)
                  1 2)
                 (,(err-rx ^ "syntax error at " filename " line " line)
-                 1 2))))
+                 1 2)
+                (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
+                          "\n  Source file \"" filename "\"")
+                 1))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
@@ -264,11 +267,10 @@ all the errors I have encountered in IPGen
     (concat "collage_work/ultiscan/logs/" (match-string 1) ".log"))
 
   (defvar ipgen-error-regexp-alist
-    `((,(err-rx ^ info "Error: " (group-n 3 ->)
-                "\n" info "-" (or "E" "F") "-: [CRT-" nums "] Error in "
+    `((,(err-rx ^ info "-" (or "E" "F") "-: [CRT-" nums "] Error in connection file "
                 -> " file " filename spc*
-                "\n" info " Error at line# " line ->)
-       1 2 nil nil nil (3 compilation-info-face))
+                "\n" info " Error at line# " line)
+       1 2)
       (,(err-rx ^ "-I-:Error-[MPD] Module previously declared"
                 "\n-I-:  The module was previously declared at: "
                 "\n-I-:  \"" (group fill) "/" fill (or ".vs" ".sv") "\",")
