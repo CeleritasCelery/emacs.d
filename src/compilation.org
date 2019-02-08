@@ -29,7 +29,9 @@ make this file lexically bound
                        until (or (null buf)
                                  (not (get-buffer-process buf)))
                        finally return buf-name))))
-      (compile (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " (read-string "Compile Command: " nil 'compile-history)))))
+      (compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " (read-string "Compile Command: " nil 'compile-history))
+                         (when arg
+                           (intern-soft (read-string "set mode: "))))))
 #+END_SRC
 
 
