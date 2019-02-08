@@ -2285,6 +2285,8 @@ clear status.
       (derived-mode-p 'compilation-mode)))
 
   (add-to-list 'clean-buffer-list-kill-never-regexps '$never-kill-compilation-buffers)
+
+  (add-hook 'midnight-hook 'recentf-save-file)
 #+END_SRC
 
 *** ediff
