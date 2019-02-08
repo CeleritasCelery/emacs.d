@@ -534,9 +534,11 @@ a custom compilation command for running a turnin
            (clone (when mock (y-or-n-p "Clone ToT? ")))
            (eco (when (and (not mock)
                            (y-or-n-p "bug fix? "))
-                  (read-string "Bug or ECO number(s): ")))
+                  (read-string "Bug or ECO number(s): " nil
+                               (defvar $turnin-eco-history nil))))
            (comment (unless mock
-                      (read-string "turnin comment: ")))
+                      (read-string "turnin comment: " nil
+                                   (defvar $turnin-message-history nil))))
            (compilation-buffer-name-function
             (lambda (mm)
               (format "*%s %s%s*"
