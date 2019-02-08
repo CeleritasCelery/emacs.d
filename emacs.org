@@ -2953,6 +2953,7 @@ packages that assist in compiling and building code
      "ob" 'bman-cmd/body
      "oi" '$run-ipgen
      "ot" '$run-turnin
+     "os" '$run-simregress
      "oj" '$compilation-jump-to-buffer)
     :init
     :config
