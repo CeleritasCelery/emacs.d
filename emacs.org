@@ -2261,7 +2261,13 @@ would all be considered similar files.
 *** dired
 we don't need so many dired confirmation prompts
 #+BEGIN_SRC emacs-lisp
-  (setq dired-no-confirm t)
+  (setq dired-no-confirm t
+        wdired-allow-to-change-permissions t
+        dired-auto-revert-buffer t)
+
+  (general-define-key
+   :keymaps 'dired-mode-map
+   "C-c C-e" 'wdired-change-to-wdired-mode)
 #+END_SRC
 
 *** recentf
