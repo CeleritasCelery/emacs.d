@@ -3447,6 +3447,11 @@ follow links with org return
    "C-c C-c" '$org-ctrl-c-ctrl-c)
 #+END_SRC
 
+exit in normal state
+#+BEGIN_SRC emacs-lisp
+  (general-advice-add '(org-edit-src-exit org-edit-src-abort) :after 'evil-normal-state)
+#+END_SRC
+
 ** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
