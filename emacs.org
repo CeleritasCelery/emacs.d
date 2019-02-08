@@ -2882,9 +2882,10 @@ while typing.
     :straight
     (company-async-files
      :host github :repo "CeleritasCelery/company-async-files")
-    :init
-    (add-to-list 'company-backends 'company-async-files)
-    (setq company-backends (delete 'company-files company-backends)))
+    :config
+    (unless (memq 'company-async-files company-backends)
+      (setq company-backends (append '(company-capf company-async-files) (cdr company-backends))))
+    (add-to-list 'company-backends 'company-async-files))
 #+END_SRC
 
 *** argument completion
@@ -3519,7 +3520,11 @@ just using =C-l=
     :init
     (setq company-idle-delay 0.2
           evil-collection-company-use-tng nil
+          company-dabbrev-downcase nil
           company-require-match nil)
+    (csetq company-backends '(company-capf
+                              (company-dabbrev-code company-keywords)
+                              company-dabbrev))
     (evil-collection-init 'company)
     ($leader-set-key
       "tc" 'company-mode)
@@ -3535,10 +3540,6 @@ just using =C-l=
 
   (with-eval-after-load 'company-dabbrev-code
     (add-to-list 'company-dabbrev-code-modes 'shell-mode))
-
-
-  (use-package company-shell
-    :after company)
 #+END_SRC
 
 collect usage statistics and filter candidates based on that
