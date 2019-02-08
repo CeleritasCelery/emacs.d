@@ -3833,6 +3833,7 @@ I use regular perl-mode for files that are considered read-only.
     :mode (rx "." (or "ip_info" "espflist" "udf" "hdl" "map") eos)
     :init
     (setq perl-indent-parens-as-block t
+          perl-continued-brace-offset 0
           perl-continued-statement-offset 0))
 #+END_SRC
 
