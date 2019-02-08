@@ -2303,10 +2303,16 @@ clear status.
 
 *** ediff
 I like to keep everything in one frame. I am not a mutli-window
-heathen from 2003
+heathen from 2003. We also want to restore the window config after we
+are done with ediff.
 #+BEGIN_SRC emacs-lisp
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain
+        ediff-split-window-function 'split-window-horizontally
+        ediff-diff-options "-w")
   (evil-collection-init 'ediff)
+
+  (winner-mode)
+  (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
 
 *** vdiff
