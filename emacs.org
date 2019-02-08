@@ -2956,6 +2956,7 @@ packages that assist in compiling and building code
      "os" '$run-simregress
      "oj" '$compilation-jump-to-buffer)
     :init
+    (csetq compilation-always-kill t)
     :config
     (evil-collection-init 'compile)
     ($load-literate-file "src/compilation")
