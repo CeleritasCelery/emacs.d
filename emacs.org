@@ -3924,7 +3924,19 @@ we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
   (use-package verilog-mode
     :straight nil
-    :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl") eos))
+    :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl") eos)
+    :general
+    (:definer 'leader
+     :keymaps 'verilog-mode-map
+     "j" 'helm-imenu))
+
+  (add-hook 'verilog-mode-hook
+            (defun $verilog-imenu-populated ()
+              (setq-local imenu-generic-expression
+                          `(("*instance*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
+                                                           (: symbol))
+                                                spc (group symbol) eol) 1)
+                            ("*module*" ,($rx ^ "module " (group symbol) " (") 1)))))
 #+END_SRC
 
 ** TCL
