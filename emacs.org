@@ -53,6 +53,12 @@ Let's set some variables with basic user information.
 
 stolen from https://github.com/abo-abo/oremacs/blob/github/init.el
 and modified to be more flexible
+
+This lets us move away from =customize= completely. This is because I
+find it annoying when after a "save for future sessions?" prompt Emacs
+messes up my nicely categorized customizations by writing them in one
+single lump to ~/.emacs. =setq= avoids =customize=, while still using
+the variable's :set property.
 #+BEGIN_SRC emacs-lisp
   (defmacro csetq (&rest pairs)
     "For each SYMBOL VALUE pair, calls either `custom-set' or `set-default'."
