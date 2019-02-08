@@ -778,7 +778,6 @@ changing the volume on my mic triggers these bindings. So we ignore them.
 #+END_SRC
 
 ** Ivy
-*** ivy
 I feel like ivy is simpler to setup so I am going to give it a try. I am going
 to have to try to fix =counsel-ag= out of order matching if I want to live with
 it though.
@@ -808,6 +807,13 @@ it though.
      t
      '(("y" ivy-yank-action "yank")))
     (ivy-set-actions 'counsel-find-file nil))
+#+END_SRC
+
+Some faces have org-level-4 use a larger face, which really messes
+with the display
+#+BEGIN_SRC emacs-lisp
+  (csetq ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
+                                         (org-mode . org-level-5)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
