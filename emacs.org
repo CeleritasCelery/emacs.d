@@ -3123,6 +3123,7 @@ inherit the priority of the parent heading and make sure the default state is al
         (org-return)))
     (general-define-key
      :keymaps 'org-mode-map
+     :states '(insert normal)
      "<ret>" '$org-smart-return
      "RET" '$org-smart-return)
 
