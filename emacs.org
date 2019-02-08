@@ -3497,6 +3497,15 @@ make scripts executable on save
     :init
     ($leader-set-key
       "tf" 'flycheck-mode))
+
+  (defhydra $flycheck (:exit nil)
+    "navigate by flycheck errors"
+    ("n" flycheck-next-error "next")
+    ("p" flycheck-previous-error "prev")
+    ("N" flycheck-previous-error "prev"))
+
+  ($leader-set-key
+    "l" '$flycheck/body)
 #+END_SRC
 
 these are warning about not unquoted expansions, but I feel like I am
