@@ -51,6 +51,7 @@ Don't pop windows for compilation buffers
 
   (advice-add 'compilation-start :around '$compile-no-display-buffer)
 #+END_SRC
+
 ** keybindings
 compillation can either be run in =compilation-mode= or in
 =comint-mode= with =compilation-shell-minor-mode= enabled. The later
@@ -678,9 +679,10 @@ it blocks until the current one is done.
                   (list buffer1 buffer2))))
 
   (defvar $compilation-model-dependancies
-    '((bman-mode ipgen-mode)
+    '((bman-mode bman-mode ipgen-mode)
       (compilation-mode ipgen-mode bman-mode)
       (ipgen-mode)
+      (simregress-mode bman-mode)
       (turnin-mode bman-mode ipgen-mode))
     "Build order for the models to determine blocking")
 
