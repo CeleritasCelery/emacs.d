@@ -722,28 +722,36 @@ finished or running, and easily jump to the associated buffer.
               (push (cons buffer (replace-regexp-in-string "\n" "" msg))
                     $compilation-finished-buffers)))
 
+  ;; Helper function for $compilation-buffer-candidates
+  (defun $compilation-proc-stalled (proc)
+    (memq (process-buffer proc) $compilation-stalled-buffers))
+
+
+  (defun $compilation-format-helm-candidate (buffer msg face)
+    (cons (format "%-50s%s" buffer (propertize msg 'face face))
+          buffer))
+
   (defun $compilation-buffers-candidates ()
     "show the status of all current compilations and allow easy
   access with helm"
-    (setq $compilation-finished-buffers (seq-uniq $compilation-finished-buffers (lambda (x y) (eq (car x) (car y)))))
+    (setq $compilation-finished-buffers
+          (seq-uniq $compilation-finished-buffers (lambda (x y) (eq (car x) (car y)))))
     ;; remove dead processes and buffers. If I kill buffers with helm
     ;; but they were still running then they will never get updated. So
     ;; we check for that at the start of every status.
-    (setq compilation-in-progress (cl-remove-if-not (lambda (proc)
-                                                      (let ((buf (process-buffer proc)))
-                                                        (and (buffer-live-p buf)
-                                                             (process-live-p proc))))
-                                                    compilation-in-progress))
-    (let* ((finished-buffers (cl-remove-if (-lambda ((buffer))
+    (setq compilation-in-progress
+          (cl-remove-if-not (lambda (proc)
+                              (let ((buf (process-buffer proc)))
+                                (and (buffer-live-p buf)
+                                     (process-live-p proc))))
+                            compilation-in-progress))
+
+    (let* ((stalled-procs (cl-remove-if-not #'$compilation-proc-stalled compilation-in-progress))
+           (running-procs (cl-remove-if #'$compilation-proc-stalled compilation-in-progress))
+           (finished-buffers (cl-remove-if (-lambda ((buffer))
                                              (or (not (buffer-live-p buffer))
                                                  (memq (get-buffer-process buffer) compilation-in-progress)))
                                            $compilation-finished-buffers))
-           (stalled-procs (cl-remove-if-not (lambda (proc)
-                                              (memq (process-buffer proc) $compilation-stalled-buffers))
-                                            compilation-in-progress))
-           (running-procs (cl-remove-if (lambda (proc)
-                                          (memq (process-buffer proc) $compilation-stalled-buffers))
-                                        compilation-in-progress))
            (waiting-buffers (mapcar  (lambda (command)
                                        (get-buffer-create (let ((env (car command))
                                                                 (mode (string-remove-suffix "-mode" (symbol-name (caddr command)))))
@@ -752,36 +760,20 @@ finished or running, and easily jump to the associated buffer.
                                                                          (funcall compilation-buffer-name-function ,mode)
                                                                        "*generic compilation placeholder*"))))))
                                      $compilation-command-queue))
-           (formatted-stalled-buffers (--map (let ((buffer (process-buffer it)))
-                                               (cons (format "%-50s%s"
-                                                             buffer
-                                                             (propertize "stalled" 'face 'compilation-warning))
-                                                     buffer))
+           (formatted-stalled-buffers (--map ($compilation-format-helm-candidate (process-buffer it) "stalled" 'compilation-warning)
                                              stalled-procs))
-           (formatted-running-buffers (--map (let ((buffer (process-buffer it)))
-                                               (cons (format "%-50s%s"
-                                                             buffer
-                                                             (propertize "running" 'face 'compilation-line-number))
-                                                     buffer))
+           (formatted-running-buffers (--map ($compilation-format-helm-candidate (process-buffer it) "running" 'compilation-line-number)
                                              running-procs))
-           (formatted-finished-buffers (mapcar (-lambda ((buffer . msg))
-                                                 (cons (format "%-50s%s"
-                                                               buffer
-                                                               (propertize msg
-                                                                           'face
-                                                                           (if (string-prefix-p "exited abnormally" msg)
-                                                                               'compilation-error
-                                                                             'compilation-info)))
-                                                       buffer))
-                                               finished-buffers))
-           (formatted-waiting-buffers (mapcar (lambda (buffer)
-                                                (cons (format "%-50s%s"
-                                                              buffer
-                                                              (propertize "waiting" 'face 'term-color-cyan))
-                                                      buffer))
-                                              waiting-buffers)))
+           (formatted-waiting-buffers (--map ($compilation-format-helm-candidate it "waiting" 'term-color-cyan)
+                                             waiting-buffers))
+           (formatted-finished-buffers (--map (let* ((buffer (car it))
+                                                     (msg (cdr it))
+                                                     (face (if (string-prefix-p "exited abnormally" msg)
+                                                               'compilation-error
+                                                             'compilation-info)))
+                                                ($compilation-format-helm-candidate buffer msg face))
+                                              finished-buffers)))
       (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers formatted-waiting-buffers)))
-
 
   (defun $compilation-jump-to-buffer ()
     "select from active and finished compilation buffers"
