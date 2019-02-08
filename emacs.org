@@ -285,7 +285,8 @@ save minibuffer history between sessions.
     :straight nil
     :defer 1
     :config
-    (savehist-mode))
+    (savehist-mode)
+    (csetq savehist-additional-variables '(helm-ff-history)))
 #+END_SRC
 
 *** hyrda
