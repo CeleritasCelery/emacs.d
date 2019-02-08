@@ -1887,7 +1887,15 @@ with their ascii equiviments.
     "n" '(:ignore t :wk "narrow")
     "nw" 'widen
     "nr" 'narrow-to-region
+    "np" '$narrow-to-paragraph
     "nf" 'narrow-to-defun)
+
+  (defun $narrow-to-paragraph ()
+    "Narrow to the current evil paragraph"
+    (interactive)
+    (cl-destructuring-bind (beg . end)
+        (bounds-of-thing-at-point 'evil-paragraph)
+      (narrow-to-region beg end)))
 #+END_SRC
 
 *** navigation
