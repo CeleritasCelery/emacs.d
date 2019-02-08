@@ -826,12 +826,15 @@ with the display
   (use-package swiper
     :init
     ($leader-set-key
-      "os" 'swiper))
+      "ss" 'swiper))
 #+END_SRC
 
 *** counsel
 #+BEGIN_SRC emacs-lisp
-  (use-package counsel)
+  (use-package counsel
+    :general
+    (:definer 'leader
+     "fF" 'counsel-find-file))
 #+END_SRC
 
 ** evil
@@ -913,6 +916,7 @@ it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897
 prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+BEGIN_SRC emacs-lisp
   (evil-ex-define-cmd "q" nil)
+  (evil-ex-define-cmd "q!" nil)
   (evil-ex-define-cmd "wq" nil)
 #+END_SRC
 
@@ -1642,7 +1646,7 @@ repos.
            helm-ls-git-status-command 'magit-status-internal)
     :general
     (:definer 'leader
-     "gh" 'helm-ls-git-ls
+     "gj" 'helm-ls-git-ls
      "sg" 'helm-grep-do-git-grep
      "pf" '$helm-browse-project
      "pb" '$helm-project-buffers)
@@ -1696,7 +1700,6 @@ this file or not
   ($leader-set-key
     "fj" '$helm-org-init-files-headings)
 #+END_SRC
-
 
 *** navi
 use helm for outshine navigation with navi
@@ -2250,7 +2253,6 @@ would all be considered similar files.
                                            models))))
       (find-file (format "%s/%s/%s" workspace model path))))
 
-
   ($leader-set-key
     "fs" '$switch-to-similar-file
     "fm" '$find-file-other-model)
@@ -2345,10 +2347,9 @@ files can quickly fill up my home disk.
     (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
     ($leader-set-key
       "g" '(:ignore t :wk "git")
-      "gs" 'magit-status
-      "gb" 'magit-blame-addition
-      "gf" 'magit-file-popup
-      "ga" 'magit-dispatch-popup)
+      "ga" 'magit-status
+      "gg" 'magit-dispatch-popup
+      "gf" 'magit-file-popup)
     :config
     (general-define-key
      :keymaps 'magit-diff-mode-map
@@ -2500,14 +2501,17 @@ want to do when I enable flycheck.
     (setq git-gutter:diff-option "-w")
     (defhydra $git-hunk (:exit nil)
       ("n" git-gutter:next-hunk "next")
-      ("p" git-gutter:previous-hunk "prev")
-      ("r" git-gutter:revert-hunk "revert")
-      ("h" $git-gutter-show-hunk "show hunk" :exit t)
-      ("s" git-gutter:stage-hunk "stage")
-      ("v" git-gutter:mark-hunk "mark" :exit t))
+      ("N" git-gutter:previous-hunk "prev")
+      ("p" git-gutter:previous-hunk "prev"))
     ($leader-set-key
-      "gg" '$git-hunk/body)
+      "gr" 'git-gutter:revert-hunk
+      "gh" '$git-gutter-show-hunk
+      "gs" 'git-gutter:stage-hunk
+      "gv" 'git-gutter:mark-hunk
+      "gn" '$git-hunk/git-gutter:next-hunk
+      "gN" '$git-hunk/git-gutter:previous-hunk)
     :config
+    (push `((nil . ,(rx (opt "$git-hunk/") "git-gutter:")) . (nil . "")) which-key-replacement-alist)
     (global-git-gutter-mode))
 
   (use-package git-gutter-fringe
