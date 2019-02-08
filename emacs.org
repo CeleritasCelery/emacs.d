@@ -2957,7 +2957,7 @@ packages that assist in compiling and building code
     :init
     :config
     (evil-collection-init 'compile)
-    (load-file (expand-file-name "src/compilation.el" user-emacs-directory))
+    ($load-literate-file "src/compilation")
     (general-define-key
      :keymaps 'compilation-mode-map
      "SPC" nil))
