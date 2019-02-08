@@ -293,25 +293,24 @@ so that status is acurate when we list all compilations.
     "buffers that have a stalled compilation")
 
   (defun $alert-core-assembler-stall ()
-    (defvar compilation-filter-start)
     (when (looking-back (rx bol "CoreAssembler> ") (line-beginning-position))
       (add-to-list '$compilation-stalled-buffers (current-buffer))
       (alert "Core Assembler stall"
              :severity 'moderate)))
-  (byte-compile '$alert-core-assembler-stall)
+  (byte-compile #'$alert-core-assembler-stall)
 
   (defun $compilation-apply-ansi-color ()
     (defvar compilation-filter-start)
     (ansi-color-apply-on-region compilation-filter-start (point)))
   (byte-compile #'$compilation-apply-ansi-color)
 
-  (add-hook 'compilation-finish-functions
-            (defun $compilation-remove-stalled-buffer (buffer _exit)
-              (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers))))
+  (defun $compilation-remove-stalled-buffer (buffer _exit)
+    (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers)))
 
   (define-compilation-mode ipgen-mode "ipgen"
     "compilation mode for running IPGen tool"
-    (general-add-hook 'compilation-filter-hook '($alert-core-assembler-stall $compilation-apply-ansi-color) nil 'local))
+    (general-add-hook 'compilation-filter-hook '($alert-core-assembler-stall $compilation-apply-ansi-color) nil 'local)
+    (general-add-hook 'compilation-finish-functions #'$compilation-remove-stalled-buffer nil 'local))
 #+END_SRC
 
 we use helm as the dispatcher for ipgen because it allows to operate
@@ -374,15 +373,15 @@ run any command
 #+BEGIN_SRC emacs-lisp
   (defhydra bman-cmd (:exit t :columns 2)
     "run a bman command"
-    ("a" ($run-bman "" t) "all")
-    ("A" ($run-bman "+s sgcdc" t) "extra")
+    ("a" ($run-bman "") "all")
+    ("A" ($run-bman "+s sgcdc") "extra")
     ("l" ($run-bman "-s all +s lintra") "lintra")
     ("v" ($run-bman "-s all +s vcs") "vcs")
     ("e" ($run-bman "-s all +s espfmodel") "espf")
     ("c" ($run-bman "-s all +s collage") "collage")
     ("s" ($run-bman "-s all +s sgdft") "SG DFT")
     ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
-    ("r" ($run-bman "-s emu -s sgdft -s sglp -s vclp -s lintra_ol -s FLG -s hip_listgen -s lintra" t) "RTL only")
+    ("r" ($run-bman "-s emu -s sgdft -s sglp -s vclp -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only")
     ("g" ($run-bman (read-string "run bman as: " (car $bman-command-history) '$bman-command-history)) "generic"))
 
   (defvar $bman-command-history nil)
@@ -453,7 +452,7 @@ define a custom compliation mode that is run based on the hydra above
   (define-compilation-mode bman-mode "bman"
     "compilation mode for bman runs")
 
-  (defun $run-bman (filter &optional clean)
+  (defun $run-bman (filter)
     "run dft ipgen in the current model"
     (let* ((model-root (file-truename (vc-git-root default-directory)))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
@@ -462,41 +461,57 @@ define a custom compliation mode that is run based on the hydra above
             (lambda (_mode)
               (format "*%s bman*"
                       (f-filename model-root)))))
-      (when (or current-prefix-arg clean)
-        ($async-delete-file "target"))
-      ($temp-link-git-worktree)
-      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman" ($get-model-arguments) filter)
+      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman"
+                                  ($get-model-arguments) filter)
                           'bman-mode)))
+
+  (defun bman-run-clean-maybe (_proc)
+    "Run bman clean unless we are running specific stages"
+    (unless (string-match-p "-s all" (car compilation-arguments))
+      ($async-delete-file "target")))
+
+  (add-hook 'bman-mode-hook
+            (defun bman-setup ()
+              (add-hook 'compilation-start-hook 'bman-run-clean-maybe nil 'local)
+              ($temp-link-git-worktree)))
 #+END_SRC
 
 *** simregress
 custom compilation command for running regressions
 #+BEGIN_SRC emacs-lisp
-  (defun $run-simregress (file)
+  (define-compilation-mode simregress-mode "simregress"
+    "compilation mode for regressions")
+
+  (defun $run-simregress ()
     "run simgress command for specified list"
-    (interactive `(,(let ((reg-dir (f-join ($model-root) "verif/reglist/")))
-                      (completing-read
-                       "Select test list: "
-                       (cons "other..."
-                             (seq-sort-by 'length '<
-                                          (mapcar (lambda (x) (string-remove-prefix reg-dir x))
-                                                  (directory-files-recursively reg-dir
-                                                                               (rx ".list" eos)))))))))
+    (interactive)
     (let* ((model-root ($model-root))
-           (default-directory model-root)
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (reg-dir (f-join ($model-root) "verif/reglist/"))
+           (file (completing-read
+                  "Select test list: "
+                  (cons "other..."
+                        (seq-sort-by 'length '<
+                                     (mapcar (lambda (x) (string-remove-prefix reg-dir x))
+                                             (directory-files-recursively reg-dir
+                                                                          (rx ".list" eos)))))))
            (test-list (cond ((equal file "other...") (read-file-name "Select test list: "))
                             ((file-exists-p file) file)
-                            ((stringp file) (f-join model-root "verif/reglist" file))
+                            ((stringp file) (f-join reg-dir file))
                             (t (user-error "invalid file name %s" file))))
+           (default-directory model-root)
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
            (compilation-buffer-name-function
             (lambda (mode)
               (format "*%s simregress %s*"
                       (f-filename model-root)
                       (f-filename test-list)))))
-      ($temp-link-git-worktree)
-      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save" ($get-model-arguments) test-list)
-                          'compilation-mode)))
+      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save"
+                                  ($get-model-arguments) test-list)
+                          'simregress-mode)))
+
+  (add-hook 'simregress-mode-hook
+            (defun simregress-setup ()
+              ($temp-link-git-worktree 5)))
 #+END_SRC
 
 *** turnin
@@ -791,15 +806,6 @@ the alert package lets us creat notification for any event we want. In
 this case we are intersted in knowing when a compliation finishes or
 stalls.
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'compilation-filter-hook
-            (defun $complilation-detect-core-assembler-stall ()
-              "termiate compilation when core assembler stalls"
-              (when (looking-back (rx bol "CoreAssembler> ") (line-beginning-position))
-                (alert "Core Assembler stall"
-                       :severity 'moderate))))
-
-  (byte-compile #'$complilation-detect-core-assembler-stall)
-
   (add-hook 'compilation-finish-functions
             (defun $notify-compile-done (_buffer exit-string)
               "notfiy the user that compliation is finished"
