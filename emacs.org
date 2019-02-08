@@ -3413,6 +3413,11 @@ the default open link behavior
   (add-hook 'org-open-at-point-functions '$org-copy-url)
 #+END_SRC
 
+follow links with org return
+#+BEGIN_SRC emacs-lisp
+  (setq org-return-follows-link t)
+#+END_SRC
+
 ** src blocks
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
