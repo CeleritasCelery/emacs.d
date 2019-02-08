@@ -309,7 +309,6 @@ so that status is acurate when we list all compilations.
             (defun $compilation-remove-stalled-buffer (buffer _exit)
               (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers))))
 
-  (add-to-list 'shackle-rules '(ipgen-mode :select t))
   (define-compilation-mode ipgen-mode "ipgen"
     "compilation mode for running IPGen tool"
     (general-add-hook 'compilation-filter-hook '($alert-core-assembler-stall $compilation-apply-ansi-color) nil 'local))
@@ -451,7 +450,6 @@ some point I would like to make this automatic by inspection.
 
 define a custom compliation mode that is run based on the hydra above
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'shackle-rules '(bman-mode :select t))
   (define-compilation-mode bman-mode "bman"
     "compilation mode for bman runs")
 
@@ -521,7 +519,6 @@ run a turnin command
 
 a custom compilation command for running a turnin
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'shackle-rules '(turnin-mode :select t))
   (define-compilation-mode turnin-mode "turnin"
     "compilation mode for turnins")
 

@@ -2955,8 +2955,6 @@ packages that assist in compiling and building code
      "ot" '$run-turnin
      "oj" '$compilation-jump-to-buffer)
     :init
-    (add-to-list 'shackle-rules '(compilation-mode :select t))
-    (add-to-list 'shackle-rules '(comint-mode :select t))
     :config
     (evil-collection-init 'compile)
     (load-file (expand-file-name "src/compilation.el" user-emacs-directory))
