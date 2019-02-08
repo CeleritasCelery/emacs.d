@@ -633,23 +633,22 @@ the timestamp in the compilation buffer.
             (name (cdr unit)))
         (format "%d %s%s" value name (if (>= value 1) "s" "")))))
 #+END_SRC
-
-*** chaining
+*** queue
 A series of functions for chaining together compliation that are going
 to require previous steps. It checks to see if the new compilation is
 using the same root as a current complilation. If that is the case it,
 it blocks until the current one is done.
-
 #+BEGIN_SRC emacs-lisp
   (cl-defun $command-requires-blocking (mode &optional (running compilation-in-progress))
     "return non-nil if compilations are being run using the current
   root"
     (cl-some (lambda (proc)
-               (let ((buffer (process-buffer proc))
-                     (dependancies (cons 'compilation-mode (alist-get mode $compilation-model-dependancies))))
-                 (and (process-live-p proc)
-                      (memq (buffer-local-value 'major-mode buffer) dependancies)
-                      ($same-root default-directory buffer))))
+               (when proc
+                 (let ((buffer (process-buffer proc))
+                       (dependancies (cons 'compilation-mode (alist-get mode $compilation-model-dependancies))))
+                   (and (process-live-p proc)
+                        (memq (buffer-local-value 'major-mode buffer) dependancies)
+                        ($same-root default-directory buffer)))))
              running))
 
   (defun $same-root (buffer1 buffer2)
