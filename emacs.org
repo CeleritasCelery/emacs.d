@@ -2085,69 +2085,13 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
      "C-p" 'evil-multiedit-prev))
 #+END_SRC
 
-*** hex decimal conversion
+*** radix conversion
 
 #+BEGIN_SRC emacs-lisp
-  (defun $radix-name (radix)
-    (or (nth radix '("NA" "Unary" "Binary"
-                     "Ternary" "Quaternary" "Quinary"
-                     "Senary" "Heptary" "Octal"
-                     "Nonary" "Decimal" "Undecimal"
-                     "Duodecimal" "Tridecimal" "Tetradecimal"
-                     "Pentadecimal" "Hexadecimal"))
-        (format "(base %d)" radix)))
-
-  (defun $convert-radix-internal (str old-radix new-radix)
-    "internal function to convert between two radices"
-    (require 'calc-ext) ;; big numbers
-    (require 'calc)
-    (message "%s %s = %s %s"
-             ($radix-name old-radix)
-             str
-             ($radix-name new-radix)
-             (let ((calc-number-radix new-radix))
-               (kill-new (downcase (math-format-radix (string-to-number str old-radix)))))))
-
-  (defun $convert-hex-binary ()
-    "Converts hex to binary or vice versa and copies the results to the kill ring"
-    (interactive)
-    (let* ((str (apply 'buffer-substring-no-properties
-                       (--map (save-excursion
-                                (funcall it "[:xdigit:]#'hx")
-                                (point))
-                              '(skip-chars-backward skip-chars-forward))))
-           (radix (--if-let (car (s-match (rx bos (or (and (0+ (any digit)) "'" (any "hb"))
-                                                      (and (any "0#") (any "bx"))))
-                                          str))
-                      (progn (setq str (s-chop-prefix it str))
-                             (if (s-contains? "b" it) 'bin 'hex))
-                    'bin)))
-      (apply '$convert-radix-internal str (if (eq radix 'bin) '(2 16) '(16 2)))))
-
-  (defun $convert-radix (r1 r2)
-    "Convert one radix to another and copy the result to the kill ring"
-    (interactive "ncurrent radix: \nndesired radix: ")
-    (let* ((valid-chars (if (<= r1 10)
-                            (format "0-%d" (- r1 1))
-                          (let ((max-char (cond
-                                           ((eql r1 11) "a")
-                                           ((eql r1 12) "b")
-                                           ((eql r1 13) "c")
-                                           ((eql r1 14) "d")
-                                           ((eql r1 15) "e")
-                                           ((eql r1 16) "f"))))
-                            (format "0-9a-%sA-%s" max-char (upcase max-char)))))
-           (str (apply 'buffer-substring-no-properties
-                       (--map (save-excursion
-                                (funcall it valid-chars)
-                                (point))
-                              '(skip-chars-backward skip-chars-forward)))))
-      ($convert-radix-internal str r1 r2)))
-
-  ($leader-set-key
-    "xc" '$convert-radix
-    "xh" '$convert-hex-binary)
-
+  (use-package 0xc
+    :general
+    (:definer 'leader
+     "xc" '0xc-kill))
 #+END_SRC
 
 *** regex
