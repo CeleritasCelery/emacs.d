@@ -1357,6 +1357,7 @@ the display function to be more consistent.
     :straight
     (:host github :repo "emacs-helm/helm"
      :fork (:host github :repo "CeleritasCelery/helm"))
+    :commands helm-find-files-1
     :general
     (:keymaps 'minibuffer-local-map
      "C-c C-l" 'helm-minibuffer-history)
