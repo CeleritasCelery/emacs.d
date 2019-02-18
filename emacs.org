@@ -3959,13 +3959,19 @@ we have some nonstandard extensions for SV
      :keymaps 'verilog-mode-map
      "j" 'helm-imenu))
 
-  (add-hook 'verilog-mode-hook
-            (defun $verilog-imenu-populated ()
-              (setq-local imenu-generic-expression
-                          `(("*instance*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
-                                                           (: symbol))
-                                                spc (group symbol) eol) 1)
-                            ("*module*" ,($rx ^ "module " (group symbol) " (") 1)))))
+  (defun $verilog-remove-lt-ligature ()
+    (setf (alist-get "<=" prettify-symbols-alist t t 'equal) t))
+
+  (defun $verilog-imenu-populated ()
+    (setq-local imenu-generic-expression
+                `(("*instance*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
+                                                 (: symbol))
+                                      spc (group symbol) eol) 1)
+                  ("*module*" ,($rx ^ "module " (group symbol) " (") 1))))
+
+  (general-add-hook 'verilog-mode-hook
+                    '($verilog-remove-lt-ligature
+                      $verilog-imenu-populated))
 #+END_SRC
 
 ** TCL
