@@ -891,6 +891,20 @@ with the display
         val)))
 #+END_SRC
 
+*** adaptive
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-prescient
+    :after (ivy)
+    :init
+    (setq prescient-filter-method '(regexp initialism))
+    :config
+    (setf (alist-get 'counsel-describe-variable ivy-re-builders-alist) 'ivy-prescient-re-builder)
+    (setf (alist-get 'counsel-describe-variable ivy-initial-inputs-alist) nil)
+    (setf (alist-get 'counsel-describe-variable ivy-sort-functions-alist) 'ivy-string<)
+    (setf (alist-get 'counsel-describe-function ivy-re-builders-alist) 'ivy-prescient-re-builder)
+    (setf (alist-get 'counsel-describe-function ivy-initial-inputs-alist) nil)
+    (setf (alist-get 'counsel-describe-function ivy-sort-functions-alist) 'ivy-string<)
+    (setf (alist-get t ivy-sort-functions-alist) 'ivy-prescient-sort-function))
 #+END_SRC
 
 ** evil
