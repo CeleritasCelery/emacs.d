@@ -72,7 +72,8 @@ the variable's :set property.
       `(progn ,@(nreverse forms))))
 #+END_SRC
 
-a simple function to convert from a cons cell to list for use with
+a simple function to
+convert from a cons cell to list for use with
 apply.
 #+BEGIN_SRC emacs-lisp
   (defsubst $flatten-cons (cons)
@@ -3001,6 +3002,9 @@ stalls.
 #+END_SRC
 
 * Org
+:PROPERTIES:
+:VISIBILITY: children
+:END:
 ** todos and general
 #+BEGIN_SRC emacs-lisp
   (use-package org
