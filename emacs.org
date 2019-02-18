@@ -854,6 +854,43 @@ with the display
           counsel-async-filter-update-time 100000))
 #+END_SRC
 
+*** rich
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-rich
+    :after (ivy counsel)
+    :config
+    (plist-put ivy-rich-display-transformers-list
+               'counsel-find-file
+               '(:columns
+                 ((ivy-read-file-transformer)
+                  (ivy-rich-counsel-find-file-truename (:face font-lock-doc-face)))))
+    (plist-put ivy-rich-display-transformers-list
+               'counsel-describe-variable
+               '(:columns
+                 ((counsel-describe-variable-transformer (:width 40))
+                  (ivy-rich-counsel-variable-value (:width 10))
+                  (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
+    (ivy-rich-mode))
+
+  (defun ivy-rich-counsel-find-file-truename (candidate)
+    (let ((type (car (file-attributes
+                      (directory-file-name
+                       (expand-file-name candidate ivy--directory))))))
+      (if (stringp type)
+          (concat "-> " (expand-file-name type ivy--directory))
+        "")))
+
+  (defun ivy-rich-counsel-variable-value (candidate)
+    (let* ((var (intern candidate))
+           (val (prin1-to-string
+                 (if (boundp var)
+                     (symbol-value var)
+                   '<unbound>))))
+      (if (< 11 (length val))
+          (substring val 0 10)
+        val)))
+#+END_SRC
+
 #+END_SRC
 
 ** evil
