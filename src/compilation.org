@@ -267,8 +267,15 @@ all the errors I have encountered in IPGen
   (defun $find-ult-log ()
     (concat "collage_work/ultiscan/logs/" (match-string 1) ".log"))
 
+  (defun $golden-file-log ()
+    (save-excursion
+      (forward-line -2)
+      (beginning-of-line)
+      (when (re-search-forward (err-rx ^ "\tLoading log: " filename) (line-end-position) t)
+        (match-string 1))))
+
   (defvar ipgen-error-regexp-alist
-    `((,(err-rx ^ info "-" (or "E" "F") "-: [CRT-" nums "] Error in connection file "
+    `((,(err-rx ^ info "-" (or "E" "F") "-: [CRT-" nums "] Error in conncection file "
                 -> " file " filename spc*
                 "\n" info " Error at line# " line)
        1 2)
@@ -284,7 +291,10 @@ all the errors I have encountered in IPGen
                 "\n\tstopped at line " line " due to error. " (1+ nonl))
        1 2)
       (,(err-rx ^ "gmake" (opt "[" num "]") ": *** [" filename "] Error " nums)
-       (1 "%s.run" "collage_work/ultiscan/logs/%s.log")))
+       (1 "%s.run" "collage_work/ultiscan/logs/%s.log"))
+      (,(err-rx ^ "-E- Golden FLS failing partitions: "
+                "\n    " filename)
+       $golden-file-log))
     "errors seen while running ipgen")
 #+END_SRC
 
