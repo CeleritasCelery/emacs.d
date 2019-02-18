@@ -1400,7 +1400,6 @@ the display function to be more consistent.
 
     (evil-collection-init 'helm)
     :config
-    (helm-mode)
     (helm-adaptive-mode)
     (dired-async-mode))
 #+END_SRC
