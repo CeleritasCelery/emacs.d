@@ -2492,7 +2492,7 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
   ^^-----------^^-------------------^^---------------------^^-------
   _n_ext       _b_ase               _<_: upper/base        _C_ombine
   _p_rev       _u_pper              _=_: upper/lower       _r_esolve
-  ^^           _l_ower              _>_: base/lower        _k_ill current
+  ^^           _l_ower              _>_: base/lower        _x_: kill current
   ^^           _a_ll                _R_efine
   ^^           _RET_: current       _E_diff
   "
@@ -2510,7 +2510,7 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
       ("E" smerge-ediff)
       ("C" smerge-combine-with-next)
       ("r" smerge-resolve)
-      ("k" smerge-kill-current)
+      ("x" smerge-kill-current)
       ("ZZ" (lambda ()
               (interactive)
               (save-buffer)
