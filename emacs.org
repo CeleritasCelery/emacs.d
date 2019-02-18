@@ -3454,6 +3454,7 @@ follow links with org return
     :init
     (csetq org-src-fontify-natively t
            org-src-window-setup 'current-window
+           org-babel-default-header-args:emacs-lisp '((:lexical . "yes"))
            org-src-tab-acts-natively t)
     (defun $org-src-lexical-bindings ()
       (setq-local lexical-binding t)))
