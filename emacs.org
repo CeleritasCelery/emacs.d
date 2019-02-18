@@ -808,16 +808,16 @@ it though.
           ivy-use-virtual-buffers t
           ivy-extra-directories nil
           ivy-use-selectable-prompt t
-          ivy-re-builders-alist '((t . ivy--regex-ignore-order)))
+          ivy-sort-max-size 34000 ;; slightly larger then number of functions defined
+          ivy-re-builders-alist '((t . ivy--regex-ignore-order))
+          ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
     ($leader-set-key
       "bg" 'ivy-switch-buffer)
     :config
-    (defun ivy-yank-action (x)
-      (kill-new x))
+    (ivy-mode)
     (ivy-set-actions
      t
-     '(("y" ivy-yank-action "yank")))
-    (ivy-set-actions 'counsel-find-file nil))
+     '(("y" kill-new "yank"))))
 #+END_SRC
 
 Some faces have org-level-4 use a larger face, which really messes
@@ -845,7 +845,15 @@ with the display
   (use-package counsel
     :general
     (:definer 'leader
-     "fF" 'counsel-find-file))
+     "fF" 'counsel-find-file)
+    :init
+    (setq counsel-git-cmd "/usr/intel/bin/git ls-files --full-name --"
+          counsel-git-grep-cmd-default "/usr/intel/bin/git --no-pager grep --full-name -n --no-color -i -I -e \"%s\""
+          counsel-git-log-cmd "GIT_PAGER=cat /usr/intel/bin/git log --grep '%s'"
+          counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
+          counsel-async-filter-update-time 100000))
+#+END_SRC
+
 #+END_SRC
 
 ** evil
