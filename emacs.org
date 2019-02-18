@@ -2823,11 +2823,7 @@ pop up the shell in my current directory
     :init
     ($leader-set-key
       "'" 'shell-pop
-      "\"" '$shell-pop-root)
-    (general-define-key
-     :keymaps '(global org-mode-map)
-     "C-c '" 'shell-pop
-     "C-c \"" '$shell-pop-root))
+      "\"" '$shell-pop-root))
 
   (defun $shell-pop-root (arg)
     "open a shell in the project root"
