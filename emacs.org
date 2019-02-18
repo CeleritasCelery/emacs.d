@@ -983,6 +983,21 @@ it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897
       (setq evil-this-type 'exclusive)))
 #+END_SRC
 
+Sometimes when I all clicking on a window I will accidentally drag.
+This leaves me in visual state, so my next comamnd behaves
+differently. We can fix this by not letting us drag to select less
+then 4 characters.
+#+BEGIN_SRC emacs-lisp
+  (advice-add 'evil-mouse-drag-region :after
+              (defun $fix-miss-drag (&rest _x)
+                (when (region-active-p)
+                  (cl-destructuring-bind (beg . end) (car (region-bounds))
+                    (when (> 4 (- end beg))
+                      (evil-normal-state))))))
+
+  (advice-add 'mouse-set-region :after 'deactivate-mark)
+#+END_SRC
+
 prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+BEGIN_SRC emacs-lisp
   (evil-ex-define-cmd "q" nil)
