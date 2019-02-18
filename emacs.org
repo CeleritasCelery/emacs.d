@@ -725,6 +725,17 @@ helm. This will let us preview the variable with TAB.
       (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols)))
 #+END_SRC
 
+Also add it to the ivy handler
+#+BEGIN_SRC emacs-lisp
+  (csetq counsel-describe-variable-function 'helpful-variable)
+  (csetq counsel-describe-function-function 'helpful-callable)
+
+  (general-define-key
+   "C-h f" 'counsel-describe-function
+   "C-h v" 'counsel-describe-variable
+   "C-h x" 'describe-char)
+#+END_SRC
+
 *** eyebrowse
 minimal window managment package.
 #+BEGIN_SRC emacs-lisp
