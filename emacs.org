@@ -708,9 +708,7 @@ functions. only tweak we need to make is let the window close with q
     :general
     ("C-h f" 'helpful-callable
      "C-h v" 'helpful-variable
-     "C-h k" 'helpful-key)
-    :config
-    (evil-collection-init 'helpful))
+     "C-h k" 'helpful-key))
 #+END_SRC
 
 we are going to add helpful to the completing read handler for
@@ -1189,10 +1187,7 @@ behave better with evil.
                    :keymaps keymaps
                    $leader-key nil
                    $mm-leader-key nil))))
-    (evil-collection-init '(calc calendar custom debug doc-view
-                                 elisp-mode dired help info
-                                 integration occur popup profiler
-                                 simple wgrep wdired which-key)))
+    (evil-collection-init))
 #+END_SRC
 
 *** surround
@@ -1399,7 +1394,6 @@ the display function to be more consistent.
      helm-adaptive-history-length 100
      helm-find-files-ignore-thing-at-point t)
 
-    (evil-collection-init 'helm)
     :config
     (helm-adaptive-mode)
     (dired-async-mode))
@@ -2339,7 +2333,6 @@ are done with ediff.
   (setq ediff-window-setup-function 'ediff-setup-windows-plain
         ediff-split-window-function 'split-window-horizontally
         ediff-diff-options "-w")
-  (evil-collection-init 'ediff)
 
   (winner-mode)
   (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
@@ -2379,11 +2372,6 @@ only look for git registered files
 Emacs built in version control
 #+BEGIN_SRC emacs-lisp
   (autoload (function vc-git-root) "vc-git")
-#+END_SRC
-
-use evil keybindings in vc files
-#+BEGIN_SRC emacs-lisp
-  (evil-collection-init 'vc-dir)
 #+END_SRC
 
 *** magit
@@ -2532,7 +2520,6 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
 
   (use-package git-timemachine
     :init
-    (evil-collection-init 'git-timemachine)
     ($leader-set-key
       "gt" 'git-timemachine))
 #+END_SRC
@@ -2984,7 +2971,6 @@ packages that assist in compiling and building code
     :init
     (csetq compilation-always-kill t)
     :config
-    (evil-collection-init 'compile)
     ($load-literate-file "src/compilation")
     (general-define-key
      :keymaps 'compilation-mode-map
@@ -3574,7 +3560,6 @@ just using =C-l=
     (csetq company-backends '(company-capf
                               (company-dabbrev-code company-keywords)
                               company-dabbrev))
-    (evil-collection-init 'company)
     ($leader-set-key
       "tc" 'company-mode)
     :config
