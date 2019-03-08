@@ -452,12 +452,9 @@ some point I would like to make this automatic by inspection.
   (defvar $model-cluster-alist '(("mdf" . "mdf_10nm")
                                  ("mem" "mem" "mcddr")))
 
-  (defun $get-cluster ()
-    (string-trim-right (shell-command-to-string "/usr/intel/bin/git config intel.cluster")))
-
   (defun $get-model-arguments ()
     "get the command line arguments for the model portion of this build"
-    (let ((model (alist-get ($get-cluster) $model-cluster-alist nil nil 'equal)))
+    (let ((model (alist-get ($git-command "config intel.cluster") $model-cluster-alist nil nil 'equal)))
       (if (listp model)
           (format " -dut %s -mc %s " (first model) (second model))
         (format " -dut %s " model))))
@@ -474,6 +471,13 @@ some point I would like to make this automatic by inspection.
                      (file-regular-p ".git"))
                  (file-exists-p link-script))
         (message "%s" (shell-command-to-string (format "%s %d" link-script time))))))
+
+  (defun $gatekeeper-env ()
+    `("GK_EVENTTYPE=gk"
+      ,(concat "GIT_TOOL_FLOW=" ($git-command "config intel.toolflow"))
+      ,(concat "GK_CLUSTER=" ($git-command "config intel.cluster"))
+      ,(concat "GK_STEP=" ($git-command "config intel.stepping"))
+      ,(concat "GK_BRANCH=" (file-name-base ($git-command "symbolic-ref refs/remotes/origin/HEAD")))))
 #+END_SRC
 
 define a custom compliation mode that is run based on the hydra above
@@ -483,16 +487,19 @@ define a custom compliation mode that is run based on the hydra above
 
   (defun $run-bman (filter)
     "run dft ipgen in the current model"
-    (let* ((model-root (file-truename (vc-git-root default-directory)))
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+    (let* ((model-root ($model-root))
+           (compilation-environment
+            (cons (concat "MODEL_ROOT=" model-root)
+                  ($gatekeeper-env)))
            (default-directory model-root)
-           (compilation-buffer-name-function
+           (name-fn
             (lambda (_mode)
               (format "*%s bman*"
                       (f-filename model-root)))))
       ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman"
                                   ($get-model-arguments) filter)
-                          'bman-mode)))
+                          'bman-mode
+                          name-fn)))
 
   (defun bman-run-clean-maybe (_proc)
     "Run bman clean unless we are running specific stages"
@@ -501,8 +508,7 @@ define a custom compliation mode that is run based on the hydra above
 
   (add-hook 'bman-mode-hook
             (defun bman-setup ()
-              (add-hook 'compilation-start-hook 'bman-run-clean-maybe nil 'local)
-              ($temp-link-git-worktree)))
+              (add-hook 'compilation-start-hook 'bman-run-clean-maybe nil 'local)))
 #+END_SRC
 
 *** simregress
@@ -527,20 +533,18 @@ custom compilation command for running regressions
                             ((file-exists-p file) file)
                             ((stringp file) (f-join reg-dir file))
                             (t (user-error "invalid file name %s" file))))
+           (fsdb (if (y-or-n-p "With waves? ") "-trex -fsdb -trex-" ""))
            (default-directory model-root)
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (compilation-environment (cons (concat "MODEL_ROOT=" model-root)
+                                          ($gatekeeper-env)))
            (compilation-buffer-name-function
             (lambda (mode)
               (format "*%s simregress %s*"
                       (f-filename model-root)
                       (f-filename test-list)))))
-      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save"
-                                  ($get-model-arguments) test-list)
+      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save %s"
+                                  ($get-model-arguments) test-list fsdb)
                           'simregress-mode)))
-
-  (add-hook 'simregress-mode-hook
-            (defun simregress-setup ()
-              ($temp-link-git-worktree 5)))
 #+END_SRC
 
 *** consume IP
@@ -635,13 +639,17 @@ a custom compilation command for running a turnin
                       (f-filename model-root)
                       (if mock "mock " "")
                       (downcase mm)))))
-      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c "
-                                  ($get-cluster)
-                                  " -s srvr10nm"
-                                  (when mock " -mock")
-                                  (when (and mock (not clone)) " -no_clone")
-                                  (when eco (concat " -bugecos " eco))
-                                  (when comment (format " -comments \"%s\"" comment)))
+      ($compilation-start (string-join
+                           (delq nil
+                                 (list "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c"
+                                       ($git-command "config intel.cluster")
+                                       "-s"
+                                       ($git-command "config intel.stepping")
+                                       (and mock "-mock")
+                                       (and mock (not clone) "-no_clone")
+                                       (and eco (concat "-bugecos " eco))
+                                       (and comment (format "-comments \"%s\"" comment))))
+                           " ")
                           'turnin-mode)))
 #+END_SRC
 ** utility
