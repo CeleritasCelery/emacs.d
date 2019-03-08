@@ -410,12 +410,17 @@ not match the resolution of my monitor results in weird text sizes.
 #+END_SRC
 
 *** themes
-Creating a collection of themes that I like. I can use
-=helm-themes= to switch between them. Some of these themes do
-not have all faces that I would like, so When I get some time I will
-modify them.
+Creating a collection of themes that I like. I can use =helm-themes=
+to switch between them. Some of these themes do not have all faces
+that I would like, so When I get some time I will modify them. See
+[[https://github.com/raxod502/straight.el/issues/265][this]] issue for conflict with challenger-deep and dracula.
 #+BEGIN_SRC emacs-lisp
-  (use-package challenger-deep-theme)
+  (use-package challenger-deep-theme
+    :straight (:host github :repo "challenger-deep-theme/emacs"
+               :local-repo "challenger-deep-theme"))
+  (use-package dracula-theme
+    :straight (:host github :repo "dracula/emacs"
+               :local-repo "dracula-theme"))
   (use-package gruvbox-theme)
   (use-package darktooth-theme
     :straight
@@ -423,7 +428,6 @@ modify them.
      :host github :repo "emacsfodder/emacs-theme-darktooth"
      :fork (:host github :repo "CeleritasCelery/emacs-theme-darktooth")))
   (use-package spacemacs-theme)
-  (use-package dracula-theme)
   (use-package moe-theme
     :init
     (add-to-list 'custom-theme-load-path "~/.emacs.d/straight/build/moe-theme/"))
