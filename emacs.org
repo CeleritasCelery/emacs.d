@@ -705,10 +705,10 @@ helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
 #+BEGIN_SRC emacs-lisp
   (use-package helpful
-    :general
-    ("C-h f" 'helpful-callable
-     "C-h v" 'helpful-variable
-     "C-h k" 'helpful-key))
+    :general ("C-h k" 'helpful-key)
+    :init
+    (setq find-function-C-source-directory
+          "/nfs/pdx/home/tjhinckl/custom/emacs-mirror/src"))
 #+END_SRC
 
 we are going to add helpful to the completing read handler for
