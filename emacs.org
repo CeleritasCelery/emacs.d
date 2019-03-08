@@ -788,9 +788,9 @@ changing the volume on my mic triggers these bindings. So we ignore them.
 #+END_SRC
 
 ** Ivy
-I feel like ivy is simpler to setup so I am going to give it a try. I am going
-to have to try to fix =counsel-ag= out of order matching if I want to live with
-it though.
+I feel like ivy is simpler to setup so I am going to give it a try. I
+am going to have to try to fix =counsel-ag= out of order matching if I
+want to live with it though.
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
@@ -802,6 +802,8 @@ it though.
      "C-S-H" help-map
      "C-l" 'ivy-alt-done
      "<C-return>" 'ivy-immediate-done)
+    ("C-x r b" 'counsel-bookmark
+     "C-x C-r" 'ivy-resume)
     :init
     (setq ivy-height 15
           ivy-use-virtual-buffers t
@@ -810,13 +812,20 @@ it though.
           ivy-sort-max-size 34000 ;; slightly larger then number of functions defined
           ivy-re-builders-alist '((t . ivy--regex-ignore-order))
           ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
-    ($leader-set-key
-      "bg" 'ivy-switch-buffer)
     :config
     (ivy-mode)
+    (add-to-list 'ivy-ignore-buffers (rx bos "*"))
+    (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "(")))
     (ivy-set-actions
      t
-     '(("y" kill-new "yank"))))
+     '(("y" $ivy-kill-new "yank"))))
+
+  (defun $ivy-kill-new (x &optional list)
+    (interactive)
+    (kill-new
+     (if list
+         (string-join list "\n")
+       x)))
 #+END_SRC
 
 Some faces have org-level-4 use a larger face, which really messes
@@ -834,29 +843,41 @@ with the display
 *** swiper
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
-    :init
-    ($leader-set-key
-      "ss" 'swiper))
+    :general
+    ("C-s" 'swiper))
 #+END_SRC
 
 *** counsel
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
-    :general
-    (:definer 'leader
-     "fF" 'counsel-find-file)
+    :bind (("C-x C-f" . counsel-find-file)
+           ("C-x C-j" . counsel-git)
+           ("M-x" . counsel-M-x))
     :init
     (setq counsel-git-cmd "/usr/intel/bin/git ls-files --full-name --"
           counsel-git-grep-cmd-default "/usr/intel/bin/git --no-pager grep --full-name -n --no-color -i -I -e \"%s\""
           counsel-git-log-cmd "GIT_PAGER=cat /usr/intel/bin/git log --grep '%s'"
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
+          counsel-bookmark-avoid-dired t
           counsel-async-filter-update-time 100000))
+#+END_SRC
+
+packages used to support counsel
+**** smex
+#+BEGIN_SRC emacs-lisp
+  (use-package smex)
+#+END_SRC
+
+**** wgrep
+#+BEGIN_SRC emacs-lisp
+  (use-package wgrep)
 #+END_SRC
 
 *** rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
-    :after (ivy counsel)
+    :demand t
+    :after counsel
     :config
     (plist-put ivy-rich-display-transformers-list
                'counsel-find-file
@@ -890,19 +911,23 @@ with the display
         val)))
 #+END_SRC
 
-*** adaptive
+*** prescient
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-prescient
-    :after (ivy)
+    :demand t
+    :after counsel
     :init
-    (setq prescient-filter-method '(regexp initialism))
+    (setq prescient-filter-method '(regexp initialism)
+          ivy-prescient-sort-commands '(counsel-bookmark))
     :config
+    (prescient-persist-mode)
+    (advice-add #'ivy-read :filter-args #'ivy-prescient--enable-sort-commands)
+    (advice-add #'ivy--get-action :filter-return #'ivy-prescient--wrap-action)
     (setf (alist-get 'counsel-describe-variable ivy-re-builders-alist) 'ivy-prescient-re-builder)
-    (setf (alist-get 'counsel-describe-variable ivy-initial-inputs-alist) nil)
     (setf (alist-get 'counsel-describe-variable ivy-sort-functions-alist) 'ivy-string<)
     (setf (alist-get 'counsel-describe-function ivy-re-builders-alist) 'ivy-prescient-re-builder)
-    (setf (alist-get 'counsel-describe-function ivy-initial-inputs-alist) nil)
     (setf (alist-get 'counsel-describe-function ivy-sort-functions-alist) 'ivy-string<)
+    (setf (alist-get 'read-file-name-internal ivy-sort-functions-alist) 'ivy-prescient-sort-function)
     (setf (alist-get t ivy-sort-functions-alist) 'ivy-prescient-sort-function))
 #+END_SRC
 
@@ -1370,19 +1395,13 @@ the display function to be more consistent.
                 helm-read-file-map)
      "C-l" 'helm-execute-persistent-action
      "C-h" 'helm-find-files-up-one-level)
-    ("M-x" 'helm-M-x
-     "M-y" 'helm-show-kill-ring
+    ("M-y" 'helm-show-kill-ring
      "C-x C-x" 'helm-all-mark-rings
      "C-c C-f" 'helm-find-files)
     (:definer 'leader
-     "fb" 'helm-filtered-bookmarks
-     "ff" 'helm-find-files
      "fr" 'helm-recentf
-     "r"  'helm-resume
-     "bh" 'helm-buffers-list
-     "bb" 'helm-mini)
+     "r"  'helm-resume)
     :init
-    ($leader-set-key "SPC" 'helm-M-x)
     (csetq
      helm-split-window-in-side-p t
      helm-buffer-max-length 60
@@ -1393,7 +1412,6 @@ the display function to be more consistent.
      helm-ff-delete-files-function 'helm-delete-marked-files-async
      helm-adaptive-history-length 100
      helm-find-files-ignore-thing-at-point t)
-
     :config
     (helm-adaptive-mode)
     (dired-async-mode))
@@ -1642,8 +1660,6 @@ helm builtins
     (setq helm-swoop-split-with-multiple-windows t
           helm-swoop-speed-or-color t
           helm-swoop-candidate-number-limit 1000)
-    (general-define-key
-     "C-s" '$helm-swoop)
     :config
     (add-hook 'after-revert-hook 'helm-swoop--clear-cache)
     (general-define-key
