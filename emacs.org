@@ -2418,8 +2418,8 @@ files can quickly fill up my home disk.
       "g" '(:ignore t :wk "git")
       "ga" 'magit-dispatch-popup
       "gf" 'magit-file-popup)
-    :config
     (evil-ex-define-cmd "git" 'magit-status)
+    :config
     (general-define-key
      :keymaps 'magit-diff-mode-map
      "SPC" nil))
