@@ -2386,6 +2386,14 @@ only look for git registered files
   (csetq vc-handled-backends '(Git))
 #+END_SRC
 
+A simple wrapper to call git
+#+BEGIN_SRC emacs-lisp
+  (defun $git-command (&rest cmd)
+    (string-trim-right
+     (shell-command-to-string
+      (concat (executable-find "git") " " (string-join cmd " ")))))
+#+END_SRC
+
 *** vc-git
 Emacs built in version control
 #+BEGIN_SRC emacs-lisp
@@ -2403,10 +2411,10 @@ files can quickly fill up my home disk.
     (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
     ($leader-set-key
       "g" '(:ignore t :wk "git")
-      "ga" 'magit-status
-      "gg" 'magit-dispatch-popup
+      "ga" 'magit-dispatch-popup
       "gf" 'magit-file-popup)
     :config
+    (evil-ex-define-cmd "git" 'magit-status)
     (general-define-key
      :keymaps 'magit-diff-mode-map
      "SPC" nil))
@@ -2616,18 +2624,37 @@ commit all generated files from IPGen. This is much faster then try to
 open magit and doing it manually
 #+BEGIN_SRC emacs-lisp
   (defun $git-commit-ipgen-output ()
-    "Add stage ipgen output and commit it"
+    "Stage ipgen output and commit it"
     (interactive)
     (if (equal 0 (call-process "git" nil nil nil "diff-index" "--quiet" "--cached" "HEAD"))
         (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory))))
               (msg (read-string "output files commit message: ")))
           (message "staging output files...")
           (cl-loop for model in models
-                   do (call-process "git" nil nil nil "add" "--all" model))
+                   do ($git-clean-corekits model)
+                   and do ($git-command "add --all" model))
           (message "committing output files...")
-          (call-process "git" nil nil nil "commit" "-m" msg)
-          (message "done"))
+          ($git-command "commit -m" (format "\"%s\"" msg))
+          (message "done")
+          (when (eq major-mode 'magit-status-mode)
+            (magit-refresh-buffer)))
       (user-error "index not clean")))
+
+  (defun $git-clean-corekits (dir)
+    "Remove all corekits that are unchanged.
+  CoreKits are binary files that include things like the timestamp,
+  which means they change after every run. But we can look at the
+  build.summary file to see if there are any actual changes. If the
+  build summary file has changed then we know the corekit has
+  changed as well. This will prevent all the corekits from
+  polluting our diffs."
+    (let* ((default-directory (expand-file-name "dft/tools/collage/reports/" dir)))
+      (cl-loop for build in (split-string ($git-command "ls-files -m"))
+               do ($git-command
+                   "add" (concat "../coreKit/"
+                                 (file-name-base build)
+                                 ".coreKit")))
+      ($git-command "checkout -- ../coreKit/")))
 
   (defun $git-discard-ipgen-output ()
     "Discard all IPGen output"
@@ -2635,8 +2662,11 @@ open magit and doing it manually
     (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory)))))
       (message "discarding output files...")
       (cl-loop for model in models
-               do (call-process "git" nil nil nil "checkout" "HEAD" model))
-      (message "done")))
+               do ($git-command "checkout HEAD" model))
+      (message "done")
+      (when (eq major-mode 'magit-status-mode)
+        (magit-refresh-buffer))))
+
 #+END_SRC
 
 
@@ -2652,7 +2682,7 @@ where the repo is located
       (shell-command-to-string
        (apply 'format "git config --local user.name %s && git config --local user.email %s"
               (if (string-prefix-p "/nfs/pdx/disks/sdg74_1172/tjhinckl/custom" (file-truename default-directory))
-                  '("CeleritasCelery" "t.macman@gmail.com")
+                  '("\"Troy Hinckley\"" "t.macman@gmail.com")
                 '("\"Hinckley, Troy J\"" "troy.j.hinckley@intel.com"))))
       (message "setting git user credentials")))
 
