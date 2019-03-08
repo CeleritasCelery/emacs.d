@@ -134,6 +134,16 @@ that hook and set the alist back to our canonical version.
         (string-remove-prefix "  \"")
         (string-remove-suffix "\",\n"))))
 
+  (defun $find-par-file ()
+    (let* ((log (buffer-file-name))
+           (root (vc-git-root log))
+           (model (and (string-match (rx "collage_assemble_"
+                                         (group (1+ any))
+                                         "_collage_assemble")
+                                     log)
+                       (match-string 1 log))))
+      (format "%stools/collage/integ_specs/%s_soc_par.txt" root model)))
+
   (setq compilation-error-regexp-alist
         (setq $compilation-error-regexp-alist
               `((,(err-rx ^ "-I-:Error-" ->
@@ -190,7 +200,6 @@ that hook and set the alist back to our canonical version.
                  1 2)
                 (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
                  1 2)
-                ;; added space
                 (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file adhoc connection file " filename
                           " \n Error at line# " line)
                  1 2)
@@ -216,7 +225,9 @@ that hook and set the alist back to our canonical version.
                  1 2)
                 (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
                           "\n  Source file \"" filename "\"")
-                 1))))
+                 1)
+                (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
+                 $find-par-file))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
@@ -429,6 +440,8 @@ availible
       (,(err-rx ^ "-I-:DIE signal: " (1+ nonl) " (in " filename ")")
        1)
       (,(err-rx ^ "-I-:DIE signal: \n-I-:" (1+ nonl) " at " filename))
+      (,(err-rx ^ "-I-:DIE signal: ERROR: Couldn't find file '" filename "' on path:")
+       1)
       (,(err-rx ^ "-E-: FAILED: " fill " : LOG : (Missing) " filename) 1))
     "Regex for errors encountered in bman runs")
 #+END_SRC
