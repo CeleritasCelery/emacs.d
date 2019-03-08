@@ -772,6 +772,21 @@ minor modes that I commonly toggle on and off
     "tg" 'git-gutter-mode)
 #+END_SRC
 
+*** outshine
+The outshine package is an advanced version of outline mode that aims
+to add more org like features. It may eventually replace my literate
+config. Navi allows navigation of outshine headers.
+#+BEGIN_SRC emacs-lisp
+  (use-package outshine
+    :hook emacs-lisp-mode
+    :straight
+    (:host github :repo "alphapapa/outshine"
+     :fork (:host github :repo "CeleritasCelery/outshine")))
+
+  (use-package navi-mode)
+
+#+END_SRC
+
 *** restart
 #+BEGIN_SRC emacs-lisp
   (use-package restart-emacs
@@ -1920,20 +1935,6 @@ dumb jump uses regexp search to try and find the definition of a symbol
     :general
     (:definer 'leader
      "J" 'dumb-jump-go))
-#+END_SRC
-
-**** outshine
-The outshine package is an advanced version of outline mode that aims
-to add more org like features. It may eventually replace my literate
-config. Navi allows navigation of outshine headers.
-#+BEGIN_SRC emacs-lisp
-  (use-package outshine
-    :hook emacs-lisp-mode
-    :straight
-    (:host github :repo "alphapapa/outshine"
-     :fork (:host github "CeleritasCelery/outshine")))
-
-  (use-package navi-mode)
 #+END_SRC
 
 **** avy
