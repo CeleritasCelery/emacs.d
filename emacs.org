@@ -1464,99 +1464,6 @@ Create a key dispatcher for commonly used commands
      "d" 'helm-ff-run-delete-file))
 #+END_SRC
 
-open file in clipboard. Usually something I copied from an
-email. automatically add the tramp header if from a different site
-#+BEGIN_SRC emacs-lisp
-  (defun $normalize-file-name (file)
-    "This functions does 3 things:
-  1. update MODEL_ROOT to the current model
-  2. automatically add remote prefix if required
-  3. Remove problematic formating from files "
-    ;; set MODEL_ROOT if variable if present in file name
-    (when-let ((root (and (string-match-p "MODEL_ROOT" file)
-                          (vc-git-root default-directory))))
-      (--> root
-           (file-truename it)
-           (string-remove-suffix "/" it)
-           (string-remove-prefix (or (file-remote-p it) "") it)
-           (setenv "MODEL_ROOT" it)))
-    ;; add remote url if required
-    (let* ((current-site (getenv "EC_SITE"))
-           (target-site (if (string-match (rx bos "/nfs/" (group (1+ word))) file)
-                            (match-string 1 file)
-                          current-site))
-           (remote-url (if (or (equal target-site "site")
-                               (equal current-site target-site))
-                           ""
-                         (format "/%s:%s:" tramp-default-method target-site))))
-      ;; remove problematic formatting from files
-      (thread-last (concat remote-url file)
-        (replace-regexp-in-string (rx (1+ (any space "\""))) "")
-        (replace-regexp-in-string (rx (1+ "/")) "/")
-        (replace-regexp-in-string "$ENV" "$"))))
-
-  (defun $get-path-at-point ()
-    "Get the filepath at point. This includes remote paths and
-    enviroment variables."
-    (or (when (and (memq major-mode '(cperl-mode perl-mode))
-                   (require 'ffap-perl-module nil 'noerror))
-          (ffap-perl-module-file-at-point))
-        (-let* (((start end) (--map (save-excursion
-                                      (funcall it "-{}[:alnum:]$/._~\"")
-                                      (point))
-                                    '(skip-chars-backward skip-chars-forward)))
-                (path (buffer-substring-no-properties start end)))
-          (if (save-excursion
-                (goto-char start)
-                (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position)))
-              (concat "$MODEL_ROOT" path)
-            path))))
-
-  (defun $open-file-in-clipboard ()
-    "Open the file name in the clipboard with helm-ff"
-    (interactive)
-    (let* ((file ($normalize-file-name (string-trim (current-kill 0)))))
-      (require 'helm-files)
-      (helm-find-files-1 file (file-name-base file))))
-
-  (defun $find-file-at-point ()
-    "A better replacement for `find-file-at-point' that gives me
-  the full power of helm"
-    (interactive)
-    (let ((file ($normalize-file-name (concat (or (file-remote-p default-directory)
-                                                  "")
-                                              ($get-path-at-point)))))
-      (require 'helm-files)
-      (helm-find-files-1 file (file-name-base file))))
-
-  (defun $change-model ()
-    "Open a model in workspace"
-    (interactive)
-    (helm-find-files-1 "~/workspace/"))
-
-  ($leader-set-key
-    "fo" '$open-file-in-clipboard
-    "fw" '$change-model)
-  (general-define-key
-   :states '(normal visual motion)
-   :keymaps 'global
-   "gf" '$find-file-at-point)
-#+END_SRC
-
-start a find file session from project root
-#+BEGIN_SRC emacs-lisp
-  (defun $find-file-project-root ()
-    "start a helm find files session from project root"
-    (interactive)
-    (require 'helm-files)
-    (if-let ((root (vc-git-root default-directory)))
-        (helm-find-files-1 root)
-      (user-error "no root found for current file")))
-
-  ($leader-set-key
-    "fp" '$find-file-project-root)
-#+END_SRC
-
 get helm history when writing a file
 [[https://github.com/emacs-helm/helm/issues/2088#issuecomment-421999031][emacs-helm/helm#2088]]
 #+BEGIN_SRC emacs-lisp
@@ -2227,6 +2134,101 @@ collection of functions stolen from spacemacs
     "bd" '$kill-this-buffer
     "fD" '$delete-file
     "fR" '$rename-file)
+#+END_SRC
+
+open file in clipboard. Usually something I copied from an
+email. automatically add the tramp header if from a different site
+#+BEGIN_SRC emacs-lisp
+  (defun $normalize-file-name (file)
+    "This functions does 3 things:
+  1. update MODEL_ROOT to the current model
+  2. automatically add remote prefix if required
+  3. Remove problematic formating from files "
+    ;; set MODEL_ROOT if variable is present in file name
+    (when-let ((root (and (string-match-p "MODEL_ROOT" file)
+                          (vc-git-root default-directory))))
+      (--> root
+           (file-truename it)
+           (string-remove-suffix "/" it)
+           (string-remove-prefix (or (file-remote-p it) "") it)
+           (setenv "MODEL_ROOT" it)))
+    ;; add remote url if required
+    (let* ((current-site (getenv "EC_SITE"))
+           (target-site (if (string-match (rx bos "/nfs/" (group (1+ word))) file)
+                            (match-string 1 file)
+                          current-site))
+           (remote-url (if (or (equal target-site "site")
+                               (equal current-site target-site))
+                           ""
+                         (format "/%s:%s:" tramp-default-method target-site))))
+      ;; remove problematic formatting from files
+      (thread-last (concat remote-url file)
+        (replace-regexp-in-string (rx (1+ (any space "\""))) "")
+        (replace-regexp-in-string (rx (1+ "/")) "/")
+        (replace-regexp-in-string "$ENV" "$")
+        (substitute-in-file-name))))
+
+  (defun $get-path-at-point ()
+    "Get the filepath at point. This includes remote paths and
+    enviroment variables."
+    (or (when (and (memq major-mode '(cperl-mode perl-mode))
+                   (require 'ffap-perl-module nil 'noerror))
+          (ffap-perl-module-file-at-point))
+        (-let* (((start end) (--map (save-excursion
+                                      (funcall it "-{}[:alnum:]$/._~\"")
+                                      (point))
+                                    '(skip-chars-backward skip-chars-forward)))
+                (path (buffer-substring-no-properties start end)))
+          (if (save-excursion
+                (goto-char start)
+                (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position)))
+              (concat "$MODEL_ROOT" path)
+            path))))
+
+  (defun $open-file-in-clipboard ()
+    "Open the file name in the clipboard with helm-ff"
+    (interactive)
+    (let* ((file ($normalize-file-name (string-trim (current-kill 0))))
+           (default-directory (file-name-directory file)))
+      (counsel-find-file (file-name-base file))))
+
+  (defun $find-file-at-point ()
+    "A better replacement for `find-file-at-point' that gives me
+  the full power of helm"
+    (interactive)
+    (let* ((file ($normalize-file-name (concat (or (file-remote-p default-directory)
+                                                   "")
+                                               ($get-path-at-point))))
+           (default-directory (file-name-directory file)))
+      (counsel-find-file (file-name-nondirectory file))))
+
+  (defun $change-model ()
+    "Open a model in workspace"
+    (interactive)
+    (let ((default-directory "/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/"))
+      (counsel-find-file)))
+
+  ($leader-set-key
+    "fo" '$open-file-in-clipboard
+    "fw" '$change-model)
+  (general-define-key
+   :states '(normal visual motion)
+   :keymaps 'global
+   "gf" '$find-file-at-point)
+#+END_SRC
+
+start a find file session from project root
+#+BEGIN_SRC emacs-lisp
+  (defun $find-file-project-root ()
+    "start a helm find files session from project root"
+    (interactive)
+    (require 'helm-files)
+    (if-let ((root (vc-git-root default-directory)))
+        (helm-find-files-1 root)
+      (user-error "no root found for current file")))
+
+  ($leader-set-key
+    "fp" '$find-file-project-root)
 #+END_SRC
 
 *** find similar file
