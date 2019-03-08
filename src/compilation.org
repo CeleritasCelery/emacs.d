@@ -739,73 +739,75 @@ to require previous steps. It checks to see if the new compilation is
 using the same root as a current complilation. If that is the case it,
 it blocks until the current one is done.
 #+BEGIN_SRC emacs-lisp
-  (cl-defun $command-requires-blocking (mode &optional (running compilation-in-progress))
-    "return non-nil if compilations are being run using the current
-  root"
-    (cl-some (lambda (proc)
-               (when proc
-                 (let ((buffer (process-buffer proc))
-                       (dependancies (cons 'compilation-mode (alist-get mode $compilation-model-dependancies))))
-                   (and (process-live-p proc)
-                        (memq (buffer-local-value 'major-mode buffer) dependancies)
-                        ($same-root default-directory buffer)))))
-             running))
+  (defun $command-requires-blocking (mode dir)
+    "Return t, if command might require adding to queue."
+    (cl-loop for proc in compilation-in-progress
+             for buf = (and proc (process-buffer proc))
+             if (and proc buf
+                     (process-live-p proc)
+                     ($command-blocked-by mode dir buf))
+             return t))
+
+  (defun $command-blocked-by (mode dir buf)
+    (let ((dep (cons 'compilation-mode
+                     (nthcdr (1+ (cl-position mode $command-build-order))
+                             $command-build-order))))
+      (and (memq (buffer-local-value 'major-mode buf) dep)
+           ($same-root dir buf))))
 
   (defun $same-root (buffer1 buffer2)
+    "return t if commands are being run using the current root"
     (apply 'file-equal-p
            (--map (vc-git-root (if (bufferp it)
                                    (with-current-buffer it default-directory)
                                  it))
                   (list buffer1 buffer2))))
 
-  (defvar $compilation-model-dependancies
-    '((bman-mode bman-mode ipgen-mode)
-      (compilation-mode ipgen-mode bman-mode)
-      (ipgen-mode)
-      (simregress-mode bman-mode)
-      (turnin-mode bman-mode ipgen-mode))
-    "Build order for the models to determine blocking")
+  (defvar $command-build-order
+    (mapcar (lambda (x)
+              (intern-soft (concat (symbol-name x) "-mode")))
+            '(turnin simregress bman bman ipgen consume-ip))
+    "Build order of commands that might require blocking.
+  If an entry appears twice, that means it will block on itself.")
 
   (defvar $compilation-command-queue nil
     "compilation commands that are queued to be run once their
-    dependaceies have finished")
-
-  (defvar $compilation-dynamic-closures '(compilation-buffer-name-function
-                                          compilation-environment
-                                          default-directory))
+    dependencies have finished")
 
   (defun $compilation-clear-command-queue ()
     (interactive)
     (setq $compilation-command-queue nil))
 
-  (defun $compilation-start (command mode &rest args)
+  (defun $compilation-start (command mode &optional name-function)
     "start compilation if there are not other compliations running
     in the same root. If there are, defer till those compilations
     complete successfully"
-    (if (and ($command-requires-blocking mode)
-             (y-or-n-p "Add to command queue? "))
-        (add-to-list '$compilation-command-queue
-                     (list (mapcar (lambda (var)
-                                     (list var `',(symbol-value var)))
-                                   $compilation-dynamic-closures)
-                           command mode args))
-      (apply 'compilation-start command mode args)))
+    (let ((dir (or compilation-directory
+                   default-directory)))
+      (if (and ($command-requires-blocking mode dir)
+               (y-or-n-p "Add to command queue? "))
+          (add-to-list '$compilation-command-queue
+                       (list command
+                             mode
+                             (or name-function
+                                 compilation-buffer-name-function)
+                             dir
+                             compilation-environment)
+                       'append)
+        (compilation-start command mode name-function))))
 
   (defun $compilation-pop-command-queue (buffer exit-string)
     (setq $compilation-command-queue
-          (cl-loop for (closure command mode args) in $compilation-command-queue
-                   unless (eval `(let ,closure
-                                   (if (and (string-prefix-p "exited abnormally" exit-string)
-                                            ($command-requires-blocking mode (list (get-buffer-process buffer))))
-                                       ;; if we return t, we will
-                                       ;; not collect this command,
-                                       ;; essenstially removing for
-                                       ;; the queue
-                                       t
-                                     (unless ($command-requires-blocking mode)
-                                       (apply 'compilation-start command mode args))))
-                                (cadr #'(lambda)))
-                   collect (list closure command mode args))))
+          (cl-loop for waiting in $compilation-command-queue
+                   for (command mode name-fn dir env) = waiting
+                   if (and (string-prefix-p "exited abnormally" exit-string)
+                           ($command-blocked-by mode dir buffer))
+                   do (ignore)
+                   else if (not ($command-requires-blocking mode dir))
+                   do (let ((compilation-directory dir)
+                            (compilation-environment env))
+                        (compilation-start command mode name-fn))
+                   else collect waiting)))
 
   (add-hook 'compilation-finish-functions '$compilation-pop-command-queue)
 #+END_SRC
@@ -853,12 +855,10 @@ finished or running, and easily jump to the associated buffer.
                                                  (memq (get-buffer-process buffer) compilation-in-progress)))
                                            $compilation-finished-buffers))
            (waiting-buffers (mapcar  (lambda (command)
-                                       (get-buffer-create (let ((env (car command))
-                                                                (mode (string-remove-suffix "-mode" (symbol-name (caddr command)))))
-                                                            (eval `(let ,env
-                                                                     (if compilation-buffer-name-function
-                                                                         (funcall compilation-buffer-name-function ,mode)
-                                                                       "*generic compilation placeholder*"))))))
+                                       (get-buffer-create
+                                        (cl-destructuring-bind (_cmd mode name _dir _env) command
+                                          (funcall (or name compilation-buffer-name-function 'identity)
+                                                   (string-remove-suffix "-mode" (symbol-name mode))))))
                                      $compilation-command-queue))
            (formatted-stalled-buffers (--map ($compilation-format-helm-candidate (process-buffer it) "stalled" 'compilation-warning)
                                              stalled-procs))
