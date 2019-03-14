@@ -2442,6 +2442,25 @@ clear status.
   (add-hook 'midnight-hook 'recentf-save-list)
 #+END_SRC
 
+*** auto-insert
+auto insert is a builtin templating library. It is not very easy to
+use, but thankfully my usecases are very simple.
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-insert
+    :straight nil
+    :defer 5
+    :init
+    (setq auto-insert-query nil
+          auto-insert-alist
+          '(((emacs-lisp-mode . "Emacs Lisp header")
+             nil ";;; -*- lexical-binding: t; -*-\n\n" _)
+            (("\\.p[lm]\\'" . "Perl shebang")
+             nil "#!/usr/intel/pkgs/perl/5.14.1/bin/perl\n\n"
+             "use strict;\n" "use warnings;\n\n" _)
+            ((python-mode . "Python shebang")
+             nil "#!/usr/intel/bin/python3.6.3a\n\n" _))))
+#+END_SRC
+
 *** ediff
 I like to keep everything in one frame. I am not a mutli-window
 heathen from 2003. We also want to restore the window config after we
