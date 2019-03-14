@@ -546,8 +546,8 @@ pretty well, but I have a couple of things I would like to change.
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
     :general
-    (:definer 'leader
-     "w" 'ace-window)
+    (:states '(motion)
+     "Q" 'ace-window)
     :init
     (setq aw-dispatch-always t
           aw-background nil)
