@@ -2461,6 +2461,18 @@ use, but thankfully my usecases are very simple.
              nil "#!/usr/intel/bin/python3.6.3a\n\n" _))))
 #+END_SRC
 
+
+*** winner
+#+BEGIN_SRC emacs-lisp
+  (winner-mode)
+  (defhydra $winner ()
+    "Hydra for winner-mode"
+    ("u" winner-undo "undo")
+    ("r" winner-redo "redo"))
+  (with-eval-after-load 'ace-window
+    (add-to-list 'aw-dispatch-alist '(?u $winner/winner-undo))
+    (add-to-list 'aw-dispatch-alist '(?J aw-switch-buffer-other-window "Switch Buffer Other Window")))
+#+END_SRC
 *** ediff
 I like to keep everything in one frame. I am not a mutli-window
 heathen from 2003. We also want to restore the window config after we
