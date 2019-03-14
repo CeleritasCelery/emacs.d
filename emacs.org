@@ -180,6 +180,13 @@ use the emacs client server so that we can send output to this emacs instance
   (add-hook 'after-init-hook 'server-start)
 #+END_SRC
 
+
+*** site
+set the site I will be working in
+#+BEGIN_SRC emacs-lisp
+  (defvar $site (intern-soft (getenv "EC_SITE"))
+    "Current EC site")
+#+END_SRC
 ** Package Manager
 We are going to use =straight.el= as package manager because it allows
 us to easily maintain private repos of packages.
@@ -2245,9 +2252,11 @@ email. automatically add the tramp header if from a different site
                            ""
                          (format "/%s:%s:" tramp-default-method target-site))))
       ;; remove problematic formatting from files
-      (thread-last (concat remote-url file)
+      (thread-last (expand-file-name file default-directory)
+        (concat remote-url)
         (replace-regexp-in-string (rx (1+ (any space "\""))) "")
         (replace-regexp-in-string (rx (1+ "/")) "/")
+        (string-remove-prefix "./")
         (replace-regexp-in-string "$ENV" "$")
         (substitute-in-file-name))))
 
@@ -2268,27 +2277,33 @@ email. automatically add the tramp header if from a different site
               (concat "$MODEL_ROOT" path)
             path))))
 
+  (defun $counsel-initial-input (file)
+    (unless (file-directory-p file)
+      (concat (file-name-nondirectory file) "\\_>")))
+
   (defun $open-file-in-clipboard ()
-    "Open the file name in the clipboard with helm-ff"
+    "Open the file name in the clipboard"
     (interactive)
     (let* ((file ($normalize-file-name (string-trim (current-kill 0))))
            (default-directory (file-name-directory file)))
-      (counsel-find-file (file-name-base file))))
+      (counsel-find-file ($counsel-initial-input file))))
 
   (defun $find-file-at-point ()
-    "A better replacement for `find-file-at-point' that gives me
-  the full power of helm"
+    "A better replacement for `find-file-at-point'"
     (interactive)
-    (let* ((file ($normalize-file-name (concat (or (file-remote-p default-directory)
-                                                   "")
-                                               ($get-path-at-point))))
+    (let* ((file ($normalize-file-name
+                  (concat (or (file-remote-p default-directory) "")
+                          ($get-path-at-point))))
            (default-directory (file-name-directory file)))
-      (counsel-find-file (file-name-nondirectory file))))
+      (counsel-find-file ($counsel-initial-input file))))
 
   (defun $change-model ()
     "Open a model in workspace"
     (interactive)
-    (let ((default-directory "/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/"))
+    (let ((default-directory
+            (if (eq site 'pdx)
+                "/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/"
+              "/nfs/sc/disks/sdg74_1185/tjhinckl/workspace/")))
       (counsel-find-file)))
 
   ($leader-set-key
@@ -2306,12 +2321,13 @@ start a find file session from project root
     "start a helm find files session from project root"
     (interactive)
     (require 'helm-files)
-    (if-let ((root (vc-git-root default-directory)))
-        (helm-find-files-1 root)
+    (if-let ((root (vc-git-root default-directory))
+             (default-directory root))
+        (counsel-find-file)
       (user-error "no root found for current file")))
 
-  ($leader-set-key
-    "fp" '$find-file-project-root)
+  (general-define-key
+   "C-x C-p" '$find-file-project-root)
 #+END_SRC
 
 *** find similar file
