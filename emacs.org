@@ -672,6 +672,19 @@ quick movement hydra.
     "bn" 'buffer-nav/next-buffer)
 #+END_SRC
 
+
+**** buffer expose
+show all buffers in a buffer switcher popup. usefull if you can't
+remember the name of a buffer, but know what it "looks like".
+#+BEGIN_SRC emacs-lisp
+  (use-package buffer-expose
+    :commands buffer-expose
+    :init
+    (setq buffer-expose-rescale-factor 0.5)
+    ($leader-set-key
+      "bj" 'buffer-expose))
+#+END_SRC
+
 *** window
 switch back to minibuffer when it is active.
 
