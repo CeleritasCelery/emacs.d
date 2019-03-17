@@ -4405,6 +4405,13 @@ simple mode for par.txt
   (add-to-list 'auto-mode-alist `(,(rx "par.txt" eos) . par-mode))
 #+END_SRC
 
+Use dyanmic space in par mode. Meaning that we can editing something
+and will automatically adjust the whitespace
+#+BEGIN_SRC emacs-lisp
+  (use-package dynamic-spaces
+    :hook par-mode)
+#+END_SRC
+
 Function to reload the postsim file after changing the post process
 #+BEGIN_SRC emacs-lisp
 (defun $rerun-postprocess ()
