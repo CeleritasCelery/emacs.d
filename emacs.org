@@ -954,6 +954,7 @@ with the display
   (use-package counsel
     :bind (("C-x C-f" . counsel-find-file)
            ("C-x C-j" . counsel-git)
+           ("C-c s" . counsel-ag)
            ("M-x" . counsel-M-x))
     :init
     (setq counsel-git-cmd "/usr/intel/bin/git ls-files --full-name --"
