@@ -3739,6 +3739,16 @@ follow links with org return
   (setq org-return-follows-link t)
 #+END_SRC
 
+** editing
+Auto capitlization is a really handy, especially since we can
+customize it for any keyword we want.
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-capitalize
+    :hook org-mode
+    :init
+    (setq auto-capitalize-words `("I" "English" "MDF" "UPF" "IPGen" "SNR" )))
+#+END_SRC
+
 ** src blocks
 #+BEGIN_SRC emacs-lisp
   (use-package org-src
