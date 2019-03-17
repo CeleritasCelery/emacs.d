@@ -2649,14 +2649,20 @@ intel is not support. Also the Trash at intel is only 100M so trashing
 files can quickly fill up my home disk.
 #+BEGIN_SRC emacs-lisp
   (use-package magit
+    :general
+    ("C-x g" 'magit-status
+     "C-x M-g" 'magit-dispatch
+     "C-c M-g" 'magit-file-dispatch)
     :init
     (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
     ($leader-set-key
-      "g" '(:ignore t :wk "git")
-      "ga" 'magit-dispatch-popup
-      "gf" 'magit-file-popup)
+      "g" '(:ignore t :wk "git"))
     (evil-ex-define-cmd "git" 'magit-status)
+    ;; make transient not take the width of the whole frame
+    (setq transient-display-buffer-action
+          '(display-buffer-below-selected))
     :config
+    (add-hook 'dired-mode-hook 'magit-file-mode)
     (general-define-key
      :keymaps 'magit-diff-mode-map
      "SPC" nil))
