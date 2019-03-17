@@ -2126,6 +2126,17 @@ line only
       "j" '(:keymap evilem-map :package evil-easymotion)))
 #+END_SRC
 
+*** symbols
+This pacakge highlights the symbol at point, and provides shortcuts to
+interact with it when the cursor is over it
+#+BEGIN_SRC emacs-lisp
+  (use-package symbol-overlay
+    :init
+    ($leader-set-key
+      "ii" 'symbol-overlay-put
+      "ic" 'symbol-overlay-remove-all))
+#+END_SRC
+
 *** yasnippet
 provides snippets for adding complex blocks. use it with =M-/=
 #+BEGIN_SRC emacs-lisp
