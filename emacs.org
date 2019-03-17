@@ -1276,7 +1276,6 @@ general leader key bindings
     "hS"  'profiler-stop
     "hr"  'profiler-report
     "hR"  'profiler-reset
-    "d" 'save-buffer
     "br" 'rename-buffer
     "bR" 'revert-buffer
     "s" '(:ignore t :wk "search")
@@ -2296,41 +2295,25 @@ don't ask me to revert files that I have not changed.
   (csetq revert-without-query `(,(rx (1+ nonl))))
 #+END_SRC
 
+*** crux
+a collection of usefull file and buffer function from prelude.
+#+BEGIN_SRC emacs-lisp
+  (use-package crux
+    :general
+    (:definer 'leader
+     "fR" 'crux-rename-file-and-buffer
+     "fD" 'crux-delete-file-and-buffer
+     "fc" 'crux-copy-file-preserve-attributes)
+    ("C-c e" 'crux-eval-and-replace))
+#+END_SRC
+
 *** functions
 collection of functions stolen from spacemacs
 #+BEGIN_SRC emacs-lisp
-  (defun $copy-file ()
-    "Copy the current file and create any directories along the way"
-    (interactive)
-    (let* ((destination (read-file-name "Write File: "))
-           (dir (file-name-directory destination)))
-      (unless (file-exists-p dir)
-        (make-directory dir 'parents))
-      (write-file destination 'confirm)))
-
-  (defun $delete-file ()
-    "Delete current file"
-    (interactive)
-    (delete-file (buffer-file-name)))
-
-  (defun $rename-file ()
-    "rename current file, creating any directories along the way"
-    (interactive)
-    (let* ((destination (read-file-name "Rename File: "))
-           (dir (file-name-directory destination)))
-      (unless (file-exists-p dir)
-        (make-directory dir 'parents))
-      (rename-file (buffer-file-name) destination)))
-
   (defun $find-user-config-file ()
     "Edit the org file we use for config, in the current window."
     (interactive)
     (find-file-existing (expand-file-name "emacs.org" user-emacs-directory)))
-
-  (defun $kill-this-buffer ()
-    "kill this buffer"
-    (interactive)
-    (kill-buffer (current-buffer)))
 
   (defun $async-delete-file (file)
     "delete a file or directory by moving it to a tmp location and
@@ -2352,11 +2335,7 @@ collection of functions stolen from spacemacs
 
   ($leader-set-key
     "f" '(:ignore t :wk "files")
-    "fe" '$find-user-config-file
-    "fc" '$copy-file
-    "bd" '$kill-this-buffer
-    "fD" '$delete-file
-    "fR" '$rename-file)
+    "fe" '$find-user-config-file)
 #+END_SRC
 
 open file in clipboard. Usually something I copied from an
