@@ -823,6 +823,24 @@ minor modes that I commonly toggle on and off
     "tg" 'git-gutter-mode)
 #+END_SRC
 
+When a form is wrapped in a condtion case, it can handle its own
+errors. However if you are trying to debug an error that caught by a
+=condtion-case= it can get in the way. However if =debug-on-signal is
+set then all errors will trigger a back trace.
+#+BEGIN_SRC emacs-lisp
+  (defun $toggle-debug-on-signal ()
+    "Used when debugging something wrapped in a condition-case"
+    (interactive)
+    (if debug-on-signal
+        (progn (message "debug on signal disabled")
+               (setq debug-on-signal nil))
+      (message "debug on signal enabled")
+      (setq debug-on-signal t)))
+
+  ($leader-set-key
+    "ts" '$toggle-debug-on-signal)
+#+END_SRC
+
 *** outshine
 The outshine package is an advanced version of outline mode that aims
 to add more org like features. It may eventually replace my literate
