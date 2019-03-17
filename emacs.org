@@ -1059,8 +1059,8 @@ will always be the same width as a window we are searching.
                  (if (boundp var)
                      (symbol-value var)
                    '<unbound>))))
-      (if (< 11 (length val))
-          (substring val 0 10)
+      (if (< 31 (length val))
+          (substring val 0 30)
         val)))
 #+END_SRC
 
