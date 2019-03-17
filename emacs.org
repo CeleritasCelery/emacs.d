@@ -4253,6 +4253,14 @@ when using ffap expand modules to their source
     (ffap-perl-module-unload-function))
 #+END_SRC
 
+*** smart dash
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-dash
+    :hook perl-mode
+    :init
+    (setq smart-dash-c-modes '(perl-mode)))
+#+END_SRC
+
 ** verilog
 we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
