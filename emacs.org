@@ -2821,7 +2821,6 @@ want to do when I enable flycheck.
       "gr" 'git-gutter:revert-hunk
       "gh" '$git-gutter-show-hunk
       "gs" 'git-gutter:stage-hunk
-      "gv" 'git-gutter:mark-hunk
       "gn" '$git-hunk/git-gutter:next-hunk
       "gN" '$git-hunk/git-gutter:previous-hunk)
     :config
@@ -2865,6 +2864,20 @@ automatically refreshing when we switch to a tramp buffer.
                                  (when (and (not (file-remote-p default-directory))
                                             git-gutter-mode)
                                    (git-gutter)))))
+#+END_SRC
+
+**** text object
+a text object to get the current hunk
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'evil
+    (evil-define-text-object evil-inner-hunk (count &optional _beg _end _type)
+      (let ((hunk (git-gutter:search-here-diffinfo git-gutter:diffinfos)))
+        (list (git-gutter:line-point (git-gutter-hunk-start-line hunk))
+              (git-gutter:line-point (1+ (git-gutter-hunk-end-line hunk)))))))
+
+  (general-define-key
+   :keymaps 'evil-inner-text-objects-map
+   "u" 'evil-inner-hunk)
 #+END_SRC
 
 *** functions
