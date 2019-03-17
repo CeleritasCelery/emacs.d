@@ -1269,14 +1269,6 @@ We want to hybridize some usefull emacs commands with better evil keybindings
    "C-y" 'yank)
 #+END_SRC
 
-Use our next and previous commands to navigate minibuffer history
-#+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :keymaps '(evil-ex-completion-map minibuffer-local-map)
-   "C-j" 'next-complete-history-element
-   "C-k" 'previous-complete-history-element)
-#+END_SRC
-
 general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
@@ -2038,6 +2030,35 @@ with their ascii equiviments.
     "xr" 'align-regexp
     "xt" 'untabify
     "zq" 'quick-calc)
+#+END_SRC
+
+*** minibuffer
+Use our next and previous commands to navigate minibuffer history
+#+BEGIN_SRC emacs-lisp
+  (general-define-key
+   :keymaps '(evil-ex-completion-map minibuffer-local-map)
+   "C-j" 'next-complete-history-element
+   "C-k" 'previous-complete-history-element)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (defun insert-current-file-name-at-point (&optional full-path)
+    "Insert the current filename at point.
+   With prefix argument, use full path."
+    (interactive "P")
+    (let* ((buffer (if (minibufferp)
+                       (window-buffer (minibuffer-selected-window))
+                     (current-buffer)))
+           (filename (buffer-file-name buffer)))
+      (if filename
+          (insert (if full-path
+                      (file-truename filename)
+                    (file-name-nondirectory filename)))
+        (error (format "Buffer %s is not visiting a file" (buffer-name buffer))))))
+
+  (general-define-key
+   :keymaps 'minibuffer-local-map
+   "H-i" #'insert-current-file-name-at-point)
 #+END_SRC
 
 *** narrowing
