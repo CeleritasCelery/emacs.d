@@ -740,6 +740,17 @@ zoom lets me make a smaller window larger so that we can see it easier
     (:definer 'leader "zw" 'zoom))
 #+END_SRC
 
+
+*** scroll bar
+add a fringe scroll bar it make it visually clearer where we are in the buffer
+#+BEGIN_SRC emacs-lisp
+  (use-package yascroll
+    :defer 2
+    :init
+    (fringe-mode '(8 . 3))
+    :config
+    (global-yascroll-bar-mode))
+#+END_SRC
 *** helpful
 helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
