@@ -985,6 +985,44 @@ packages used to support counsel
   (use-package wgrep)
 #+END_SRC
 
+*** posframe
+posframe uses child frames to open ivy in the middle of my screen
+instead of the bottom left. The only time that we don't want this is
+when we are searching the current buffer, so we use a window in that
+situtation instead. A window is better then the minibuffer because it
+will always be the same width as a window we are searching.
+#+BEGIN_SRC emacs-lisp
+  (use-package ivy-posframe
+    :demand t
+    :after ivy
+    :config
+    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-fallback)
+    (setf (alist-get t ivy-display-functions-alist) 'ivy-posframe-display-at-frame-center)
+    (ivy-posframe-enable))
+
+  (defun ivy-display-function-window (text)
+    (let ((buffer (get-buffer-create "*ivy-candidate-window*"))
+          (str (with-current-buffer (get-buffer-create " *Minibuf-1*")
+                 (let ((point (point))
+                       (string (concat (buffer-string) "  " text)))
+                   (ivy-add-face-text-property
+                    (- point 1) point 'ivy-cursor string t)
+                   string))))
+      (with-current-buffer buffer
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert str)))
+      (with-ivy-window
+        (display-buffer
+         buffer
+         `((display-buffer-reuse-window
+            display-buffer-below-selected)
+           (window-height . ,(1+ (ivy--height (ivy-state-caller ivy-last)))))))))
+
+  (with-eval-after-load 'swiper
+    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-window))
+#+END_SRC
+
 *** rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
