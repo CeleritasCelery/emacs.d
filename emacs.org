@@ -3299,7 +3299,7 @@ stalls.
 ** todos and general
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :straight nil
+    :straight (:type built-in)
     :gfhook #'org-indent-mode #'$org-truncate-lines
     :init
     ($leader-local-set-key
