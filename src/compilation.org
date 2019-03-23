@@ -494,7 +494,7 @@ some point I would like to make this automatic by inspection.
         (message "%s" (shell-command-to-string (format "%s %d" link-script time))))))
 
   (defun $gatekeeper-env ()
-    `("GK_EVENTTYPE=gk"
+    `("GK_EVENTTYPE=mock"
       ,(concat "GIT_TOOL_FLOW=" ($git-command "config intel.toolflow"))
       ,(concat "GK_CLUSTER=" ($git-command "config intel.cluster"))
       ,(concat "GK_STEP=" ($git-command "config intel.stepping"))
@@ -516,16 +516,20 @@ define a custom compliation mode that is run based on the hydra above
            (name-fn
             (lambda (_mode)
               (format "*%s bman*"
-                      (f-filename model-root)))))
-      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && bman"
-                                  ($get-model-arguments) filter)
+                      (f-filename model-root))))
+           (cmd (if (equal "bman" (car (split-string filter)))
+                    filter
+                  (concat "bman " ($get-model-arguments) filter))))
+      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " cmd)
                           'bman-mode
                           name-fn)))
 
   (defun bman-run-clean-maybe (_proc)
     "Run bman clean unless we are running specific stages"
-    (unless (string-match-p "-s all" (car compilation-arguments))
-      ($async-delete-file "target")))
+    (let ((cmd (car compilation-arguments)))
+      (when (and (string-match-p ($get-model-arguments) cmd)
+                 (not (string-match-p "-s all" cmd)))
+        ($async-delete-file "target"))))
 
   (add-hook 'bman-mode-hook
             (defun bman-setup ()
