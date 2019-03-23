@@ -2674,7 +2674,8 @@ open magit and doing it manually
       (cl-loop for build in (split-string ($git-command "ls-files -m"))
                do ($git-command
                    "add" (concat "../coreKit/"
-                                 (file-name-base build)
+                                 (file-name-base
+                                  (file-name-base build))
                                  ".coreKit")))
       ($git-command "checkout -- ../coreKit/")))
 
@@ -2684,11 +2685,11 @@ open magit and doing it manually
     (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory)))))
       (message "discarding output files...")
       (cl-loop for model in models
-               do ($git-command "checkout HEAD" model))
+               do ($git-command "checkout -- HEAD" model)
+               and do ($git-command "clean --force" model))
       (message "done")
       (when (eq major-mode 'magit-status-mode)
         (magit-refresh-buffer))))
-
 #+END_SRC
 
 
