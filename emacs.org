@@ -1094,7 +1094,7 @@ substitute globally by default
 create text objects for the buffer, pasted region, and filename
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'evil
-    (evil-define-text-object evil-inner-buffer (count &optional _beg _end _type)
+    (evil-define-text-object evil-entire-buffer (count &optional _beg _end _type)
       (list (point-min) (point-max)))
 
     (evil-define-text-object evil-pasted (count &rest _args)
@@ -1105,11 +1105,11 @@ create text objects for the buffer, pasted region, and filename
       (let ((bounds (bounds-of-thing-at-point 'filename)))
         (list (car bounds) (cdr bounds))))
 
-    (general-define-key
-     :keymaps 'evil-inner-text-objects-map
-     "g" 'evil-inner-buffer
-     "P" 'evil-pasted
-     "F" 'evil-filename))
+    (general-def 'inner
+      "P" 'evil-pasted
+      "n" 'evil-filename)
+    (general-def 'outer
+      "e" 'evil-entire-buffer))
 #+END_SRC
 
 **** indentation
@@ -1130,10 +1130,8 @@ a text object that highlights everything with the same font lock
     (evil-textobj-syntax
      :host github :repo "laishulu/evil-textobj-syntax")
     :general
-    (:keymaps 'evil-inner-text-objects-map
-     "h" 'evil-i-syntax)
-    (:keymaps 'evil-outer-text-objects-map
-     "h" 'evil-a-syntax))
+    (inner "h" 'evil-i-syntax)
+    (outer "h" 'evil-a-syntax))
 #+END_SRC
 
 *** keybindings
@@ -1261,10 +1259,13 @@ behave better with evil.
   (use-package evil-nerd-commenter
     :commands (evilnc-copy-and-comment-operator
                evilnc-comment-operator)
-    :init
-    ($leader-set-key
-      "k" '(evilnc-comment-operator :wk "comment")
-      "K" '(evilnc-copy-and-comment-operator :wk "copy-and-comment")))
+    :general
+    ('normal "c"
+             (general-key-dispatch 'evil-change
+               "m" 'evilnc-comment-operator
+               "M" 'evilnc-copy-and-comment-operator
+               "c" (general-simulate-key ('evil-change "c"))))
+    ('visual "c" 'evil-change))
 #+END_SRC
 
 *** exchange
