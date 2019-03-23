@@ -807,19 +807,17 @@ it blocks until the current one is done.
     "start compilation if there are not other compliations running
     in the same root. If there are, defer till those compilations
     complete successfully"
-    (let ((dir (or compilation-directory
-                   default-directory)))
-      (if (and ($command-requires-blocking mode dir)
-               (y-or-n-p "Add to command queue? "))
-          (add-to-list '$compilation-command-queue
-                       (list command
-                             mode
-                             (or name-function
-                                 compilation-buffer-name-function)
-                             dir
-                             compilation-environment)
-                       'append)
-        (compilation-start command mode name-function))))
+    (if (and ($command-requires-blocking mode default-directory)
+             (y-or-n-p "Add to command queue? "))
+        (add-to-list '$compilation-command-queue
+                     (list command
+                           mode
+                           (or name-function
+                               compilation-buffer-name-function)
+                           default-directory
+                           compilation-environment)
+                     'append)
+      (compilation-start command mode name-function)))
 
   (defun $compilation-pop-command-queue (buffer exit-string)
     (setq $compilation-command-queue
@@ -829,7 +827,8 @@ it blocks until the current one is done.
                            ($command-blocked-by mode dir buffer))
                    do (ignore)
                    else if (not ($command-requires-blocking mode dir))
-                   do (let ((compilation-directory dir)
+                   do (let ((default-directory dir)
+                            (compilation-directory dir)
                             (compilation-environment env))
                         (compilation-start command mode name-fn))
                    else collect waiting)))
