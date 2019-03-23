@@ -1441,6 +1441,7 @@ the display function to be more consistent.
      helm-ff-delete-files-function 'helm-delete-marked-files-async
      helm-adaptive-history-length 100
      helm-find-files-ignore-thing-at-point t)
+    (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command))
     :config
     (helm-adaptive-mode)
     (dired-async-mode))
