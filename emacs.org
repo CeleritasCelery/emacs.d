@@ -834,17 +834,7 @@ want to live with it though.
     :config
     (ivy-mode)
     (add-to-list 'ivy-ignore-buffers (rx bos "*"))
-    (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "(")))
-    (ivy-set-actions
-     t
-     '(("y" $ivy-kill-new "yank"))))
-
-  (defun $ivy-kill-new (x &optional list)
-    (interactive)
-    (kill-new
-     (if list
-         (string-join list "\n")
-       x)))
+    (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "("))))
 #+END_SRC
 
 Some faces have org-level-4 use a larger face, which really messes
@@ -857,6 +847,24 @@ with the display
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-hydra
     :after (ivy hydra))
+#+END_SRC
+
+*** Actions
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'ivy
+    (ivy-add-actions
+     t
+     '(("y" $ivy-kill-new "yank")))
+    (ivy-add-actions
+     'counsel-find-file
+     '(("g" $magit-status-in-dir "git status"))))
+
+  (defun $ivy-kill-new (x &optional list)
+    (interactive)
+    (kill-new
+     (if list
+         (string-join list "\n")
+       x)))
 #+END_SRC
 
 *** swiper
