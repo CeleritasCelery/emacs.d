@@ -144,6 +144,25 @@ that hook and set the alist back to our canonical version.
                        (match-string 1 log))))
       (format "%stools/collage/integ_specs/%s_soc_par.txt" root model)))
 
+  (defun $follow-connection-file ()
+    (let* ((file (match-string 1))
+           (buffer (find-file-noselect file 'nowarm 'raw)))
+      (prog1 (with-current-buffer buffer
+               (save-match-data
+                 (if (re-search-forward (err-rx bol "##Source File: " filename))
+                     (match-string 1)
+                   file)))
+        (kill-buffer buffer))))
+
+  (defun $correct-connection-line-number ()
+    "adjust line numbers for connection files"
+    (let ((file-name (buffer-file-name)))
+      (when (string-match-p (rx (or "adhoc" "std") "_connection") file-name)
+        (forward-line -1)
+        (evil-set-jump))))
+
+  (add-hook 'next-error-hook '$correct-connection-line-number)
+
   (setq compilation-error-regexp-alist
         (setq $compilation-error-regexp-alist
               `((,(err-rx ^ "-I-:Error-" ->
@@ -159,12 +178,12 @@ that hook and set the alist back to our canonical version.
                  1)
                 (,(err-rx ^ "Error-[" (group-n 3 ->) "]" ->
                           "\n" filename ", " line)
-                 1 2 nil nil nil (3 font-lock-warning-face))
+                 1 2 nil nil nil (3 'warning))
                 (,(err-rx ^ "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
                           filename)
                  1)
                 (,(err-rx ^ "  Log: " filename)
-                 1)
+                 1 nil nil 1)
                 (,(err-rx ^ "UPFSEM_4" spc+ (1+ word) spc+
                           filename spc+ line)
                  1 2)
@@ -200,9 +219,9 @@ that hook and set the alist back to our canonical version.
                  1 2)
                 (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
                  1 2)
-                (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file adhoc connection file " filename
+                (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file " (or "adhoc" "std") " connection file " filename
                           " \n Error at line# " line)
-                 1 2)
+                 $follow-connection-file 2)
                 (,(err-rx ^ "ERROR: couldn't parse " filename ":")
                  1)
                 (,(err-rx ^ "FATAL                (F) Exception caught: " (1+ nonl) " at " filename " line " line)
@@ -227,7 +246,9 @@ that hook and set the alist back to our canonical version.
                           "\n  Source file \"" filename "\"")
                  1)
                 (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
-                 $find-par-file))))
+                 $find-par-file)
+                (,(err-rx ^ "-E- Lintra [1051] " filename "(" line ")" -> ":" (group-n 3 ->) ":")
+                 1 2 nil nil nil (3 'warning)))))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
