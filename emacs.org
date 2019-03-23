@@ -2481,8 +2481,11 @@ me the power to do that.
     (require 'magit)
     (let* ((root (vc-git-root dir))
            (dir (list (file-relative-name dir root)))
-           (magit-status-mode-hook (cons (lambda () (setq-local magit-diff-section-file-args dir))
-                                         magit-status-mode-hook)))
+           (magit-status-mode-hook
+            (cons (if (equal (car dir) "./")
+                      '$magit-clear-diff-args-if-not-dir-local
+                    (lambda () (setq-local magit-diff-section-file-args dir)))
+                  magit-status-mode-hook)))
       (magit-status-internal root)))
 
   (defun $magit-status-current-dir ()
