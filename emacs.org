@@ -3228,7 +3228,7 @@ inherit the priority of the parent heading and make sure the default state is al
          org-agenda-tags-todo-honor-ignore-options t
          org-agenda-dim-blocked-tasks 'invisible
          org-agenda-files "~/org/.agenda-files"
-         org-agenda-custom-commands '(("f" "full" tags-todo "mdf-pvim|snr|gen|int|val")
+         org-agenda-custom-commands '(("f" "full" tags-todo "mdf|snr|gen|int|val")
                                       ("d" "development" tags-todo "dev")
                                       ("p" "pvim" ((tags-todo "pvim//-FUTURE")
                                                    (tags-todo "pvim//FUTURE"))
