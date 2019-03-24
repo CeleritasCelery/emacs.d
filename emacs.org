@@ -2414,7 +2414,7 @@ email. automatically add the tramp header if from a different site
     "Open a model in workspace"
     (interactive)
     (let ((default-directory
-            (if (eq site 'pdx)
+            (if (eq $site 'pdx)
                 "/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/"
               "/nfs/sc/disks/sdg74_1185/tjhinckl/workspace/")))
       (counsel-find-file)))
