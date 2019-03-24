@@ -2956,6 +2956,11 @@ where the repo is located
 #+END_SRC
 
 ** shell
+
+#+BEGIN_SRC emacs-lisp
+  (csetq shell-file-name "/usr/intel/bin/bash")
+#+END_SRC
+
 *** comint
 comint is the generic backend for REPL's and shells. We are giving it
 more bash-it style behavior where I can enter some text and then use
