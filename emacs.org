@@ -826,9 +826,9 @@ want to live with it though.
     :init
     (setq ivy-height 15
           ivy-use-virtual-buffers t
+          ivy-virtual-abbreviate 'abbreviate
           ivy-extra-directories nil
           ivy-use-selectable-prompt t
-          ivy-sort-max-size 34000 ;; slightly larger then number of functions defined
           ivy-re-builders-alist '((t . ivy--regex-ignore-order))
           ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
     :config
