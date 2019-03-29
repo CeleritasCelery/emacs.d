@@ -4209,7 +4209,8 @@ when using ffap expand modules to their source
   (use-package smart-dash
     :hook perl-mode
     :init
-    (setq smart-dash-c-modes '(perl-mode)))
+    (setq smart-dash-minibuffer-enabled nil
+          smart-dash-c-modes '(perl-mode)))
 #+END_SRC
 
 ** verilog
