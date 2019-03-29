@@ -326,6 +326,11 @@ commands
   (use-package el-patch)
 #+END_SRC
 
+*** site
+#+BEGIN_SRC emacs-lisp
+  (load-file (expand-file-name "site/site.el" user-emacs-directory))
+#+END_SRC
+
 ** UI
 packages that are used to improve the visuals and interface for Emacs
 
@@ -419,7 +424,8 @@ not match the resolution of my monitor results in weird text sizes.
 #+BEGIN_SRC emacs-lisp
   (defun vnc-resize (size)
     "Use xrandr to resize my VNC window"
-    (shell-command (concat "xrandr --size " size)))
+    (let ((default-directory "~/"))
+      (shell-command (concat "xrandr --size " size))))
 
   (defhydra vnc-resize (:columns 2 :exit t)
     "VNC Resize"
@@ -760,7 +766,7 @@ functions. only tweak we need to make is let the window close with q
     :general ("C-h k" 'helpful-key)
     :init
     (setq find-function-C-source-directory
-          "/nfs/pdx/home/tjhinckl/custom/emacs-mirror/src"))
+          (expand-file-name "custom/emacs-mirror/src/" ($user-site-path))))
 #+END_SRC
 
 we are going to add helpful to the completing read handler for
@@ -778,13 +784,13 @@ helm. This will let us preview the variable with TAB.
 
 Also add it to the ivy handler
 #+BEGIN_SRC emacs-lisp
-  (csetq counsel-describe-variable-function 'helpful-variable)
+  (setq counsel-describe-variable-function 'helpful-variable)
   (csetq counsel-describe-function-function 'helpful-callable)
 
-  (general-define-key
-   "C-h f" 'counsel-describe-function
-   "C-h v" 'counsel-describe-variable
-   "C-h x" 'describe-char)
+  (general-def
+    "C-h f" 'counsel-describe-function
+    "C-h v" 'counsel-describe-variable
+    "C-h x" 'describe-char)
 #+END_SRC
 
 *** eyebrowse
@@ -805,11 +811,7 @@ minimal window managment package.
       ("4" eyebrowse-switch-to-window-config-4)
       ("5" eyebrowse-switch-to-window-config-5))
     ($leader-set-key
-      "e" 'eyebrowse/body)
-    :config
-    (general-define-key
-     :keymaps 'eyebrowse-mode-map
-     "C-c C-w" nil))
+      "e" 'eyebrowse/body))
 #+END_SRC
 
 *** toggles
@@ -867,9 +869,9 @@ config. Navi allows navigation of outshine headers.
 
 changing the volume on my mic triggers these bindings. So we ignore them.
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-   "<XF86AudioLowerVolume>" 'ignore
-   "<XF86AudioRaiseVolume>" 'ignore)
+  (general-def
+    "<XF86AudioLowerVolume>" 'ignore
+    "<XF86AudioRaiseVolume>" 'ignore)
 #+END_SRC
 
 ** Ivy
@@ -914,7 +916,7 @@ Some faces have org-level-4 use a larger face, which really messes
 with the display
 #+BEGIN_SRC emacs-lisp
   (csetq ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
-                                         (org-mode . org-level-5)))
+                                         (org-mode . org-level-8)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -997,7 +999,6 @@ will always be the same width as a window we are searching.
     :demand t
     :after ivy
     :config
-    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-fallback)
     (setf (alist-get t ivy-display-functions-alist) 'ivy-posframe-display-at-frame-center)
     (ivy-posframe-enable))
 
@@ -1116,10 +1117,9 @@ standard keys to scroll. =C-f= and =C-b= are used for scrolling in
 vim/less, but they scroll a whole page, which is too much. So we
 rebind these to the normal scroll function.
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :states '(normal visual)
-   "C-f" 'evil-scroll-down
-   "C-b" 'evil-scroll-up)
+  (general-def '(normal visual)
+    "C-f" 'evil-scroll-down
+    "C-b" 'evil-scroll-up)
 #+END_SRC
 
 Using =*= and =#=, search foward for symbols, not words
@@ -1132,15 +1132,13 @@ we want to use visual lines, but then the line operators don't work
 remapping instead of setting =evil-respect-visual-line-mode=.
 [[https://github.com/emacs-evil/evil/issues/188][emacs-evil/evil#188]]
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-       :states 'motion
-       [remap evil-next-line] 'evil-next-visual-line
-       [remap evil-previous-line] 'evil-previous-visual-line)
+  (general-def 'motion
+    [remap evil-next-line] 'evil-next-visual-line
+    [remap evil-previous-line] 'evil-previous-visual-line)
 
-  (general-define-key
-       :states 'operator
-       [remap evil-next-line] 'evil-next-line
-       [remap evil-previous-line] 'evil-previous-line)
+  (general-def 'operator
+    [remap evil-next-line] 'evil-next-line
+    [remap evil-previous-line] 'evil-previous-line)
 #+END_SRC
 
 add a little hack to prevent =v$= from grabbing the newline. This is a
@@ -1202,13 +1200,12 @@ only works if the search module is =evil-search=.
        (let ((evil-magic 'very-magic))
          (call-interactively (quote ,cmd)))))
 
-  (general-define-key
-   :states '(motion normal visual)
-   ":" ($make-magic evil-ex)
-   "/" ($make-magic evil-ex-search-forward)
-   "?" ($make-magic evil-ex-search-backward)
-   "n" ($make-magic evil-ex-search-next)
-   "N" ($make-magic evil-ex-search-previous))
+  (general-def '(motion normal visual)
+    ":" ($make-magic evil-ex)
+    "/" ($make-magic evil-ex-search-forward)
+    "?" ($make-magic evil-ex-search-backward)
+    "n" ($make-magic evil-ex-search-next)
+    "N" ($make-magic evil-ex-search-previous))
 #+END_SRC
 
 substitute globally by default
@@ -1234,9 +1231,8 @@ create text objects for the buffer, pasted region, and filename
 
     (general-def 'inner
       "P" 'evil-pasted
-      "n" 'evil-filename)
-    (general-def 'outer
-      "e" 'evil-entire-buffer))
+      "n" 'evil-filename
+      "g" 'evil-entire-buffer))
 #+END_SRC
 
 **** indentation
@@ -1265,9 +1261,8 @@ a text object that highlights everything with the same font lock
 
 We want to hybridize some usefull emacs commands with better evil keybindings
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :states 'insert
-   "C-y" 'yank)
+  (general-def 'insert
+    "C-y" 'yank)
 #+END_SRC
 
 general leader key bindings
@@ -1288,10 +1283,9 @@ general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
     "U" 'undo-tree-visualize)
-  (general-define-key
-   :states '(normal visual)
-   "u" 'undo-tree-undo
-   "C-r" 'undo-tree-redo)
+  (general-def '(normal visual)
+    "u" 'undo-tree-undo
+    "C-r" 'undo-tree-redo)
 #+END_SRC
 
 *** unimpaired
@@ -1347,15 +1341,15 @@ behave better with evil.
     :demand t
     :config
     (add-hook 'evil-collection-setup-hook
-	      (defun $unmap-leader (_mode keymaps)
-		(when (and keymaps
-			   (not (memq 'eshell-mode-map keymaps))
-			   (not (memq 'ediff-mode-map keymaps)))
-		  (general-define-key
-		   :states 'normal
-		   :keymaps keymaps
-		   $leader-key nil
-		   $mm-leader-key nil))))
+              (defun $unmap-leader (_mode keymaps)
+                (when (and keymaps
+                           (not (memq 'eshell-mode-map keymaps))
+                           (not (memq 'ediff-mode-map keymaps)))
+                  (general-define-key
+                   :states 'normal
+                    :keymaps keymaps
+                   $leader-key nil
+                   $mm-leader-key nil))))
     (evil-collection-init))
 #+END_SRC
 
@@ -1363,13 +1357,12 @@ behave better with evil.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-surround
     :defer 4
+    :general
+    ('visual evil-surround-mode-map
+             "s" 'evil-surround-region
+             "S" 'evil-substitute)
     :config
-    (global-evil-surround-mode)
-    (general-define-key
-     :states 'visual
-     :keymaps 'evil-surround-mode-map
-     "s" 'evil-surround-region
-     "S" 'evil-substitute))
+    (global-evil-surround-mode))
 #+END_SRC
 
 *** commenting
@@ -1431,8 +1424,7 @@ package.
 
 add new keybindings for evil paragraph navigation
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :states 'motion
+  (general-def 'motion
    "H-[" 'evil-backward-paragraph
    "C-]" 'evil-forward-paragraph)
 #+END_SRC
@@ -1559,8 +1551,8 @@ the display function to be more consistent.
      helm-ff-delete-files-function 'helm-delete-marked-files-async
      helm-adaptive-history-length 100
      helm-find-files-ignore-thing-at-point t)
-    (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command))
     :config
+    (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command))
     (helm-adaptive-mode)
     (dired-async-mode))
 #+END_SRC
@@ -1571,17 +1563,15 @@ some hacks to make helm more evil compatible See
 #+BEGIN_SRC emacs-lisp
   (defun $helm-unprevent-minibuffer-escape ()
     (when helm-prevent-escaping-from-minibuffer
-      (general-define-key :states 'motion
+      (general-def 'motion
         [down-mouse-1] 'evil-mouse-drag-region)
-      (general-define-key :states 'normal
+      (general-def 'normal
         [mouse-2] 'mouse-yank-primary)))
 
   (defun $helm-prevent-minibuffer-escape ()
     (when helm-prevent-escaping-from-minibuffer
-      (general-define-key :states 'motion
-        [down-mouse-1] nil)
-      (general-define-key :states 'normal
-        [mouse-2] nil)))
+      (general-def 'motion [down-mouse-1] nil)
+      (general-def 'normal [mouse-2] nil)))
 
   (add-hook 'helm-after-initialize-hook #'$helm-prevent-minibuffer-escape)
   (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
@@ -1598,18 +1588,17 @@ ignore lockfiles and backups when looking through the filesystem
 Create a key dispatcher for commonly used commands
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'helm
-    (general-define-key
-     :prefix ";"
-     :keymaps '(helm-find-files-map
-                helm-read-file-map
-                helm-generic-files-map)
-     "b" 'helm-find-files-toggle-to-bookmark
-     "c" 'helm-ff-run-copy-file
-     "'" '$helm-ff-switch-to-shell
-     "s" '$helm-ag-from-session
-     "m" '$meld-from-helm-session
-     "g" '$magit-from-helm-session
-     "d" 'helm-ff-run-delete-file))
+    (general-def '(helm-find-files-map
+                   helm-read-file-map
+                   helm-generic-files-map)
+      :prefix ";"
+      "b" 'helm-find-files-toggle-to-bookmark
+      "c" 'helm-ff-run-copy-file
+      "'" '$helm-ff-switch-to-shell
+      "s" '$helm-ag-from-session
+      "m" '$meld-from-helm-session
+      "g" '$magit-from-helm-session
+      "d" 'helm-ff-run-delete-file))
 #+END_SRC
 
 get helm history when writing a file
@@ -1692,20 +1681,18 @@ more convient keybindings for dispatcher functions as well as some
 helm builtins
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'helm
-    (general-define-key
-     :keymaps 'helm-map
-     "C-c y" '$helm-copy-to-kill-ring)
-    (general-define-key
-     :keymaps '(helm-find-files-map helm-read-file-map helm-generic-files-map)
-     "C-r"   'helm-find-files-history
-     "C-c b" 'helm-find-files-toggle-to-bookmark
-     "C-c c" 'helm-ff-run-copy-file
-     "C-c '" '$helm-ff-switch-to-shell
-     "C-c s" '$helm-ag-from-session
-     "C-c C-s" '$helm-ag-from-session
-     "C-c m" '$meld-from-helm-session
-     "C-c g" '$magit-from-helm-session
-     "C-c C-g" '$magit-from-helm-session))
+    (general-def helm-map
+      "C-c y" '$helm-copy-to-kill-ring)
+    (general-def '(helm-find-files-map helm-read-file-map helm-generic-files-map)
+      "C-r"   'helm-find-files-history
+      "C-c b" 'helm-find-files-toggle-to-bookmark
+      "C-c c" 'helm-ff-run-copy-file
+      "C-c '" '$helm-ff-switch-to-shell
+      "C-c s" '$helm-ag-from-session
+      "C-c C-s" '$helm-ag-from-session
+      "C-c m" '$meld-from-helm-session
+      "C-c g" '$magit-from-helm-session
+      "C-c C-g" '$magit-from-helm-session))
 #+END_SRC
 
 *** swoop
@@ -1717,10 +1704,9 @@ helm builtins
           helm-swoop-candidate-number-limit 1000)
     :config
     (add-hook 'after-revert-hook 'helm-swoop--clear-cache)
-    (general-define-key
-     :keymaps 'helm-swoop-edit-map
-     "C-c C-c" 'helm-swoop--edit-complete
-     "C-c C-k" 'helm-swoop--edit-cancel))
+    (general-def helm-swoop-edit-map
+      "C-c C-c" 'helm-swoop--edit-complete
+      "C-c C-k" 'helm-swoop--edit-cancel))
 
   (defun $helm-swoop (arg)
     "If called with a prefix argument, search for the symbol or
@@ -1751,9 +1737,9 @@ regex
     ($leader-set-key
       "sf" 'helm-do-ag
       "sF" '$helm-do-ag-region-or-symbol)
-    (general-define-key
-     "C-c s" '$helm-do-ag-current-dir
-     "C-c C-s" '$helm-do-ag-current-dir))
+    (general-def
+      "C-c s" '$helm-do-ag-current-dir
+      "C-c C-s" '$helm-do-ag-current-dir))
 
   (defun $helm-do-ag-current-dir (arg)
     "search in the current directory with Ag"
@@ -1938,14 +1924,12 @@ keycode in the =input-decode-map=, then we bind =evil-jump-forward=.
 So now pressing C-i will trigger the keycode for H-i, which is bound
 to evil-jump-forward.
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :keymaps 'input-decode-map
-   "C-i" "H-i"
-   "C-[" "H-["
-   "C-m" "H-m")
-  (general-define-key
-   :states 'normal
-   "H-i" 'evil-jump-forward)
+  (general-def input-decode-map
+    "C-i" "H-i"
+    "C-[" "H-["
+    "C-m" "H-m")
+  (general-def 'normal
+    "H-i" 'evil-jump-forward)
 #+END_SRC
 
 Use tab for completion if at a symbol
@@ -2035,10 +2019,9 @@ with their ascii equiviments.
 *** minibuffer
 Use our next and previous commands to navigate minibuffer history
 #+BEGIN_SRC emacs-lisp
-  (general-define-key
-   :keymaps '(evil-ex-completion-map minibuffer-local-map)
-   "C-j" 'next-complete-history-element
-   "C-k" 'previous-complete-history-element)
+  (general-def '(evil-ex-completion-map minibuffer-local-map)
+    "C-j" 'next-complete-history-element
+    "C-k" 'previous-complete-history-element)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -2056,9 +2039,8 @@ Use our next and previous commands to navigate minibuffer history
                     (file-name-nondirectory filename)))
         (error (format "Buffer %s is not visiting a file" (buffer-name buffer))))))
 
-  (general-define-key
-   :keymaps 'minibuffer-local-map
-   "H-i" #'insert-current-file-name-at-point)
+  (general-def minibuffer-local-map
+    "H-i" #'insert-current-file-name-at-point)
 #+END_SRC
 
 *** narrowing
@@ -2414,18 +2396,14 @@ email. automatically add the tramp header if from a different site
     "Open a model in workspace"
     (interactive)
     (let ((default-directory
-            (if (eq $site 'pdx)
-                "/nfs/pdx/disks/sdg74_1172/tjhinckl/workspace/"
-              "/nfs/sc/disks/sdg74_1185/tjhinckl/workspace/")))
+            (expand-file-name "workspace/" ($user-site-path))))
       (counsel-find-file)))
 
   ($leader-set-key
     "fo" '$open-file-in-clipboard
     "fw" '$change-model)
-  (general-define-key
-   :states '(normal visual motion)
-   :keymaps 'global
-   "gf" '$find-file-at-point)
+  (general-def '(normal visual motion)
+    "gf" '$find-file-at-point)
 #+END_SRC
 
 start a find file session from project root
@@ -2439,8 +2417,8 @@ start a find file session from project root
         (counsel-find-file)
       (user-error "no root found for current file")))
 
-  (general-define-key
-   "C-x C-p" '$find-file-project-root)
+  (general-def
+    "C-x C-p" '$find-file-project-root)
 #+END_SRC
 
 *** find similar file
@@ -2525,9 +2503,8 @@ we don't need so many dired confirmation prompts
         wdired-allow-to-change-permissions t
         dired-auto-revert-buffer t)
 
-  (general-define-key
-   :keymaps 'dired-mode-map
-   "C-c C-e" 'wdired-change-to-wdired-mode)
+  (general-def dired-mode-map
+    "C-c C-e" 'wdired-change-to-wdired-mode)
 #+END_SRC
 
 *** recentf
@@ -2571,7 +2548,9 @@ use, but thankfully my usecases are very simple.
              nil "#!/usr/intel/pkgs/perl/5.14.1/bin/perl\n\n"
              "use strict;\n" "use warnings;\n\n" _)
             ((python-mode . "Python shebang")
-             nil "#!/usr/intel/bin/python3.6.3a\n\n" _))))
+             nil "#!/usr/intel/bin/python3.6.3a\n\n" _)))
+    :config
+    (auto-insert-mode))
 #+END_SRC
 
 
@@ -2654,6 +2633,8 @@ files can quickly fill up my home disk.
     ("C-x g" 'magit-status
      "C-x M-g" 'magit-dispatch
      "C-c M-g" 'magit-file-dispatch)
+    (magit-diff-mode-map
+     "SPC" nil)
     :init
     (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
     ($leader-set-key
@@ -2663,10 +2644,7 @@ files can quickly fill up my home disk.
     (setq transient-display-buffer-action
           '(display-buffer-below-selected))
     :config
-    (add-hook 'dired-mode-hook 'magit-file-mode)
-    (general-define-key
-     :keymaps 'magit-diff-mode-map
-     "SPC" nil))
+    (add-hook 'dired-mode-hook 'magit-file-mode))
 #+END_SRC
 
 the trash at Intel is in the home disk, which is only 100 MB.
@@ -2737,8 +2715,8 @@ me the power to do that.
   ($leader-set-key
     "gd" '$magit-status-current-dir
     "gs" 'magit-status)
-  (general-define-key
-   "C-c g" '$magit-status-current-dir)
+  (general-def
+    "C-c g" '$magit-status-current-dir)
 #+END_SRC
 
 *** smerge
@@ -2791,15 +2769,14 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
   (use-package evil-magit
     :demand t
     :after magit
-    :config
-    (general-define-key
-     :keymaps 'magit-mode-map
+    :general
+    (magit-mode-map
      "SPC" nil))
 
   (use-package git-timemachine
-    :init
-    ($leader-set-key
-      "gt" 'git-timemachine))
+    :general
+    (:definer 'leader
+     "gt" 'git-timemachine))
 #+END_SRC
 
 *** git gutter
@@ -2841,10 +2818,8 @@ with =q= and the window is selected.
               (defun $git-gutter-window-quit (&rest _)
                 (when-let ((buffer (get-buffer git-gutter:popup-buffer)))
                   (with-current-buffer buffer
-                    (general-define-key
-                     :keymaps 'local
-                     :states 'normal
-                     "q" 'quit-window)))))
+                    (general-def 'normal local
+                      "q" 'quit-window)))))
 
   (defun $git-gutter-show-hunk ()
     (interactive)
@@ -2867,7 +2842,7 @@ automatically refreshing when we switch to a tramp buffer.
                                    (git-gutter)))))
 #+END_SRC
 
-**** text object
+**** comment text object
 a text object to get the current hunk
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'evil
@@ -2876,9 +2851,8 @@ a text object to get the current hunk
         (list (git-gutter:line-point (git-gutter-hunk-start-line hunk))
               (git-gutter:line-point (1+ (git-gutter-hunk-end-line hunk)))))))
 
-  (general-define-key
-   :keymaps 'evil-inner-text-objects-map
-   "u" 'evil-inner-hunk)
+  (general-def 'inner
+    "u" 'evil-inner-hunk)
 #+END_SRC
 
 *** functions
@@ -2947,9 +2921,7 @@ where the repo is located
     (when (equal "" (shell-command-to-string "git config --local user.name"))
       (shell-command-to-string
        (apply 'format "git config --local user.name %s && git config --local user.email %s"
-              (if (string-prefix-p "/nfs/pdx/disks/sdg74_1172/tjhinckl/custom" (file-truename default-directory))
-                  '("\"Troy Hinckley\"" "t.macman@gmail.com")
-                '("\"Hinckley, Troy J\"" "troy.j.hinckley@intel.com"))))
+              ($user-credentials)))
       (message "setting git user credentials")))
 
   (add-hook 'magit-status-mode-hook '$git-set-user)
@@ -3007,9 +2979,8 @@ these are utility functions used to setting up the Emacs shell.
     (insert (concat "cd " (string-remove-prefix (or (file-remote-p default-directory) "")
                                                 (completing-read "directory:" $dir-history)))))
 
-  (general-define-key
-   :keymaps 'shell-mode-map
-   "C-c C-j" '$select-shell-history)
+  (general-def shell-mode-map
+    "C-c C-j" '$select-shell-history)
 
   (defun $track-shell-directory (str)
     "use the proc filesytem to get the current directory.
@@ -3283,9 +3254,7 @@ packages that assist in compiling and building code
     (csetq compilation-always-kill t)
     :config
     ($load-literate-file "src/compilation")
-    (general-define-key
-     :keymaps 'compilation-mode-map
-     "SPC" nil))
+    (general-unbind compilation-mode-map "SPC"))
 #+END_SRC
 
 *** alert
@@ -3331,10 +3300,9 @@ stalls.
                         (defun $org-insert-subheading (_arg)
                           (let ((undo-inhibit-record-point t))
                             (end-of-line))))
-    (general-define-key
-     :keymaps 'org-mode-map
-     "C-c C-<return>" 'org-insert-subheading
-     "C-c C-SPC" 'org-insert-todo-subheading)
+    (general-def org-mode-map
+      "C-c C-<return>" 'org-insert-subheading
+      "C-c C-SPC" 'org-insert-todo-subheading)
     (add-to-list 'org-structure-template-alist
                  '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
 #+END_SRC
@@ -3380,11 +3348,10 @@ inherit the priority of the parent heading and make sure the default state is al
           (org-down-element)
         (org-forward-element))))
 
-  (general-define-key
-   :keymaps 'org-mode-map
-   "C-j" '$org-smart-forward-element
-   "C-k" 'org-backward-element
-   "C-l" 'org-down-element)
+  (general-def org-mode-map
+    "C-j" '$org-smart-forward-element
+    "C-k" 'org-backward-element
+    "C-l" 'org-down-element)
 #+END_SRC
 
 ** functions
@@ -3447,11 +3414,9 @@ inherit the priority of the parent heading and make sure the default state is al
             (org-insert-item))
         ;; If not at item, normal return
         (org-return)))
-    (general-define-key
-     :keymaps 'org-mode-map
-     :states '(insert normal)
-     "<ret>" '$org-smart-return
-     "RET" '$org-smart-return)
+    (general-def '(insert normal) org-mode-map
+      "<ret>" '$org-smart-return
+      "RET" '$org-smart-return)
 
     (defun $org-procrastinate (arg)
       "shedule the selected item for tomrrow, effectivly removing
@@ -3475,14 +3440,7 @@ inherit the priority of the parent heading and make sure the default state is al
   (csetq org-agenda-todo-ignore-scheduled 'future
          org-agenda-tags-todo-honor-ignore-options t
          org-agenda-dim-blocked-tasks 'invisible
-         org-agenda-files "~/org/.agenda-files"
-         org-agenda-custom-commands '(("f" "full" tags-todo "mdf|snr|gen|int|val")
-                                      ("d" "development" tags-todo "dev")
-                                      ("p" "pvim" ((tags-todo "pvim//-FUTURE")
-                                                   (tags-todo "pvim//FUTURE"))
-                                       ((org-agenda-files '("~/org/projects/mdf_pvim.org"))))
-                                      ("m" "mdf" tags-todo "mdf//-FUTURE")
-                                      ("u" "turnin" tags-todo "turnin")))
+         org-agenda-files "~/org/.agenda-files")
 
   ($leader-set-key
     "a" 'org-agenda)
@@ -3505,11 +3463,9 @@ everything more annoying. So we disable it.
 
   (add-hook 'org-agenda-mode-hook
             (defun $org-agenda-visual-lines ()
-              (general-define-key
-               :keymaps 'org-agenda-mode-map
-               :states 'motion
-               "j" '$org-agenda-next-visual-line
-               "k" '$org-agenda-prev-visual-line))
+              (general-def 'motion org-agenda-mode-map
+                "j" '$org-agenda-next-visual-line
+                "k" '$org-agenda-prev-visual-line))
             'append)
 #+END_SRC
 
@@ -3527,16 +3483,7 @@ this allows me to quickly move headers around files based on these
 refile targets. we enable caching because we do not expect these files
 to change outside of Emacs.
 #+BEGIN_SRC emacs-lisp
-  (csetq org-refile-use-cache t
-         org-refile-targets '((nil :maxlevel . 2)
-                              ("~/org/integration.org" :maxlevel . 2)
-                              ("~/org/validation.org" :maxlevel . 2)
-                              ("~/org/projects/mdf.org" :maxlevel . 2)
-                              ("~/org/projects/mdf_pvim.org" :maxlevel . 3)
-                              ("~/org/projects/snr/snr_scan.org" :maxlevel . 2)
-                              ("~/org/meeting-notes/mdf_meet.org" :maxlevel . 2)
-                              ("~/org/meeting-notes/integ_meet.org" :maxlevel . 2)
-                              ("~/org/dev/development.org" :maxlevel . 1)))
+  (csetq org-refile-use-cache t)
 #+END_SRC
 
 since I am using helm, it makes the most sense to show the whole
@@ -3708,19 +3655,6 @@ blocks
 #+BEGIN_SRC emacs-lisp
   (csetq org-tags-column 0
          org-fast-tag-selection-single-key t)
-
-  (csetq org-tag-alist
-         '(("mdf"  . ?m)
-           ("mem"  . ?e)
-           ("snr"  . ?s)
-           ("dev"  . ?d)
-           ("int"  . ?i)
-           ("val"  . ?v)
-           ("gen"  . ?g)
-           ("hsd"  . ?h)
-           ("info" . ?f)
-           ("hai"  . ?a)
-           ("turnin" . ?t)))
 #+END_SRC
 
 ** links
@@ -3746,13 +3680,15 @@ follow links with org return
 #+END_SRC
 
 ** editing
+
+*** auto capitalize
 Auto capitlization is a really handy, especially since we can
 customize it for any keyword we want.
 #+BEGIN_SRC emacs-lisp
   (use-package auto-capitalize
-    :hook org-mode
-    :init
-    (setq auto-capitalize-words `("I" "English" "MDF" "UPF" "IPGen" "SNR" )))
+    :hook org-mode)
+#+END_SRC
+
 #+END_SRC
 
 ** src blocks
@@ -3780,9 +3716,8 @@ customize it for any keyword we want.
         (org-edit-src-code)
       (org-ctrl-c-ctrl-c arg)))
 
-  (general-define-key
-   :keymaps 'org-mode-map
-   "C-c C-c" '$org-ctrl-c-ctrl-c)
+  (general-def org-mode-map
+    "C-c C-c" '$org-ctrl-c-ctrl-c)
 #+END_SRC
 
 exit in normal state
@@ -3808,10 +3743,8 @@ exit in normal state
         (org-todo)
       (evilem-motion-find-char-to)))
 
-  (general-define-key
-   :keymaps 'org-mode-map
-   :states 'normal
-   "t" '$org-todo-or-evil-t)
+  (general-def 'normal org-mode-map
+    "t" '$org-todo-or-evil-t)
 #+END_SRC
 
 ** visuals

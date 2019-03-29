@@ -5,8 +5,7 @@
 * compilation
 packages that assist in compiling and building code
 
-use lexical bindings in the file
-make this file lexically bound
+use lexical bindings in the file make this file lexically bound
 #+BEGIN_SRC emacs-lisp
   ;;; init.el --- personal emacs config file -*- lexical-binding: t -*-
 #+END_SRC
@@ -203,7 +202,7 @@ that hook and set the alist back to our canonical version.
                  1)
                 (,(err-rx ^ "-I-:Detailed violation log for sgdft_drc for " symbol ": " filename)
                  1)
-                (,(err-rx ^ "-E-:Error in stage bman.mdf_10nm.vclp." symbol ":"
+                (,(err-rx ^ "-E-:Error in stage bman." symbol ".vclp." symbol ":"
                           "\n-I-:***** Cat'ing logs *****"
                           "\n-I-:Executing: cat " filename)
                  1)
@@ -474,9 +473,6 @@ availible
 use these function to get the cluster and therefore the model needed. At
 some point I would like to make this automatic by inspection.
 #+BEGIN_SRC emacs-lisp
-  (defvar $model-cluster-alist '(("mdf" . "mdf_10nm")
-                                 ("mem" "mem" "mcddr")))
-
   (defun $get-model-arguments ()
     "get the command line arguments for the model portion of this build"
     (let ((model (alist-get ($git-command "config intel.cluster") $model-cluster-alist nil nil 'equal)))
@@ -762,6 +758,7 @@ the timestamp in the compilation buffer.
             (name (cdr unit)))
         (format "%d %s%s" value name (if (>= value 1) "s" "")))))
 #+END_SRC
+
 *** queue
 A series of functions for chaining together compliation that are going
 to require previous steps. It checks to see if the new compilation is
@@ -971,3 +968,4 @@ what part of a buffer we are in
   (font-lock-add-keywords 'compilation-mode $compilation-font-lock-keywords)
   (font-lock-add-keywords 'log-mode $compilation-font-lock-keywords)
 #+END_SRC
+
