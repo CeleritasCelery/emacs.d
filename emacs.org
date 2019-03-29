@@ -853,7 +853,7 @@ with the display
     :after (ivy hydra))
 #+END_SRC
 
-*** Actions
+*** actions
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'ivy
     (ivy-add-actions
@@ -861,14 +861,17 @@ with the display
      '(("y" $ivy-kill-new "yank")))
     (ivy-add-actions
      'counsel-find-file
-     '(("g" $magit-status-in-dir "git status"))))
+     '(("g" $magit-status-in-dir "git status")
+       ("k" $async-delete-file "delete")
+       ("s" (lambda (x) (counsel-rg nil x)) "search")
+       ("f" (lambda (x) (counsel-fzf nil x)) "find")
+       ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
+       ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
   (defun $ivy-kill-new (x &optional list)
-    (interactive)
-    (kill-new
-     (if list
-         (string-join list "\n")
-       x)))
+    (kill-new (if list (string-join list "\n") x)))
+
+  (general-def ivy-minibuffer-map ";" 'ivy-dispatching-done)
 #+END_SRC
 
 *** swiper
