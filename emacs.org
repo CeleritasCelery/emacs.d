@@ -814,21 +814,25 @@ want to live with it though.
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
     :general
-    (:keymaps 'ivy-minibuffer-map
+    (ivy-minibuffer-map
      "C-j" 'ivy-next-line
      "C-k" 'ivy-previous-line
      "C-h" "DEL"
+     "C-w" 'ivy-backward-kill-word
      "C-S-H" help-map
      "C-l" 'ivy-alt-done
      "<C-return>" 'ivy-immediate-done)
     ("C-x r b" 'counsel-bookmark
      "C-x C-r" 'ivy-resume)
+    (ivy-occur-grep-mode-map
+     "SPC" nil)
     :init
     (setq ivy-height 15
           ivy-use-virtual-buffers t
           ivy-virtual-abbreviate 'abbreviate
           ivy-extra-directories nil
           ivy-use-selectable-prompt t
+          ivy-count-format "%d/%d "
           ivy-re-builders-alist '((t . ivy--regex-ignore-order))
           ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
     :config
@@ -886,7 +890,16 @@ with the display
           counsel-git-log-cmd "GIT_PAGER=cat /usr/intel/bin/git log --grep '%s'"
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t
-          counsel-async-filter-update-time 100000))
+          counsel-async-filter-update-time 200000)
+    :config
+    (setf (alist-get 'counsel-M-x ivy-initial-inputs-alist) nil))
+#+END_SRC
+
+a function to call counsel-rg from the current directory
+#+BEGIN_SRC emacs-lisp
+  (defun $counsel-rg-here ()
+    (interactive)
+    (counsel-rg nil default-directory))
 #+END_SRC
 
 packages used to support counsel
@@ -905,6 +918,8 @@ packages used to support counsel
   (use-package ivy-rich
     :demand t
     :after counsel
+    :init
+    (csetq ivy-rich-parse-remote-buffer nil)
     :config
     (plist-put ivy-rich-display-transformers-list
                'counsel-find-file
