@@ -2197,15 +2197,18 @@ collection of functions stolen from spacemacs
   then removing in the background"
     (interactive "D")
     (when (file-exists-p file)
-      (async-start
-       (lambda ()
-         (let ((tmp-file (make-temp-name (concat file ".del."))))
+      (let ((tmp-file (make-temp-name
+                       (concat
+                        (string-remove-suffix "/" file)
+                        ".del."))))
+        (async-start
+         (lambda ()
            (rename-file file tmp-file)
            (if (file-directory-p tmp-file)
                (delete-directory tmp-file 'recursive)
-             (delete-file tmp-file))))
-       (lambda (_result)
-         (message (format "file %s deleted successfully" file))))))
+             (delete-file tmp-file)))
+         (lambda (_result)
+           (message (format "file %s deleted successfully" file)))))))
 
   ($leader-set-key
     "f" '(:ignore t :wk "files")
