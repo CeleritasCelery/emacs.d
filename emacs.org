@@ -3302,6 +3302,7 @@ inherit the priority of the parent heading and make sure the default state is al
 
   ($leader-set-key
     "a" 'org-agenda)
+  (general-def org-agenda-mode-map "o" 'org-agenda-log-mode)
 #+END_SRC
 
 The default cursor movement requires one press per hierarchy level.
