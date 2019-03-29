@@ -3689,6 +3689,19 @@ customize it for any keyword we want.
     :hook org-mode)
 #+END_SRC
 
+*** flyspell
+Use flyspell to check our spelling in real time
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook 'flyspell-mode)
+#+END_SRC
+
+*** company
+Use company-ispell to provide spelling auto complete
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'org-mode-hook
+            (defun $enable-company-spell ()
+              (setq-local company-backends '((company-ispell company-capf company-dabbrev)))
+              (company-mode)))
 #+END_SRC
 
 ** src blocks
