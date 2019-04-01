@@ -3,3 +3,5 @@ straight/
 emacs.el
 var/
 elpa/
+src/compilation.el
+site/
