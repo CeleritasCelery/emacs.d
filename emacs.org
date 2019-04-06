@@ -995,11 +995,12 @@ will always be the same width as a window we are searching.
     :after ivy
     :config
     (setf (alist-get t ivy-display-functions-alist) 'ivy-posframe-display-at-frame-center)
+    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-window)
     (ivy-posframe-enable))
 
   (defun ivy-display-function-window (text)
     (let ((buffer (get-buffer-create "*ivy-candidate-window*"))
-          (str (with-current-buffer (get-buffer-create " *Minibuf-1*")
+          (str (with-current-buffer (window-buffer (active-minibuffer-window))
                  (let ((point (point))
                        (string (concat (buffer-string) "  " text)))
                    (ivy-add-face-text-property
@@ -1015,9 +1016,6 @@ will always be the same width as a window we are searching.
          `((display-buffer-reuse-window
             display-buffer-below-selected)
            (window-height . ,(1+ (ivy--height (ivy-state-caller ivy-last)))))))))
-
-  (with-eval-after-load 'swiper
-    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-window))
 #+END_SRC
 
 *** rich
