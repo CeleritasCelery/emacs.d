@@ -431,7 +431,8 @@ run any command
     ("c" ($run-bman "-s all +s collage") "collage")
     ("s" ($run-bman "-s all +s sgdft") "SG DFT")
     ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
-    ("r" ($run-bman "-s emu -s sgdft -s sglp -s vclp -s lintra_ol -s FLG -s hip_listgen -s lintra") "RTL only")
+    ("r" ($run-bman "-s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra") "RTL only")
+    ("u" ($run-bman "-s all +s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra,sgcdc") "DRC only")
     ("g" ($run-bman (read-string "run bman as: " (car $bman-command-history) '$bman-command-history)) "generic"))
 
   (defvar $bman-command-history nil)
@@ -519,7 +520,7 @@ define a custom compliation mode that is run based on the hydra above
                       (f-filename model-root))))
            (cmd (if (equal "bman" (car (split-string filter)))
                     filter
-                  (concat "bman " ($get-model-arguments) filter))))
+                  (concat "bman" ($get-model-arguments) filter))))
       ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " cmd)
                           'bman-mode
                           name-fn)))
