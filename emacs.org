@@ -2116,9 +2116,11 @@ line only
      "F" 'evilem-motion-find-char-backward
      "t" 'evilem-motion-find-char-to
      "T" 'evilem-motion-find-char-to-backward)
-    :init
-    ($leader-set-key
-      "j" '(:keymap evilem-map :package evil-easymotion)))
+    ('normal
+     "gs" '(:keymap evilem-map :package evil-easymotion))
+    ('operator
+     "j" 'evilem-motion-next-line
+     "k" 'evilem-motion-previous-line))
 #+END_SRC
 
 *** symbols
