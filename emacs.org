@@ -351,9 +351,7 @@ highlight the current line with a background face
 Setup the font that I want to use. Hasklig is a fork of /Source Code
 Pro/ that contains ligatures.
 #+BEGIN_SRC emacs-lisp
-(set-face-attribute 'default nil
-                    :family "Hasklig"
-                    :height 120)
+  (set-face-attribute 'default nil :family "Hasklig" :height 120)
 #+END_SRC
 
 use a hydra to scale the text size
@@ -528,8 +526,7 @@ displayed at the same time.
            doom-modeline-major-mode-color-icon t)
     :config
     (csetq eldoc-eval-preferred-function 'eval-expression)
-    (column-number-mode)
-    (doom-modeline-def-segment evil-state "Disabled for now" ""))
+    (column-number-mode))
 #+END_SRC
 
 *** which key
@@ -851,7 +848,6 @@ config. Navi allows navigation of outshine headers.
      :fork (:host github :repo "CeleritasCelery/outshine")))
 
   (use-package navi-mode)
-
 #+END_SRC
 
 *** restart
@@ -960,7 +956,7 @@ with the display
           counsel-git-log-cmd "GIT_PAGER=cat /usr/intel/bin/git log --grep '%s'"
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t
-          counsel-async-filter-update-time 200000)
+          counsel-async-filter-update-time 500000)
     :config
     (setf (alist-get 'counsel-M-x ivy-initial-inputs-alist) nil))
 #+END_SRC
@@ -1251,8 +1247,8 @@ a text object that highlights everything with the same font lock
 #+END_SRC
 
 *** keybindings
-
-We want to hybridize some usefull emacs commands with better evil keybindings
+We want to hybridize some useful emacs commands with better evil
+keybindings
 #+BEGIN_SRC emacs-lisp
   (general-def 'insert
     "C-y" 'yank)
@@ -1511,7 +1507,7 @@ but there are still some issues that gives helm the advantage
 - helm-mini has better recentf functionality
 - helm supports windows, which makes swoop easier
 - =counsel-fzf= is broken, but =helm-fzf= works great
-- helm supports marking, which is very efficent.
+- helm supports marking, which is very efficient.
 
 I have decided to switch from using advices to make helm behave as I
 want and am now maintaining my own helm fork. This fork differs from
@@ -2024,7 +2020,7 @@ with their ascii equiviments.
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
     "xa" 'align
-    "xr" 'align-regex
+    "xr" 'align-regexp
     "xt" 'untabify
     "zq" 'quick-calc)
 #+END_SRC
@@ -2100,8 +2096,8 @@ avy is an awesome jump to point package.
     :init
     (setq avy-timeout-seconds 0.3)
     :general
-    (:states 'motion
-     ";" 'avy-goto-char-timer))
+    (:states '(motion normal)
+     "s" 'avy-goto-char-timer))
 #+END_SRC
 
 **** easy motion
@@ -2810,11 +2806,13 @@ want to do when I enable flycheck.
     (defhydra $git-hunk (:exit nil)
       ("n" git-gutter:next-hunk "next")
       ("N" git-gutter:previous-hunk "prev")
-      ("p" git-gutter:previous-hunk "prev"))
+      ("p" git-gutter:previous-hunk "prev")
+      ("r" git-gutter:revert-hunk "revert")
+      ("s" git-gutter:stage-hunk "stage"))
     ($leader-set-key
-      "gr" 'git-gutter:revert-hunk
+      "gr" '$git-hunk/git-gutter:revert-hunk
       "gh" '$git-gutter-show-hunk
-      "gs" 'git-gutter:stage-hunk
+      "gs" '$git-hunk/git-gutter:stage-hunk
       "gn" '$git-hunk/git-gutter:next-hunk
       "gN" '$git-hunk/git-gutter:previous-hunk)
     :config
@@ -4340,7 +4338,7 @@ collection of major modes that I use for different file types.
   (use-package major-modes
     :straight
     (major-modes
-     :host gitlab :repo "CeleritasCelery/major-modes")
+     :host gitlab :repo "foconoco/major-modes")
     :init
     ($leader-local-set-key
       :keymaps 'spfspec-mode-map
