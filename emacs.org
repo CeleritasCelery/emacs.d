@@ -1272,6 +1272,20 @@ general leader key bindings
     "u" 'universal-argument)
 #+END_SRC
 
+Use a keymap for evil change keybinding. This allows us to bind arbitrary
+commands to open keys in =evil-change= map
+#+BEGIN_SRC emacs-lisp
+  (defvar evil-change-map
+    (let ((map (make-sparse-keymap)))
+      (define-key map "c" (general-simulate-key ('evil-change "c")))
+      map))
+
+  (general-def 'normal "c"
+    (general-key-dispatch 'evil-change
+      :inherit-keymap evil-change-map))
+  (general-def 'visual "c" 'evil-change)
+#+END_SRC
+
 *** undo-tree
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
@@ -1364,14 +1378,20 @@ behave better with evil.
     :commands (evilnc-copy-and-comment-operator
                evilnc-comment-operator)
     :general
-    ('normal "c"
-             (general-key-dispatch 'evil-change
-               "m" 'evilnc-comment-operator
-               "M" 'evilnc-copy-and-comment-operator
-               "c" (general-simulate-key ('evil-change "c"))))
-    ('visual "c" 'evil-change))
+    ('normal
+     "gc" 'evilnc-comment-operator
+     "gC" 'evilnc-copy-and-comment-operator))
 #+END_SRC
 
+*** replace with register
+This package is a great way to replace text with the clipboard without
+having to enable visual mode
+#+BEGIN_SRC emacs-lisp
+  (use-package evil-replace-with-register
+    :general
+    (evil-change-map
+     "p" 'evil-replace-with-register))
+#+END_SRC
 *** exchange
 swap two regions with evil exchange
 #+BEGIN_SRC emacs-lisp
