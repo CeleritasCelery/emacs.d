@@ -3311,12 +3311,12 @@ stalls.
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
     :config
-
     (general-advice-add '(org-insert-subheading org-insert-todo-subheading)
                         :before
                         (defun $org-insert-subheading (_arg)
                           (let ((undo-inhibit-record-point t))
                             (end-of-line))))
+    (add-hook 'org-capture-mode-hook 'evil-insert-state)
     (general-def org-mode-map
       "C-c C-<return>" 'org-insert-subheading
       "C-c C-SPC" 'org-insert-todo-subheading)
