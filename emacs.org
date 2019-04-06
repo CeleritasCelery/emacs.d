@@ -201,8 +201,7 @@ use the emacs client server so that we can send output to this emacs instance
 *** site
 set the site I will be working in
 #+BEGIN_SRC emacs-lisp
-  (defvar $site (intern-soft (getenv "EC_SITE"))
-    "Current EC site")
+  (load-file (expand-file-name "site/site.el" user-emacs-directory))
 #+END_SRC
 
 ** Package Manager
@@ -325,11 +324,6 @@ commands
 *** el-patch
 #+BEGIN_SRC emacs-lisp
   (use-package el-patch)
-#+END_SRC
-
-*** site
-#+BEGIN_SRC emacs-lisp
-  (load-file (expand-file-name "site/site.el" user-emacs-directory))
 #+END_SRC
 
 ** UI
