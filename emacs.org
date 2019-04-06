@@ -3301,7 +3301,8 @@ stalls.
       "ol" 'org-store-link)
     (csetq org-lowest-priority ?D
            org-enforce-todo-dependencies t
-           org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "BLOCK(b@!)" "PROJ(p)" "|" "DONE(d)")
+           org-hide-emphasis-markers t
+           org-todo-keywords '((sequence "NEXT(n)" "TODO(t)" "WAIT(w@)" "|" "DONE(d)")
                                (sequence "|" "CANCELED(c@)"))
            org-priority-faces '((?A . (:foreground "OrangeRed"))
                                 (?B . (:foreground "yellow3"))
