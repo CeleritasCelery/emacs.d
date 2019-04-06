@@ -104,7 +104,8 @@ possible.
 
 don't load x-resources. Everything we need for our config should be in here
 #+BEGIN_SRC emacs-lisp
-  (setq inhibit-x-resources t)
+  (setq inhibit-x-resources t
+        create-lockfiles nil)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
