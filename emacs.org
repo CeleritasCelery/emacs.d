@@ -3650,6 +3650,7 @@ blocks
           org-default-todo-file (expand-file-name "todo.org" org-directory)
           org-default-email-file (expand-file-name "email.org" org-directory)
           org-default-journal-file (expand-file-name "journal.org" org-directory)
+          org-default-meeting-file (expand-file-name "meeting.org" org-directory)
           org-capture-templates
           (mapcar (lambda (x) (append x '(:empty-lines 1)))
                   '(("t" "Todo" entry (file org-default-todo-file)
@@ -3664,8 +3665,12 @@ blocks
                      "* %?")
                     ("N" "Note with Clipboard" entry (file org-default-notes-file)
                      "* %?\n   %c")
+                    ("i" "Interupt" entry (file org-default-todo-file)
+                     "* TODO [#C] %?\n" :clock-in t :clock-keep t)
                     ("j" "Journal" entry (file org-default-journal-file)
-                     "* %<%a %b %e, %l:%M> -  %?")))))
+                     "* %<%a %b %e, %l:%M> -  %?")
+                    ("m" "Meeting" entry (file org-default-meeting-file)
+                     "* %?" :clock-in t :clock-resume t)))))
 #+END_SRC
 
 ** tags
