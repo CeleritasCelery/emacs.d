@@ -3791,9 +3791,7 @@ advantage of unicode
 
   (use-package org-fancy-priorities
     :diminish
-    :hook org-mode
-    :init
-    (setq org-fancy-priorities-list '("⬆" "⬅" "⬇" "☕")))
+    :hook org-mode)
 #+END_SRC
 
 * Languages
