@@ -2257,9 +2257,9 @@ counsel and git as well as the specialized functions below.
           (user-error "no project root found")
         (setq root (file-truename root))
         (setq buffers (all-completions
-                       str #'internal-complete-buffer
+                       "" #'internal-complete-buffer
                        (lambda (buf) ($buffer-in-project buf root arg))))
-        (ivy-read "buffers: "
+        (ivy-read "buffers: " buffers
                   :keymap ivy-switch-buffer-map
                   :action #'ivy--switch-buffer-action
                   :matcher #'ivy--switch-buffer-matcher))))
@@ -2272,7 +2272,8 @@ counsel and git as well as the specialized functions below.
 
   (defun $buffer-in-project (buf project only-files)
     (with-current-buffer (cdr buf)
-      (and (equal ($get-project-root) project)
+      (and (not (file-remote-p default-directory))
+           (equal ($get-project-root) project)
            (or (null only-files)
                (buffer-file-name (current-buffer))))))
 
