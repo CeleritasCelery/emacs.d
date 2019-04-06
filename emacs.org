@@ -921,7 +921,7 @@ with the display
 
 *** actions
 #+BEGIN_SRC emacs-lisp
-  (with-eval-after-load 'ivy
+  (with-eval-after-load 'counsel
     (ivy-add-actions
      t
      '(("y" $ivy-kill-new "yank")))
