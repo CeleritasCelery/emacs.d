@@ -4229,6 +4229,9 @@ when using ffap expand modules to their source
 *** smart dash
 #+BEGIN_SRC emacs-lisp
   (use-package smart-dash
+    :straight
+    (:host github :repo "emacsmirror/smart-dash"
+     :fork (:host github :repo "CeleritasCelery/smart-dash"))
     :hook perl-mode
     :init
     (setq smart-dash-minibuffer-enabled nil
