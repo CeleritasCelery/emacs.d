@@ -351,7 +351,9 @@ highlight the current line with a background face
 Setup the font that I want to use. Hasklig is a fork of /Source Code
 Pro/ that contains ligatures.
 #+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil :family "Hasklig" :height 120)
+  (set-face-attribute 'default nil :family "Source Code Pro" :height 120)
+  (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height 130)
+  (set-fontset-font t nil "Symbola" nil 'append)
 #+END_SRC
 
 use a hydra to scale the text size
