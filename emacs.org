@@ -3972,7 +3972,7 @@ unless we turn it back on.
                 (defun $prettify-symbols-handle-dot (start end match)
                   (if (equal "." match)
                       (prettify-symbols-default-compose-p start end match)
-                    t))))
+                    ($prettify-symbols-all-p start end match)))))
 
   (add-hook 'emacs-lisp-mode-hook '$prettify-cons)
 #+END_SRC
@@ -4277,9 +4277,6 @@ we have some nonstandard extensions for SV
      :keymaps 'verilog-mode-map
      "j" 'helm-imenu))
 
-  (defun $verilog-remove-lt-ligature ()
-    (setf (alist-get "<=" prettify-symbols-alist t t 'equal) t))
-
   (defun $verilog-imenu-populated ()
     (setq-local imenu-generic-expression
                 `(("*instance*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
@@ -4287,9 +4284,34 @@ we have some nonstandard extensions for SV
                                       spc (group symbol) eol) 1)
                   ("*module*" ,($rx ^ "module " (group symbol) " (") 1))))
 
-  (general-add-hook 'verilog-mode-hook
-                    '($verilog-remove-lt-ligature
-                      $verilog-imenu-populated))
+  (add-hook 'verilog-mode-hook '$verilog-imenu-populated)
+#+END_SRC
+
+Ligatures in verilog are more complicated then in other languages
+because the symbol =<== can be either a left arrow or a "less then or
+equal" symbol. So we add an addition wrapper around the compose
+function to handle this special case. Also add the xor symbol to the
+list.
+#+BEGIN_SRC emacs-lisp
+  (defun $compose-conditional-symbol (alist)
+    (or (and (eq major-mode 'verilog-mode)
+             (equal (match-string 0) "<=")
+             (not (looking-at-p (rx (0+ (not (in "(\n"))) ")")))
+             `((("<=" . (?\s (Br . Bl) ?\s (Br . Br)
+                             ,(decode-char 'ucs #XE0FF))))))
+        alist))
+
+  (with-eval-after-load 'prog-mode
+    (advice-add 'prettify-symbols--compose-symbol :filter-args #'$compose-conditional-symbol))
+
+  (defun $verilog-compose-xor ()
+    (mapc '$set-ligature
+          '(("~^" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))
+            ("^~" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))))
+    (prettify-symbols-mode -1)
+    (prettify-symbols-mode 1))
+
+  (add-hook 'verilog-mode-hook '$verilog-compose-xor)
 #+END_SRC
 
 ** TCL
