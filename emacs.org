@@ -373,33 +373,56 @@ use a hydra to scale the text size
 #+END_SRC
 
 *** ligatures
-liguatures use a custom symbol to represent two or more
-characters. The haskling font is required to make these work. Another
-option would be FiraCode, but I am pretty happy with Hasklig for now.
+ligatures use a custom symbol to represent two or more characters.
+Emacs does not have built-in support for ligatures, so we have to use
+a font that maps them to open unicode points. This lets us compose our
+own ligatures.
 #+BEGIN_SRC emacs-lisp
-  (defvar $prog-prettify-symbols-alist
-    `(("&&"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE100)))
-      ("||"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE104)))
-      ("::"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE106)))
-      ("=="  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE107)))
-      ("=>"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE10A)))
-      (">>"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE10D)))
-      ("->"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE112)))
-      ("<<"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE11C)))
-      (".."  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE11F)))
-      ("++"  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE121)))
-      ("!="  . (?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE123)))
-      ("..." . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE120)))
-      ("->>" . (?\s (Br . Bl) ?\s (Br . Bl) ?\s (Br . Br) ,(decode-char 'ucs #XE126)))
-      (".="  . (?· (Br . Bl) ?=))
-      ("<="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?< (Bc . Bc) ?_))
-      (">="  . (?\s (Br . Bl) ?\s (Bc . Bc) ?> (Bc . Bc) ?_))))
+  (setq $fira-ligature-alist
+        '(("&&"  . #Xe131)
+          ("||"  . #Xe132)
+          ("::"  . #Xe10a)
+          ("=="  . #Xe13c)
+          ("->"  . #Xe114)
+          ("=>"  . #Xe13f)
+          (">>"  . #Xe147)
+          ("<<"  . #Xe15C)
+          (".."  . #Xe124)
+          ("++"  . #Xe138)
+          ("!="  . #Xe10e)
+          (".="  . #Xe123)
+          (";;"  . #Xe129)
+          ("/*"  . #Xe12a)
+          ("*/"  . #Xe105)
+          ("//"  . #Xe12f)
+          (":="  . #Xe10c)
+          ("<="  . #XE157)
+          (">="  . #XE145)
+          ("..." . #Xe126)
+          ("===" . #Xe13d)
+          ("!==" . #Xe10f)
+          ("->>" . #Xe115)
+          ("-->" . #Xe113)))
+
+  (set-fontset-font t '(#XE0FF . #XE160) "Fira Code Extended")
+
+  (defun $make-ligature-glyph (str glyph)
+    (if (or (listp glyph)
+            (eq 1 (string-width str)))
+        glyph
+      `(,@(mapcan (lambda (x) (list ?\s '(Br . Bl)))
+                  (number-sequence 2 (string-width str)))
+        ?\s (Br . Br) ,(decode-char 'ucs glyph))))
+
+  (defun $set-ligature (symbol)
+    (cl-destructuring-bind (str . glyph) symbol
+      (setf (alist-get str prettify-symbols-alist nil nil 'equal)
+            ($make-ligature-glyph str glyph))))
 
   (defun $prettify-base-symbols ()
     "enable hasklig ligatures"
     (interactive)
-    (dolist (symbol $prog-prettify-symbols-alist)
-      (add-to-list 'prettify-symbols-alist symbol))
+    (mapc '$set-ligature $fira-ligature-alist)
     (prettify-symbols-mode))
 
   (add-hook 'prog-mode-hook '$prettify-base-symbols)
