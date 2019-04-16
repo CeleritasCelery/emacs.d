@@ -195,6 +195,8 @@ that hook and set the alist back to our canonical version.
                  1)
                 (,(err-rx ^ line ": " (or "OVM_ERROR" "OVM_FATAL") " ")
                  (0 "acerun.log.gz") 2)
+                (,(err-rx ^ line ": Error: \"")
+                 (0 "acerun.log.gz") 2)
                 (,(err-rx ^ (or "OVM_ERROR" "OVM_FATAL") " " filename ":" line " @ ")
                  1 2)
                 (,(err-rx ^ "-I-:ERROR: " symbol " has " nums " upf error" (opt "s")
