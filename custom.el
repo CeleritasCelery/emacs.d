@@ -9,7 +9,11 @@
  '(debug-on-error nil)
  '(safe-local-variable-values
    (quote
-    ((checkdoc-package-keywords-flag)
+    ((eval visit-tags-table
+           (expand-file-name "TAGS"
+                             (vc-git-root default-directory))
+           t)
+     (checkdoc-package-keywords-flag)
      (checkdoc-minor-mode . t)
      (cperl-close-paren-offset . -4)
      (cperl-indent-parens-as-block . t)
