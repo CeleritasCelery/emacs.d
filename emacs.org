@@ -2995,7 +2995,7 @@ open magit and doing it manually
     (let ((models (file-expand-wildcards (expand-file-name "tools/ipgen/*/output" (vc-git-root default-directory)))))
       (message "discarding output files...")
       (cl-loop for model in models
-               do ($git-command "checkout -- HEAD" model)
+               do ($git-command "checkout HEAD --" model)
                and do ($git-command "clean --force" model))
       (message "done")
       (when (eq major-mode 'magit-status-mode)
