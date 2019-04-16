@@ -775,7 +775,7 @@ add a fringe scroll bar it make it visually clearer where we are in the buffer
   (use-package yascroll
     :defer 2
     :init
-    (fringe-mode '(8 . 3))
+    (fringe-mode '(8 . 5))
     :config
     (global-yascroll-bar-mode))
 #+END_SRC
@@ -2980,6 +2980,7 @@ open magit and doing it manually
   build summary file has changed then we know the corekit has
   changed as well. This will prevent all the corekits from
   polluting our diffs."
+    (interactive "D")
     (let* ((default-directory (expand-file-name "dft/tools/collage/reports/" dir)))
       (cl-loop for build in (split-string ($git-command "ls-files -m"))
                do ($git-command
@@ -4473,7 +4474,6 @@ simple mode for par.txt
 
   (define-derived-mode par-mode fundamental-mode "par.txt"
     "Major mode for par.txt files"
-
     (setq-local font-lock-defaults '(par-mode-keywords)))
 
   (add-to-list 'auto-mode-alist `(,(rx "par.txt" eos) . par-mode))
