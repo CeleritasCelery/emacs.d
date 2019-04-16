@@ -3379,7 +3379,7 @@ stalls.
     (csetq org-lowest-priority ?D
            org-enforce-todo-dependencies t
            org-hide-emphasis-markers t
-           org-todo-keywords '((sequence "NEXT(n)" "TODO(t)" "WAIT(w@)" "|" "DONE(d)")
+           org-todo-keywords '((sequence "NEXT(n)" "TODO(t)" "WAIT(w@)" "PENDING(p)" "|" "DONE(d)")
                                (sequence "|" "CANCELED(c@)"))
            org-priority-faces '((?A . (:foreground "OrangeRed"))
                                 (?B . (:foreground "yellow3"))
@@ -3822,9 +3822,6 @@ Use a proportional font for org mode because it is more readable
   (use-package org-src
     :straight nil
     :gfhook #'$org-src-lexical-bindings
-    :general
-    (:keymaps 'org-src-mode-map
-     "C-c C-c" 'org-edit-src-exit)
     :init
     (csetq org-src-fontify-natively t
            org-src-window-setup 'current-window
@@ -3832,18 +3829,6 @@ Use a proportional font for org mode because it is more readable
            org-src-tab-acts-natively t)
     (defun $org-src-lexical-bindings ()
       (setq-local lexical-binding t)))
-#+END_SRC
-
-=C-c C-C= is more useful to edit src code blocks then to eval them
-#+BEGIN_SRC emacs-lisp
-  (defun $org-ctrl-c-ctrl-c (&optional arg)
-    (interactive "P")
-    (if (eq 'src-block (org-element-type (org-element-at-point)))
-        (org-edit-src-code)
-      (org-ctrl-c-ctrl-c arg)))
-
-  (general-def org-mode-map
-    "C-c C-c" '$org-ctrl-c-ctrl-c)
 #+END_SRC
 
 exit in normal state
