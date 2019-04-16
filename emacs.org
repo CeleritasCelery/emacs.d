@@ -271,7 +271,7 @@ packages that are used to setup my emacs enviroment. They are
 needed as dependaceies for other packages later on.
 
 *** general package
-This package lets us use "SPC" as leader key for other keybindings. It
+This package lets us use =SPC= as leader key for other keybindings. It
 also provides a lot of helper functions to make binding keys easier
 and smarter.
 #+BEGIN_SRC emacs-lisp
@@ -348,11 +348,10 @@ highlight the current line with a background face
 #+END_SRC
 
 *** font
-Setup the font that I want to use. Hasklig is a fork of /Source Code
-Pro/ that contains ligatures.
+Setup the font that I want to use. Symbola is a backup font that has
+many unicode symbols
 #+BEGIN_SRC emacs-lisp
   (set-face-attribute 'default nil :family "Source Code Pro" :height 120)
-  (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height 130)
   (set-fontset-font t nil "Symbola" nil 'append)
 #+END_SRC
 
@@ -438,8 +437,6 @@ point so we can easily see the representation
                         (char-after start))
                     (eq (char-before end)
                         (char-after end))))))
-
-
 #+END_SRC
 
 *** vnc size
@@ -3790,7 +3787,21 @@ Use company-ispell to provide spelling auto complete
   (add-hook 'org-mode-hook
             (defun $enable-company-spell ()
               (setq-local company-backends '((company-ispell company-capf company-dabbrev)))
+              (setq-local company-frontends '(company-preview-frontend))
               (company-mode)))
+#+END_SRC
+
+** font
+Use a proportional font for org mode because it is more readable
+#+BEGIN_SRC emacs-lisp
+  (use-package org-variable-pitch
+    :hook (org-mode . org-variable-pitch-minor-mode)
+    :init
+    (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height 130)
+    (setq org-variable-pitch-fixed-font "Source Code Pro")
+    :config
+    (add-to-list 'org-variable-pitch-fixed-faces 'org-indent)
+    (set-face-attribute 'org-variable-pitch-face nil :height 120))
 #+END_SRC
 
 ** src blocks
