@@ -1046,6 +1046,43 @@ will always be the same width as a window we are searching.
            (window-height . ,(1+ (ivy--height (ivy-state-caller ivy-last)))))))))
 #+END_SRC
 
+**** flashing fix
+I have an issue with my window manager where the frame will flash
+white when removing the ivy posframe. This seems to be because Emacs
+does not acknowledge the WM if it has other code to run. The following
+code will wait to remove the frame until emacs is idle. This fixes the
+flashing issue.
+#+BEGIN_SRC emacs-lisp
+  (defvar posframe-timer nil)
+
+  (defun posframe-force-valid (new-buf &rest _)
+    "If we are reusing an exisiting posframe, don't hide the
+  previous one. this prevents blanking the frame unnecessarily."
+    (let ((timer (cdr posframe-timer))
+          (old-buf (car posframe-timer)))
+      (when (and (memq timer timer-idle-list)
+                 (eq new-buf (get-buffer old-buf)))
+        (cancel-timer timer))))
+
+  (el-patch-feature posframe)
+  (with-eval-after-load 'posframe
+    (advice-add 'posframe--create-posframe :before #'posframe-force-valid)
+    (el-patch-defun posframe-hide (posframe-buffer)
+      "Hide posframe which buffer is POSFRAME-BUFFER."
+      (dolist (frame (frame-list))
+        (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
+          (when (or (equal posframe-buffer (car buffer-info))
+                    (equal posframe-buffer (cdr buffer-info)))
+            (el-patch-swap
+              (posframe--make-frame-invisible frame)
+              (setq posframe-timer
+                    (cons posframe-buffer
+                          (run-with-idle-timer
+                           0.01 nil
+                           (lambda ()
+                             (posframe--make-frame-invisible frame)))))))))))
+#+END_SRC
+
 *** rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
