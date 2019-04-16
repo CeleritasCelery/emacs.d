@@ -2434,6 +2434,9 @@ email. automatically add the tramp header if from a different site
                                (equal current-site target-site))
                            ""
                          (format "/%s:%s:" tramp-default-method target-site))))
+      (when (and (not (string-suffix-p "/" file))
+                 (file-directory-p file))
+        (cl-callf concat file "/"))
       ;; remove problematic formatting from files
       (thread-last (expand-file-name file default-directory)
         (concat remote-url)
