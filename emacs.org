@@ -1231,9 +1231,9 @@ then 4 characters.
 
 prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+BEGIN_SRC emacs-lisp
-  (evil-ex-define-cmd "q" nil)
-  (evil-ex-define-cmd "q!" nil)
-  (evil-ex-define-cmd "wq" nil)
+  (evil-ex-define-cmd "q" 'kill-current-buffer)
+  (evil-ex-define-cmd "q!" 'kill-current-buffer)
+  (evil-ex-define-cmd "wq" 'save-buffer)
 #+END_SRC
 
 *** magic searching
@@ -1310,6 +1310,16 @@ a text object that highlights everything with the same font lock
     :general
     (inner "h" 'evil-i-syntax)
     (outer "h" 'evil-a-syntax))
+#+END_SRC
+
+
+*** EX
+Use additional evil-ex bindings
+#+BEGIN_SRC emacs-lisp
+  (evil-ex-define-cmd "rg" '$counsel-rg-here)
+  (evil-ex-define-cmd "perl" 'perl-mode)
+  (evil-ex-define-cmd "lisp" 'emacs-lisp-mode)
+  (evil-ex-define-cmd "pkg" 'straight-use-package)
 #+END_SRC
 
 *** keybindings
