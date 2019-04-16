@@ -3037,6 +3037,7 @@ previous command it will automatically move us the the command line.
     :straight nil
     :general
     (:keymaps 'comint-mode-map
+     :states '(normal insert visual)
      "C-k" 'comint-previous-matching-input-from-input
      "C-j" 'comint-next-matching-input-from-input
      "C-S-k" 'comint-previous-prompt
