@@ -3745,6 +3745,15 @@ keep me on task.
       "o" 'org-agenda-clock-out))
 #+END_SRC
 
+*** mru
+Easily clock into most-recently-used clocks
+#+BEGIN_SRC emacs-lisp
+(use-package org-mru-clock
+  :general
+  (:definer 'leader
+   "of" 'org-mru-clock-in))
+#+END_SRC
+
 ** export
 org has the awesome functionality to export org markup to HTML. My
 most common use case is to write an email in an org capture buffer and
