@@ -2521,23 +2521,26 @@ collection of functions stolen from spacemacs
     (interactive)
     (find-file-existing (expand-file-name "emacs.org" user-emacs-directory)))
 
-  (defun $async-delete-file (file)
+  (defun $async-delete-file (target &optional targets no-prompt)
     "delete a file or directory by moving it to a tmp location and
   then removing in the background"
     (interactive "D")
-    (when (file-exists-p file)
-      (let ((tmp-file (make-temp-name
-                       (concat
-                        (string-remove-suffix "/" file)
-                        ".del."))))
-        (async-start
-         (lambda ()
-           (rename-file file tmp-file)
-           (if (file-directory-p tmp-file)
-               (delete-directory tmp-file 'recursive)
-             (delete-file tmp-file)))
-         (lambda (_result)
-           (message (format "file %s deleted successfully" file)))))))
+    (when (and (file-exists-p (or target (car targets)))
+               (or no-prompt
+                   (y-or-n-p "really delete file(s)?")))
+      (cl-loop for file in (or targets (list target))
+               do (let ((tmp-file (make-temp-name
+                                   (concat
+                                    (string-remove-suffix "/" file)
+                                    ".del."))))
+                    (async-start
+                     (lambda ()
+                       (rename-file file tmp-file)
+                       (if (file-directory-p tmp-file)
+                           (delete-directory tmp-file 'recursive)
+                         (delete-file tmp-file)))
+                     (lambda (_result)
+                       (message (format "file %s deleted successfully" file))))))))
 
   ($leader-set-key
     "f" '(:ignore t :wk "files")
