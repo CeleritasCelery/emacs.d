@@ -436,7 +436,7 @@ run any command
     ("s" ($run-bman "-s all +s sgdft") "SG DFT")
     ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
     ("r" ($run-bman "-s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra") "RTL only")
-    ("u" ($run-bman "-s all +s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra,sgcdc") "DRC only")
+    ("u" ($run-bman "-s all +s emu,sglp,sgdft,vclp,lintra_ol,FLG,hip_listgen,lintra,sgcdc") "DRC only")
     ("g" ($run-bman (read-string "run bman as: " (car $bman-command-history) '$bman-command-history)) "generic"))
 
   (defvar $bman-command-history nil)
@@ -626,6 +626,7 @@ custom compilation command for running regressions
                                                 (f-filename model-root)
                                                 (car (split-string ip ","))))))))
 #+END_SRC
+
 *** turnin
 run a turnin command
 #+BEGIN_SRC emacs-lisp
@@ -682,6 +683,7 @@ a custom compilation command for running a turnin
                            " ")
                           'turnin-mode)))
 #+END_SRC
+
 ** utility
 
 *** enviroment
