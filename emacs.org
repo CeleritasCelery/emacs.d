@@ -952,8 +952,10 @@ want to live with it though.
      "C-w" 'ivy-backward-kill-word
      "C-S-H" help-map
      "C-l" 'ivy-alt-done
+     "TAB" 'ivy-alt-done
      "<C-return>" 'ivy-immediate-done
      [mouse-1] 'ignore
+     [mouse-2] 'ignore
      [mouse-3] 'ignore)
     ("C-x r b" 'counsel-bookmark
      "C-x C-r" 'ivy-resume)
