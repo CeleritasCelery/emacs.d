@@ -3638,7 +3638,6 @@ inherit the priority of the parent heading and make sure the default state is al
               (progn
                 (beginning-of-line)
                 (kill-line)
-                (insert "\n")
                 (org-return))
             ;; If at a non-blank item, insert a new item
             (org-return)
