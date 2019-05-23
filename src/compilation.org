@@ -572,7 +572,7 @@ custom compilation command for running regressions
               (format "*%s simregress %s*"
                       (f-filename model-root)
                       (f-filename test-list)))))
-      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save %s"
+      ($compilation-start (format "source /p/hdk/rtl/hdk.rc -cfg shdk74 && simregress -net %s -l %s -C 'SLES11SP4&&20G' -save %s"
                                   ($get-model-arguments) test-list fsdb)
                           'simregress-mode)))
 #+END_SRC
@@ -588,7 +588,7 @@ custom compilation command for running regressions
       (mapconcat
        (lambda (x)
          (string-join
-          (list "$RTL_PROJ_DBIN/ip_packaging/consume_ip.pl"
+          (list "source /p/hdk/rtl/hdk.rc -cfg shdk74 && $RTL_PROJ_DBIN/ip_packaging/consume_ip.pl"
                 "-consumer" ($git-command "config intel.cluster")
                 "-ip_file uprev.csv"
                 "-ip" (car (split-string ip ","))
