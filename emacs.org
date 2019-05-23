@@ -371,6 +371,28 @@ use a hydra to scale the text size
     "zs" 'text-scale/body)
 #+END_SRC
 
+*** line numbers
+Emacs 26 ships with native line numbers. I am testing out relative
+numbers, but I need a way to show absolute line numbers when needed.
+#+BEGIN_SRC emacs-lisp
+  (setq display-line-numbers-type 'relative
+        display-line-numbers-current-absolute nil)
+
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+  (defun $toggle-absolute-line-numbers ()
+    (interactive)
+    (setq-local display-line-numbers-type
+                (if (eq t display-line-numbers-type)
+                    'relative t))
+    ;; toggle the minor mode
+    (display-line-numbers-mode -1)
+    (display-line-numbers-mode))
+
+  ($leader-set-key
+    "tN" '$toggle-absolute-line-numbers)
+#+END_SRC
+
 *** ligatures
 ligatures use a custom symbol to represent two or more characters.
 Emacs does not have built-in support for ligatures, so we have to use
