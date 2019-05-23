@@ -2409,7 +2409,9 @@ counsel and git as well as the specialized functions below.
     (ivy-add-actions 'counsel-find-file
                      '(("b" (lambda (x)
                               ($project-buffers ivy-current-prefix-arg x))
-                        "buffers"))))
+                        "buffers")))
+    (ivy-add-actions '$project-buffers
+                     '(("k" ivy--kill-buffer-action "kill"))))
 
   (general-def "C-x C-b" '$project-buffers)
 #+END_SRC
