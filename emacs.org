@@ -2963,6 +2963,7 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
     :straight nil
     :config
     (defun $enable-smerge-keys ()
+      (revert-buffer)
       (when smerge-mode
         ($smerge-keys/body)))
     (defhydra $smerge-keys
