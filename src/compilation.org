@@ -252,6 +252,8 @@ that hook and set the alist back to our canonical version.
                  1 2 nil nil nil (3 'warning))
                 (,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
                  $bman-skip-intermediate-log)
+                (,(err-rx ^ "ERROR: In file '" filename "':")
+                 1)
                 (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
                  $bman-find-generic-log))))
 
