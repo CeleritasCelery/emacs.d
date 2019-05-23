@@ -693,12 +693,6 @@ easily manipulate files, buffers, and windows.
     (save-some-buffers)
     (kill-emacs))
 
-  (defun $open-scratch-buffer ()
-    "open the scratch buffer"
-    (interactive)
-    (set-window-buffer (selected-window)
-                       (get-buffer-create "*scratch*")))
-
   (defun $show-and-copy-buffer-filename (arg)
     "Show and copy the full path to the current file in the minibuffer."
     (interactive "P")
@@ -715,14 +709,11 @@ easily manipulate files, buffers, and windows.
   ($leader-set-key
     "TAB" '$alternate-buffer
     "fy" '$show-and-copy-buffer-filename
-    "b" '(:ignore t :wk "buffers")
-    "bs" '$open-scratch-buffer
     "q" '(:ignore t :wk "quit")
     "qq" '$quit-emacs)
 #+END_SRC
 
-quick movement hydra.
-
+quick movement hydra and keybindings
 #+BEGIN_SRC emacs-lisp
   (defhydra buffer-nav (:exit nil)
     "move quickly through recent buffers"
@@ -731,10 +722,27 @@ quick movement hydra.
     ("n" next-buffer "next"))
 
   ($leader-set-key
+    "b" '(:ignore t :wk "buffers")
     "bp" 'buffer-nav/previous-buffer
     "bn" 'buffer-nav/next-buffer)
+
+  (general-def "C-x k" 'kill-this-buffer)
 #+END_SRC
 
+**** scratch
+#+BEGIN_SRC emacs-lisp
+  (setq initial-scratch-message ";; scratch buffer -*- lexical-binding: t -*-\n")
+
+  (defun $open-scratch-buffer ()
+    "open the scratch buffer"
+    (interactive)
+    (set-window-buffer
+     (selected-window)
+     (get-buffer-create "*scratch*")))
+
+  ($leader-set-key
+    "bs" '$open-scratch-buffer)
+#+END_SRC
 
 **** buffer expose
 show all buffers in a buffer switcher popup. usefull if you can't
