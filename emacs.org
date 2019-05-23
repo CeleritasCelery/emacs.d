@@ -2248,10 +2248,7 @@ line only
      "t" 'evilem-motion-find-char-to
      "T" 'evilem-motion-find-char-to-backward)
     ('normal
-     "gs" '(:keymap evilem-map :package evil-easymotion))
-    ('operator
-     "j" 'evilem-motion-next-line
-     "k" 'evilem-motion-previous-line))
+     "gs" '(:keymap evilem-map :package evil-easymotion)))
 #+END_SRC
 
 *** symbols
