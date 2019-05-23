@@ -2628,9 +2628,15 @@ email. automatically add the tramp header if from a different site
             (expand-file-name "workspace/" ($user-site-path))))
       (counsel-find-file)))
 
+  (defun $goto-repo ()
+    (interactive)
+    (let ((default-directory "~/.emacs.d/straight/repos/"))
+      (counsel-find-file)))
+
   ($leader-set-key
     "fo" '$open-file-in-clipboard
-    "fw" '$change-model)
+    "fw" '$change-model
+    "fd" '$goto-repo)
   (general-def '(normal visual motion)
     "gf" '$find-file-at-point)
 #+END_SRC
