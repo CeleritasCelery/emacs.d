@@ -3287,35 +3287,6 @@ builtin shell, gives us the best of both worlds.
         (insert path))))
 #+END_SRC
 
-*** exec path from shell
-the =EMACS_CAPTURE_ENV= is used as part of my tcshrc file to source
-the proper env scripts so that all these variables are set
-#+BEGIN_SRC emacs-lisp :tangle no
-  (use-package exec-path-from-shell
-    :defer 6
-    :init
-    (setq exec-path-from-shell-check-startup-files nil)
-    :config
-    (exec-path-from-shell-initialize)
-
-    (let ((exec-path-from-shell-shell-name "tcsh")
-          (exec-path-from-shell-arguments nil))
-      (setenv "EMACS_CAPTURE_ENV" "1")
-      (exec-path-from-shell-copy-envs '("IP_MODELS"
-                                        "IP_RELEASES"
-                                        "GIT_REPOS"
-                                        "RTLMODELS"
-                                        "RTL_PROJ_TOOLS"
-                                        "RTL_PROJ_CFG"
-                                        "RTL_PROJ_BIN"
-                                        "RTL_CAD_ROOT"
-                                        "GLOBAL_TOOLS"
-                                        "CFG_PROJECT"
-                                        "VALID_ROOT"
-                                        "VTLIB"))
-      (setenv "EMACS_CAPTURE_ENV" nil)))
-#+END_SRC
-
 *** shell pop
 pop up the shell in my current directory
 #+BEGIN_SRC emacs-lisp
