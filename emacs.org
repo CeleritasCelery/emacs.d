@@ -1419,6 +1419,12 @@ commands to open keys in =evil-change= map
     "C-r" 'undo-tree-redo)
 #+END_SRC
 
+Disable warnings about reverting large buffers
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'warnings
+    (add-to-list 'warning-suppress-types '(undo discard-info)))
+#+END_SRC
+
 *** unimpaired
 evil unimpaired binds some usefull functions to some quick keys.
 #+BEGIN_SRC emacs-lisp
