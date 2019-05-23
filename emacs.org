@@ -2713,7 +2713,7 @@ would all be considered similar files.
   (defun $find-file-other-model ()
     "find the same file in a different model in the same directory"
     (interactive)
-    (let* ((file (file-truename (buffer-file-name)))
+    (let* ((file (buffer-file-name))
            (root (vc-git-root file))
            (path (string-remove-prefix root file))
            (workspace (f-parent root))
