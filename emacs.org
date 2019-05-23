@@ -2416,6 +2416,83 @@ counsel and git as well as the specialized functions below.
   (general-def "C-x C-b" '$project-buffers)
 #+END_SRC
 
+*** parens
+packages to help manage parens
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :hook prog-mode)
+
+  (use-package paren
+    :straight nil
+    :demand t
+    :after prog-mode
+    :init
+    (csetq evil-show-paren-range 3
+           show-paren-delay 0)
+    :config
+    (show-paren-mode))
+#+END_SRC
+
+**** matching parens off screen
+A function taken from [[https://with-emacs.com/posts/editing/show-matching-lines-when-parentheses-go-off-screen/][here]] that will use an overlay to echo the
+matching paren line. I am just afraid that this will lead to issues
+when looking at really large JSON file and the function tries to back
+track through the whole file to find a match.
+#+BEGIN_SRC emacs-lisp
+  ;; we will call `blink-matching-open` ourselves...
+  (remove-hook 'post-self-insert-hook
+               #'blink-paren-post-self-insert-function)
+  ;; this still needs to be set for `blink-matching-open` to work
+  (setq blink-matching-paren 'show)
+
+  (let ((ov nil)) ; keep track of the overlay
+    (advice-add
+     #'show-paren-function
+     :after
+     (defun show-paren--off-screen+ (&rest _args)
+       "Display matching line for off-screen paren."
+       (when (overlayp ov)
+         (delete-overlay ov))
+       ;; check if it's appropriate to show match info,
+       ;; see `blink-paren-post-self-insert-function'
+       (when (and (overlay-buffer show-paren--overlay)
+                  (not (or cursor-in-echo-area
+                           executing-kbd-macro
+                           noninteractive
+                           (minibufferp)
+                           this-command))
+                  (and (not (bobp))
+                       (memq (char-syntax (char-before)) '(?\) ?\$)))
+                  (= 1 (logand 1 (- (point)
+                                    (save-excursion
+                                      (forward-char -1)
+                                      (skip-syntax-backward "/\\")
+                                      (point))))))
+         ;; rebind `minibuffer-message' called by
+         ;; `blink-matching-open' to handle the overlay display
+         (cl-letf (((symbol-function #'minibuffer-message)
+                    (lambda (msg &rest args)
+                      (let ((msg (apply #'format-message msg args)))
+                        (setq ov (display-line-overlay+
+                                  (window-start) msg ))))))
+           (blink-matching-open))))))
+  (defun display-line-overlay+ (pos str &optional face)
+    "Display line at POS as STR with FACE.
+
+  FACE defaults to inheriting from default and highlight."
+    (let ((ol (save-excursion
+                (goto-char pos)
+                (make-overlay (line-beginning-position)
+                              (line-end-position)))))
+      (overlay-put ol 'display str)
+      (overlay-put ol 'face
+                   (or face '(:inherit default :inherit highlight)))
+      ol))
+
+  (setq show-paren-style 'parenthesis
+        show-paren-when-point-in-periphery t)
+#+END_SRC
+
 ** files
 
 don't ask me to revert files that I have not changed.
@@ -4189,23 +4266,6 @@ using speed of though lisp to quicky create edit emacs-lisp
     ($leader-local-set-key
       :keymaps 'emacs-lisp-mode-map
       "m" 'macrostep/body))
-#+END_SRC
-
-*** rainbow delimiters
-packages to help manage parens
-#+BEGIN_SRC emacs-lisp
-  (use-package rainbow-delimiters
-    :hook prog-mode)
-
-  (use-package paren
-    :straight nil
-    :demand t
-    :after prog-mode
-    :init
-    (csetq evil-show-paren-range 3
-           show-paren-delay 0)
-    :config
-    (show-paren-mode))
 #+END_SRC
 
 *** benchmarking
