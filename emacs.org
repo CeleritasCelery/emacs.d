@@ -998,9 +998,10 @@ with the display
     (ivy-add-actions
      'counsel-find-file
      '(("g" $magit-status-in-dir "git status")
-       ("k" $async-delete-file "delete")
+       ("d" $async-delete-file "delete")
        ("s" (lambda (x) (counsel-rg nil x)) "search")
        ("f" (lambda (x) (counsel-fzf nil x)) "find")
+       ("o" find-file-other-window "other window")
        ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
        ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
