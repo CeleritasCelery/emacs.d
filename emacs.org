@@ -1604,7 +1604,8 @@ prefer not to do.
     :commands (evil-cp-insert
                evil-cp-append)
     :general
-    (:states 'normal
+    ('normal
+     emacs-lisp-mode-map
      "i" 'evil-cp-insert
      "a" 'evil-cp-append))
 #+END_SRC
