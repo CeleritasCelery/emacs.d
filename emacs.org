@@ -2670,7 +2670,8 @@ email. automatically add the tramp header if from a different site
                 (path (buffer-substring-no-properties start end)))
           (if (save-excursion
                 (goto-char start)
-                (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position)))
+                (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
+                    (looking-back (regexp-quote "$::env(MODEL_ROOT)") (line-beginning-position))))
               (concat "$MODEL_ROOT" path)
             path))))
 
