@@ -3676,23 +3676,6 @@ inherit the priority of the parent heading and make sure the default state is al
     ("l" org-down-element "down")
     ("q" nil)
     ("<tab>" org-cycle "cycle"))
-
-  (defun $org-smart-forward-element ()
-    "if heading is not folded go down into it first."
-    (interactive)
-    (let ((element (org-element-at-point)))
-      (if (and (org-at-heading-or-item-p)
-               (not (org-invisible-p (line-end-position)))
-               (org-element-property :contents-begin element)
-               (memq (org-element-type element)
-                     (append '(plain-list table) org-element-greater-elements)))
-          (org-down-element)
-        (org-forward-element))))
-
-  (general-def org-mode-map
-    "C-j" '$org-smart-forward-element
-    "C-k" 'org-backward-element
-    "C-l" 'org-down-element)
 #+END_SRC
 
 ** functions
