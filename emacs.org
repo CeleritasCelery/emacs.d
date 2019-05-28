@@ -1352,9 +1352,21 @@ create text objects for the buffer, pasted region, and filename
       (let ((bounds (bounds-of-thing-at-point 'filename)))
         (list (car bounds) (cdr bounds))))
 
+    (evil-define-text-object evil-a-dir (count &rest _args)
+      (list (save-excursion (search-backward "/") (point))
+            (save-excursion (search-forward "/") (1- (point)))))
+
+    (evil-define-text-object evil-i-dir (count &rest _args)
+      (list (save-excursion (search-backward "/") (1+ (point)))
+            (save-excursion (search-forward "/") (1- (point)))))
+
+    (general-def 'outer
+      "/" 'evil-a-dir)
+
     (general-def 'inner
       "P" 'evil-pasted
       "n" 'evil-filename
+      "/" 'evil-i-dir
       "g" 'evil-entire-buffer))
 #+END_SRC
 
