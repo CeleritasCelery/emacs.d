@@ -720,7 +720,7 @@ easily manipulate files, buffers, and windows.
                          list-buffers-directory
                          default-directory)))
       (if file-name
-          (message (kill-new (if (null arg)
+          (message (kill-new (if (eq (null arg) (f-parent-of-p "~/workspace/" file-name))
                                  (file-truename file-name)
                                file-name)))
         (error "Buffer not visiting a file"))))
