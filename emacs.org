@@ -83,7 +83,7 @@ apply.
 *** Settings
 
 #+BEGIN_SRC emacs-lisp
-  (defvar $leader-key "SPC"
+  (defvar $leader-key ";"
     "leader key used to quicky access commands.")
 
   (defvar $mm-leader-key ","
