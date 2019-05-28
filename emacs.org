@@ -2448,6 +2448,47 @@ counsel and git as well as the specialized functions below.
   (general-def "C-x C-b" '$project-buffers)
 #+END_SRC
 
+**** bookmars
+#+BEGIN_SRC emacs-lisp
+  (defvar $project-bookmarks
+    '(("hier define" "target/*/collage/work/*/gen/tb_specs/soc_ip_hier_define.sv")
+      ("collage output" "target/*/collage/source")
+      ("espf output" "target/*/espfmodel/mdf_s_v_0")
+      ("espflist" "verif/tests/espflist/*master.espflist"))
+    "Alist of project bookmarks to a list of potential paths. File
+    paths are wildcard expanded.")
+
+  (defun $read-common-file (file-list &optional prompt)
+    "read a file amoung common paths"
+    (unless file-list (user-error "no files found"))
+    (if (cdr file-list)
+        (let ((parent (f-common-parent file-list)))
+          (f-expand (completing-read
+                     (or prompt "Select file: ")
+                     (mapcar (lambda (x) (f-relative x parent)) file-list))
+                    parent))
+      (car file-list)))
+
+  (defun $jump-project-bookmark ()
+    "Jump to a project bookmark."
+    (interactive)
+    (let* ((bookmark (completing-read "Jump to bookmark: " (mapcar 'car $project-bookmarks)))
+           (paths (cdr (assoc bookmark $project-bookmarks)))
+           (file-list (cl-loop for path in paths
+                               for files = (file-expand-wildcards (expand-file-name path ($model-root)))
+                               if files
+                               return files))
+           (file (condition-case-unless-debug nil
+                     ($read-common-file file-list)
+                   (error (user-error "No file found for '%s'" bookmark)))))
+      (if (file-directory-p file)
+          (find-file (read-file-name "Find file: " file))
+        (find-file file))))
+
+  ($leader-set-key
+    "pj" '$jump-project-bookmark)
+#+END_SRC
+
 *** parens
 packages to help manage parens
 #+BEGIN_SRC emacs-lisp
