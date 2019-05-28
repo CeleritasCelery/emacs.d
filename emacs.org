@@ -586,10 +586,29 @@ displayed at the same time.
     :hook (after-init . doom-modeline-init)
     :init
     (csetq doom-modeline-buffer-file-name-style 'relative-from-project
+           doom-modeline-env-version nil
            doom-modeline-github nil
            doom-modeline-major-mode-color-icon t)
     :config
     (csetq eldoc-eval-preferred-function 'eval-expression)
+    (doom-modeline-def-segment buffer-encoding-simple
+      (propertize
+       (concat (pcase (coding-system-eol-type buffer-file-coding-system)
+                 (1 " CRLF")
+                 (2 " CR"))
+               (let ((sys (coding-system-plist buffer-file-coding-system)))
+                 (unless (memq (plist-get sys :category)
+                               '(coding-category-undecided coding-category-utf-8))
+                   (upcase (symbol-name (plist-get sys :name))))))
+       'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
+       'help-echo 'mode-line-mule-info-help-echo
+       'mouse-face '(:box 0)
+       'local-map mode-line-coding-system-map))
+    (doom-modeline-def-modeline 'custom
+      '(bar workspace-name window-number matches buffer-info remote-host buffer-position selection-info)
+      '(objed-state misc-info debug minor-modes buffer-encoding-simple major-mode process vcs checker))
+    (add-hook 'doom-modeline-mode-hook (defun $custom-doom-modeline ()
+                                         (doom-modeline-set-modeline 'custom 'default)))
     (column-number-mode))
 #+END_SRC
 
