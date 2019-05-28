@@ -954,6 +954,11 @@ config. Navi allows navigation of outshine headers.
       "qr" 'restart-emacs))
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+  (setq confirm-kill-emacs t
+        confirm-kill-processes nil)
+#+END_SRC
+
 changing the volume on my mic triggers these bindings. So we ignore them.
 #+BEGIN_SRC emacs-lisp
   (general-def
