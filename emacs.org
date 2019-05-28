@@ -4056,7 +4056,15 @@ Babel is way to execute source code from within blocks.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
     :hook org-mode
-    :init (add-hook 'org-insert-heading-hook 'evil-insert-state))
+    :init (add-hook 'org-insert-heading-hook 'evil-insert-state)
+    :config
+    (general-def 'normal 'org-mode-map
+      "[[" '$org-headings/org-previous-visible-heading
+      "]]" '$org-headings/org-next-visible-heading))
+
+  (defhydra $org-headings (:exit nil)
+    ("[" org-previous-visible-heading  "prev")
+    ("]" org-next-visible-heading "next"))
 
   (use-package evil-org-agenda
     :straight nil
