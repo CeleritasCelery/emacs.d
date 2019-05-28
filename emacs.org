@@ -4042,6 +4042,16 @@ exit in normal state
   (general-advice-add '(org-edit-src-exit org-edit-src-abort) :after 'evil-normal-state)
 #+END_SRC
 
+*** babel
+Babel is way to execute source code from within blocks.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'org
+    (org-babel-do-load-languages
+     'org-babel-load-languages '((perl . t)
+                                 (shell . t)
+                                 (python . t))))
+#+END_SRC
+
 ** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
