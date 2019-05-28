@@ -633,7 +633,7 @@ pretty well, but I have a couple of things I would like to change.
 1. there is no good way to operate on the current window, you have to
    knows its letter first, which is not always easy. my idea is that
    the capital of action would operate on the current window. For
-   example =SPC wX= would delete the current window. This would take a
+   example =Q X= would delete the current window. This would take a
    fair amount of work to change the package however. Or at least so I
    think, I have not actually looked at it yet. I want to wait for
    while to make this change so that I can get the muscle memory down
@@ -841,6 +841,7 @@ add a fringe scroll bar it make it visually clearer where we are in the buffer
     :config
     (global-yascroll-bar-mode))
 #+END_SRC
+
 *** helpful
 helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
@@ -3074,6 +3075,7 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
       ("q" nil "cancel" :color blue))
     :hook (magit-diff-visit-file . $enable-smerge-keys ))
 #+END_SRC
+
 *** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-magit
