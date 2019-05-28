@@ -3986,6 +3986,12 @@ customize it for any keyword we want.
 #+BEGIN_SRC emacs-lisp
   (use-package auto-capitalize
     :hook org-mode)
+
+  (setq auto-capitalize-predicate
+        (defun $auto-captialize-predicate ()
+          (if (eq major-mode 'org-mode)
+              (not (org-babel-where-is-src-block-head))
+            t)))
 #+END_SRC
 
 *** flyspell
