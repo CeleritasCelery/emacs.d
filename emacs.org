@@ -57,7 +57,7 @@ and modified to be more flexible
 This lets us move away from =customize= completely. This is because I
 find it annoying when after a "save for future sessions?" prompt Emacs
 messes up my nicely categorized customizations by writing them in one
-single lump to ~/.emacs. =csetq= avoids =customize=, while still using
+single lump to =~/.emacs.d= avoids =customize=, while still using
 the variable's :set property.
 #+BEGIN_SRC emacs-lisp
   (defmacro csetq (&rest pairs)
@@ -471,12 +471,12 @@ compose symbols (ligatures) no matter where they are. also unformat at
 point so we can easily see the representation
 #+BEGIN_SRC emacs-lisp
   (csetq prettify-symbols-unprettify-at-point t
-         prettify-symbols-compose-predicate
-         (defun $prettify-symbols-all-p (start end _match)
-           (not (or (eq (char-before start)
-                        (char-after start))
-                    (eq (char-before end)
-                        (char-after end))))))
+        prettify-symbols-compose-predicate
+        (defun $prettify-symbols-all-p (start end _match)
+          (not (or (eq (char-before start)
+                       (char-after start))
+                   (eq (char-before end)
+                       (char-after end))))))
 #+END_SRC
 
 *** vnc size
@@ -1292,7 +1292,7 @@ it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897
       (setq evil-this-type 'exclusive)))
 #+END_SRC
 
-Sometimes when I all clicking on a window I will accidentally drag.
+Sometimes when I am clicking on a window I will accidentally drag.
 This leaves me in visual state, so my next comamnd behaves
 differently. We can fix this by not letting us drag to select less
 then 4 characters.
@@ -2723,7 +2723,7 @@ email. automatically add the tramp header if from a different site
 start a find file session from project root
 #+BEGIN_SRC emacs-lisp
   (defun $find-file-project-root ()
-    "start a helm find files session from project root"
+    "start a find files session from project root"
     (interactive)
     (require 'helm-files)
     (if-let ((root (vc-git-root default-directory))
