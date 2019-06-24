@@ -2687,18 +2687,24 @@ email. automatically add the tramp header if from a different site
   (defun $open-file-in-clipboard ()
     "Open the file name in the clipboard"
     (interactive)
-    (let* ((file ($normalize-file-name (string-trim (current-kill 0))))
-           (default-directory (file-name-directory file)))
-      (counsel-find-file ($counsel-initial-input file))))
+    (find-file ($normalize-file-name (string-trim (current-kill 0)))))
 
   (defun $find-file-at-point ()
     "A better replacement for `find-file-at-point'"
     (interactive)
-    (let* ((file ($normalize-file-name
-                  (concat (or (file-remote-p default-directory) "")
-                          ($get-path-at-point))))
-           (default-directory (file-name-directory file)))
-      (counsel-find-file ($counsel-initial-input file))))
+    (find-file ($normalize-file-name
+                (concat (file-remote-p default-directory)
+                        ($get-path-at-point)))))
+
+  (defun $file-at-point-exists ()
+    "Check if file at point exists."
+    (interactive)
+    (if (file-exists-p
+         ($normalize-file-name
+          (concat (file-remote-p default-directory)
+                  ($get-path-at-point))))
+        (message "File exists")
+      (message "File does not exist!")))
 
   (defun $change-model ()
     "Open a model in workspace"
@@ -2715,6 +2721,7 @@ email. automatically add the tramp header if from a different site
   ($leader-set-key
     "fo" '$open-file-in-clipboard
     "fw" '$change-model
+    "fa" '$file-at-point-exists
     "fd" '$goto-repo)
   (general-def '(normal visual motion)
     "gf" '$find-file-at-point)
