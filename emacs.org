@@ -4091,6 +4091,17 @@ Babel is way to execute source code from within blocks.
     "t" '$org-todo-or-evil-t)
 #+END_SRC
 
+** noter
+Org noter is a fantastic package that makes it easy to keep synced
+notes with a document.
+#+BEGIN_SRC emacs-lisp
+  (use-package org-noter
+    :general
+    ('motion
+     doc-view-mode-map
+     "i" 'org-noter-insert-note))
+#+END_SRC
+
 ** visuals
 These packages are used to make org mode look better and take
 advantage of unicode
