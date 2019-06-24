@@ -419,8 +419,7 @@ own ligatures.
           (";;"  . #Xe129)
           ("##"  . #Xe11b)
           ("#!"  . #Xe100)
-          ("/*"  . #Xe12a)
-          ("*/"  . #Xe105)
+          ("#("  . #Xe11e)
           ("//"  . #Xe12f)
           (":="  . #Xe10c)
           ("?="  . #Xe127)
@@ -4572,14 +4571,16 @@ list.
   (with-eval-after-load 'prog-mode
     (advice-add 'prettify-symbols--compose-symbol :filter-args #'$compose-conditional-symbol))
 
-  (defun $verilog-compose-xor ()
+  (defun $verilog-compose-symbols ()
     (mapc '$set-ligature
           '(("~^" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))
-            ("^~" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))))
+            ("^~" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))
+            ("/*"  . #Xe12a)
+            ("*/"  . #Xe105)))
     (prettify-symbols-mode -1)
     (prettify-symbols-mode 1))
 
-  (add-hook 'verilog-mode-hook '$verilog-compose-xor)
+  (add-hook 'verilog-mode-hook '$verilog-compose-symbols)
 #+END_SRC
 
 ** TCL
