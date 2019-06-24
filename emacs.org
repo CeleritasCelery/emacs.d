@@ -209,7 +209,7 @@ We are going to use =straight.el= as package manager because it allows
 us to easily maintain private repos of packages.
 The intel proxy does not work with HTTPS so we need to use the http repo
 #+BEGIN_SRC emacs-lisp
-  (csetq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git")
+  (setq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git")
 #+END_SRC
 
 This is still slower then using package.el, but I think it is worth
@@ -309,9 +309,10 @@ save minibuffer history between sessions.
   (use-package savehist
     :straight nil
     :defer 1
+    :custom
+    (savehist-additional-variables '(helm-ff-history))
     :config
-    (savehist-mode)
-    (csetq savehist-additional-variables '(helm-ff-history)))
+    (savehist-mode))
 #+END_SRC
 
 *** hyrda
@@ -588,13 +589,13 @@ displayed at the same time.
     :straight
     (doom-modeline :host github :repo "seagle0128/doom-modeline")
     :hook (after-init . doom-modeline-init)
-    :init
-    (csetq doom-modeline-buffer-file-name-style 'relative-from-project
-           doom-modeline-env-version nil
-           doom-modeline-github nil
-           doom-modeline-major-mode-color-icon t)
+    :custom
+    (doom-modeline-buffer-file-name-style 'relative-from-project)
+    (doom-modeline-env-version nil)
+    (doom-modeline-github nil)
+    (doom-modeline-major-mode-color-icon t)
     :config
-    (csetq eldoc-eval-preferred-function 'eval-expression)
+    (setq eldoc-eval-preferred-function 'eval-expression)
     (doom-modeline-def-segment buffer-encoding-simple
       (propertize
        (concat (pcase (coding-system-eol-type buffer-file-coding-system)
@@ -773,10 +774,11 @@ remember the name of a buffer, but know what it "looks like".
 #+BEGIN_SRC emacs-lisp
   (use-package buffer-expose
     :commands buffer-expose
-    :init
-    (setq buffer-expose-rescale-factor 0.5)
-    ($leader-set-key
-      "bj" 'buffer-expose))
+    :custom
+    (buffer-expose-rescale-factor 0.5)
+    :general
+    (:definer 'leader
+     "bj" 'buffer-expose))
 #+END_SRC
 
 *** window
@@ -872,8 +874,8 @@ helm. This will let us preview the variable with TAB.
 
 Also add it to the ivy handler
 #+BEGIN_SRC emacs-lisp
-  (setq counsel-describe-variable-function 'helpful-variable)
-  (csetq counsel-describe-function-function 'helpful-callable)
+  (csetq counsel-describe-variable-function 'helpful-variable
+        counsel-describe-function-function 'helpful-callable)
 
   (general-def
     "C-h f" 'counsel-describe-function
@@ -955,7 +957,7 @@ config. Navi allows navigation of outshine headers.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (setq confirm-kill-emacs t
+  (csetq confirm-kill-emacs 'y-or-n-p
         confirm-kill-processes nil)
 #+END_SRC
 
@@ -1002,6 +1004,7 @@ want to live with it though.
     :config
     (ivy-mode)
     (setq ivy-sort-matches-functions-alist '((t))) ;; don't resort my functions
+    (setq ivy-initial-inputs-alist '((t)))
     (add-to-list 'ivy-ignore-buffers (rx bos "*"))
     (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "("))))
 #+END_SRC
@@ -1009,7 +1012,7 @@ want to live with it though.
 Some faces have org-level-4 use a larger face, which really messes
 with the display
 #+BEGIN_SRC emacs-lisp
-  (csetq ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
+  (setq ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
                                          (org-mode . org-level-8)))
 #+END_SRC
 
@@ -1163,8 +1166,8 @@ flashing issue.
   (use-package ivy-rich
     :demand t
     :after counsel
-    :init
-    (csetq ivy-rich-parse-remote-buffer nil)
+    :custom
+    (ivy-rich-parse-remote-buffer nil)
     :config
     (plist-put ivy-rich-display-transformers-list
                'counsel-find-file
@@ -1236,10 +1239,12 @@ Vim instead of like Emacs.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :demand t
-    :init
-    (csetq evil-jumps-cross-buffers nil
-           evil-want-C-i-jump nil
-           evil-want-Y-yank-to-eol t)
+    :custom
+    (evil-jumps-cross-buffers nil)
+    (evil-want-C-i-jump nil)
+    (evil-want-Y-yank-to-eol t)
+    (evil-symbol-word-search t "Using * and #, search foward for symbols, not words")
+    (evil-ex-substitute-global t)
     :config
     (general-swap-key nil 'motion "0" "^")
     (evil-mode 1))
@@ -1253,11 +1258,6 @@ rebind these to the normal scroll function.
   (general-def '(normal visual)
     "C-f" 'evil-scroll-down
     "C-b" 'evil-scroll-up)
-#+END_SRC
-
-Using =*= and =#=, search foward for symbols, not words
-#+BEGIN_SRC emacs-lisp
-  (csetq evil-symbol-word-search t)
 #+END_SRC
 
 we want to use visual lines, but then the line operators don't work
@@ -1339,11 +1339,6 @@ only works if the search module is =evil-search=.
     "?" ($make-magic evil-ex-search-backward)
     "n" ($make-magic evil-ex-search-next)
     "N" ($make-magic evil-ex-search-previous))
-#+END_SRC
-
-substitute globally by default
-#+BEGIN_SRC emacs-lisp
-  (csetq evil-ex-substitute-global t)
 #+END_SRC
 
 *** text objects
@@ -1490,8 +1485,8 @@ provides total number of searches in the modeline
      :host github :repo "syohex/emacs-evil-anzu"
      :fork (:host github :repo "CeleritasCelery/emacs-evil-anzu"))
     :hook (prog-mode . anzu-mode)
-    :init
-    (csetq anzu-cons-mode-line-p nil)
+    :custom
+    (anzu-cons-mode-line-p nil)
     :config
     ($leader-set-key
       "ta" 'anzu-mode))
@@ -1564,6 +1559,7 @@ having to enable visual mode
     (evil-change-map
      "p" 'evil-replace-with-register))
 #+END_SRC
+
 *** exchange
 swap two regions with evil exchange
 #+BEGIN_SRC emacs-lisp
@@ -1726,17 +1722,16 @@ the display function to be more consistent.
     (:definer 'leader
      "fr" 'helm-recentf
      "r"  'helm-resume)
-    :init
-    (csetq
-     helm-split-window-in-side-p t
-     helm-buffer-max-length 60
-     helm-ff-candidate-number-limit 500
-     helm-ff-fuzzy-matching nil
-     helm-buffer-skip-remote-checking t
-     helm-echo-input-in-header-line t
-     helm-ff-delete-files-function 'helm-delete-marked-files-async
-     helm-adaptive-history-length 100
-     helm-find-files-ignore-thing-at-point t)
+    :custom
+    (helm-split-window-in-side-p t)
+    (helm-buffer-max-length 60)
+    (helm-ff-candidate-number-limit 500)
+    (helm-ff-fuzzy-matching nil)
+    (helm-buffer-skip-remote-checking t)
+    (helm-echo-input-in-header-line t)
+    (helm-ff-delete-files-function 'helm-delete-marked-files-async)
+    (helm-adaptive-history-length 100)
+    (helm-find-files-ignore-thing-at-point t)
     :config
     (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command))
     (helm-adaptive-mode)
@@ -1918,8 +1913,8 @@ us with PCRE compatible functions. PCRE is more intuitive then emacs
 regex
 #+BEGIN_SRC emacs-lisp
   (use-package helm-ag
-    :init
-    (csetq helm-ag-base-command "ag --nocolor --nogroup --search-zip")
+    :custom
+    (helm-ag-base-command "ag --nocolor --nogroup --search-zip")
     ($leader-set-key
       "sf" 'helm-do-ag
       "sF" '$helm-do-ag-region-or-symbol)
@@ -1964,9 +1959,9 @@ files then projectile. I will have to see if that holds true for large
 repos.
 #+BEGIN_SRC emacs-lisp
   (use-package helm-ls-git
-    :init
-    (csetq helm-ls-git-default-sources '(helm-source-ls-git-status)
-           helm-ls-git-status-command 'magit-status-internal)
+    :custom
+    (helm-ls-git-default-sources '(helm-source-ls-git-status))
+    (helm-ls-git-status-command 'magit-status-internal)
     :general
     (:definer 'leader
      "gj" 'helm-ls-git-ls
@@ -2323,8 +2318,8 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
 
 #+BEGIN_SRC emacs-lisp
   (use-package evil-multiedit
-    :init
-    (csetq evil-multiedit-use-symbols t)
+    :custom
+    (evil-multiedit-use-symbols t)
     ($leader-set-key
       "se" 'evil-multiedit-match-all)
     :general
@@ -2509,9 +2504,9 @@ packages to help manage parens
     :straight nil
     :demand t
     :after prog-mode
-    :init
-    (csetq evil-show-paren-range 3
-           show-paren-delay 0)
+    :custom
+    (evil-show-paren-range 3)
+    (show-paren-delay 0)
     :config
     (show-paren-mode))
 #+END_SRC
@@ -2911,8 +2906,8 @@ folding, which looks nice.
      "fvb" 'vdiff-buffers)
     (:keymaps 'vdiff-mode-map
      "C-c" '(:keymap vdiff-mode-prefix-map :package vdiff))
-    :init
-    (csetq vdiff-diff-algorithm 'git-diff-patience))
+    :custom
+    (vdiff-diff-algorithm 'git-diff-patience))
 #+END_SRC
 
 ** git
@@ -2954,8 +2949,8 @@ files can quickly fill up my home disk.
      "C-c M-g" 'magit-file-dispatch)
     (magit-diff-mode-map
      "SPC" nil)
-    :init
-    (csetq magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
+    :custom
+    (magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
     ($leader-set-key
       "g" '(:ignore t :wk "git"))
     (evil-ex-define-cmd "git" 'magit-status)
@@ -3546,8 +3541,8 @@ packages that assist in compiling and building code
      "ot" '$run-turnin
      "os" '$run-simregress
      "oj" '$compilation-jump-to-buffer)
-    :init
-    (csetq compilation-always-kill t)
+    :custom
+    (compilation-always-kill t)
     :config
     ($load-literate-file "src/compilation")
     (general-unbind compilation-mode-map "SPC"))
@@ -3572,21 +3567,24 @@ stalls.
   (use-package org
     :straight (:type built-in)
     :gfhook #'org-indent-mode #'$org-truncate-lines
+    :general
+    (:definer 'leader
+     :keymaps 'org-mode-map
+     "," 'org-edit-special
+     "g" '$org-navigate/body)
+    (:definer 'leader
+     "ol" 'org-store-link)
+    :custom
+    (org-lowest-priority ?D)
+    (org-enforce-todo-dependencies t)
+    (org-hide-emphasis-markers t)
+    (org-startup-indented t)
+    (org-todo-keywords '((sequence "NEXT(n)" "TODO(t)" "WAIT(w@)" "PENDING(p)" "|" "DONE(d)")
+                         (sequence "|" "CANCELED(c@)")))
+    (org-priority-faces '((?A . (:foreground "OrangeRed"))
+                          (?B . (:foreground "yellow3"))
+                          (?C . (:foreground "ForestGreen"))))
     :init
-    ($leader-local-set-key
-      :keymaps 'org-mode-map
-      "," 'org-edit-special
-      "g" '$org-navigate/body)
-    ($leader-set-key
-      "ol" 'org-store-link)
-    (csetq org-lowest-priority ?D
-           org-enforce-todo-dependencies t
-           org-hide-emphasis-markers t
-           org-todo-keywords '((sequence "NEXT(n)" "TODO(t)" "WAIT(w@)" "PENDING(p)" "|" "DONE(d)")
-                               (sequence "|" "CANCELED(c@)"))
-           org-priority-faces '((?A . (:foreground "OrangeRed"))
-                                (?B . (:foreground "yellow3"))
-                                (?C . (:foreground "ForestGreen"))))
     (defun $org-truncate-lines ()
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
@@ -4039,11 +4037,11 @@ Use a proportional font for org mode because it is more readable
   (use-package org-src
     :straight nil
     :gfhook #'$org-src-lexical-bindings
-    :init
-    (csetq org-src-fontify-natively t
-           org-src-window-setup 'current-window
-           org-babel-default-header-args:emacs-lisp '((:lexical . "yes"))
-           org-src-tab-acts-natively t)
+    :custom
+    (org-src-fontify-natively t)
+    (org-src-window-setup 'current-window)
+    (org-babel-default-header-args:emacs-lisp '((:lexical) . "yes"))
+    (org-src-tab-acts-natively t)
     (defun $org-src-lexical-bindings ()
       (setq-local lexical-binding t)))
 #+END_SRC
@@ -4150,17 +4148,17 @@ just using =C-l=
      "RET" nil
      [return] nil
      "C-l" 'company-complete-selection)
+    (:definer 'leader
+     "tc" 'company-mode)
     :hook '(prog-mode org-mode ielm-mode)
-    :init
-    (setq company-idle-delay 0.2
-          evil-collection-company-use-tng nil
-          company-dabbrev-downcase nil
-          company-require-match nil)
-    (csetq company-backends '(company-capf
-                              (company-dabbrev-code company-keywords)
-                              company-dabbrev))
-    ($leader-set-key
-      "tc" 'company-mode)
+    :custom
+    (company-idle-delay 0.2)
+    (evil-collection-company-use-tng nil)
+    (company-dabbrev-downcase nil)
+    (company-require-match nil)
+    (company-backends '(company-capf
+                        (company-dabbrev-code company-keywords)
+                        company-dabbrev))
     :config
     (defun $company-select-prev-or-comint-match-input (&optional _)
       "Disable company mode when when we are selecting a previous
