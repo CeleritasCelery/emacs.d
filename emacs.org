@@ -4528,6 +4528,12 @@ when using ffap expand modules to their source
           smart-dash-c-modes '(perl-mode)))
 #+END_SRC
 
+
+** python
+#+BEGIN_SRC emacs-lisp
+  (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
+#+END_SRC
+
 ** verilog
 we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
