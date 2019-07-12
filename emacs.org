@@ -2968,13 +2968,14 @@ files can quickly fill up my home disk.
      "SPC" nil)
     :custom
     (magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
+    :init
     ($leader-set-key
       "g" '(:ignore t :wk "git"))
     (evil-ex-define-cmd "git" 'magit-status)
     ;; make transient not take the width of the whole frame
     (setq transient-display-buffer-action
           '(display-buffer-below-selected))
-    :config
+:config
     (add-hook 'dired-mode-hook 'magit-file-mode))
 #+END_SRC
 
