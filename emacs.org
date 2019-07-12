@@ -1052,14 +1052,37 @@ with the display
 #+BEGIN_SRC emacs-lisp
   (use-package swiper
     :general
-    ("C-s" 'swiper))
+    ("C-s" 'swiper)
+    :config
+    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-window))
+
+  (defun ivy-display-function-window (text)
+    (let ((buffer (get-buffer-create "*ivy-candidate-window*"))
+          (str (with-current-buffer (window-buffer (active-minibuffer-window))
+                 (let ((point (point))
+                       (string (concat (buffer-string) "  " text)))
+                   (ivy-add-face-text-property
+                    (- point 1) point 'ivy-cursor string t)
+                   string))))
+      (with-current-buffer buffer
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert str)))
+      (with-ivy-window
+        (display-buffer
+         buffer
+         `((display-buffer-reuse-window
+            display-buffer-below-selected)
+           (window-height . ,(1+ (ivy--height (ivy-state-caller ivy-last)))))))))
 #+END_SRC
 
 *** counsel
 #+BEGIN_SRC emacs-lisp
   (use-package counsel
     :bind (("C-x C-f" . counsel-find-file)
+           ("C-x f" . counsel-find-file)
            ("C-x C-j" . counsel-git)
+           ("C-x j" . counsel-git)
            ("C-c s" . counsel-ag)
            ("M-x" . counsel-M-x))
     :init
@@ -1077,7 +1100,8 @@ a function to call counsel-rg from the current directory
 #+BEGIN_SRC emacs-lisp
   (defun $counsel-rg-here ()
     (interactive)
-    (counsel-rg nil default-directory))
+    (let ((ivy-posframe-height 30))
+      (counsel-rg nil default-directory)))
 #+END_SRC
 
 packages used to support counsel
@@ -1104,29 +1128,10 @@ will always be the same width as a window we are searching.
   (use-package ivy-posframe
     :demand t
     :after ivy
+    :init
+    (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
     :config
-    (setf (alist-get t ivy-display-functions-alist) 'ivy-posframe-display-at-frame-center)
-    (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-window)
-    (ivy-posframe-enable))
-
-  (defun ivy-display-function-window (text)
-    (let ((buffer (get-buffer-create "*ivy-candidate-window*"))
-          (str (with-current-buffer (window-buffer (active-minibuffer-window))
-                 (let ((point (point))
-                       (string (concat (buffer-string) "  " text)))
-                   (ivy-add-face-text-property
-                    (- point 1) point 'ivy-cursor string t)
-                   string))))
-      (with-current-buffer buffer
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (insert str)))
-      (with-ivy-window
-        (display-buffer
-         buffer
-         `((display-buffer-reuse-window
-            display-buffer-below-selected)
-           (window-height . ,(1+ (ivy--height (ivy-state-caller ivy-last)))))))))
+    (ivy-posframe-mode))
 #+END_SRC
 
 **** flashing fix
