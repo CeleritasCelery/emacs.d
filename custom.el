@@ -24,10 +24,8 @@
      (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)"))))
  '(shx-kept-commands
    (quote
-    (("mdf sim command" . "simregress -net -dut mdf_10nm -model mdf_s_v_0 -l $MODEL_ROOT/verif/reglist/mdf_10nm/dft_mdf_s_v_0_level0.list -C 'SLES11SP4&&20G' -save && simregress -net -dut mdf_10nm -model mdf_c_v_0 -l $MODEL_ROOT/verif/reglist/mdf_10nm/dft_mdf_c_v_0_level0.list -C 'SLES11SP4&&20G' -save && simregress -net -dut mdf_10nm -model mdf_s_h_0 -l $MODEL_ROOT/verif/reglist/mdf_10nm/dft_mdf_s_h_0_level0.list -C 'SLES11SP4&&20G' -save")
-     ("show all tool config" . "ToolConfig.pl show_tool_info | ep")
+    (("show all tool config" . "ToolConfig.pl show_tool_info | ep")
      ("tool_info" . "ToolConfig.pl show_tool_info ipconfig | ep")
-     ("git filter branch" . "git filter-branch --tag-name-filter cat --prune-empty --subdirectory-filter layers/shell-config/local/shell-config")
      ("Enable wordwrap at 90 columns" . ":eval (shx-wordwrap 90)")))))
 (put 'upcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
