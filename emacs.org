@@ -194,7 +194,8 @@ use the emacs client server so that we can send output to this emacs instance
   (defun $schedule-maybe-gc ()
     (if $use-gc-timer
         (setq $gc-timer (run-with-idle-timer 2 nil #'$maybe-gc))
-      (setq gc-cons-threshold 800000)))
+      (setq gc-cons-threshold 800000
+            $gc-timer nil)))
 
   (add-hook 'after-init-hook '$schedule-maybe-gc)
 #+END_SRC
