@@ -3545,6 +3545,27 @@ environment of my local process with the buffer. very useful.
      :files ("company-command.el")))
 #+END_SRC
 
+** web
+
+*** eww
+Eww is the =Emacs Web Wowser= and allows basic views of webpages.
+Unfortunatly, my emacs does not currently have svg support, so some
+images don't work.
+#+BEGIN_SRC emacs-lisp
+  (setq shr-blocked-images "svg")
+#+END_SRC
+
+A small package to jump to links in eww buffer.
+#+BEGIN_SRC emacs-lisp
+  (use-package eww-lnum
+    :demand t
+    :after eww
+    :general
+    ('normal
+     eww-mode-map
+     "J" 'eww-lnum-follow))
+#+END_SRC
+
 ** compilation
 packages that assist in compiling and building code
 #+BEGIN_SRC emacs-lisp
