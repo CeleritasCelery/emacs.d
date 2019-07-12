@@ -409,6 +409,8 @@ own ligatures.
           ("=="  . #Xe13c)
           ("->"  . #Xe114)
           ("=>"  . #Xe13f)
+          ("/*"  . #Xe12a)
+          ("*/"  . #Xe105)
           (">>"  . #Xe147)
           ("<<"  . #Xe15C)
           (".."  . #Xe124)
@@ -442,6 +444,7 @@ own ligatures.
           (">>>" . #Xe14a)
           ("###" . #Xe11c)
           ("####" . #Xe11d)
+          ("<!--" . #Xe151)
           ("\\\\" . #Xe106)))
 
   (set-fontset-font t '(#XE0FF . #XE160) "Fira Code Extended")
@@ -4594,9 +4597,7 @@ list.
   (defun $verilog-compose-symbols ()
     (mapc '$set-ligature
           '(("~^" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))
-            ("^~" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))
-            ("/*"  . #Xe12a)
-            ("*/"  . #Xe105)))
+            ("^~" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))))
     (prettify-symbols-mode -1)
     (prettify-symbols-mode 1))
 
