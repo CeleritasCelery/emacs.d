@@ -475,12 +475,12 @@ compose symbols (ligatures) no matter where they are. also unformat at
 point so we can easily see the representation
 #+BEGIN_SRC emacs-lisp
   (csetq prettify-symbols-unprettify-at-point t
-        prettify-symbols-compose-predicate
-        (defun $prettify-symbols-all-p (start end _match)
-          (not (or (eq (char-before start)
-                       (char-after start))
-                   (eq (char-before end)
-                       (char-after end))))))
+         prettify-symbols-compose-predicate
+         (defun $prettify-symbols-all-p (start end match)
+           (not (or (and (member match '("//" "/*" "*/"))
+                         (nth 3 (syntax-ppss))) ;; inside string
+                    (eq (char-before start) (char-after start))
+                    (eq (char-before end) (char-after end))))))
 #+END_SRC
 
 *** vnc size
