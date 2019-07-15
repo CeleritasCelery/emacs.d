@@ -188,12 +188,12 @@ use the emacs client server so that we can send output to this emacs instance
   (defvar $use-gc-timer t)
   (defun $maybe-gc ()
     (setq gc-cons-threshold 800000)
-    (setq $gc-timer (run-with-timer 2 nil #'$schedule-maybe-gc))
+    (setq $gc-timer (run-with-timer 5 nil #'$schedule-maybe-gc))
     (setq gc-cons-threshold 100000000))
 
   (defun $schedule-maybe-gc ()
     (if $use-gc-timer
-        (setq $gc-timer (run-with-idle-timer 2 nil #'$maybe-gc))
+        (setq $gc-timer (run-with-idle-timer 3 nil #'$maybe-gc))
       (setq gc-cons-threshold 800000
             $gc-timer nil)))
 
