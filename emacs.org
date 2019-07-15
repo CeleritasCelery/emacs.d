@@ -2963,9 +2963,10 @@ Emacs built in version control
 *** magit
 magit is the best git porcelain that exists, so far as I can tell. we
 need to set the git version to a newer version because the default at
-intel is not support. Also the Trash at intel is only 100M so trashing
-files can quickly fill up my home disk.
+intel is not supported. We have to require transient first or else we
+get weird errors in magit.
 #+BEGIN_SRC emacs-lisp
+  (use-package transient :demand t)
   (use-package magit
     :general
     ("C-x g" 'magit-status
