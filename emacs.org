@@ -969,7 +969,7 @@ config. Navi allows navigation of outshine headers.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-  (csetq confirm-kill-emacs 'y-or-n-p
+  (setq confirm-kill-emacs 'y-or-n-p
         confirm-kill-processes nil)
 #+END_SRC
 
