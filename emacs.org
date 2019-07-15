@@ -859,7 +859,6 @@ zoom lets me make a smaller window larger so that we can see it easier
     (:definer 'leader "zw" 'zoom))
 #+END_SRC
 
-
 *** scroll bar
 add a fringe scroll bar it make it visually clearer where we are in the buffer
 #+BEGIN_SRC emacs-lisp
@@ -1146,10 +1145,16 @@ will always be the same width as a window we are searching.
   (use-package ivy-posframe
     :demand t
     :after ivy
-    :init
-    (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    :custom
+    (ivy-posframe-size-function '$ivy-posframe-size)
+    (ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
     :config
     (ivy-posframe-mode))
+
+  (defun $ivy-posframe-size ()
+    (list
+     :min-height ivy-height
+     :min-width (round (* (frame-width) 0.62))))
 #+END_SRC
 
 **** flashing fix
