@@ -3070,6 +3070,18 @@ me the power to do that.
     "C-c g" '$magit-status-current-dir)
 #+END_SRC
 
+**** org
+When visiting a line from a diff in magit, expand point.
+#+BEGIN_SRC emacs-lisp
+  (defun $expand-org-mode-entry ()
+    "When opening an org-mode file, show the current entry and all
+  headings that it is contained in."
+    (when (derived-mode-p 'org-mode)
+      (org-reveal '(4))))
+
+  (add-hook 'magit-diff-visit-file-hook '$expand-org-mode-entry)
+#+END_SRC
+
 *** smerge
 smerge mode is a built in package that lets one quickly resolve merge
 conflicts. The following hydra will be triggered automatically when
@@ -3079,8 +3091,8 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
     :straight nil
     :config
     (defun $enable-smerge-keys ()
-      (revert-buffer)
       (when smerge-mode
+        (revert-buffer)
         ($smerge-keys/body)))
     (defhydra $smerge-keys
       (:color pink :hint nil :post (smerge-auto-leave))
@@ -4580,7 +4592,6 @@ when using ffap expand modules to their source
     (setq smart-dash-minibuffer-enabled nil
           smart-dash-c-modes '(perl-mode)))
 #+END_SRC
-
 
 ** python
 #+BEGIN_SRC emacs-lisp
