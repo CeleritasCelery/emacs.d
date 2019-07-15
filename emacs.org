@@ -4581,7 +4581,7 @@ we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
   (use-package verilog-mode
     :straight nil
-    :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl") eos)
+    :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl" "icl" "sv09") eos)
     :general
     (:definer 'leader
      :keymaps 'verilog-mode-map
@@ -4627,6 +4627,7 @@ list.
 ** TCL
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist `(,(rx ".upf" eos) . tcl-mode))
+  (add-to-list 'auto-mode-alist `(,(rx ".pdl" eos) . tcl-mode))
 #+END_SRC
 
 ** json
