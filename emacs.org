@@ -317,11 +317,21 @@ save minibuffer history between sessions.
     (savehist-mode))
 #+END_SRC
 
-*** hyrda
+*** hydra
 hydra provides repeatable keybindings to quickly execute multiple
 commands
 #+BEGIN_SRC emacs-lisp
   (use-package hydra)
+#+END_SRC
+
+Make hydra uses posframe
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra-posframe
+    :straight
+    (:host github :repo "Ladicle/hydra-posframe")
+    :custom
+    (hydra-posframe-poshandler 'posframe-poshandler-frame-top-center)
+    :hook (after-init . hydra-posframe-enable))
 #+END_SRC
 
 *** el-patch
