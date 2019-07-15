@@ -480,7 +480,8 @@ some point I would like to make this automatic by inspection.
 #+BEGIN_SRC emacs-lisp
   (defun $get-model-arguments ()
     "get the command line arguments for the model portion of this build"
-    (let ((model (alist-get ($git-command "config intel.cluster") $model-cluster-alist nil nil 'equal)))
+    (let* ((cluster ($git-command "config intel.cluster"))
+           (model (alist-get cluster $model-cluster-alist cluster nil 'equal)))
       (if (listp model)
           (format " -dut %s -mc %s " (first model) (second model))
         (format " -dut %s " model))))
