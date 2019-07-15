@@ -490,7 +490,8 @@ not match the resolution of my monitor results in weird text sizes.
 #+BEGIN_SRC emacs-lisp
   (defun vnc-resize (size)
     "Use xrandr to resize my VNC window"
-    (let ((default-directory "~/"))
+    (let ((default-directory "~/")
+          (inhibit-message t))
       (shell-command (concat "xrandr --size " size))))
 
   (defhydra vnc-resize (:columns 2 :exit t)
@@ -501,8 +502,14 @@ not match the resolution of my monitor results in weird text sizes.
     ("s" (vnc-resize "1920x1080") "short")
     ("h" (vnc-resize "2400x1350") "huge")
     ("r" (vnc-resize "1600x1200") "square"))
+
   ($leader-set-key
     "zn"  'vnc-resize/body)
+
+  (general-def "<f5>"
+    (defun $vnc-resize-large ()
+      (interactive)
+      (vnc-resize "1920x1200")))
 #+END_SRC
 
 *** themes
