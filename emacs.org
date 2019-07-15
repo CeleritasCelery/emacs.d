@@ -373,10 +373,11 @@ use a hydra to scale the text size
   (defhydra text-scale (:hint nil)
     "
   Text Scale
-    _i_n _o_ut _r_eset _q_uit
+    _i_n _o_ut _s_cale _r_eset _q_uit
   "
     ("i" text-scale-increase)
     ("o" text-scale-decrease)
+    ("s" (text-scale-set 3) :exit t)
     ("r" (text-scale-set 0) :exit t)
     ("q" nil :exit t))
   ($leader-set-key
