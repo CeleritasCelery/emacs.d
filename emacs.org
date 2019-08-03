@@ -3409,7 +3409,8 @@ these are utility functions used to setting up the Emacs shell.
     (setq-local comint-prompt-regexp (rx bol "╰─→ " eos))
     (setq-local evil-search-wrap nil)
     (local-env-mode)
-    (setq-local company-backends '(company-async-files
+    (setq-local company-backends '(company-arguments
+                                   company-async-files
                                    (company-command company-env)
                                    (company-capf company-dabbrev-code)))
     (general-add-hook 'comint-preoutput-filter-functions
@@ -3553,12 +3554,9 @@ provide auto completion for the command line arguments of the command
 at point.
 #+BEGIN_SRC emacs-lisp
   (use-package company-arguments
-    :after company
     :straight
     (company-arguments
-     :host github :repo "CeleritasCelery/company-arguments")
-    :init
-    (add-to-list 'company-backends 'company-arguments))
+     :host github :repo "CeleritasCelery/company-arguments"))
 #+END_SRC
 
 *** local env
