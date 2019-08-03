@@ -703,7 +703,7 @@ try a more powerful package like popwin.
   (use-package shackle
     :demand t
     :config
-    (add-to-list 'shackle-rules '("*Help*" :select t :align below))
+    (add-to-list 'shackle-rules '("*Help*" :select t))
     (shackle-mode))
 
   (defmacro $shacklize (fn)
