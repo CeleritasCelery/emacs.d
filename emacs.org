@@ -2339,6 +2339,19 @@ interact with it when the cursor is over it
       "ic" 'symbol-overlay-remove-all))
 #+END_SRC
 
+*** quick run
+Quickly run the file you are working on. Use =C-u= to define the
+arguments. Can also launch a repl for some languages
+#+BEGIN_SRC emacs-lisp
+  (use-package quickrun
+    :general
+    (:definer 'leader
+     :keymaps '(python-mode-map sh-mode-map)
+     "r" 'quickrun)
+    :custom
+    (quickrun-timeout-seconds 30))
+#+END_SRC
+
 *** yasnippet
 provides snippets for adding complex blocks. use it with =M-/=
 #+BEGIN_SRC emacs-lisp
