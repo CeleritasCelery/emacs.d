@@ -247,6 +247,9 @@ that hook and set the alist back to our canonical version.
                 (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
                           "\n  Source file \"" filename "\"")
                  1)
+                (,(err-rx ^ "Error-[URMI] Unresolved modules"
+                          "\n" filename ", " line)
+                 1 2)
                 (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
                  $find-par-file)
                 (,(err-rx ^ "-E- Lintra [1051] " filename "(" line ")" -> ":" (group-n 3 ->) ":")
