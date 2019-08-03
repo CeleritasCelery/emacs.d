@@ -488,8 +488,10 @@ point so we can easily see the representation
   (csetq prettify-symbols-unprettify-at-point t
          prettify-symbols-compose-predicate
          (defun $prettify-symbols-all-p (start end match)
-           (not (or (and (member match '("//" "/*" "*/"))
+           (not (or (and (member match '("//" "/*" "*/" ".."))
                          (nth 3 (syntax-ppss))) ;; inside string
+                    (and (equal match ">=")
+                         (eq (char-after end) ?<))
                     (eq (char-before start) (char-after start))
                     (eq (char-before end) (char-after end))))))
 #+END_SRC
