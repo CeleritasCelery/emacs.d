@@ -88,7 +88,8 @@ a few issues that we are going to resolve now:
    "gf" '$find-file-at-point)
 
   (advice-add 'recompile :before (defun $set-recompile-buffer-name (_)
-                                   (setf (nth 2 compilation-arguments) (lambda (_) (buffer-name)))))
+                                   (when compilation-arguments
+                                     (setf (nth 2 compilation-arguments) (lambda (_) (buffer-name))))))
 
   (add-hook 'compilation-shell-minor-mode-hook 'evil-normal-state)
 #+END_SRC
