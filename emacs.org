@@ -1016,8 +1016,12 @@ want to live with it though.
      [mouse-1] 'ignore
      [mouse-2] 'ignore
      [mouse-3] 'ignore)
+    (ivy-switch-buffer-map
+     "C-k" 'ivy-previous-line
+     "C-d" 'ivy-switch-buffer-kill)
     ("C-x r b" 'counsel-bookmark
      "C-x C-r" 'ivy-resume)
+
     (ivy-occur-grep-mode-map
      "SPC" nil)
     :init
