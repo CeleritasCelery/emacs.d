@@ -4207,13 +4207,19 @@ make scripts executable on save
   (use-package flycheck
     :init
     ($leader-set-key
-      "tf" 'flycheck-mode))
+      "tf" 'flycheck-mode)
+    :general
+    (:keymaps 'flycheck-error-list-mode-map
+     "q" 'quit-window)
+    :config
+    (add-to-list 'shackle-rules '(flycheck-error-list-mode :select t)))
 
   (defhydra $flycheck (:exit nil)
     "navigate by flycheck errors"
     ("n" flycheck-next-error "next")
     ("p" flycheck-previous-error "prev")
-    ("N" flycheck-previous-error "prev"))
+    ("N" flycheck-previous-error "prev")
+    ("l" flycheck-list-errors "list" :exit t))
 
   ($leader-set-key
     "l" '$flycheck/body)
