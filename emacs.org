@@ -1457,9 +1457,6 @@ keybindings
   (general-def 'insert
     "C-v" 'yank
     "C-y" 'yank)
-
-  (general-def 'normal
-    "K" 'split-line)
 #+END_SRC
 
 general leader key bindings
