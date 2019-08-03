@@ -4250,6 +4250,8 @@ just using =C-l=
     (evil-collection-company-use-tng nil)
     (company-dabbrev-downcase nil)
     (company-require-match nil)
+    (company-dabbrev-code-ignore-case t)
+    (company-dabbrev-ignore-case t)
     (company-backends '(company-capf
                         (company-dabbrev-code company-keywords)
                         company-dabbrev))
