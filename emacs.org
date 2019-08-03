@@ -4356,7 +4356,7 @@ unless we turn it back on.
 make page breaks easier to see
 #+BEGIN_SRC emacs-lisp
   (use-package page-break-lines
-    :hook (emacs-lisp-mode . page-break-lines-mode))
+    :hook (emacs-lisp-mode help-mode))
 #+END_SRC
 
 *** indent
