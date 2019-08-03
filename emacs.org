@@ -4625,8 +4625,32 @@ when using ffap expand modules to their source
 #+END_SRC
 
 ** python
+Setting to add jump to definition, auto-complete, and formatting to python mode
 #+BEGIN_SRC emacs-lisp
-  (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
+  (setq python-prettify-symbols-alist '(("lambda" . ?λ))
+        python-shell-interpreter "python3.6.3a"
+        flycheck-python-flake8-executable "python3.6.3a"
+        flycheck-python-mypy-executable "python3.6.3a"
+        flycheck-python-pycompile-executable "python3.6.3a"
+        flycheck-python-pylint-executable "python3.6.3a")
+
+  (use-package company-anaconda
+    :demand t
+    :after python
+    :config
+    (add-to-list 'company-backends 'company-anaconda))
+  (use-package yapfify)
+
+  (use-package live-py-mode
+    :custom
+    (live-py-version "python3.6.3a"))
+
+  (use-package python
+    :straight nil
+    :gfhook
+    #'anaconda-mode
+    #'company-mode
+    #'flycheck-mode)
 #+END_SRC
 
 ** verilog
