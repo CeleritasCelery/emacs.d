@@ -2616,9 +2616,9 @@ track through the whole file to find a match.
                         (setq ov (display-line-overlay+
                                   (window-start) msg ))))))
            (blink-matching-open))))))
+
   (defun display-line-overlay+ (pos str &optional face)
     "Display line at POS as STR with FACE.
-
   FACE defaults to inheriting from default and highlight."
     (let ((ol (save-excursion
                 (goto-char pos)
