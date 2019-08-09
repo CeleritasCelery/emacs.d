@@ -3320,7 +3320,8 @@ where the repo is located
 #+BEGIN_SRC emacs-lisp
   (defun $git-set-user ()
     "set the git user based on where the repo is located."
-    (when (equal "" (shell-command-to-string "git config --local user.name"))
+    (when (and (equal "tjhinckl" (nth 2 (file-attributes (vc-git-root default-directory) 'string)))
+               (equal "" (shell-command-to-string "git config --local user.name")))
       (shell-command-to-string
        (apply 'format "git config --local user.name %s && git config --local user.email %s"
               ($user-credentials)))
