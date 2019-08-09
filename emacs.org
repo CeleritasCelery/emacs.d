@@ -496,6 +496,15 @@ point so we can easily see the representation
                     (eq (char-before end) (char-after end))))))
 #+END_SRC
 
+Fix a little issue where closing html tags are not highlighted
+properly when using ligatures.
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'html-mode-hook
+            (lambda ()
+              (font-lock-add-keywords
+               nil '(("/>" . 'rainbow-delimiters-depth-1-face)))))
+#+END_SRC
+
 *** vnc size
 change the size of the VNC to match the size of the monitor that I am
 using. Since I always run my VNC fullscreen having the VNC resolution
