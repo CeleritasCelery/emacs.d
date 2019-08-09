@@ -4678,8 +4678,11 @@ we have some nonstandard extensions for SV
     (setq-local imenu-generic-expression
                 `(("*instance*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
                                                  (: symbol))
-                                      spc (group symbol) eol) 1)
-                  ("*module*" ,($rx ^ "module " (group symbol) " (") 1))))
+                                      spc (group symbol "_" symbol) eol) 1)
+                  ("*module*" ,($rx ^ "module " (group symbol) " (") 1)
+                  ("*function*" ,($rx ^ spc* "function" spc+ (opt (or "automatic" "static") spc+)
+                                      (1+ symbol) spc+ (group symbol)) 1)
+                  ("*package*" ,($rx ^ spc* "package" spc+ (group symbol)) 1))))
 
   (add-hook 'verilog-mode-hook '$verilog-imenu-populated)
 #+END_SRC
