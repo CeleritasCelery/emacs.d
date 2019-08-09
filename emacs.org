@@ -4726,6 +4726,8 @@ list.
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'auto-mode-alist `(,(rx ".upf" eos) . tcl-mode))
   (add-to-list 'auto-mode-alist `(,(rx ".pdl" eos) . tcl-mode))
+  (add-to-list 'auto-mode-alist `(,(rx ".dofile" eos) . tcl-mode))
+  (setq tcl-application "tclsh")
 #+END_SRC
 
 ** json
