@@ -1619,6 +1619,13 @@ swap two regions with evil exchange
      "gX" 'evil-exchange-cancel))
 #+END_SRC
 
+*** match it
+Use =%= to match more then just parens. Such as =module= keyword in verilog.
+#+BEGIN_SRC emacs-lisp
+(use-package evil-matchit
+  :hook prog-mode)
+#+END_SRC
+
 *** lispy
 I tried lispy for a long time, and tried hard to like it. But
 eventually I had to admit that it is clahses with the design patterns
