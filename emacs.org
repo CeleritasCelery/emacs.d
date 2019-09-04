@@ -2362,7 +2362,7 @@ arguments. Can also launch a repl for some languages
   (use-package quickrun
     :general
     (:definer 'leader
-     :keymaps '(python-mode-map sh-mode-map)
+     :keymaps '(python-mode-map sh-mode-map tcl-mode-map)
      "r" 'quickrun)
     :custom
     (quickrun-timeout-seconds 30))
