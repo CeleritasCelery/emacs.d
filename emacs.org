@@ -4801,6 +4801,15 @@ The indentation function for ICL. Very similar to C
           (,(rx ".") 0 'error)
           (,($rx spc+ (group (or "Of" "SelectedBy"))) 1 font-lock-builtin-face)))
 #+END_SRC
+
+** config spec
+Major mode for tessent spec files
+#+BEGIN_SRC emacs-lisp
+  (define-derived-mode tessent-spec-mode java-mode "Tessent Spec"
+    (setq-local c-basic-offset 2))
+
+  (add-to-list 'auto-mode-alist
+               `(,(rx "_" (or "spec" "meta") eos) . tessent-spec-mode))
 #+END_SRC
 
 ** json
