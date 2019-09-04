@@ -4736,10 +4736,23 @@ list.
 
 ** TCL
 #+BEGIN_SRC emacs-lisp
-  (add-to-list 'auto-mode-alist `(,(rx ".upf" eos) . tcl-mode))
-  (add-to-list 'auto-mode-alist `(,(rx ".pdl" eos) . tcl-mode))
-  (add-to-list 'auto-mode-alist `(,(rx ".dofile" eos) . tcl-mode))
-  (setq tcl-application "tclsh")
+  (use-package tcl-mode
+    :straight nil
+    :mode "\\.upf\\'"
+    :mode "\\.pdl\\'"
+    :mode "\\.dofile\\'"
+    :mode "\\.tcl\\'"
+    :custom
+    (tcl-application "tclsh")
+    :config
+    (modify-syntax-entry ?$ "/" tcl-mode-syntax-table))
+#+END_SRC
+
+Fix the tab key
+#+BEGIN_SRC emacs-lisp
+  (general-def 'tcl-mode-map "TAB" 'indent-for-tab-command)
+#+END_SRC
+
 #+END_SRC
 
 ** json
