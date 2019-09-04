@@ -3448,6 +3448,14 @@ used in helm
         (shell-pop arg))))
 #+END_SRC
 
+
+*** Ansi term
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'term-mode-hook
+            (defun $disable-yas ()
+              (setq yas-dont-activate t)))
+#+END_SRC
+
 *** shx
 shx mode allows us to call emacs lisp functions from within the
 builtin shell, gives us the best of both worlds.
