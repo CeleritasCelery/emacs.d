@@ -1583,7 +1583,7 @@ behave better with evil.
     :general
     ('visual evil-surround-mode-map
              "s" 'evil-surround-region
-             "S" 'evil-substitute)
+             "S" 'evil-Surround-region)
     :config
     (global-evil-surround-mode))
 #+END_SRC
