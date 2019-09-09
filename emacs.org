@@ -2609,7 +2609,10 @@ track through the whole file to find a match.
                            (minibufferp)
                            this-command))
                   (and (not (bobp))
-                       (memq (char-syntax (char-before)) '(?\) ?\$)))
+                       (memq (char-syntax (if (eq evil-state 'insert)
+                                              (char-before)
+                                            (or (char-after) 41)))
+                             '(?\) ?\$)))
                   (= 1 (logand 1 (- (point)
                                     (save-excursion
                                       (forward-char -1)
@@ -2621,7 +2624,10 @@ track through the whole file to find a match.
                     (lambda (msg &rest args)
                       (let ((msg (apply #'format-message msg args)))
                         (setq ov (display-line-overlay+
-                                  (window-start) msg ))))))
+                                  (window-start) msg )))))
+                   ((point) (if (eq evil-state 'insert)
+                                (point)
+                              (1+ (point)))))
            (blink-matching-open))))))
 
   (defun display-line-overlay+ (pos str &optional face)
