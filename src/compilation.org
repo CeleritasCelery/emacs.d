@@ -506,6 +506,7 @@ some point I would like to make this automatic by inspection.
   (defun $gatekeeper-env ()
     `("GK_EVENTTYPE=mock"
       ,(concat "GIT_TOOL_FLOW=" ($git-command "config intel.toolflow"))
+      ,(concat "GIT_BUSINESS_UNIT=" ($git-command "config intel.businessunit"))
       ,(concat "GK_CLUSTER=" ($git-command "config intel.cluster"))
       ,(concat "GK_STEP=" ($git-command "config intel.stepping"))
       ,(concat "GK_BRANCH=" (file-name-base ($git-command "symbolic-ref refs/remotes/origin/HEAD")))))
