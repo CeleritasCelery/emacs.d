@@ -4673,6 +4673,7 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (use-package python
     :straight nil
+    :interpreter ("python[a-z0-9.]*" . python-mode)
     :gfhook
     #'anaconda-mode
     #'company-mode
