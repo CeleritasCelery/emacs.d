@@ -4811,7 +4811,7 @@ Major mode for tessent spec files
     (setq-local c-basic-offset 2))
 
   (add-to-list 'auto-mode-alist
-               `(,(rx "_" (or "spec" "meta") eos) . tessent-spec-mode))
+               `(,(rx (or "meta_spec" "tessent_meta") eos) . tessent-spec-mode))
 #+END_SRC
 
 ** json
