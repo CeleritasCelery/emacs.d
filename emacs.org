@@ -1194,23 +1194,20 @@ flashing issue.
                  (eq new-buf (get-buffer old-buf)))
         (cancel-timer timer))))
 
-  (el-patch-feature posframe)
   (with-eval-after-load 'posframe
     (advice-add 'posframe--create-posframe :before #'posframe-force-valid)
-    (el-patch-defun posframe-hide (posframe-buffer)
+    (defun posframe-hide (posframe-buffer)
       "Hide posframe which buffer is POSFRAME-BUFFER."
       (dolist (frame (frame-list))
         (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
           (when (or (equal posframe-buffer (car buffer-info))
                     (equal posframe-buffer (cdr buffer-info)))
-            (el-patch-swap
-              (posframe--make-frame-invisible frame)
-              (setq posframe-timer
-                    (cons posframe-buffer
-                          (run-with-idle-timer
-                           0.01 nil
-                           (lambda ()
-                             (posframe--make-frame-invisible frame)))))))))))
+            (setq posframe-timer
+                  (cons posframe-buffer
+                        (run-with-idle-timer
+                         0.01 nil
+                         (lambda ()
+                           (posframe--make-frame-invisible frame))))))))))
 #+END_SRC
 
 *** rich
