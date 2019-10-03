@@ -4747,7 +4747,7 @@ list.
     :custom
     (tcl-application "tclsh")
     :config
-    (modify-syntax-entry ?$ "/" tcl-mode-syntax-table))
+    (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
 #+END_SRC
 
 Fix the tab key
