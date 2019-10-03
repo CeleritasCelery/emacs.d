@@ -3066,11 +3066,6 @@ show both added and removed whitespace
   (csetq magit-diff-paint-whitespace-lines 'both)
 #+END_SRC
 
-I almost never care about the graph in logs, I can add it if I need it
-#+BEGIN_SRC emacs-lisp
-  (csetq magit-log-arguments '("-n100" "--decorate"))
-#+END_SRC
-
 start the commit message editor in insert state
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'with-editor
