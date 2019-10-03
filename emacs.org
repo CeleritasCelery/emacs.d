@@ -2595,7 +2595,7 @@ track through the whole file to find a match.
      :after
      (defun show-paren--off-screen+ (&rest _args)
        "Display matching line for off-screen paren."
-       (when (overlayp ov)
+       (when (overlayp (and (boundp 'ov) ov))
          (delete-overlay ov))
        ;; check if it's appropriate to show match info,
        ;; see `blink-paren-post-self-insert-function'
