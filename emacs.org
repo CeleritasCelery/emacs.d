@@ -4871,6 +4871,20 @@ the following ways:
   (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
 #+END_SRC
 
+** tcsh
+Tcsh is poorly supported in Emacs. The worst offender is the default
+indentation, which is totally broken. This code ripped from [[https://github.com/Tux/tcsh/blob/master/csh-mode.el][csh-mode]]
+fixes that.
+#+BEGIN_SRC elisp
+  (defun $tcsh-set-indent-functions ()
+    (when (eq sh-shell 'tcsh)
+      (load-file (expand-file-name "csh-indent-function.el" user-emacs-directory))
+      (setq-local indent-line-function 'csh-indent-line)
+      (setq-local indent-region-function 'csh-indent-region)))
+
+  (add-hook 'sh-set-shell-hook #'$tcsh-set-indent-functions)
+#+END_SRC
+
 ** markdown
 #+BEGIN_SRC emacs-lisp
   (use-package markdown-mode)
