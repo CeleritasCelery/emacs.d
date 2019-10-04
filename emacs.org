@@ -93,10 +93,6 @@ apply.
 don't use menu or scroll bars. We want the UI to be as clean as
 possible.
 #+BEGIN_SRC elisp
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (scroll-bar-mode -1)
-  (tooltip-mode -1)
   (setq inhibit-startup-screen t)
   (toggle-frame-fullscreen)
   (add-hook 'focus-in-hook 'redraw-display)

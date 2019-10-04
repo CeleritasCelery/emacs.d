@@ -22,11 +22,16 @@
             (quote rainbow-mode))
            (rainbow-mode 1))
      (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)"))))
+ '(savehist-additional-variables (quote (helm-ff-history)))
  '(shx-kept-commands
    (quote
     (("show all tool config" . "ToolConfig.pl show_tool_info | ep")
      ("tool_info" . "ToolConfig.pl show_tool_info ipconfig | ep")
-     ("Enable wordwrap at 90 columns" . ":eval (shx-wordwrap 90)")))))
+     ("Enable wordwrap at 90 columns" . ":eval (shx-wordwrap 90)"))))
+ '(tool-bar-mode nil)
+ '(menu-bar-mode nil)
+ '(scroll-bar-mode nil)
+ '(tooltip-mode nil))
 (put 'upcase-region 'disabled nil)
 (put 'narrow-to-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
