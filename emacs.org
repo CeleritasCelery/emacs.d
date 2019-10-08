@@ -4041,6 +4041,7 @@ blocks
           org-default-email-file (expand-file-name "email.org" org-directory)
           org-default-journal-file (expand-file-name "journal.org" org-directory)
           org-default-meeting-file (expand-file-name "meeting.org" org-directory)
+          org-coding-problem-file (expand-file-name "personal/daily-coding-problems.org" org-directory)
           org-capture-templates
           (mapcar (lambda (x) (append x '(:empty-lines 1)))
                   '(("t" "Todo" entry (file org-default-todo-file)
@@ -4050,7 +4051,7 @@ blocks
                     ("s" "Scheduled TODO" entry (file org-default-todo-file)
                      "* TODO [#C] %?\n  SCHEDULED: %^T\n")
                     ("T" "Todo from Clipboard" entry (file org-default-todo-file)
-                     "* TODO [#C] %?\n")
+                     "* TODO [#C] %?\n%c")
                     ("n" "Note" entry (file org-default-notes-file)
                      "* %?")
                     ("N" "Note with Clipboard" entry (file org-default-notes-file)
@@ -4059,8 +4060,20 @@ blocks
                      "* TODO [#C] %?\n" :clock-in t :clock-keep t)
                     ("j" "Journal" entry (file org-default-journal-file)
                      "* %<%a %b %e, %l:%M> -  %?")
+                    ("d" "Daily Coding Problem" entry (file org-coding-problem-file)
+                     "* TODO Problem #%($problem-number)\n%c%?")
                     ("m" "Meeting" entry (file org-default-meeting-file)
                      "* %?" :clock-in t :clock-resume t)))))
+
+  (defun $problem-number ()
+    (with-current-buffer (find-file-noselect org-coding-problem-file)
+      (save-excursion
+        (goto-char (point-max))
+        (org-previous-visible-heading 1)
+        (if (re-search-forward (rx (+ digit)) (line-end-position) t)
+            (number-to-string
+             (1+ (string-to-number (match-string-no-properties 0))))
+          "0"))))
 #+END_SRC
 
 ** tags
