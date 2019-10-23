@@ -2894,6 +2894,7 @@ we don't need so many dired confirmation prompts
 #+BEGIN_SRC elisp
   (setq dired-no-confirm t
         wdired-allow-to-change-permissions t
+        dired-listing-switches "-alh"
         dired-auto-revert-buffer t)
 
   (general-def dired-mode-map
