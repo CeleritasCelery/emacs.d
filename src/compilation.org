@@ -15,8 +15,7 @@ use lexical bindings in the file make this file lexically bound
   (defun $compile (arg)
     "compile with hdk enviroment sourced"
     (interactive "P")
-    (let* ((root (vc-git-root default-directory))
-           (model-root (or (file-truename root) "no-model"))
+    (let* ((model-root (or ($model-root) "no-model"))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
            (compilation-buffer-name-function
             (lambda (_mode)
@@ -377,7 +376,7 @@ only the models we choose.
 #+BEGIN_SRC emacs-lisp
   (defun $run-ipgen-internal (dir &optional no-clean)
     (let* ((default-directory dir)
-           (model-root (vc-git-root dir))
+           (model-root ($model-root))
            (compilation-environment (list "PATH=/usr/intel/bin:/usr/bin:/usr/sbin:/bin"
                                           "TAP_MARSHAL"
                                           "TAP2STF_MAP_FILE"
@@ -401,7 +400,7 @@ only the models we choose.
                           'ipgen-mode)))
 
   (defun $helm-get-ipgen-data ()
-    (let* ((model-root (vc-git-root default-directory))
+    (let* ((model-root ($model-root))
            (ipgen (f-join model-root "tools/ipgen/"))
            (duts (f--directories ipgen (let ((setup (f-join it "setup")))
                                          (and (file-exists-p setup)
@@ -494,6 +493,12 @@ some point I would like to make this automatic by inspection.
     "current model root"
     (file-truename (vc-git-root (or dir default-directory))))
 
+  (defun $check-gcc-version ()
+    "If the GCC version is not default, build can fail"
+    (unless (equal "/usr/intel/pkgs/gcc/4.7.2/bin/gcc\n"
+                   (shell-command-to-string "iwhich gcc"))
+      (error "GCC version is not default")))
+
   (cl-defun $temp-link-git-worktree (&optional (time 2))
     "create a temporary link to the parent repo of the git worktree
   so that we can get the right cluster and qslot"
@@ -519,6 +524,7 @@ define a custom compliation mode that is run based on the hydra above
 
   (defun $run-bman (filter)
     "run dft ipgen in the current model"
+    ($check-gcc-version)
     (let* ((model-root ($model-root))
            (compilation-environment
             (cons (concat "MODEL_ROOT=" model-root)
@@ -556,6 +562,7 @@ custom compilation command for running regressions
   (defun $run-simregress ()
     "run simgress command for specified list"
     (interactive)
+    ($check-gcc-version)
     (let* ((model-root ($model-root))
            (reg-dir (f-join ($model-root) "verif/reglist/"))
            (file (completing-read
@@ -659,7 +666,7 @@ a custom compilation command for running a turnin
   (defun $run-turnin ()
     "run a turnin command"
     (interactive)
-    (let* ((model-root (file-truename (vc-git-root default-directory)))
+    (let* ((model-root ($model-root))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
            (mock (y-or-n-p "Run as Mock? "))
            (clone (when mock (y-or-n-p "Clone ToT? ")))
