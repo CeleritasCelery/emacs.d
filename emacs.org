@@ -2360,7 +2360,8 @@ arguments. Can also launch a repl for some languages
     :general
     (:definer 'leader
      :keymaps '(python-mode-map sh-mode-map tcl-mode-map)
-     "r" 'quickrun)
+     "r" 'quickrun
+     "R" 'quickrun-with-arg)
     :custom
     (quickrun-timeout-seconds 30))
 #+END_SRC
