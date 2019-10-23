@@ -669,6 +669,7 @@ a custom compilation command for running a turnin
            (comment (unless mock
                       (read-string "turnin comment: " nil
                                    (defvar $turnin-message-history nil))))
+           (default-directory model-root)
            (compilation-buffer-name-function
             (lambda (mm)
               (format "*%s %s%s*"
