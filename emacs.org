@@ -199,6 +199,7 @@ use the emacs client server so that we can send output to this emacs instance
 Set the max eval depth higher. Occasionally I will hit these errors and I want to see if this will fix it.
 #+BEGIN_SRC elisp
   (setq max-lisp-eval-depth 10000)
+  (setq max-specpdl-size 10000)
 #+END_SRC
 
 *** site
