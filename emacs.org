@@ -436,7 +436,6 @@ own ligatures.
           (";;"  . #Xe129)
           ("##"  . #Xe11b)
           ("#!"  . #Xe100)
-          ("#("  . #Xe11e)
           ("//"  . #Xe12f)
           (":="  . #Xe10c)
           ("?="  . #Xe127)
@@ -490,12 +489,15 @@ point so we can easily see the representation
   (csetq prettify-symbols-unprettify-at-point t
          prettify-symbols-compose-predicate
          (defun $prettify-symbols-all-p (start end match)
-           (not (or (and (member match '("//" "/*" "*/" ".."))
-                         (nth 3 (syntax-ppss))) ;; inside string
+           (not (or (eq (char-before start) (char-after start))
+                    (eq (char-before end) (char-after end))
+                    (and (member match '("//" "/*" "*/"))
+                         (not (nth 4 (syntax-ppss)))) ;; inside comment
+                    (and (equal match "..")
+                         (or (eq (char-before start) ?/)
+                             (eq (char-after end) ?/)))
                     (and (equal match ">=")
-                         (eq (char-after end) ?<))
-                    (eq (char-before start) (char-after start))
-                    (eq (char-before end) (char-after end))))))
+                         (eq (char-after end) ?<))))))
 #+END_SRC
 
 Fix a little issue where closing html tags are not highlighted
