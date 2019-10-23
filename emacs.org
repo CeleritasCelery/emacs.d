@@ -4753,6 +4753,15 @@ list.
   (add-hook 'verilog-mode-hook '$verilog-compose-symbols)
 #+END_SRC
 
+Make radix notation stand out
+#+BEGIN_SRC elisp
+  (font-lock-add-keywords 'verilog-mode
+                          `(("'" . 'error)
+                            (,(rx (or bol "'h" "'b" "'d" (not (any "_" alnum)))
+                                  (group (1+ digit)))
+                             1 font-lock-constant-face)))
+#+END_SRC
+
 ** TCL
 #+BEGIN_SRC elisp
   (use-package tcl-mode
