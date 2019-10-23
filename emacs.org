@@ -115,12 +115,12 @@ use =y= and =n= instead of =yes= and =no=
 #+END_SRC
 
 move the custom file to its own loaction so it does not clutter us.
-
 #+BEGIN_SRC elisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load-file custom-file)
 #+END_SRC
 
+Never load outdated byte code
 #+BEGIN_SRC elisp
   (csetq load-prefer-newer t)
 #+END_SRC
