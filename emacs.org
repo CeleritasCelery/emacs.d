@@ -757,10 +757,11 @@ easily manipulate files, buffers, and windows.
     ;; list-buffers-directory is the variable set in dired buffers
     (let ((file-name (or (buffer-file-name)
                          list-buffers-directory
-                         default-directory)))
+                         default-directory))
+          (home (expand-file-name "~")))
       (if file-name
-          (message (kill-new (if (eq (null arg) (or (f-parent-of-p "~/workspace/" file-name)
-                                                    (f-parent-of-p "~/temp/" file-name)))
+          (message (kill-new (if (eq (null arg) (or (string-prefix-p (concat home "/workspace") file-name)
+                                                    (string-prefix-p (concat home "/temp") file-name)))
                                  (file-truename file-name)
                                file-name)))
         (error "Buffer not visiting a file"))))
