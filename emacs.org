@@ -636,8 +636,9 @@ displayed at the same time.
                  (1 " CRLF")
                  (2 " CR"))
                (let ((sys (coding-system-plist buffer-file-coding-system)))
-                 (unless (memq (plist-get sys :category)
-                               '(coding-category-undecided coding-category-utf-8))
+                 (unless (or (memq (plist-get sys :category)
+                                   '(coding-category-undecided coding-category-utf-8))
+                             (eq (plist-get sys :name) 'no-conversion))
                    (upcase (symbol-name (plist-get sys :name))))))
        'face (if (doom-modeline--active) 'mode-line 'mode-line-inactive)
        'help-echo 'mode-line-mule-info-help-echo
