@@ -559,17 +559,13 @@ that I would like, so When I get some time I will modify them. See
 [[https://github.com/raxod502/straight.el/issues/265][this]] issue for conflict with challenger-deep and dracula.
 #+BEGIN_SRC elisp
   (use-package challenger-deep-theme
-    :straight (:host github :repo "challenger-deep-theme/emacs"
-               :local-repo "challenger-deep-theme"))
+    :straight (:local-repo "challenger-deep-theme"))
   (use-package dracula-theme
-    :straight (:host github :repo "dracula/emacs"
-               :local-repo "dracula-theme"))
+    :straight (:local-repo "dracula-theme"))
   (use-package gruvbox-theme)
   (use-package darktooth-theme
     :straight
-    (darktooth-theme
-     :host github :repo "emacsfodder/emacs-theme-darktooth"
-     :fork (:host github :repo "CeleritasCelery/emacs-theme-darktooth")))
+    (:fork "CeleritasCelery/emacs-theme-darktooth"))
   (use-package spacemacs-theme)
   (use-package moe-theme
     :init
@@ -639,8 +635,6 @@ Second we want to make sure that all "buffer info" flags can be
 displayed at the same time.
 #+BEGIN_SRC elisp
   (use-package doom-modeline
-    :straight
-    (doom-modeline :host github :repo "seagle0128/doom-modeline")
     :hook (after-init . doom-modeline-init)
     :custom
     (doom-modeline-buffer-file-name-style 'relative-from-project)
@@ -1001,8 +995,7 @@ config. Navi allows navigation of outshine headers.
   (use-package outshine
     :hook emacs-lisp-mode
     :straight
-    (:host github :repo "alphapapa/outshine"
-     :fork (:host github :repo "CeleritasCelery/outshine")))
+    (:fork "CeleritasCelery/outshine"))
 
   (use-package navi-mode)
 #+END_SRC
@@ -1460,8 +1453,7 @@ a text object that highlights everything with the same font lock
 #+BEGIN_SRC elisp
   (use-package evil-textobj-syntax
     :straight
-    (evil-textobj-syntax
-     :host github :repo "laishulu/evil-textobj-syntax")
+    (:host github :repo "laishulu/evil-textobj-syntax")
     :general
     (inner "h" 'evil-i-syntax)
     (outer "h" 'evil-a-syntax))
@@ -1535,7 +1527,7 @@ evil unimpaired binds some usefull functions to some quick keys.
   (use-package evil-unimpaired
     :defer 2
     :straight
-    (evil-unimpaired :host github :repo "zmaas/evil-unimpaired")
+    (:repo "zmaas/evil-unimpaired")
     :init
     (setq evil-unimpaired-leader-keys '("gk" . "gj"))
     :config
@@ -1546,17 +1538,13 @@ evil unimpaired binds some usefull functions to some quick keys.
 provides total number of searches in the modeline
 #+BEGIN_SRC elisp
   (use-package evil-anzu
-    :demand t
     :straight
-    (evil-anzu
-     :host github :repo "syohex/emacs-evil-anzu"
-     :fork (:host github :repo "CeleritasCelery/emacs-evil-anzu"))
-    :hook (prog-mode . anzu-mode)
+    (:fork "CeleritasCelery/emacs-evil-anzu")
     :custom
     (anzu-cons-mode-line-p nil)
-    :config
-    ($leader-set-key
-      "ta" 'anzu-mode))
+    :general
+    (:definer 'leader
+     "ta" 'anzu-mode))
 #+END_SRC
 
 *** escape
@@ -1692,8 +1680,7 @@ Thankfully, straight.el makes that super easy!
 #+BEGIN_SRC elisp
   (use-package paredit
     :straight
-    (paredit
-     :files ("paredit.el")
+    (:files ("paredit.el")
      :repo "http://mumble.net/~campbell/git/paredit.git"))
 #+END_SRC
 
@@ -1771,8 +1758,7 @@ the display function to be more consistent.
 #+BEGIN_SRC elisp
   (use-package helm
     :straight
-    (:host github :repo "emacs-helm/helm"
-     :fork (:host github :repo "CeleritasCelery/helm"))
+    (:fork "CeleritasCelery/helm")
     :commands helm-find-files-1
     :general
     (:keymaps 'minibuffer-local-map
@@ -3505,10 +3491,10 @@ builtin shell, gives us the best of both worlds.
 pop up the shell in my current directory
 #+BEGIN_SRC elisp
   (use-package shell-pop
-    :init
-    ($leader-set-key
-      "'" 'shell-pop
-      "\"" '$shell-pop-root))
+    :general
+    (:definer 'leader
+     "'" 'shell-pop
+     "\"" '$shell-pop-root))
 
   (defun $shell-pop-root (arg)
     "open a shell in the project root"
@@ -3590,8 +3576,7 @@ while typing.
   (use-package company-async-files
     :after company
     :straight
-    (company-async-files
-     :host github :repo "CeleritasCelery/company-async-files")
+    (:host github :repo "CeleritasCelery/company-async-files")
     :config
     (unless (memq 'company-async-files company-backends)
       (setq company-backends (append '(company-capf company-async-files) (cdr company-backends))))
@@ -3604,8 +3589,7 @@ at point.
 #+BEGIN_SRC elisp
   (use-package company-arguments
     :straight
-    (company-arguments
-     :host github :repo "CeleritasCelery/company-arguments"))
+    (:host github :repo "CeleritasCelery/company-arguments"))
 #+END_SRC
 
 *** local env
@@ -3614,8 +3598,7 @@ environment of my local process with the buffer. very useful.
 #+BEGIN_SRC elisp
   (use-package local-env
     :straight
-    (local-env
-     :host github
+    (:host github
      :repo "CeleritasCelery/local-env-mode"
      :files ("local-env.el"))
     :init
@@ -3635,15 +3618,13 @@ environment of my local process with the buffer. very useful.
 
   (use-package company-env
     :straight
-    (company-env
-     :host github
+    (:host github
      :repo "CeleritasCelery/local-env-mode"
      :files ("company-env.el")))
 
   (use-package company-command
     :straight
-    (company-command
-     :host github
+    (:host github
      :repo "CeleritasCelery/local-env-mode"
      :files ("company-command.el")))
 #+END_SRC
@@ -4421,8 +4402,7 @@ never have to worry about tab indenting again.
 #+BEGIN_SRC elisp
   (use-package aggressive-indent
     :straight
-    (:host github :repo "Malabarba/aggressive-indent-mode"
-     :fork (:host github :repo "CeleritasCelery/aggressive-indent-mode"))
+    (:fork "CeleritasCelery/aggressive-indent-mode")
     :hook emacs-lisp-mode)
 #+END_SRC
 
@@ -4941,8 +4921,7 @@ collection of major modes that I use for different file types.
 #+BEGIN_SRC elisp
   (use-package major-modes
     :straight
-    (major-modes
-     :host gitlab :repo "foconoco/major-modes")
+    (:host gitlab :repo "foconoco/major-modes")
     :init
     ($leader-local-set-key
       :keymaps 'spfspec-mode-map
