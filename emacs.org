@@ -2806,10 +2806,11 @@ email. automatically add the tramp header if from a different site
                  (file-directory-p file))
         (cl-callf concat file "/"))
       ;; remove problematic formatting from files
-      (thread-last (expand-file-name file default-directory)
+      (thread-last file
         (concat remote-url)
         (replace-regexp-in-string (rx (1+ (any space "\""))) "")
         (replace-regexp-in-string (rx (1+ "/")) "/")
+        (replace-regexp-in-string "\"" "")
         (string-remove-prefix "./")
         (replace-regexp-in-string "$ENV" "$")
         (substitute-in-file-name))))
