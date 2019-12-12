@@ -3501,15 +3501,23 @@ these are utility functions used to setting up the Emacs shell.
     Works on remote shells as well if `shx' and `shx-cmd-set-pid' are used. The
     remote shell will need to echo it's PID in the rc file in the form of `shx'
     markup."
-    (when (string-match comint-prompt-regexp str)
-      (when-let ((remote  (or (file-remote-p default-directory) ""))
-                 (dir (-some->> (local-env-get-shell-pid)
-                             (format "/proc/%s/cwd")
-                             (concat remote)
-                             file-symlink-p)))
-        (cd (concat remote dir))
-        (unless (equal dir (car $dir-history))
-          (push dir $dir-history))))
+    (if shell-dirtrack-mode
+        (when (string-match (rx bol "Directory: " (group (+ (any alnum "-_/.")))) str)
+          (let ((dir (match-string 1 str)))
+            (cd dir)
+            (unless (equal dir (car $dir-history))
+              (push dir $dir-history))))
+      (when (string-match-p comint-prompt-regexp str)
+        (when-let ((remote (or (file-remote-p default-directory) ""))
+                   (dir (-some->> (local-env-get-shell-pid)
+                                  (format "/proc/%s/cwd")
+                                  (concat remote)
+                                  file-symlink-p))
+                   (full-dir (concat remote dir)))
+          (when (file-directory-p full-dir)
+            (cd full-dir)
+            (unless (equal dir (car $dir-history))
+              (push dir $dir-history))))))
     str)
 
   (defun $supress-hostkey-warning (str)
