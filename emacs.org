@@ -1107,19 +1107,28 @@ with the display
   (with-eval-after-load 'counsel
     (ivy-add-actions
      t
-     '(("y" $ivy-kill-new "yank")))
+     '(("y" $ivy-yank "yank")))
     (ivy-add-actions
      'counsel-find-file
      '(("g" $magit-status-in-dir "git status")
        ("d" $async-delete-file "delete")
+       ("y" $ivy-yank-file-name "yank")
        ("s" (lambda (x) (counsel-rg nil x)) "search")
        ("f" (lambda (x) (counsel-fzf nil x)) "find")
        ("o" find-file-other-window "other window")
        ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
        ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
-  (defun $ivy-kill-new (x &optional list)
-    (kill-new (if list (string-join list "\n") x)))
+  (defun $ivy-yank (x &optional list)
+    (thread-first (if list list (list x))
+      (string-join "\n")
+      (kill-new)))
+
+  (defun $ivy-yank-file-name (x &optional list)
+    (thread-first '$correct-file-path
+      (mapcar (if list list (list x)))
+      (string-join "\n")
+      (kill-new)))
 
   (general-def ivy-minibuffer-map ";" 'ivy-dispatching-done)
 #+END_SRC
