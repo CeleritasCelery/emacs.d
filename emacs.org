@@ -1410,7 +1410,10 @@ prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+BEGIN_SRC elisp
   (evil-ex-define-cmd "q" 'kill-current-buffer)
   (evil-ex-define-cmd "q!" 'kill-current-buffer)
-  (evil-ex-define-cmd "wq" 'save-buffer)
+  (evil-ex-define-cmd "wq" (defun $save-and-kill-buffer ()
+                             (interactive)
+                             (save-buffer)
+                             (kill-this-buffer)))
 #+END_SRC
 
 *** magic searching
