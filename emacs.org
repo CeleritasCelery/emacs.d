@@ -508,6 +508,8 @@ point so we can easily see the representation
                     (and (equal match "..")
                          (or (eq (char-before start) ?/)
                              (eq (char-after end) ?/)))
+                    (and (equal match "=~")
+                         (eq (char-after end) ?/))
                     (and (equal match ">=")
                          (eq (char-after end) ?<))))))
 #+END_SRC
