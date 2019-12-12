@@ -904,7 +904,13 @@ add a fringe scroll bar it make it visually clearer where we are in the buffer
     :init
     (fringe-mode '(8 . 5))
     :config
-    (global-yascroll-bar-mode))
+    (global-yascroll-bar-mode)
+    (setq yascroll:disabled-modes '(compilation-mode bman-mode ipgen-mode))
+    (advice-add 'yascroll:enabled-buffer-p :filter-return #'$yascroll-disable-large-files))
+
+  (defun $yascroll-disable-large-files (ret)
+    (when (<= (buffer-size) 50000000)
+      ret))
 #+END_SRC
 
 *** helpful
