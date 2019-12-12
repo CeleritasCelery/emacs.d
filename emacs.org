@@ -4282,7 +4282,8 @@ Babel is way to execute source code from within blocks.
     (org-babel-do-load-languages
      'org-babel-load-languages '((perl . t)
                                  (shell . t)
-                                 (python . t))))
+                                 (python . t)
+                                 (emacs-lisp . t))))
 #+END_SRC
 
 ** evil
