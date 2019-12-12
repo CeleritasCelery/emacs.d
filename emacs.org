@@ -727,7 +727,6 @@ try a more powerful package like popwin.
   (use-package shackle
     :demand t
     :config
-    (add-to-list 'shackle-rules '("*Help*" :select t))
     (shackle-mode))
 
   (defmacro $shacklize (fn)
@@ -922,6 +921,11 @@ functions. only tweak we need to make is let the window close with q
     :init
     (setq find-function-C-source-directory
           (expand-file-name "custom/emacs-mirror/src/" ($user-site-path))))
+#+END_SRC
+
+Always select the help window
+#+BEGIN_SRC elisp
+  (setq help-window-select t)
 #+END_SRC
 
 we are going to add helpful to the completing read handler for
