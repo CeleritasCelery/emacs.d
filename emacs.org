@@ -2175,7 +2175,8 @@ make interprogram paste work correctly. don't update the primary when
 in evil
 #+BEGIN_SRC elisp
   (setq interprogram-paste-function 'x-cut-buffer-or-selection-value
-        evil-kill-on-visual-paste nil)
+        evil-kill-on-visual-paste nil
+        select-enable-primary t)
   (fset 'evil-visual-update-x-selection 'ignore)
 #+END_SRC
 
