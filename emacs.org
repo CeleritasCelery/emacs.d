@@ -4862,19 +4862,32 @@ automatically detect it.
 #+BEGIN_SRC elisp
   (use-package tcl-mode
     :straight nil
+    :gfhook #'$tcl-fix-symbol-def
     :mode "\\.upf\\'"
     :mode "\\.pdl\\'"
     :mode "\\.dofile\\'"
     :mode "\\.tcl\\'"
+    :company ((company-syntcl company-dabbrev-code) (company-capf company-dabbrev))
+    :general
+    ('normal tcl-mode-map "gz" 'inferior-tcl)
+    (tcl-mode-map "TAB" 'indent-for-tab-command)
     :custom
-    (tcl-application "tclsh")
-    :config
+    (tcl-application "tclsh"))
+
+  (defun $tcl-fix-symbol-def ()
     (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
 #+END_SRC
 
-Fix the tab key
+*** completion
 #+BEGIN_SRC elisp
-  (general-def 'tcl-mode-map "TAB" 'indent-for-tab-command)
+  (use-package company-syntcl
+    :straight
+    (:repo "https://gitlab.devtools.intel.com/emacs-users/company-syntcl.git"
+     :files ("company-syntcl.el"))
+    :custom
+    (company-syntcl-dir "~/temp/TclComplete")
+    :config
+    (defun company-syntcl--annotation (_) nil))
 #+END_SRC
 
 ** ICL
