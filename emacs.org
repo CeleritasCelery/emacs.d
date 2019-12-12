@@ -3072,6 +3072,8 @@ are done with ediff.
         ediff-split-window-function 'split-window-horizontally
         ediff-diff-options "-w")
 
+  (setq-default ediff-ignore-similar-regions t)
+
   (winner-mode)
   (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
 #+END_SRC
