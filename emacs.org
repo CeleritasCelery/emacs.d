@@ -4418,7 +4418,6 @@ just using =C-l=
 #+END_SRC
 
 collect usage statistics and filter candidates based on that
-
 #+BEGIN_SRC elisp
   (use-package company-statistics
     :demand t
@@ -4811,6 +4810,7 @@ we have some nonstandard extensions for SV
   (add-hook 'verilog-mode-hook '$verilog-imenu-populated)
 #+END_SRC
 
+*** display
 Ligatures in verilog are more complicated then in other languages
 because the symbol =<== can be either a left arrow or a "less then or
 equal" symbol. So we add an addition wrapper around the compose
@@ -5067,8 +5067,7 @@ longer be necessary
 
 itools is a conf file
 #+BEGIN_SRC elisp
-  (use-package conf-mode
-    :mode (rx "itools" eos))
+  (add-to-list 'auto-mode-alist `(,(rx "itools" eos) . conf-mode))
 #+END_SRC
 
 simple mode for par.txt
