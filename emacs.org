@@ -302,6 +302,14 @@ and smarter.
   (add-to-list 'use-package-keywords :keys)
 #+END_SRC
 
+*** compdef
+Short hand for defining company backends for major modes. Needs to be loaded
+before we use it in use package
+#+BEGIN_SRC elisp
+  (use-package compdef
+    :demand t)
+#+END_SRC
+
 *** no littering
 make sure that third party files cannot leave conifg and save files
 all over the place
