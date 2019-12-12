@@ -9,7 +9,8 @@
  '(debug-on-error nil)
  '(safe-local-variable-values
    (quote
-    ((eval visit-tags-table
+    ((org-src-preserve-indentation . t)
+     (eval visit-tags-table
            (expand-file-name "TAGS"
                              (vc-git-root default-directory))
            t)
