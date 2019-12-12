@@ -769,16 +769,22 @@ easily manipulate files, buffers, and windows.
     "Show and copy the full path to the current file in the minibuffer."
     (interactive "P")
     ;; list-buffers-directory is the variable set in dired buffers
-    (let ((file-name (or (buffer-file-name)
-                         list-buffers-directory
-                         default-directory))
-          (home (expand-file-name "~")))
-      (if file-name
-          (message (kill-new (if (eq (null arg) (or (string-prefix-p (concat home "/workspace") file-name)
-                                                    (string-prefix-p (concat home "/temp") file-name)))
-                                 (file-truename file-name)
-                               file-name)))
-        (error "Buffer not visiting a file"))))
+    (if-let ((file-name (or (buffer-file-name)
+                            list-buffers-directory
+                            default-directory)))
+        (message (kill-new ($correct-file-path file-name arg)))
+      (error "Buffer not visiting a file")))
+
+  (defun $correct-file-path (file &optional invert)
+    "If file is in a work disk, get the absolute path.
+  If INVERT, do the opposite of the normal behavior."
+    (let ((home (expand-file-name "~")))
+      (if (eq (null invert)
+              (or (string-prefix-p (concat home "/workspace") file)
+                  (string-prefix-p (concat home "/GLS") file)
+                  (string-prefix-p (concat home "/temp") file)))
+          (file-truename file)
+        file)))
 
   ($leader-set-key
     "TAB" '$alternate-buffer
