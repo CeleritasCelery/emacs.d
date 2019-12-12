@@ -3661,6 +3661,22 @@ This advice endeavors to fix two problems.
   (advice-add 'shell-pop--switch-to-shell-buffer :around '$get-available-shell)
 #+END_SRC
 
+*** native completion
+Use the native completion in shells
+#+BEGIN_SRC elisp
+  (use-package native-complete
+    :straight
+    (:host github :repo "CeleritasCelery/emacs-native-shell-complete")
+    :compdef shell-mode
+    :capf native-complete-at-point
+    :company (company-native-complete)
+    :custom
+    (native-complete-style-regex-alist
+     `(("╰─→ " . bash)
+       (,(rx (or "% " "[0-9]+> ")) . zsh)
+       ("[A-Z]+> " . tab))))
+#+END_SRC
+
 *** async file completion
 I wrote this package to do async file completion. This is especially
 true when using this in a shell, where you don't want to block the ui
