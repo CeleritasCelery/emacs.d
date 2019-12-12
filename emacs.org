@@ -1087,7 +1087,6 @@ want to live with it though.
     (ivy-mode)
     (setq ivy-sort-matches-functions-alist '((t))) ;; don't resort my functions
     (setq ivy-initial-inputs-alist '((t)))
-    (add-to-list 'ivy-ignore-buffers (rx bos "*"))
     (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "("))))
 #+END_SRC
 
