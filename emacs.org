@@ -1036,6 +1036,16 @@ changing the volume on my mic triggers these bindings. So we ignore them.
     "<XF86AudioRaiseVolume>" 'ignore)
 #+END_SRC
 
+*** highlight escape sequences
+
+#+BEGIN_SRC elisp
+  (use-package highlight-escape-sequences
+    :ghook ('(cperl-mode-hook perl-mode-hook python-mode-hook) 'hes-mode)
+    :config
+    (dolist (mode '(perl-mode cperl-mode python-mode))
+      (add-to-list 'hes-mode-alist (cons mode hes-common-escape-sequence-re))))
+#+END_SRC
+
 ** Ivy
 I feel like ivy is simpler to setup so I am going to give it a try. I
 am going to have to try to fix =counsel-ag= out of order matching if I
@@ -4629,17 +4639,6 @@ highlight variables in strings
                              (3 (when (not (nth 4 (syntax-ppss)))
                                   'default)
                                 prepend))))
-#+END_SRC
-
-*** highlight escape sequences
-
-#+BEGIN_SRC elisp
-  (use-package highlight-escape-sequences
-    :hook ((cperl-mode . hes-mode)
-           (perl-mode . hes-mode))
-    :config
-    (add-to-list 'hes-mode-alist (cons 'perl-mode  hes-common-escape-sequence-re))
-    (add-to-list 'hes-mode-alist (cons 'cperl-mode hes-common-escape-sequence-re)))
 #+END_SRC
 
 *** perltidy
