@@ -2771,20 +2771,16 @@ email. automatically add the tramp header if from a different site
   (defun $get-path-at-point ()
     "Get the filepath at point. This includes remote paths and
     enviroment variables."
-    (or (when (and (memq major-mode '(cperl-mode perl-mode))
-                   (require 'ffap-perl-module nil 'noerror))
-          (ffap-perl-module-file-at-point))
-        (-let* (((start end) (--map (save-excursion
-                                      (funcall it "-{}[:alnum:]$/._~\"")
-                                      (point))
-                                    '(skip-chars-backward skip-chars-forward)))
-                (path (buffer-substring-no-properties start end)))
-          (if (save-excursion
-                (goto-char start)
-                (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
-                    (looking-back (regexp-quote "$::env(MODEL_ROOT)") (line-beginning-position))))
-              (concat "$MODEL_ROOT" path)
-            path))))
+    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/._~\""))
+           (beg (car bounds))
+           (end (cdr bounds))
+           (path (buffer-substring-no-properties beg end)))
+      (if (save-excursion
+            (goto-char beg)
+            (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
+                (looking-back (regexp-quote "$::env(MODEL_ROOT)") (line-beginning-position))))
+          (concat "$MODEL_ROOT" path)
+        path)))
 
   (defun $counsel-initial-input (file)
     (unless (file-directory-p file)
@@ -4654,26 +4650,6 @@ perltidy is a perl foratting tool
      "ff" 'perltidy-dwim-safe
      "fb" 'perltidy-buffer
      "fs" 'perltidy-subroutine))
-#+END_SRC
-
-*** ffap module
-when using ffap expand modules to their source
-#+BEGIN_SRC elisp
-  (use-package ffap-perl-module
-    :config
-    (ffap-perl-module-unload-function))
-#+END_SRC
-
-*** smart dash
-#+BEGIN_SRC elisp
-  (use-package smart-dash
-    :straight
-    (:host github :repo "emacsmirror/smart-dash"
-     :fork (:host github :repo "CeleritasCelery/smart-dash"))
-    :hook perl-mode
-    :init
-    (setq smart-dash-minibuffer-enabled nil
-          smart-dash-c-modes '(perl-mode)))
 #+END_SRC
 
 ** python
