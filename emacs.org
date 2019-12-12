@@ -1658,8 +1658,7 @@ having to enable visual mode
 #+BEGIN_SRC elisp
   (use-package evil-replace-with-register
     :general
-    (evil-change-map
-     "p" 'evil-replace-with-register))
+    ('normal "go" 'evil-replace-with-register))
 #+END_SRC
 
 *** exchange
