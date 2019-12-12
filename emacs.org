@@ -1174,6 +1174,7 @@ with the display
     :init
     (setq counsel-git-cmd "/usr/intel/bin/git ls-files --full-name --"
           counsel-git-grep-cmd-default "/usr/intel/bin/git --no-pager grep --full-name -n --no-color -i -I -e \"%s\""
+          counsel-rg-base-command "rg --with-filename --no-heading --line-number --search-zip --color never %s"
           counsel-git-log-cmd "GIT_PAGER=cat /usr/intel/bin/git log --grep '%s'"
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t
