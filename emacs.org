@@ -3527,7 +3527,7 @@ these are utility functions used to setting up the Emacs shell.
 
   (defun $shell-mode-hook ()
     (shell-dirtrack-mode 0)
-    (setq-local comint-prompt-regexp (rx bol "╰─→ " eos))
+    (setq-local comint-prompt-regexp ($rx bol (or "╰─→" (: symbol "(" nums ")%") (: symbol ">")) " "))
     (setq-local evil-search-wrap nil)
     (local-env-mode)
     (setq-local company-backends '(company-arguments
