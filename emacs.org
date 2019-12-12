@@ -2724,8 +2724,7 @@ a collection of usefull file and buffer function from prelude.
     :general
     (:definer 'leader
      "fR" 'crux-rename-file-and-buffer
-     "fD" 'crux-delete-file-and-buffer
-     "fc" 'crux-copy-file-preserve-attributes)
+     "fD" 'crux-delete-file-and-buffer)
     ("C-c e" 'crux-eval-and-replace))
 #+END_SRC
 
@@ -2758,8 +2757,23 @@ collection of functions stolen from spacemacs
                      (lambda (_result)
                        (message (format "file %s deleted successfully" file))))))))
 
+  (defun $copy-file ()
+    "Copy the current file and create any directories along the way"
+    (interactive)
+    (let* ((destination (read-file-name "Write File: "))
+           (dir (file-name-directory destination)))
+      (unless (file-exists-p dir)
+        (make-directory dir 'parents))
+      (when (file-directory-p destination)
+        (setq destination (expand-file-name
+                           (file-name-nondirectory (buffer-file-name))
+                           destination)))
+      (setq doom-modeline-project-root nil)
+      (write-file destination 'confirm)))
+
   ($leader-set-key
     "f" '(:ignore t :wk "files")
+    "fc" '$copy-file
     "fe" '$find-user-config-file)
 #+END_SRC
 
