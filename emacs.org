@@ -5011,7 +5011,16 @@ the following ways:
   (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
 #+END_SRC
 
-** tcsh
+** shell script
+
+Highlight command arguments to help them stand out
+#+BEGIN_SRC elisp
+  (font-lock-add-keywords 'sh-mode
+                          `((,($rx spc (group (>= 1 (in "-")) symbol))
+                             1 font-lock-constant-face)))
+#+END_SRC
+
+*** tcsh
 Tcsh is poorly supported in Emacs. The worst offender is the default
 indentation, which is totally broken. This code ripped from [[https://github.com/Tux/tcsh/blob/master/csh-mode.el][csh-mode]]
 fixes that.
