@@ -1671,6 +1671,12 @@ swap two regions with evil exchange
      "gX" 'evil-exchange-cancel))
 #+END_SRC
 
+*** numbers
+#+BEGIN_SRC elisp
+  (use-package evil-numbers
+    :straight (:fork "janpath/evil-numbers"))
+#+END_SRC
+
 *** match it
 Use =%= to match more then just parens. Such as =module= keyword in verilog.
 #+BEGIN_SRC elisp
