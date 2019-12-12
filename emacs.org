@@ -280,23 +280,26 @@ also provides a lot of helper functions to make binding keys easier
 and smarter.
 #+BEGIN_SRC elisp
   (use-package general
-    :demand t
-    :config
+    :demand t)
 
-    (general-create-definer $leader-set-key
-      :prefix $leader-key
-      :states 'motion
-      :keymaps 'override)
+  (general-create-definer $leader-set-key
+    :prefix $leader-key
+    :states 'motion
+    :keymaps 'override)
 
-    (general-create-definer $leader-local-set-key
-      :prefix $mm-leader-key
-      :states 'motion)
+  (general-create-definer $leader-local-set-key
+    :prefix $mm-leader-key
+    :states 'motion)
 
-    (defun general-leader-define-key (_state keymap key def _orig-def _kargs)
-      "define a new key based on leader"
-      (if (eq keymap 'global)
-          (eval `($leader-set-key ,key ',def))
-        (eval `($leader-local-set-key :keymaps ',keymap ,key ',def)))))
+  (defun general-leader-define-key (_state keymap key def _orig-def _kargs)
+    "define a new key based on leader"
+    (if (eq keymap 'global)
+        (eval `($leader-set-key ,key ',def))
+      (eval `($leader-local-set-key :keymaps ',keymap ,key ',def))))
+
+  (defalias 'use-package-handler/:keys 'use-package-handler/:general)
+  (defalias 'use-package-normalize/:keys 'use-package-normalize/:general)
+  (add-to-list 'use-package-keywords :keys)
 #+END_SRC
 
 *** no littering
