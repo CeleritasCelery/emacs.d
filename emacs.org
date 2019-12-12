@@ -1447,34 +1447,42 @@ only works if the search module is =evil-search=.
 **** custom
 create text objects for the buffer, pasted region, and filename
 #+BEGIN_SRC elisp
-  (with-eval-after-load 'evil
-    (evil-define-text-object evil-entire-buffer (count &optional _beg _end _type)
-      (list (point-min) (point-max)))
+  (evil-define-text-object evil-entire-buffer (count &optional _beg _end _type)
+    (list (point-min) (point-max)))
 
-    (evil-define-text-object evil-pasted (count &rest _args)
-      (list (save-excursion (evil-goto-mark ?\[) (point))
-            (save-excursion (evil-goto-mark ?\]) (1+ (point)))))
+  (evil-define-text-object evil-pasted (count &rest _args)
+    (list (save-excursion (evil-goto-mark ?\[) (point))
+          (save-excursion (evil-goto-mark ?\]) (1+ (point)))))
 
-    (evil-define-text-object evil-filename (count &rest _args)
-      (let ((bounds (bounds-of-thing-at-point 'filename)))
-        (list (car bounds) (cdr bounds))))
+  (evil-define-text-object evil-filename (count &rest _args)
+    (let ((bounds (bounds-of-thing-at-point 'filename)))
+      (list (car bounds) (cdr bounds))))
 
-    (evil-define-text-object evil-a-dir (count &rest _args)
-      (list (save-excursion (search-backward "/") (point))
-            (save-excursion (search-forward "/") (1- (point)))))
+  (evil-define-text-object evil-a-dir (count &rest _args)
+    (list (save-excursion (search-backward "/") (point))
+          (save-excursion (search-forward "/") (1- (point)))))
 
-    (evil-define-text-object evil-i-dir (count &rest _args)
-      (list (save-excursion (search-backward "/") (1+ (point)))
-            (save-excursion (search-forward "/") (1- (point)))))
+  (defmacro $define-evil-inner-object (name char)
+    `(evil-define-text-object ,(evil-unquote name) (count &rest _args)
+       (list (save-excursion (search-backward ,char) (1+ (point)))
+             (save-excursion (search-forward ,char) (1- (point))))))
 
-    (general-def 'outer
-      "/" 'evil-a-dir)
+  ($define-evil-inner-object 'evil-i-dir "/")
+  ($define-evil-inner-object 'evil-i-tilde "~")
+  ($define-evil-inner-object 'evil-i-equal "=")
+  ($define-evil-inner-object 'evil-i-dot ".")
 
-    (general-def 'inner
-      "P" 'evil-pasted
-      "n" 'evil-filename
-      "/" 'evil-i-dir
-      "g" 'evil-entire-buffer))
+  (general-def 'outer
+    "/" 'evil-a-dir)
+
+  (general-def 'inner
+    "P" 'evil-pasted
+    "n" 'evil-filename
+    "/" 'evil-i-dir
+    "~" 'evil-i-tilde
+    "=" 'evil-i-equal
+    "." 'evil-i-dot
+    "g" 'evil-entire-buffer)
 #+END_SRC
 
 **** indentation
