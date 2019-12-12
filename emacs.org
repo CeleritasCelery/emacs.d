@@ -4922,22 +4922,21 @@ The indentation function for ICL. Very similar to C
 
 *** Keywords
 #+BEGIN_SRC elisp
-  (with-eval-after-load 'icl-mode
-    (setq icl-font-lock-keywords
-          `((,(rx symbol-start "Attribute" symbol-end) 0 font-lock-variable-name-face)
-            (,(rx symbol-start (or "Instance" "Module" "Enum") symbol-end)
-             0 font-lock-function-name-face)
-            (,($rx ^ spc* (group upper (1+ alnum)) spc+) 1 font-lock-keyword-face)
-            (,(rx symbol-start (or "InputPort"
-                                   "Alias"
-                                   "ClockMux"
-                                   "DataMux"
-                                   "ScanMux")
-                  symbol-end)
-             0 font-lock-keyword-face)
-            (,(rx (char " [':") (group (opt (char "bh")) (1+ digit))) 1 font-lock-type-face)
-            (,(rx ".") 0 'error)
-            (,($rx spc+ (group (or "Of" "SelectedBy"))) 1 font-lock-builtin-face))))
+  (setq icl-font-lock-keywords
+        `((,(rx symbol-start "Attribute" symbol-end) 0 font-lock-variable-name-face)
+          (,(rx symbol-start (or "Instance" "Module" "Enum") symbol-end)
+           0 font-lock-function-name-face)
+          (,($rx ^ spc* (group upper (1+ alnum)) spc+) 1 font-lock-keyword-face)
+          (,(rx symbol-start (or "InputPort"
+                                 "Alias"
+                                 "ClockMux"
+                                 "DataMux"
+                                 "ScanMux")
+                symbol-end)
+           0 font-lock-keyword-face)
+          (,(rx (char " [':") (group (opt (char "bh")) (1+ digit))) 1 font-lock-type-face)
+          (,(rx ".") 0 'error)
+          (,($rx spc+ (group (or "Of" "SelectedBy"))) 1 font-lock-builtin-face)))
 #+END_SRC
 
 ** config spec
