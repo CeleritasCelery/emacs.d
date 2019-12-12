@@ -1139,6 +1139,7 @@ with the display
     :general
     ("C-s" 'swiper)
     :config
+    (setf (alist-get 'swiper-isearch ivy-display-functions-alist) 'ivy-display-function-window)
     (setf (alist-get 'swiper ivy-display-functions-alist) 'ivy-display-function-window))
 
   (defun ivy-display-function-window (text)
