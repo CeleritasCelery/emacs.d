@@ -3462,11 +3462,11 @@ previous command it will automatically move us the the command line.
      "C-j" 'comint-next-matching-input-from-input
      "C-S-k" 'comint-previous-prompt
      "C-S-j" 'comint-next-prompt
-     [remap comint-dynamic-list-input-ring] 'helm-comint-input-ring)
-    :init
-    (setq comint-scroll-to-bottom-on-input t
-          comint-process-echoes t
-          comint-prompt-read-only t))
+     [remap comint-dynamic-list-input-ring] 'counsel-shell-history)
+    :custom
+    (comint-input-ring-size 1000)
+    (comint-scroll-to-bottom-on-input t)
+    (comint-prompt-read-only t))
 
   (defun $goto-cmd-line (&rest _)
     (goto-char (point-max)))
