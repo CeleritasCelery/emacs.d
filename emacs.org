@@ -2203,6 +2203,11 @@ Only communists end sentences with two spaces.
   (csetq sentence-end-double-space nil)
 #+END_SRC
 
+Give us some breathing room
+#+BEGIN_SRC elisp
+  (setq-default fill-column 80)
+#+END_SRC
+
 *** TAB key
 Emacs has an interesting way of handling the tab key. Both <tab> and
 C-i share the same terminal keycode. This means that in terminal
