@@ -4848,6 +4848,16 @@ Make radix notation stand out
                              1 font-lock-constant-face)))
 #+END_SRC
 
+*** indentation
+Everyone uses their own indentation for verilog, so use dtrt to
+automatically detect it.
+#+BEGIN_SRC elisp
+  (use-package dtrt-indent
+    :hook verilog-mode
+    :config
+    (add-to-list 'dtrt-indent-hook-mapping-list '(verilog-mode c/c++/java verilog-indent-level)))
+#+END_SRC
+
 ** TCL
 #+BEGIN_SRC elisp
   (use-package tcl-mode
