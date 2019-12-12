@@ -4462,7 +4462,7 @@ it will split the current window instead of replacing it. See
 
   (add-to-list 'shackle-rules `("*ielm*" :custom ,($shacklize display-buffer-below-selected) :select t))
 
-  (el-patch-feature 'ielm)
+  (el-patch-feature ielm)
   (with-eval-after-load 'ielm
     (el-patch-defun ielm ()
       "Interactively evaluate Emacs Lisp expressions.
