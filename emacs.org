@@ -3520,13 +3520,6 @@ these are utility functions used to setting up the Emacs shell.
               (push dir $dir-history))))))
     str)
 
-  (defun $supress-hostkey-warning (str)
-    "EC machines issue a benign but really annoying warning that the EC people
-      don't have the technical competence to fix. It has the following form:
-
-      add_host_to_hostkeys: failed to open <missing path> - reason Permission denied "
-    (if (string-match "add_host_to_hostkeys: failed to open" str) "" str))
-
   (with-eval-after-load 'shell
     (modify-syntax-entry ?= "." shell-mode-syntax-table)
     (modify-syntax-entry ?> "." shell-mode-syntax-table)
@@ -3541,8 +3534,7 @@ these are utility functions used to setting up the Emacs shell.
                                    company-async-files
                                    (company-command company-env)
                                    (company-capf company-dabbrev-code)))
-    (general-add-hook 'comint-preoutput-filter-functions
-                      '($supress-hostkey-warning $track-shell-directory) nil 'local))
+    (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local))
   (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
 
