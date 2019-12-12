@@ -257,6 +257,14 @@ that hook and set the alist back to our canonical version.
                  $bman-skip-intermediate-log)
                 (,(err-rx ^ "ERROR: In file '" filename "':")
                  1)
+                (,(err-rx ^ "Error-[SE] Syntax error"
+                          "\n  Following verilog source has syntax error :"
+                          "\n  \"" filename "\","
+                          "\n  " line ":")
+                 1 2)
+                (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
+                          "\n" filename ", " line)
+                 1 2)
                 (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
                  $bman-find-generic-log))))
 
