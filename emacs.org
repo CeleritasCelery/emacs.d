@@ -2815,6 +2815,15 @@ email. automatically add the tramp header if from a different site
         (replace-regexp-in-string "$ENV" "$")
         (substitute-in-file-name))))
 
+  (defun $get-chars-at-point (chars)
+    (let ((beg (save-excursion
+                 (skip-chars-backward chars)
+                 (point)))
+          (end (save-excursion
+                 (skip-chars-forward chars)
+                 (point))))
+      (cons beg end)))
+
   (defun $get-path-at-point ()
     "Get the filepath at point. This includes remote paths and
     enviroment variables."
@@ -2841,9 +2850,24 @@ email. automatically add the tramp header if from a different site
   (defun $find-file-at-point ()
     "A better replacement for `find-file-at-point'"
     (interactive)
-    (find-file ($normalize-file-name
-                (concat (file-remote-p default-directory)
-                        ($get-path-at-point)))))
+    (let* ((file ($normalize-file-name
+                  (concat (file-remote-p default-directory)
+                          ($get-path-at-point))))
+           (context (buffer-substring-no-properties (line-beginning-position)
+                                                    (line-end-position 2)))
+           (line (when (string-match ($rx (any alnum "\"'")
+                                          (or ":"
+                                              (: "," (* (any " \n")))
+                                              (: (opt ",") " line ")
+                                              (: ", Line: "))
+                                          (group nums))
+                                     context)
+                   (match-string 1 context))))
+      (if (file-exists-p file)
+          (progn (find-file file)
+                 (when line
+                   (goto-line (string-to-number line))))
+        (user-error (format "File %s does not exists" file)))))
 
   (defun $file-at-point-exists ()
     "Check if file at point exists."
