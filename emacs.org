@@ -4776,6 +4776,17 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
      "j" 'counsel-semantic-or-imenu))
 #+END_SRC
 
+Inferior shell
+#+BEGIN_SRC elisp
+  (defun $python-shell ()
+    (interactive)
+    (unless (python-shell-get-process)
+      (run-python))
+    (python-shell-switch-to-shell t))
+
+  (general-def 'normal python-mode-map "gz" #'$python-shell)
+#+END_SRC
+
 ** verilog
 we have some nonstandard extensions for SV
 #+BEGIN_SRC elisp
