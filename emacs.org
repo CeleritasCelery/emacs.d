@@ -3579,10 +3579,6 @@ these are utility functions used to setting up the Emacs shell.
                                           " "))
     (setq-local evil-search-wrap nil)
     (local-env-mode)
-    (setq-local company-backends '(company-arguments
-                                   company-async-files
-                                   (company-command company-env)
-                                   (company-capf company-dabbrev-code)))
     (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local))
   (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
