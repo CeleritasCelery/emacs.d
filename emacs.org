@@ -3572,7 +3572,11 @@ these are utility functions used to setting up the Emacs shell.
 
   (defun $shell-mode-hook ()
     (shell-dirtrack-mode 0)
-    (setq-local comint-prompt-regexp ($rx bol (or "╰─→" (: symbol "(" nums ")%") (: symbol ">")) " "))
+    (setq-local comint-prompt-regexp ($rx bol (or "╰─→"
+                                                  (: symbol "(" nums ")%")
+                                                  (: symbol "@" symbol ":" file "(" nums ")>")
+                                                  (: symbol ">"))
+                                          " "))
     (setq-local evil-search-wrap nil)
     (local-env-mode)
     (setq-local company-backends '(company-arguments
@@ -3718,7 +3722,7 @@ Use the native completion in shells
     :custom
     (native-complete-style-regex-alist
      `(("╰─→ " . bash)
-       (,(rx (or "% " "[0-9]+> ")) . zsh)
+       (,(rx (or "% " "[0-9]+> " ")> ")) . zsh)
        ("[A-Z]+> " . tab))))
 #+END_SRC
 
