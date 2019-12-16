@@ -1732,6 +1732,16 @@ add new keybindings for evil paragraph navigation
    "C-]" 'evil-forward-paragraph)
 #+END_SRC
 
+Make the wrap function sane. Currently if on the closing paren of a sexp it
+wraps the last element instead of wrapping the sexp itself.
+#+BEGIN_SRC elisp
+  (defun $lispy-wrap-adjust-paren (_arg)
+    "Always wrap the sexp that the cursor is on"
+    (when (eq ?\) (char-syntax (char-after)))
+      (evil-jump-item)))
+  (advice-add 'lispy-wrap-round :before '$lispy-wrap-adjust-paren)
+#+END_SRC
+
 *** parens
 
 =evil-cleverparens= requires paredit, unfortunately the default
