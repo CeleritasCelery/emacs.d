@@ -1506,6 +1506,14 @@ a text object that highlights everything with the same font lock
     (outer "h" 'evil-a-syntax))
 #+END_SRC
 
+**** columns
+#+BEGIN_SRC elisp
+  (use-package evil-textobj-column
+    :general
+    ('inner
+     "k" 'evil-textobj-column-word
+     "K" 'evil-textobj-column-WORD))
+#+END_SRC
 
 *** EX
 Use additional evil-ex bindings
