@@ -3031,6 +3031,31 @@ we don't need so many dired confirmation prompts
           recentf-auto-cleanup "11:00pm"))
 #+END_SRC
 
+*** path check
+#+BEGIN_SRC elisp
+  (defface path-check-exists
+    '((t :inherit 'diff-refine-added :foreground "black"))
+    "Face used to highlight paths that exist")
+  (defface path-check-nonexistent
+    '((t :inherit 'diff-refine-removed :foreground "black"))
+    "Face used to highlight paths that exist")
+
+  (defvar path-check-font-lock-keywords
+    `((,($rx (group "/" alpha file))
+       1 (if (file-exists-p (match-string 1))
+             'path-check-exists
+           'path-check-nonexistent)
+       prepend)))
+
+  (define-minor-mode path-check-mode
+    "check if paths in file exisit"
+    nil nil nil
+    (if path-check-mode
+        (font-lock-add-keywords nil path-check-font-lock-keywords)
+      (font-lock-remove-keywords nil path-check-font-lock-keywords))
+    (font-lock-flush))
+#+END_SRC
+
 *** midnight mode
 midnight mode is mode to automatically kill old buffers at midnight
 based on a set of rules. We want to follow all of the default rules
