@@ -4797,6 +4797,7 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
         flycheck-python-flake8-executable "python3.6.3a"
         flycheck-python-mypy-executable "python3.6.3a"
         flycheck-python-pycompile-executable "python3.6.3a"
+        flycheck-flake8-maximum-line-length 120
         flycheck-python-pylint-executable "python3.6.3a")
 
   (use-package company-anaconda
