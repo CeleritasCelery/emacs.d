@@ -2906,7 +2906,7 @@ email. automatically add the tramp header if from a different site
     "Open a model in workspace"
     (interactive)
     (let ((default-directory
-            (expand-file-name "workspace/" ($user-site-path))))
+            (expand-file-name "~/workspace/")))
       (counsel-find-file)))
 
   (defun $goto-repo ()
