@@ -2574,23 +2574,28 @@ counsel and git as well as the specialized functions below.
         (setq buffers (all-completions
                        "" #'internal-complete-buffer
                        (lambda (buf) ($buffer-in-project buf root arg))))
-        (ivy-read "buffers: " buffers
+        (ivy-read (if arg "project buffers: "
+                    "open project files: ")
+                  buffers
                   :keymap ivy-switch-buffer-map
                   :action #'ivy--switch-buffer-action
                   :matcher #'ivy--switch-buffer-matcher))))
 
-  (defun $get-project-root ()
-    (if (boundp 'default-project-root)
-        default-project-root
-      (setq-local default-project-root
-                  (file-truename (or (cdr (project-current)) "")))))
+  (defun $get-project-root (buffer)
+    (thread-last
+        (or (buffer-local-value 'buffer-file-truename buffer)
+            (file-truename (buffer-local-value 'default-directory buffer)))
+      (project-current nil)
+      (cdr)))
 
-  (defun $buffer-in-project (buf project only-files)
-    (with-current-buffer (cdr buf)
-      (and (not (file-remote-p default-directory))
-           (equal ($get-project-root) project)
-           (or (null only-files)
-               (buffer-file-name (current-buffer))))))
+  (defun $buffer-in-project (buf project include-dirs)
+    (let* ((buffer (cdr buf)))
+      (and (not (string-match-p "\\*" (buffer-name buffer)))
+           (not (file-remote-p (buffer-local-value 'default-directory buffer)))
+           (or include-dirs
+               (buffer-local-value 'buffer-file-name buffer))
+           (equal ($get-project-root buffer)
+                  project))))
 
   (with-eval-after-load 'ivy
     (ivy-add-actions 'counsel-find-file
