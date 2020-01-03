@@ -4864,8 +4864,7 @@ we have some nonstandard extensions for SV
 Ligatures in verilog are more complicated then in other languages
 because the symbol =<== can be either a left arrow or a "less then or
 equal" symbol. So we add an addition wrapper around the compose
-function to handle this special case. Also add the xor symbol to the
-list.
+function to handle this special case.
 #+BEGIN_SRC elisp
   (defun $compose-conditional-symbol (alist)
     (or (and (eq major-mode 'verilog-mode)
@@ -4878,15 +4877,6 @@ list.
 
   (with-eval-after-load 'prog-mode
     (advice-add 'prettify-symbols--compose-symbol :filter-args #'$compose-conditional-symbol))
-
-  (defun $verilog-compose-symbols ()
-    (mapc '$set-ligature
-          '(("~^" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))
-            ("^~" . (?\s (Br . Bl) ?\s (Bc . Bc) #X2295))))
-    (prettify-symbols-mode -1)
-    (prettify-symbols-mode 1))
-
-  (add-hook 'verilog-mode-hook '$verilog-compose-symbols)
 #+END_SRC
 
 Make radix notation stand out
