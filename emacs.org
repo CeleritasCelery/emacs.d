@@ -4918,6 +4918,7 @@ automatically detect it.
     ('normal tcl-mode-map "gz" 'inferior-tcl)
     (tcl-mode-map "TAB" 'indent-for-tab-command)
     :custom
+    (flycheck-tcl-nagelfar-syntaxdb-file "~/temp/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh"))
 
   (defun $tcl-fix-symbol-def ()
