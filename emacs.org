@@ -4284,6 +4284,7 @@ customize it for any keyword we want.
 Use flyspell to check our spelling in real time
 #+BEGIN_SRC elisp
   (add-hook 'org-mode-hook 'flyspell-mode)
+  (add-hook 'with-editor-mode-hook 'flyspell-mode)
 #+END_SRC
 
 *** company
