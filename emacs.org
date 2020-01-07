@@ -3918,82 +3918,79 @@ inherit the priority of the parent heading and make sure the default state is al
 
 ** functions
 #+BEGIN_SRC elisp
-  (use-package org
-    :straight nil
-    :config
-    (defun $org-show-current-heading-tidily ()
-      "Show next entry, keeping other entries closed."
-      (interactive)
-      (if (save-excursion (end-of-line) (outline-invisible-p))
-          (progn (org-show-entry) (outline-show-children))
-        (outline-back-to-heading)
-        (unless (and (bolp) (org-at-heading-p))
-          (org-up-heading-safe)
-          (outline-hide-subtree)
-          (error "Boundary reached"))
-        (org-overview)
-        (org-reveal t)
-        (org-show-entry)
-        (outline-show-children)))
-    (advice-add 'counsel-org-goto :after '$org-show-current-heading-tidily)
+  (defun $org-show-current-heading-tidily ()
+    "Show next entry, keeping other entries closed."
+    (interactive)
+    (if (save-excursion (end-of-line) (outline-invisible-p))
+        (progn (org-show-entry) (outline-show-children))
+      (outline-back-to-heading)
+      (unless (and (bolp) (org-at-heading-p))
+        (org-up-heading-safe)
+        (outline-hide-subtree)
+        (error "Boundary reached"))
+      (org-overview)
+      (org-reveal t)
+      (org-show-entry)
+      (outline-show-children)))
+  (advice-add 'counsel-org-goto :after '$org-show-current-heading-tidily)
 
-    (defun $org-archive-done-tasks ()
-      "move tasks that are completed to the archive file."
-      (interactive)
-      (org-map-entries
-       (lambda ()
-         (org-archive-subtree)
-         (setq org-map-continue-from (outline-previous-heading)))
-       "/DONE" 'file)
-      (org-map-entries
-       (lambda ()
-         (org-archive-subtree)
-         (setq org-map-continue-from (outline-previous-heading)))
-       "/CANCELED" 'file))
+  (defun $org-archive-done-tasks ()
+    "move tasks that are completed to the archive file."
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (outline-previous-heading)))
+     "/DONE" 'file)
+    (org-map-entries
+     (lambda ()
+       (org-archive-subtree)
+       (setq org-map-continue-from (outline-previous-heading)))
+     "/CANCELED" 'file))
 
-    ($leader-local-set-key
-      :keymaps 'org-mode-map
-      "a" '$org-archive-done-tasks
-      "h" '$org-show-current-heading-tidily)
+  ($leader-local-set-key
+    :keymaps 'org-mode-map
+    "a" '$org-archive-done-tasks
+    "h" '$org-show-current-heading-tidily)
 
-    (defun $org-smart-return ()
-      "if in a list return should add a new item. If the item is
+  (defun $org-smart-return ()
+    "if in a list return should add a new item. If the item is
   blank, we want to break out of the list and delete the blank
   item"
-      (interactive)
-      (if (org-at-item-p)
-          (if (and (looking-back (rx space) (- (point) 1))
-                   (memq (- (point) (org-in-item-p))
-                         (number-sequence 1 3)))
-              ;; If at a blank item, delete it
-              (progn
-                (beginning-of-line)
-                (kill-line)
-                (org-return))
-            ;; If at a non-blank item, insert a new item
-            (org-return)
-            (org-insert-item))
-        ;; If not at item, normal return
-        (org-return)))
-    (general-def '(insert normal) org-mode-map
-      "<ret>" '$org-smart-return
-      "RET" '$org-smart-return)
+    (interactive)
+    (if (org-at-item-p)
+        (if (and (looking-back (rx space) (- (point) 1))
+                 (memq (- (point) (org-in-item-p))
+                       (number-sequence 1 3)))
+            ;; If at a blank item, delete it
+            (progn
+              (beginning-of-line)
+              (kill-line)
+              (org-return))
+          ;; If at a non-blank item, insert a new item
+          (org-return)
+          (org-insert-item))
+      ;; If not at item, normal return
+      (org-return)))
+  (general-def '(insert normal) org-mode-map
+    "<ret>" '$org-smart-return
+    "RET" '$org-smart-return)
 
-    (defun $org-procrastinate (arg)
-      "shedule the selected item for tomrrow, effectivly removing
+  (defun $org-procrastinate (arg)
+    "shedule the selected item for tomrrow, effectivly removing
   it from todays agenda."
-      (interactive "P")
-      (let ((fn (if (eq major-mode 'org-agenda-mode)
-                    'org-agenda-schedule
-                  'org-schedule)))
-        (defvar org-state)
-        (let ((org-state "DONE"))
-          (require 'org-clock)
-          (org-clock-out-if-current))
-        (funcall fn arg "+1d")))
-    ($leader-local-set-key
-      :keymaps '(org-mode-map org-agenda-mode-map)
-      "s" '$org-procrastinate))
+    (interactive "P")
+    (let ((fn (if (eq major-mode 'org-agenda-mode)
+                  'org-agenda-schedule
+                'org-schedule)))
+      (defvar org-state)
+      (let ((org-state "DONE"))
+        (require 'org-clock)
+        (org-clock-out-if-current))
+      (funcall fn arg "+1d")))
+  ($leader-local-set-key
+    :keymaps '(org-mode-map org-agenda-mode-map)
+    "s" '$org-procrastinate)
 #+END_SRC
 
 ** agenda
