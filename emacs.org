@@ -1074,7 +1074,6 @@ want to live with it though.
      "C-d" 'ivy-switch-buffer-kill)
     ("C-x r b" 'counsel-bookmark
      "C-x C-r" 'ivy-resume)
-
     (ivy-occur-grep-mode-map
      "SPC" nil)
     :init
@@ -1807,13 +1806,6 @@ smartparens and puts them into one dispatcher.
 helm is the more powerfull of the two between itself and ivy. I really
 want to give Ivy a good try because it seems snappier on large files,
 but there are still some issues that gives helm the advantage
-- =helm-ag= supports out of order matching
-- helm doesn't break when using "regex" characters in pattern
-- helm is integrated with dired
-- helm file sorting is more sane
-- helm-mini has better recentf functionality
-- helm supports windows, which makes swoop easier
-- =counsel-fzf= is broken, but =helm-fzf= works great
 - helm supports marking, which is very efficient.
 
 I have decided to switch from using advices to make helm behave as I
@@ -2738,7 +2730,6 @@ track through the whole file to find a match.
 ** files
 
 don't ask me to revert files that I have not changed.
-
 #+BEGIN_SRC elisp
   (csetq revert-without-query `(,(rx (1+ nonl))))
 #+END_SRC
@@ -2807,10 +2798,10 @@ open file in clipboard. Usually something I copied from an
 email. automatically add the tramp header if from a different site
 #+BEGIN_SRC elisp
   (defun $normalize-file-name (file)
-    "This functions does 3 things:
+    "This functions does 3 things.
   1. update MODEL_ROOT to the current model
   2. automatically add remote prefix if required
-  3. Remove problematic formating from files "
+  3. Remove problematic formating from files"
     ;; set MODEL_ROOT if variable is present in file name
     (when-let ((root (and (string-match-p "MODEL_ROOT" file)
                           (vc-git-root default-directory))))
@@ -2851,8 +2842,8 @@ email. automatically add the tramp header if from a different site
       (cons beg end)))
 
   (defun $get-path-at-point ()
-    "Get the filepath at point. This includes remote paths and
-    enviroment variables."
+    "Get the filepath at point.
+  This includes remote paths and enviroment variables."
     (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/._~\""))
            (beg (car bounds))
            (end (cdr bounds))
@@ -3102,7 +3093,6 @@ use, but thankfully my usecases are very simple.
     (auto-insert-mode))
 #+END_SRC
 
-
 *** winner
 #+BEGIN_SRC elisp
   (winner-mode)
@@ -3114,6 +3104,7 @@ use, but thankfully my usecases are very simple.
     (add-to-list 'aw-dispatch-alist '(?u $winner/winner-undo))
     (add-to-list 'aw-dispatch-alist '(?J aw-switch-buffer-other-window "Switch Buffer Other Window")))
 #+END_SRC
+
 *** ediff
 I like to keep everything in one frame. I am not a mutli-window
 heathen from 2003. We also want to restore the window config after we
