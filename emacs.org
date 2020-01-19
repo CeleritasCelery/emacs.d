@@ -4297,7 +4297,6 @@ Use a proportional font for org mode because it is more readable
     (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height 130)
     (setq org-variable-pitch-fixed-font "Source Code Pro")
     :config
-    (add-to-list 'org-variable-pitch-fixed-faces 'org-indent)
     (set-face-attribute 'org-variable-pitch-face nil :height 120))
 #+END_SRC
 
