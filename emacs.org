@@ -5028,8 +5028,14 @@ ICL is the Instrument Control Language defined by IEEE
     (setq-local c-basic-offset 3)
     (setq-local indent-line-function 'icl-indent-line)
     (setq-local font-lock-defaults '(icl-font-lock-keywords))
+    (setq-local imenu-generic-expression
+                `(("modules" ,($rx ^ "Module"
+                                   spc+ (group symbol) spc+ "{") 1)
+                  ("instances" ,($rx ^ spc+ "Instance"
+                                     spc+ (group symbol) spc+ "Of") 1)))
     (modify-syntax-entry ?\' "." icl-mode-syntax-table))
 
+  (general-def :definer 'leader :keymaps 'icl-mode-map "j" 'counsel-semantic-or-imenu)
   (add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
 #+END_SRC
 
