@@ -1212,6 +1212,25 @@ a function to call counsel-rg from the current directory
       (counsel-rg nil default-directory)))
 #+END_SRC
 
+**** functions
+Use fd instead of find to search faster
+#+BEGIN_SRC elisp
+  (defun counsel-fd-jump (&optional initial-input initial-directory)
+    (interactive)
+    (let ((default-directory (or initial-directory default-directory)))
+      (ivy-read "Jump file: "
+                (counsel--call '("fd" "--no-ignore" "--hidden" "--exclude" ".git" "--type" "f")
+                               (lambda () (split-string (buffer-string) "\n")))
+                :matcher #'counsel--find-file-matcher
+                :initial-input initial-input
+                :action #'find-file
+                :preselect (counsel--preselect-file)
+                :require-match 'confirm-after-completion
+                :history 'file-name-history
+                :keymap counsel-find-file-map
+                :caller 'counsel-file-jump)))
+#+END_SRC
+
 packages used to support counsel
 **** smex
 #+BEGIN_SRC elisp
@@ -1540,6 +1559,7 @@ a text object that highlights everything with the same font lock
 Use additional evil-ex bindings
 #+BEGIN_SRC elisp
   (evil-ex-define-cmd "rg" '$counsel-rg-here)
+  (evil-ex-define-cmd "j" 'counsel-fd-jump)
   (evil-ex-define-cmd "perl" 'perl-mode)
   (evil-ex-define-cmd "lisp" 'emacs-lisp-mode)
   (evil-ex-define-cmd "pkg" 'straight-use-package)
