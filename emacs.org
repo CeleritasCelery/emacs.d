@@ -4202,17 +4202,6 @@ with subscripts anytime we don't markup a variable name.
   (setq org-export-with-sub-superscripts '{})
 #+END_SRC
 
-include a priority element when exporting todos
-#+BEGIN_SRC elisp
-  (setq org-export-with-priority t)
-#+END_SRC
-
-preserve line breaks when exporting. This makes the exported format
-closer to my markup, which keeps unwated suprises
-#+BEGIN_SRC elisp
-  (setq org-export-preserve-breaks t)
-#+END_SRC
-
 don't use the default preamble. We are creating our own css preamble
 and we don't want the default one interfering
 #+BEGIN_SRC elisp
