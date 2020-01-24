@@ -125,7 +125,7 @@ Never load outdated byte code
 #+END_SRC
 
 We never use right to left scripts, so disable that feature for better
-performace
+performance
 #+BEGIN_SRC elisp
   (setq-default bidi-display-reordering nil)
 #+END_SRC
@@ -695,9 +695,6 @@ pretty well, but I have a couple of things I would like to change.
    think, I have not actually looked at it yet. I want to wait for
    while to make this change so that I can get the muscle memory down
    and see if that makes this easier with this package.
-2. This package will split the window but leave the cursor in the old
-   window. I relalize this is just a little thing. but it is very
-   unintuitive for me and I have to think about it every time.
 #+BEGIN_SRC elisp
   (use-package ace-window
     :general
@@ -1405,7 +1402,7 @@ Vim instead of like Emacs.
     (evil-mode 1))
 #+END_SRC
 
-I want to preserve the functionality of =C=u=, but still want to use
+I want to preserve the functionality of =C-u=, but still want to use
 standard keys to scroll. =C-f= and =C-b= are used for scrolling in
 vim/less, but they scroll a whole page, which is too much. So we
 rebind these to the normal scroll function.
@@ -2281,8 +2278,7 @@ time consuming. So we create a function to save the last ediff.
 
 ** editing
 *** general
-make interprogram paste work correctly. don't update the primary when
-in evil
+make interprogram paste work correctly.
 #+BEGIN_SRC elisp
   (setq interprogram-paste-function 'x-cut-buffer-or-selection-value
         evil-kill-on-visual-paste nil
@@ -2319,19 +2315,17 @@ Give us some breathing room
 #+END_SRC
 
 *** TAB key
-Emacs has an interesting way of handling the tab key. Both <tab> and
-C-i share the same terminal keycode. This means that in terminal
-applications, using C-i is the equivalent of pressing tab. Emacs
-distinguishes between the two by assigning C-i to =TAB=. under normal
-circumstances, <tab> will be automatically translated to =TAB= (C-i)
-before being dispatched. However this means that we can't use the C-i
-binding in the GUI for anything other then tab. Evil provides the
-ablitity to use C-i to jump to the next mark. So to get both C-i to
-jump to the next mark and still retain our tab indent behavior, we
-setup the following code. We remap the C-i key to the H-i (hyper)
-keycode in the =input-decode-map=, then we bind =evil-jump-forward=.
-So now pressing C-i will trigger the keycode for H-i, which is bound
-to evil-jump-forward.
+Emacs has an interesting way of handling the tab key. Both <tab> and C-i share
+the same terminal keycode. This means that in terminal applications, using C-i
+is the equivalent of pressing tab. Emacs distinguishes between the two by
+assigning C-i to =TAB=. under normal circumstances, <tab> will be automatically
+translated to =TAB= (C-i) before being dispatched. However this means that we
+can't use the C-i binding in the GUI for anything other then tab. Evil provides
+the ablitity to use C-i to jump to the next mark. So to get both C-i to jump to
+the next mark and still retain our tab indent behavior, we setup the following
+code. We remap the C-i key to the H-i (hyper) keycode in the =input-decode-map=,
+then we bind =evil-jump-forward=. So now pressing C-i will trigger the keycode for
+H-i, which is bound to evil-jump-forward.
 #+BEGIN_SRC elisp
   (general-def input-decode-map
     "C-i" "H-i"
@@ -2387,7 +2381,7 @@ show empty lines at the end of files
 Outlook is stupid and tries to replace the normal accent characters
 with nonascii versions. This can cause problems when copying from the
 an email or word doc. The function below will replace the formating
-with their ascii equiviments.
+with their ascii equivalents.
 #+BEGIN_SRC elisp
   (defun $normalize-text (beg end)
     "normalize characters used in Microsoft formatting"
@@ -2708,7 +2702,7 @@ counsel and git as well as the specialized functions below.
   (general-def "C-x C-b" '$project-buffers)
 #+END_SRC
 
-**** bookmars
+**** bookmarks
 #+BEGIN_SRC elisp
   (defvar $project-bookmarks
     '(("hier define" "target/*/collage/work/*/gen/tb_specs/soc_ip_hier_define.sv")
