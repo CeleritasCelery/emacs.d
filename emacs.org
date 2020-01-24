@@ -3818,13 +3818,12 @@ Use the native completion in shells
   (use-package native-complete
     :straight
     (:host github :repo "CeleritasCelery/emacs-native-shell-complete")
-    :demand t
-    :after shell-mode
     :compdef shell-mode
     :capf native-complete-at-point
     :company company-native-complete
-    :config
-    (native-complete-setup-bash)
+    :init
+    (with-eval-after-load 'shell
+      (native-complete-setup-bash))
     :custom
     (native-complete-style-regex-alist
      `(("╰─→ " . bash)
