@@ -1096,7 +1096,6 @@ want to live with it though.
     :config
     (ivy-mode)
     (setq ivy-sort-matches-functions-alist '((t))) ;; don't resort my functions
-    (setq ivy-initial-inputs-alist '((t)))
     (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "("))))
 #+END_SRC
 
@@ -1190,6 +1189,7 @@ with the display
           counsel-bookmark-avoid-dired t
           counsel-async-filter-update-time 500000)
     :config
+    (setq ivy-initial-inputs-alist nil)
     (setf (alist-get 'counsel-M-x ivy-initial-inputs-alist) nil))
 #+END_SRC
 
