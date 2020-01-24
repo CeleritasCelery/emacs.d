@@ -1571,6 +1571,16 @@ a text object that highlights everything with the same font lock
      "K" 'evil-textobj-column-WORD))
 #+END_SRC
 
+**** line
+#+BEGIN_SRC elisp
+  (use-package evil-textobj-line
+    :init
+    (setq evil-textobj-line-i-key "v"
+          evil-textobj-line-a-key "v")
+    :general
+    (inner "v" 'evil-inner-line)
+    (outer "v" 'evil-a-line))
+#+END_SRC
 *** EX
 Use additional evil-ex bindings
 #+BEGIN_SRC elisp
