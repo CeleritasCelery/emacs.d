@@ -3947,7 +3947,7 @@ stalls.
 #+BEGIN_SRC elisp
   (use-package org
     :straight (:type built-in)
-    :gfhook #'org-indent-mode #'$org-truncate-lines
+    :gfhook #'org-indent-mode #'$org-truncate-lines #'toggle-word-wrap
     :general
     (:definer 'leader
      :keymaps 'org-mode-map
