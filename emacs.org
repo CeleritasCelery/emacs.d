@@ -2469,6 +2469,14 @@ Use our next and previous commands to navigate minibuffer history
       (narrow-to-region beg end)))
 #+END_SRC
 
+*** save place
+Return to the last point I was in a buffer
+#+BEGIN_SRC elisp
+  (use-package saveplace
+    :defer 5
+    :config
+    (save-place-mode))
+#+END_SRC
 *** navigation
 **** move where I mean
 move me to the start of the line or start of code, based on heuristics
