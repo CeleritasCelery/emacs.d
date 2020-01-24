@@ -638,7 +638,7 @@ Second we want to make sure that all "buffer info" flags can be
 displayed at the same time.
 #+BEGIN_SRC elisp
   (use-package doom-modeline
-    :hook (after-init . doom-modeline-init)
+    :hook (after-init . doom-modeline-mode)
     :custom
     (doom-modeline-buffer-file-name-style 'relative-from-project)
     (doom-modeline-env-version nil)
@@ -661,10 +661,11 @@ displayed at the same time.
        'mouse-face '(:box 0)
        'local-map mode-line-coding-system-map))
     (doom-modeline-def-modeline 'custom
-      '(bar workspace-name window-number matches buffer-info remote-host buffer-position selection-info)
-      '(objed-state misc-info debug minor-modes buffer-encoding-simple major-mode process vcs checker))
-    (add-hook 'doom-modeline-mode-hook (defun $custom-doom-modeline ()
-                                         (doom-modeline-set-modeline 'custom 'default)))
+      '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position selection-info)
+      '(objed-state misc-info debug lsp minor-modes buffer-encoding-simple major-mode process vcs checker))
+    (add-hook 'doom-modeline-mode-hook
+              (defun $custom-doom-modeline ()
+                (doom-modeline-set-modeline 'custom 'default)))
     (column-number-mode))
 #+END_SRC
 
