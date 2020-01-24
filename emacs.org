@@ -98,10 +98,9 @@ possible.
   (add-hook 'focus-in-hook 'redraw-display)
 #+END_SRC
 
-don't load x-resources. Everything we need for our config should be in here
+Don't create auto save and lock files. I am only working with 1 emacs instance.
 #+BEGIN_SRC elisp
-  (setq inhibit-x-resources t
-        create-lockfiles nil
+  (setq create-lockfiles nil
         auto-save-default nil)
 #+END_SRC
 
