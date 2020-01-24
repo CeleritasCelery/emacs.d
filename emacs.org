@@ -4993,15 +4993,14 @@ automatically detect it.
 #+BEGIN_SRC elisp
   (use-package tcl-mode
     :straight nil
-    :gfhook #'$tcl-fix-symbol-def
-    :mode "\\.upf\\'"
-    :mode "\\.pdl\\'"
-    :mode "\\.dofile\\'"
-    :mode "\\.tcl\\'"
+    :gfhook #'$tcl-fix-symbol-def #'flycheck-mode
+    :mode (rx "." (or "upf" "pdl" "dofile" "tcl") eos)
     :company ((company-syntcl company-dabbrev-code) (company-capf company-dabbrev))
     :general
     ('normal tcl-mode-map "gz" 'inferior-tcl)
     (tcl-mode-map "TAB" 'indent-for-tab-command)
+    (:definer 'leader :keymaps 'tcl-mode-map
+     "j" 'counsel-semantic-or-imenu)
     :custom
     (flycheck-tcl-nagelfar-syntaxdb-file "~/temp/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh"))
