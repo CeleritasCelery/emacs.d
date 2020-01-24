@@ -1715,7 +1715,16 @@ behave better with evil.
              "s" 'evil-surround-region
              "S" 'evil-Surround-region)
     :config
+    (setf (alist-get ?\( evil-surround-pairs-alist) '("(" . ")"))
+    (setf (alist-get ?\[ evil-surround-pairs-alist) '("[" . "]"))
+    (setf (alist-get ?\{ evil-surround-pairs-alist) '("{" . "}"))
+    (setf (alist-get ?t  evil-surround-pairs-alist) '$evil-surround-tcl)
     (global-evil-surround-mode))
+
+  (defun $evil-surround-tcl ()
+    "Read a functionname from the minibuffer and wrap selection in tcl set command"
+    (let ((var (evil-surround-read-from-minibuffer "" "")))
+      (cons (format "set %s [" (or var "")) "]")))
 #+END_SRC
 
 *** commenting
