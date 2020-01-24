@@ -3118,6 +3118,7 @@ we don't need so many dired confirmation prompts
   (setq dired-no-confirm t
         wdired-allow-to-change-permissions t
         dired-listing-switches "-alh"
+        dired-dwim-target t
         dired-auto-revert-buffer t)
 
   (general-def dired-mode-map
