@@ -1786,6 +1786,7 @@ package.
             c-w
             prettify
             text-objects
+            (atom-movement t)
             additional-movement
             slurp/barf-cp
             wrap
