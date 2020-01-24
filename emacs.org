@@ -1116,28 +1116,34 @@ with the display
   (with-eval-after-load 'counsel
     (ivy-add-actions
      t
-     '(("y" $ivy-yank "yank")))
+     '(("y" kill-new "yank" $ivy-yank-all)))
     (ivy-add-actions
      'counsel-find-file
      '(("g" $magit-status-in-dir "git status")
        ("d" $async-delete-file "delete")
-       ("y" $ivy-yank-file-name "yank")
+       ("y" $yank-file-name "yank" $yank-file-name-list)
        ("s" (lambda (x) (counsel-rg nil x)) "search")
-       ("f" (lambda (x) (counsel-fzf nil x)) "find")
+       ("f" $ivy-file-jump "find")
        ("o" find-file-other-window "other window")
        ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
        ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
-  (defun $ivy-yank (x &optional list)
-    (thread-first (if list list (list x))
-      (string-join "\n")
-      (kill-new)))
+  (defun $ivy-file-jump (x)
+    (let ((args (split-string x)))
+      (counsel-fd-jump (cdr args) (car args))))
 
-  (defun $ivy-yank-file-name (x &optional list)
-    (thread-first '$correct-file-path
-      (mapcar (if list list (list x)))
-      (string-join "\n")
-      (kill-new)))
+  (defun $ivy-yank-all (x)
+    (kill-new (mapconcat 'identity x "\n")))
+
+  (defun $yank-file-name (x)
+    (kill-new ($correct-file-path x)))
+
+  (defun $yank-file-name-list (x)
+    (kill-new
+     (mapconcat
+      (lambda (f)
+        ($correct-file-path (expand-file-name f ivy--directory)))
+      x "\n")))
 
   (general-def ivy-minibuffer-map ";" 'ivy-dispatching-done)
 #+END_SRC
@@ -1181,16 +1187,21 @@ with the display
            ("C-c s" . counsel-ag)
            ("M-x" . counsel-M-x))
     :init
-    (setq counsel-git-cmd "/usr/intel/bin/git ls-files --full-name --"
-          counsel-git-grep-cmd-default "/usr/intel/bin/git --no-pager grep --full-name -n --no-color -i -I -e \"%s\""
-          counsel-rg-base-command "rg --with-filename --no-heading --line-number --search-zip --color never %s"
-          counsel-git-log-cmd "GIT_PAGER=cat /usr/intel/bin/git log --grep '%s'"
+    (setq counsel-rg-base-command "rg --with-filename --no-heading --line-number --search-zip --color never %s"
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
-          counsel-bookmark-avoid-dired t
-          counsel-async-filter-update-time 500000)
+          counsel-bookmark-avoid-dired t)
     :config
+    ($normalize-git-version 'counsel-git-cmd)
+    ($normalize-git-version 'counsel-git-grep-cmd-default)
+    ($normalize-git-version 'counsel-git-log-cmd)
     (setq ivy-initial-inputs-alist nil)
     (setf (alist-get 'counsel-M-x ivy-initial-inputs-alist) nil))
+
+  (defun $normalize-git-version (symbol)
+    (set symbol (replace-regexp-in-string
+                 (rx symbol-start "git ")
+                 "/usr/intel/bin/git "
+                 (symbol-value symbol))))
 #+END_SRC
 
 a function to call counsel-rg from the current directory
