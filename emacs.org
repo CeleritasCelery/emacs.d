@@ -1325,15 +1325,29 @@ flashing issue.
                  ((counsel-describe-variable-transformer (:width 40))
                   (ivy-rich-counsel-variable-value (:width 10))
                   (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
+    (plist-put ivy-rich-display-transformers-list
+               'ivy-switch-buffer
+               '(:columns
+                 ((ivy-rich-candidate (:width 40))
+                  (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                  (ivy-rich-switch-buffer-major-mode (:width 15 :face warning))
+                  (ivy-rich-switch-buffer-project (:width 25 :face success)))
+                 :predicate
+                 (lambda (cand) (get-buffer cand))))
+    (plist-put ivy-rich-display-transformers-list
+               'counsel-describe-function
+               '(:columns
+                 ((counsel-describe-function-transformer (:width 40))
+                  (ivy-rich-counsel-function-docstring (:width 80 :face font-lock-doc-face)))))
     (ivy-rich-mode))
 
   (defun ivy-rich-counsel-find-file-truename (candidate)
-    (let ((type (and (not (file-remote-p candidate))
+    (let ((type (and (not (file-remote-p ivy--directory))
                      (car (file-attributes
                            (directory-file-name
                             (expand-file-name candidate ivy--directory)))))))
       (if (stringp type)
-          (concat "-> " (expand-file-name type ivy--directory))
+          (concat "→ " (expand-file-name type ivy--directory))
         "")))
 
   (defun ivy-rich-counsel-variable-value (candidate)
