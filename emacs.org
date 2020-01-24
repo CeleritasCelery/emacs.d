@@ -1811,6 +1811,26 @@ add new keybindings for evil paragraph navigation
    "C-]" 'evil-forward-paragraph)
 #+END_SRC
 
+Fix moving by sexp when at the end of the line
+#+BEGIN_SRC elisp
+  (defun $forward-sexp (arg)
+    (interactive "^p")
+    (when (and (null evil-move-beyond-eol)
+               (memq (char-after) '(?\) ?\} ?\])))
+      (forward-char))
+    (forward-sexp arg))
+
+  (defun $backward-sexp (arg)
+    (interactive "^p")
+    (when (and (null evil-move-beyond-eol)
+               (memq (char-after) '(?\) ?\} ?\])))
+      (forward-char))
+    (backward-sexp arg))
+
+  (general-def 'normal "C-M-f" '$forward-sexp)
+  (general-def 'normal "C-M-b" '$backward-sexp)
+#+END_SRC
+
 Make the wrap function sane. Currently if on the closing paren of a sexp it
 wraps the last element instead of wrapping the sexp itself.
 #+BEGIN_SRC elisp
