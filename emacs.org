@@ -1040,6 +1040,11 @@ changing the volume on my mic triggers these bindings. So we ignore them.
     "<XF86AudioRaiseVolume>" 'ignore)
 #+END_SRC
 
+Accidentally hit this key a lot
+#+BEGIN_SRC elisp
+  (general-def "C-x C-z" 'ignore)
+#+END_SRC
+
 *** highlight escape sequences
 
 #+BEGIN_SRC elisp
