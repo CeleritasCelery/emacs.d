@@ -3680,6 +3680,7 @@ these are utility functions used to setting up the Emacs shell.
     (setq-local comint-prompt-regexp ($rx bol (or "╰─→"
                                                   (: symbol "(" nums ")%")
                                                   (: symbol "@" symbol ":" file "(" nums ")>")
+                                                  (: "bash-" num "." num "$")
                                                   (: symbol ">"))
                                           " "))
     (setq-local evil-search-wrap nil)
