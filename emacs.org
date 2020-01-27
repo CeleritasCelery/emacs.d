@@ -299,8 +299,6 @@ save minibuffer history between sessions.
   (use-package savehist
     :straight nil
     :defer 1
-    :custom
-    (savehist-additional-variables '(helm-ff-history))
     :config
     (savehist-mode))
 #+END_SRC
