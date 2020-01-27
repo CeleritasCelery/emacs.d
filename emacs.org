@@ -1501,20 +1501,6 @@ general leader key bindings
     "u" 'universal-argument)
 #+END_SRC
 
-Use a keymap for evil change keybinding. This allows us to bind arbitrary
-commands to open keys in =evil-change= map
-#+BEGIN_SRC elisp
-  (defvar evil-change-map
-    (let ((map (make-sparse-keymap)))
-      (define-key map "c" (general-simulate-key ('evil-change "c")))
-      map))
-
-  (general-def 'normal "c"
-    (general-key-dispatch 'evil-change
-      :inherit-keymap evil-change-map))
-  (general-def 'visual "c" 'evil-change)
-#+END_SRC
-
 *** undo-tree
 #+BEGIN_SRC elisp
   ($leader-set-key
