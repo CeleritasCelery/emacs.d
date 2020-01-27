@@ -4598,25 +4598,6 @@ itools is a conf file
   (add-to-list 'auto-mode-alist `(,(rx "itools" eos) . conf-mode))
 #+END_SRC
 
-simple mode for par.txt
-#+BEGIN_SRC elisp
-  (defvar par-mode-keywords
-    `((,($rx bol (group symbol)) 1 font-lock-keyword-face)))
-
-  (define-derived-mode par-mode fundamental-mode "par.txt"
-    "Major mode for par.txt files"
-    (setq-local font-lock-defaults '(par-mode-keywords)))
-
-  (add-to-list 'auto-mode-alist `(,(rx "par.txt" eos) . par-mode))
-#+END_SRC
-
-Use dyanmic space in par mode. Meaning that we can editing something
-and will automatically adjust the whitespace
-#+BEGIN_SRC elisp
-  (use-package dynamic-spaces
-    :hook par-mode)
-#+END_SRC
-
 Function to reload the postsim file after changing the post process
 #+BEGIN_SRC elisp
 (defun $rerun-postprocess ()
