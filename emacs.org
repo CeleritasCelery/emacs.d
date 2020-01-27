@@ -3508,6 +3508,8 @@ inherit the priority of the parent heading and make sure the default state is al
       (org-show-entry)
       (outline-show-children)))
   (advice-add 'counsel-org-goto :after '$org-show-current-heading-tidily)
+  (advice-add 'helm-org-in-buffer-headings :after '$org-show-current-heading-tidily)
+
 
   (defun $org-archive-done-tasks ()
     "move tasks that are completed to the archive file."
