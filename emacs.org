@@ -4070,34 +4070,6 @@ helm company provides a helm interface to helm completion
       "ef" 'eval-defun))
 #+END_SRC
 
-*** ielm
-ielm is an emacs lisp repl. We are going to patch the function so that
-it will split the current window instead of replacing it. See
-[[https://github.com/wasamasa/shackle/issues/33][wasamasa/shackle#33]]
-#+BEGIN_SRC elisp
-  ($leader-local-set-key
-    :keymaps 'emacs-lisp-mode-map
-    "'" 'ielm)
-
-  (add-to-list 'shackle-rules `("*ielm*" :custom ,($shacklize display-buffer-below-selected) :select t))
-
-  (el-patch-feature ielm)
-  (with-eval-after-load 'ielm
-    (el-patch-defun ielm ()
-      "Interactively evaluate Emacs Lisp expressions.
-  Switches to the buffer `*ielm*', or creates it if it does not exist.
-  See `inferior-emacs-lisp-mode' for details."
-      (interactive)
-      (let (old-point)
-        (unless (comint-check-proc "*ielm*")
-          (with-current-buffer (get-buffer-create "*ielm*")
-            (unless (zerop (buffer-size)) (setq old-point (point)))
-            (inferior-emacs-lisp-mode)))
-        (el-patch-swap (pop-to-buffer-same-window "*ielm*")
-                       (display-buffer  "*ielm*"))
-        (when old-point (push-mark old-point)))))
-#+END_SRC
-
 *** prettify symbols
 make things look a litle nicer. we have to "cycle"
 =prettify-symbols-mode= because our prog-mode hook enables it and
