@@ -1086,6 +1086,9 @@ with the display
            ("C-x j" . counsel-git)
            ("C-c s" . counsel-ag)
            ("M-x" . counsel-M-x))
+    :general
+    (:definer 'leader
+     "T" 'counsel-load-theme)
     :init
     (setq counsel-rg-base-command "rg --with-filename --no-heading --line-number --search-zip --color never %s"
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
@@ -2147,15 +2150,6 @@ use helm for outshine navigation with navi
     (:definer 'leader
      :keymaps 'emacs-lisp-mode-map
      "j" 'helm-navi))
-#+END_SRC
-
-*** themes
-switch themes using helm
-#+BEGIN_SRC elisp
-  (use-package helm-themes
-    :general
-    (:definer 'leader
-     "T" 'helm-themes))
 #+END_SRC
 
 *** ediff
