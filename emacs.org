@@ -2156,22 +2156,6 @@ avy is an awesome jump to point package.
      "s" 'avy-goto-char-timer))
 #+END_SRC
 
-**** easy motion
-a evil motion package. by default the =F,f,T,t= bindings have buffer
-scope, but that makes it too complex, so we will limit that to current
-line only
-#+BEGIN_SRC elisp
-  (use-package evil-easymotion
-    :general
-    (:states '(normal visual)
-     "f" 'evilem-motion-find-char
-     "F" 'evilem-motion-find-char-backward
-     "t" 'evilem-motion-find-char-to
-     "T" 'evilem-motion-find-char-to-backward)
-    ('normal
-     "gs" '(:keymap evilem-map :package evil-easymotion)))
-#+END_SRC
-
 *** symbols
 This pacakge highlights the symbol at point, and provides shortcuts to
 interact with it when the cursor is over it
