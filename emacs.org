@@ -4219,17 +4219,6 @@ Some useful macros for profiling and emacs code
                   (listify-key-sequence (kbd "C-g")))))
 #+END_SRC
 
-*** suggest
-the suggest packages tries to find the most optimal way to convert
-forms.
-#+BEGIN_SRC elisp
-  (use-package suggest
-    :general
-    (:definer 'leader
-     :keymaps 'emacs-lisp-mode-map
-     "s" 'suggest))
-#+END_SRC
-
 ** perl
 
 cperl-mode is considered by the better perl mode, and it certainly has
