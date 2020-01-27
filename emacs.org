@@ -2271,24 +2271,6 @@ to date tools
     (add-to-list 'tramp-remote-path "/usr/intel/bin"))
 #+END_SRC
 
-by default tramp tries to parse =/etc/ssh2/hostkeys= for the hostkey
-names but this file does not exist. This leads to an error everytime
-we try to get the hostkey names. I tried just defining the completion
-functions after tramp was loaded, something is still setting it back
-to the defaults. So I created a function to be called as part of helm
-that will set the completion functions right before tramp tries to use
-them. I would love to remove this advice and only set it once.
-#+BEGIN_SRC elisp
-  (advice-add 'helm-ff--tramp-hostnames :before
-              (defun $helm-set-tramp-host-names ()
-                "parse the ssh2_config if hostnames are not set"
-                (unless  (equal '("ssh" (tramp-parse-hosts "~/.ssh2/ssh2_config"))
-                                (assoc "ssh" tramp-completion-function-alist))
-                  (cl-loop for method in '("ssh" "scp" "rsync")
-                           do (tramp-set-completion-function
-                               method '((tramp-parse-hosts "~/.ssh2/ssh2_config")))))))
-#+END_SRC
-
 *** projects
 I used to use projectile, but I found that it was just too slow and
 invasive. I am able to replace that package with simpler function from
