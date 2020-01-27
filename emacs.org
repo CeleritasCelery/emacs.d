@@ -3370,52 +3370,6 @@ while typing.
     (add-to-list 'company-backends 'company-async-files))
 #+END_SRC
 
-*** argument completion
-provide auto completion for the command line arguments of the command
-at point.
-#+BEGIN_SRC elisp
-  (use-package company-arguments
-    :straight
-    (:host github :repo "CeleritasCelery/company-arguments"))
-#+END_SRC
-
-*** local env
-These packages will be loaded by shell-mode. They let me share the
-environment of my local process with the buffer. very useful.
-#+BEGIN_SRC elisp
-  (use-package local-env
-    :straight
-    (:host github
-     :repo "CeleritasCelery/local-env-mode"
-     :files ("local-env.el"))
-    :init
-    (setq local-env-capture-variables '("MODEL_ROOT"
-                                        "STF_SPFSPEC"
-                                        "TAP_SPFSPEC"
-                                        "TAP2STF_MAP_FILE"
-                                        "XWEAVE"
-                                        "XWEAVE_REPO_ROOT"
-                                        "SPF_ROOT"
-                                        "SPF_PERL_LIB"
-                                        "LD_LIBRARY_PATH"
-                                        "DFT_REPO_ROOT"))
-    ($leader-local-set-key
-      :keymaps 'shell-mode-map
-      "e" 'local-env-capture))
-
-  (use-package company-env
-    :straight
-    (:host github
-     :repo "CeleritasCelery/local-env-mode"
-     :files ("company-env.el")))
-
-  (use-package company-command
-    :straight
-    (:host github
-     :repo "CeleritasCelery/local-env-mode"
-     :files ("company-command.el")))
-#+END_SRC
-
 ** web
 
 *** eww
