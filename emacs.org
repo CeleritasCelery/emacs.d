@@ -2636,21 +2636,6 @@ email. automatically add the tramp header if from a different site
     "gf" '$find-file-at-point)
 #+END_SRC
 
-start a find file session from project root
-#+BEGIN_SRC elisp
-  (defun $find-file-project-root ()
-    "start a find files session from project root"
-    (interactive)
-    (require 'helm-files)
-    (if-let ((root (vc-git-root default-directory))
-             (default-directory root))
-        (counsel-find-file)
-      (user-error "no root found for current file")))
-
-  (general-def
-    "C-x C-p" '$find-file-project-root)
-#+END_SRC
-
 *** find similar file
 search up the directory stack looking for files that only differ from
 the current file by one directory. This is useful for mulitply
