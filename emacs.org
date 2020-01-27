@@ -890,7 +890,7 @@ minor modes that I commonly toggle on and off
 
 When a form is wrapped in a condtion case, it can handle its own
 errors. However if you are trying to debug an error that caught by a
-=condtion-case= it can get in the way. However if =debug-on-signal is
+=condtion-case= it can get in the way. However if =debug-on-signal= is
 set then all errors will trigger a back trace.
 #+BEGIN_SRC elisp
   (defun $toggle-debug-on-signal ()
@@ -1000,8 +1000,8 @@ want to live with it though.
     (add-to-list 'ivy-ignore-buffers (rx bos "magit-" (1+ word) (or ":" "("))))
 #+END_SRC
 
-Some faces have org-level-4 use a larger face, which really messes
-with the display
+Some faces like org-level-4 use a larger face, which really messes with the
+display
 #+BEGIN_SRC elisp
   (setq ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
                                          (org-mode . org-level-8)))
@@ -1467,6 +1467,7 @@ a text object that highlights everything with the same font lock
     (inner "v" 'evil-inner-line)
     (outer "v" 'evil-a-line))
 #+END_SRC
+
 *** EX
 Use additional evil-ex bindings
 #+BEGIN_SRC elisp
@@ -2125,6 +2126,7 @@ Return to the last point I was in a buffer
     :config
     (save-place-mode))
 #+END_SRC
+
 *** navigation
 **** move where I mean
 move me to the start of the line or start of code, based on heuristics
@@ -3102,7 +3104,7 @@ automatically refreshing when we switch to a tramp buffer.
                                    (git-gutter)))))
 #+END_SRC
 
-**** comment text object
+**** hunk text object
 a text object to get the current hunk
 #+BEGIN_SRC elisp
   (with-eval-after-load 'evil
@@ -4107,7 +4109,7 @@ never have to worry about tab indenting again.
     :hook emacs-lisp-mode)
 #+END_SRC
 
-fix indentation of plists so that all properties align. From
+fix indentation of plists so that all properties align.
 #+BEGIN_SRC elisp
   (defun $lisp-indent-function (indent-point state)
     "Override `lisp-indent-function' to properly handle plists. See the original function fo full description"
