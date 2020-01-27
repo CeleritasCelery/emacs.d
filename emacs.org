@@ -170,14 +170,6 @@ use the emacs client server so that we can send output to this emacs instance
   (add-hook 'after-init-hook 'server-start)
 #+END_SRC
 
-*** Garbage collection
-#+BEGIN_SRC elisp
-  (use-package gcmh
-    :init
-    (add-hook 'after-init-hook 'gmch-mode))
-
-#+END_SRC
-
 *** site
 set the site I will be working in
 #+BEGIN_SRC elisp
@@ -240,6 +232,15 @@ config are most heavily impacting start up time. you can't optimize
 until you have good info
 #+BEGIN_SRC elisp
   (use-package esup)
+#+END_SRC
+
+** Garbage collection
+This function will garbage collect on an idle timer to keep emacs more performant.
+#+BEGIN_SRC elisp
+  (use-package gcmh
+    :init
+    (add-hook 'after-init-hook 'gcmh-mode))
+
 #+END_SRC
 
 * Packages
