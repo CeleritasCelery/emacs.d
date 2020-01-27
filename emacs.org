@@ -1180,6 +1180,8 @@ flashing issue.
 #+BEGIN_SRC elisp
   (defvar posframe-timer nil)
 
+  (setq x-wait-for-event-timeout nil)
+
   (defun posframe-force-valid (new-buf &rest _)
     "If we are reusing an exisiting posframe, don't hide the
   previous one. this prevents blanking the frame unnecessarily."
