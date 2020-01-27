@@ -864,20 +864,7 @@ Always select the help window
   (setq help-window-select t)
 #+END_SRC
 
-we are going to add helpful to the completing read handler for
-helm. This will let us preview the variable with TAB.
-#+BEGIN_SRC elisp
-  (with-eval-after-load 'helm-mode
-    (require 'map)
-    (dolist (help-fn '(helpful-variable
-                       helpful-function
-                       helpful-macro
-                       helpful-key
-                       helpful-callable))
-      (map-put helm-completing-read-handlers-alist help-fn 'helm-completing-read-symbols)))
-#+END_SRC
-
-Also add it to the ivy handler
+Make helpful the describe variable function for ivy
 #+BEGIN_SRC elisp
   (csetq counsel-describe-variable-function 'helpful-variable
         counsel-describe-function-function 'helpful-callable)
