@@ -1523,8 +1523,6 @@ evil unimpaired binds some usefull functions to some quick keys.
     :defer 2
     :straight
     (:repo "zmaas/evil-unimpaired")
-    :init
-    (setq evil-unimpaired-leader-keys '("gk" . "gj"))
     :config
     (evil-unimpaired-mode))
 #+END_SRC
