@@ -93,7 +93,8 @@ possible.
 Don't create auto save and lock files. I am only working with 1 emacs instance.
 #+BEGIN_SRC elisp
   (setq create-lockfiles nil
-        auto-save-default nil)
+        auto-save-default nil
+        make-backup-files nil)
 #+END_SRC
 
 #+BEGIN_SRC elisp
@@ -1949,12 +1950,6 @@ general editing configuration. We only want to use tabs in specific
 major modes
 #+BEGIN_SRC elisp
   (csetq indent-tabs-mode nil)
-#+END_SRC
-
-my filesystem generates regular backups, so having Emacs create
-backups is redundant.
-#+BEGIN_SRC elisp
-  (setq make-backup-files nil)
 #+END_SRC
 
 some log files are *really* large, so don't warn about opening files
