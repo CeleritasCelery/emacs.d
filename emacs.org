@@ -4175,13 +4175,6 @@ variables. also shows interpolated parts of backquoted sexps.
       (add-to-list 'lisp-extra-font-lock-let-functions fn)))
 #+END_SRC
 
-*** quick expand
-using speed of though lisp to quicky create edit emacs-lisp
-#+BEGIN_SRC elisp
-  (use-package sotlisp
-    :hook emacs-lisp-mode)
-#+END_SRC
-
 *** macro step
 #+BEGIN_SRC elisp
   (use-package macrostep
