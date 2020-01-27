@@ -1377,30 +1377,11 @@ prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+END_SRC
 
 *** magic searching
-by default =evil-ex= uses the emacs regex engine which has some very
-weird syntax and annoying escaping. instead we want to use evil's
-=very-magic= mode which provdies something much more PCRE
-compatible. however we can't just set this directly because
-=evil-multiedit= relies on =evil-ex= to be "non-magic". Therefore we
-just create user callable wrapper around evil-ex functions. Magic mode
-only works if the search module is =evil-search=.
+Very magic mode makes evil-ex more PCRE like
 #+BEGIN_SRC elisp
   (setq evil-search-module 'evil-search
-        evil-ex-search-vim-style-regexp t)
-
-  (defmacro $make-magic (cmd)
-    "make an evil ex command magic"
-    `(defun ,(intern (concat "$magic-" (symbol-name cmd))) ()
-       (interactive)
-       (let ((evil-magic 'very-magic))
-         (call-interactively (quote ,cmd)))))
-
-  (general-def '(motion normal visual)
-    ":" ($make-magic evil-ex)
-    "/" ($make-magic evil-ex-search-forward)
-    "?" ($make-magic evil-ex-search-backward)
-    "n" ($make-magic evil-ex-search-next)
-    "N" ($make-magic evil-ex-search-previous))
+        evil-ex-search-vim-style-regexp t
+        evil-magic 'very-magic)
 #+END_SRC
 
 *** text objects
