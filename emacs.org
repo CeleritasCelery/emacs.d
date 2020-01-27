@@ -520,13 +520,7 @@ not match the resolution of my monitor results in weird text sizes.
     ("h" (vnc-resize "2400x1350") "huge")
     ("r" (vnc-resize "1600x1200") "square"))
 
-  ($leader-set-key
-    "zn"  'vnc-resize/body)
-
-  (general-def "<f5>"
-    (defun $vnc-resize-large ()
-      (interactive)
-      (vnc-resize "1920x1200")))
+  (general-def 'normal "zn" 'vnc-resize/body)
 #+END_SRC
 
 *** themes
