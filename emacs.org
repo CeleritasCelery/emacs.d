@@ -171,26 +171,10 @@ use the emacs client server so that we can send output to this emacs instance
 
 *** Garbage collection
 #+BEGIN_SRC elisp
-  (defvar $gc-timer nil)
-  (defvar $use-gc-timer t)
-  (defun $maybe-gc ()
-    (setq gc-cons-threshold 800000)
-    (setq $gc-timer (run-with-timer 5 nil #'$schedule-maybe-gc))
-    (setq gc-cons-threshold 100000000))
+  (use-package gcmh
+    :init
+    (add-hook 'after-init-hook 'gmch-mode))
 
-  (defun $schedule-maybe-gc ()
-    (if $use-gc-timer
-        (setq $gc-timer (run-with-idle-timer 3 nil #'$maybe-gc))
-      (setq gc-cons-threshold 800000
-            $gc-timer nil)))
-
-  (add-hook 'after-init-hook '$schedule-maybe-gc)
-#+END_SRC
-
-Set the max eval depth higher. Occasionally I will hit these errors and I want to see if this will fix it.
-#+BEGIN_SRC elisp
-  (setq max-lisp-eval-depth 10000)
-  (setq max-specpdl-size 10000)
 #+END_SRC
 
 *** site
