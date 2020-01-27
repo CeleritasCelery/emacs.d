@@ -553,15 +553,6 @@ that I would like, so When I get some time I will modify them. See
   (load-theme 'darktooth t)
 #+END_SRC
 
-Get face at point for inspection
-#+BEGIN_SRC elisp
-  (defun $whatis-face ()
-    "Display the face at point"
-    (interactive)
-    (message "CurrentFace: %s"
-             (get-text-property (point) 'face)))
-#+END_SRC
-
 **** colors
 These two packages provide some great tools for editing and analying
 themes visually.
