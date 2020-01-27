@@ -578,16 +578,6 @@ rainbow mode to make a minor mode that is perfect for editing themes.
                (fontify-face-mode))
       (rainbow-mode -1)
       (fontify-face-mode -1)))
-
-  ($leader-set-key
-    "zc" '(:ignore t :wk "color")
-    "zcc" '$color-mode)
-#+END_SRC
-
-use helm to look at all availible colors
-#+BEGIN_SRC elisp
-  ($leader-set-key
-    "zcs" 'helm-colors)
 #+END_SRC
 
 *** modeline
