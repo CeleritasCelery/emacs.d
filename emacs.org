@@ -773,23 +773,6 @@ quick movement hydra and keybindings
     "bs" '$open-scratch-buffer)
 #+END_SRC
 
-**** buffer expose
-show all buffers in a buffer switcher popup. usefull if you can't
-remember the name of a buffer, but know what it "looks like".
-#+BEGIN_SRC elisp
-  (use-package buffer-expose
-    :custom
-    (buffer-expose-rescale-factor 0.5)
-    :general
-    (:definer 'leader
-     "bj" 'buffer-expose)
-    (buffer-expose-grid-map
-     "h" 'buffer-expose-left-window
-     "j" 'buffer-expose-down-window
-     "k" 'buffer-expose-up-window
-     "l" 'buffer-expose-right-window))
-#+END_SRC
-
 *** window
 switch back to minibuffer when it is active.
 
