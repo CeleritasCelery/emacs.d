@@ -1770,12 +1770,7 @@ the display function to be more consistent.
                 helm-read-file-map)
      "C-l" 'helm-execute-persistent-action
      "C-h" 'helm-find-files-up-one-level)
-    ("M-y" 'helm-show-kill-ring
-     "C-x C-x" 'helm-all-mark-rings
-     "C-c C-f" 'helm-find-files)
-    (:definer 'leader
-     "fr" 'helm-recentf
-     "r"  'helm-resume)
+    ("M-y" 'helm-show-kill-ring)
     :custom
     (helm-split-window-in-side-p t)
     (helm-buffer-max-length 60)
