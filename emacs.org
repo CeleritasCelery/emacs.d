@@ -1527,21 +1527,7 @@ evil unimpaired binds some usefull functions to some quick keys.
     (evil-unimpaired-mode))
 #+END_SRC
 
-*** anzu
-provides total number of searches in the modeline
-#+BEGIN_SRC elisp
-  (use-package evil-anzu
-    :straight
-    (:fork "CeleritasCelery/emacs-evil-anzu")
-    :custom
-    (anzu-cons-mode-line-p nil)
-    :general
-    (:definer 'leader
-     "ta" 'anzu-mode))
-#+END_SRC
-
 *** escape
-
 use a quick key combo to enter normal state. We don't want to escape
 magit because I do that by accident all the time.
 #+BEGIN_SRC elisp
