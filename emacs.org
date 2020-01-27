@@ -1111,8 +1111,7 @@ a function to call counsel-rg from the current directory
 #+BEGIN_SRC elisp
   (defun $counsel-rg-here ()
     (interactive)
-    (let ((ivy-posframe-height 30))
-      (counsel-rg nil default-directory)))
+    (counsel-rg nil default-directory))
 #+END_SRC
 
 **** functions
