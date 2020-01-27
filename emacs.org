@@ -794,7 +794,10 @@ rotate the window configuration
   (use-package rotate
     :general
     (:definer 'leader
-     "bw" 'rotate-layout))
+     "bw" '$rotate-layout/rotate-layout))
+
+  (defhydra $rotate-layout (:hint nil)
+    ("w" rotate-layout))
 #+END_SRC
 
 **** winum
