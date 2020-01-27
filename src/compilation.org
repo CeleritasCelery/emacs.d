@@ -467,56 +467,6 @@ custom compilation command for running regressions
                           'simregress-mode)))
 #+END_SRC
 
-*** consume IP
-#+BEGIN_SRC emacs-lisp
-  (define-compilation-mode consume-ip-mode "consumeIP"
-    "compilation mode comsume IP")
-
-  (defun $build-consume-ip-command (ip stages)
-    (let ((workarea (concat "../ip_uprev_workarea/" (f-filename ($model-root)))))
-      (make-directory workarea t)
-      (mapconcat
-       (lambda (x)
-         (string-join
-          (list "source /p/hdk/rtl/hdk.rc -cfg shdk74 && $RTL_PROJ_DBIN/ip_packaging/consume_ip.pl"
-                "-consumer" ($git-command "config intel.cluster")
-                "-ip_file uprev.csv"
-                "-ip" (car (split-string ip ","))
-                "-workarea" workarea
-                (pcase x
-                  ("clone" "")
-                  ("uniquify" "-uniquify")
-                  ("build" "-build")
-                  ("commit" "-commit")
-                  ("release" "-release")))
-          " "))
-       stages
-       " && ")))
-
-  (defun $run-consume-ip ()
-    (interactive)
-    (let* ((model-root ($model-root))
-           (default-directory model-root)
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
-           (uprev (with-temp-buffer
-                    (insert-file-contents (expand-file-name "uprev.csv" model-root))
-                    (cl-remove-if (lambda (x)
-                                    (string-match-p (rx bos "#") x))
-                                  (split-string (buffer-string) "\n"))))
-           ips stages)
-      ;; change this to use transient instead
-      (ivy-read "Uprev IPs: " uprev :action (lambda (x &optional all) (setq ips (or all (list x)))))
-      (ivy-read "select stages: " '(clone uniquify build commit release)
-                :action (lambda (x &optional all) (setq stages (or all (list x)))))
-      (cl-loop for ip in ips
-               do ($compilation-start ($build-consume-ip-command ip stages)
-                                      'consume-ip-mode
-                                      (lambda (mode)
-                                        (format "*%s consume ip %s*"
-                                                (f-filename model-root)
-                                                (car (split-string ip ","))))))))
-#+END_SRC
-
 *** turnin
 run a turnin command
 #+BEGIN_SRC emacs-lisp
