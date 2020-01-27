@@ -1807,124 +1807,6 @@ some hacks to make helm more evil compatible See
   (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
 #+END_SRC
 
-*** files
-ignore lockfiles and backups when looking through the filesystem
-#+BEGIN_SRC elisp
-  (csetq helm-boring-file-regexp-list
-         (list "~" "#" (rx ".#" (1+ nonl))))
-  (csetq helm-ff-skip-boring-files t)
-#+END_SRC
-
-Create a key dispatcher for commonly used commands
-#+BEGIN_SRC elisp
-  (with-eval-after-load 'helm
-    (general-def '(helm-find-files-map
-                   helm-read-file-map
-                   helm-generic-files-map)
-      :prefix ";"
-      "b" 'helm-find-files-toggle-to-bookmark
-      "c" 'helm-ff-run-copy-file
-      "'" '$helm-ff-switch-to-shell
-      "s" '$helm-ag-from-session
-      "m" '$meld-from-helm-session
-      "g" '$magit-from-helm-session
-      "d" 'helm-ff-run-delete-file))
-#+END_SRC
-
-get helm history when writing a file
-[[https://github.com/emacs-helm/helm/issues/2088#issuecomment-421999031][emacs-helm/helm#2088]]
-#+BEGIN_SRC elisp
-  (with-eval-after-load 'helm-mode
-    (add-to-list 'helm-completing-read-handlers-alist '(write-file . helm-read-file-name-handler-1)))
-#+END_SRC
-
-*** dispatcher
-these are functions that I often want to run, but normally have to
-exit helm to call their keybindings. So we create wrapper thats lets
-us call them from helm.
-#+BEGIN_SRC elisp
-  (defun $helm-ag-from-session ()
-    "Launch `helm-ag' from within a helm session"
-    (interactive)
-    (with-helm-alive-p
-      (helm-run-after-exit
-       'helm-do-ag
-       helm-ff-default-directory
-       (let ((cand (helm-marked-candidates)))
-         ;; if we have not marked anything we want to search the current directory
-         (unless (equal (list (helm-get-selection))
-                        cand)
-           cand)))))
-
-  (defun $magit-from-helm-session ()
-    "run magit from a helm session"
-    (interactive)
-    (with-helm-alive-p
-      (helm-run-after-exit
-       '$magit-status-in-dir
-       helm-ff-default-directory)))
-
-  (defun $meld-from-helm-session ()
-    "run meld from a helm session"
-    (interactive)
-    (with-helm-alive-p
-      (helm-run-after-exit
-       (lambda (paths)
-         (async-start-process "Helm Meld" "meld" nil
-                              (nth 0 paths)
-                              (nth 1 paths)))
-       (helm-marked-candidates))))
-
-  (defun $helm-ff-switch-to-shell ()
-    "Run switch to shell action from `helm-source-find-files'."
-    (interactive)
-    (with-helm-alive-p
-      (helm-run-after-exit
-       '$shell-pop
-       helm-current-prefix-arg
-       helm-current-buffer
-       helm-ff-default-directory)))
-
-  (defun $helm-copy-to-kill-ring ()
-    "Copy selection or marked candidates to the kill ring.
-  Note that the real values of candidates are copied and not the
-  display values.
-  If a file name, copy the full path unless C-u prefix is given."
-    (interactive)
-    (with-helm-alive-p
-      (helm-run-after-exit
-       (lambda (cands)
-         (with-helm-current-buffer
-           (kill-new (mapconcat
-                      (lambda (c)
-                        (format "%s" (if (and (null helm-current-prefix-arg)
-                                              (stringp c)
-                                              (not (file-remote-p c))
-                                              (file-exists-p c))
-                                         (file-truename c)
-                                       c)))
-                      cands "\n"))))
-       (helm-marked-candidates))))
-#+END_SRC
-
-more convient keybindings for dispatcher functions as well as some
-helm builtins
-#+BEGIN_SRC elisp
-  (with-eval-after-load 'helm
-    (general-def helm-map
-      "C-c y" '$helm-copy-to-kill-ring)
-    (general-def '(helm-find-files-map helm-read-file-map helm-generic-files-map)
-      "C-r"   'helm-find-files-history
-      "C-c b" 'helm-find-files-toggle-to-bookmark
-      "C-c c" 'helm-ff-run-copy-file
-      "C-c '" '$helm-ff-switch-to-shell
-      "C-c s" '$helm-ag-from-session
-      "C-c C-s" '$helm-ag-from-session
-      "C-c m" '$meld-from-helm-session
-      "C-c g" '$magit-from-helm-session
-      "C-c C-g" '$magit-from-helm-session))
-#+END_SRC
-
 *** swoop
 #+BEGIN_SRC elisp
   (use-package helm-swoop
@@ -1937,23 +1819,6 @@ helm builtins
     (general-def helm-swoop-edit-map
       "C-c C-c" 'helm-swoop--edit-complete
       "C-c C-k" 'helm-swoop--edit-cancel))
-
-  (defun $helm-swoop (arg)
-    "If called with a prefix argument, search for the symbol or
-  region at point. If called with a numeric prefix argument, enable
-  multiline searches"
-    (interactive "P")
-    (require 'helm-swoop)
-    (let* ((prefix (equal arg '(4)))
-           (helm-swoop-pre-input-function
-            (if prefix
-                (lambda ()
-                  (if (region-active-p)
-                      (buffer-substring (region-beginning)
-                                        (region-end))
-                    (or (thing-at-point 'symbol t) "")))
-              (lambda () ""))))
-      (helm-swoop :$multiline (unless prefix arg))))
 #+END_SRC
 
 *** ag
@@ -1963,34 +1828,7 @@ regex
 #+BEGIN_SRC elisp
   (use-package helm-ag
     :custom
-    (helm-ag-base-command "ag --nocolor --nogroup --search-zip")
-    ($leader-set-key
-      "sf" 'helm-do-ag
-      "sF" '$helm-do-ag-region-or-symbol)
-    (general-def
-      "C-c s" '$helm-do-ag-current-dir
-      "C-c C-s" '$helm-do-ag-current-dir))
-
-  (defun $helm-do-ag-current-dir (arg)
-    "search in the current directory with Ag"
-    (interactive "P")
-    (funcall (if arg '$helm-do-ag-region-or-symbol 'helm-do-ag) default-directory))
-
-  (defun $helm-do-ag-region-or-symbol (&optional dir)
-    "Search with `ag' with a default input."
-    (interactive)
-    (require 'helm-ag)
-    (cl-letf* (((symbol-value 'helm-ag-insert-at-point) 'symbol)
-               ;; make thing-at-point choosing the active region first
-               ((symbol-function 'this-fn) (symbol-function 'thing-at-point))
-               ((symbol-function 'thing-at-point)
-                (lambda (thing)
-                  (let ((res (if (region-active-p)
-                                 (buffer-substring-no-properties
-                                  (region-beginning) (region-end))
-                               (this-fn thing))))
-                    (when res (rxt-quote-pcre res))))))
-      (helm-do-ag dir)))
+    (helm-ag-base-command "ag --nocolor --nogroup --search-zip"))
 #+END_SRC
 
 *** git
