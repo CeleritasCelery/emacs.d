@@ -4534,49 +4534,6 @@ locked
                             `((,(rx (group "//" (0+ nonl)) eol) 1 font-lock-comment-face))))
 #+END_SRC
 
-we are using the design_report.json as reference for our json coding
-standard. This varies from the standard json Emacs json pretty printer in
-the following ways:
-- add a space before plist seperators
-- use empty objects ={}= instead of =null=. null causes the json
-  reader to choke
-- indentation level is 4
-
-#+BEGIN_SRC elisp
-  (setq json-encoding-default-indentation "    ")
-
-  (advice-add 'json-pretty-print :after
-              (defun $json-convert-null-to-emtpy-obj (beg end)
-                (save-excursion
-                  (goto-char beg)
-                  (while (re-search-forward (rx ": null") end 'noerror)
-                    (replace-match ": {}")))))
-
-  (el-patch-defun json-encode-alist (alist)
-    "Return a JSON representation of ALIST."
-    (when json-encoding-object-sort-predicate
-      (setq alist
-            (sort alist (lambda (a b)
-                          (funcall json-encoding-object-sort-predicate
-                                   (car a) (car b))))))
-    (format "{%s%s}"
-            (json-join
-             (json--with-indentation
-              (mapcar (lambda (cons)
-                        (format (if json-encoding-pretty-print
-                                    (el-patch-swap "%s%s: %s" "%s%s : %s")
-                                  "%s%s:%s")
-                                json--encoding-current-indentation
-                                (json-encode-key (car cons))
-                                (json-encode (cdr cons))))
-                      alist))
-             json-encoding-separator)
-            (if (or (not json-encoding-pretty-print)
-                    json-encoding-lisp-style-closings)
-                ""
-              json--encoding-current-indentation)))
-#+END_SRC
-
 ** makefile
 #+BEGIN_SRC elisp
   (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
