@@ -3975,6 +3975,32 @@ advantage of unicode
     :hook org-mode)
 #+END_SRC
 
+Some additional functionality to make list and src blocks nicer
+#+BEGIN_SRC emacs-lisp
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region
+                                           (match-beginning 1)
+                                           (match-end 1)
+                                           "•"))))))
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([+]\\) "
+                             (0 (prog1 () (compose-region
+                                           (match-beginning 1)
+                                           (match-end 1)
+                                           "◦"))))))
+
+  (defun $prettify-src-block ()
+    "Remove delimeter text from org src blocks"
+    (add-to-list 'prettify-symbols-alist '("#+BEGIN_SRC" . "†"))
+    (add-to-list 'prettify-symbols-alist '("#+END_SRC" . "†"))
+    (add-to-list 'prettify-symbols-alist '("#+begin_src" . "†"))
+    (add-to-list 'prettify-symbols-alist '("#+end_src" . "†"))
+    (prettify-symbols-mode 1))
+
+  (add-hook 'org-mode-hook '$prettify-src-block)
+#+END_SRC
+
 * Languages
 :PROPERTIES:
 :VISIBILITY: children
