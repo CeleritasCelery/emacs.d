@@ -697,6 +697,8 @@ finished or running, and easily jump to the associated buffer.
               (push (cons buffer (replace-regexp-in-string "\n" "" msg))
                     $compilation-finished-buffers)))
 
+  (defvar $compilation-stalled-buffers nil)
+
   ;; Helper function for $compilation-buffer-candidates
   (defun $compilation-proc-stalled (proc)
     (memq (process-buffer proc) $compilation-stalled-buffers))
