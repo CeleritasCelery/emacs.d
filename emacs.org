@@ -3453,7 +3453,7 @@ stalls.
     (org-enforce-todo-dependencies t)
     (org-hide-emphasis-markers t)
     (org-startup-indented t)
-    (org-todo-keywords '((sequence "NEXT(n)" "TODO(t)" "WAIT(w@)" "PENDING(p)" "|" "DONE(d)")
+    (org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "WAIT(w@)" "PENDING(p)" "|" "DONE(d)")
                          (sequence "|" "CANCELED(c@)")))
     (org-priority-faces '((?A . (:foreground "OrangeRed"))
                           (?B . (:foreground "yellow3"))
