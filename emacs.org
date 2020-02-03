@@ -3440,7 +3440,7 @@ stalls.
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :straight (:type built-in)
-    :gfhook #'org-indent-mode #'$org-truncate-lines #'toggle-word-wrap
+    :gfhook #'$org-truncate-lines #'toggle-word-wrap
     :general
     (:definer 'leader
      :keymaps 'org-mode-map
