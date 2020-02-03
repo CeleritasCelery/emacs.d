@@ -3137,6 +3137,7 @@ previous command it will automatically move us the the command line.
      "C-j" 'comint-next-matching-input-from-input
      "C-S-k" 'comint-previous-prompt
      "C-S-j" 'comint-next-prompt
+     "C-<return>" '$copy-path
      [remap comint-dynamic-list-input-ring] 'counsel-shell-history)
     :custom
     (comint-input-ring-size 1000)
@@ -3148,6 +3149,13 @@ previous command it will automatically move us the the command line.
 
   (general-advice-add '(comint-next-matching-input-from-input
                         comint-previous-matching-input-from-input) :before '$goto-cmd-line)
+
+  (defun $copy-path ()
+    "copy path at point to prompt"
+    (interactive)
+    (let ((path ($get-path-at-point)))
+      (goto-char (point-max))
+      (insert path)))
 #+END_SRC
 
 *** shell
