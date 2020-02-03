@@ -87,7 +87,6 @@ possible.
 #+BEGIN_SRC elisp
   (setq inhibit-startup-screen t)
   (toggle-frame-fullscreen)
-  (add-hook 'focus-in-hook 'redraw-display)
 #+END_SRC
 
 Don't create auto save and lock files. I am only working with 1 emacs instance.
