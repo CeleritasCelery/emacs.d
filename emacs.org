@@ -483,19 +483,22 @@ compose symbols (ligatures) no matter where they are. also unformat at
 point so we can easily see the representation
 #+BEGIN_SRC emacs-lisp
   (csetq prettify-symbols-unprettify-at-point t
-         prettify-symbols-compose-predicate
-         (defun $prettify-symbols-all-p (start end match)
-           (not (or (eq (char-before start) (char-after start))
-                    (eq (char-before end) (char-after end))
-                    (and (member match '("//" "/*" "*/"))
-                         (not (nth 4 (syntax-ppss)))) ;; inside comment
-                    (and (equal match "..")
-                         (or (eq (char-before start) ?/)
-                             (eq (char-after end) ?/)))
-                    (and (equal match "=~")
-                         (eq (char-after end) ?/))
-                    (and (equal match ">=")
-                         (eq (char-after end) ?<))))))
+         prettify-symbols-compose-predicate '$prettify-symbols-all-p)
+
+  (defun $prettify-symbols-all-p (start end match)
+    (not (or (eq (char-before start) (char-after start))
+             (eq (char-before end) (char-after end))
+             (and (member match '("//" "/*"))
+                  (not (nth 4 (syntax-ppss)))) ;; inside comment
+             (and (equal match "*/")
+                  (not (nth 4 (syntax-ppss (1- (point)))))) ;; inside comment
+             (and (equal match "..")
+                  (or (eq (char-before start) ?/)
+                      (eq (char-after end) ?/)))
+             (and (equal match "=~")
+                  (eq (char-after end) ?/))
+             (and (equal match ">=")
+                  (eq (char-after end) ?<)))))
 #+END_SRC
 
 Fix a little issue where closing html tags are not highlighted
