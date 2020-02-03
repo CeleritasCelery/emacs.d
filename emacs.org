@@ -3289,6 +3289,11 @@ only send a cd command if we are not already in that directory
                 (file-equal-p default-directory cwd)))
 #+END_SRC
 
+Always start in insert state
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'shell-pop-in-after-hook 'evil-insert-state)
+#+END_SRC
+
 my current bash prompt is 2 lines, so we always scroll one line down
 so that I can see the whole thing. probably need to make this code
 smarter
