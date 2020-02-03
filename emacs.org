@@ -1507,10 +1507,11 @@ general leader key bindings
     "C-r" 'undo-tree-redo)
 #+END_SRC
 
-Disable warnings about reverting large buffers
+Disable warnings about reverting large buffers and redefinition
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'warnings
     (add-to-list 'warning-suppress-types '(undo discard-info)))
+  (setq ad-redefinition-action 'accept)
 #+END_SRC
 
 *** unimpaired
