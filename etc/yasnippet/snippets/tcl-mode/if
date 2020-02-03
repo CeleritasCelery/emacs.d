@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: if
+# key: if
+# group: definitions
+# --
+if {$1} {
+    $0
+}

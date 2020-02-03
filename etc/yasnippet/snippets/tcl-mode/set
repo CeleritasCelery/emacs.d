@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: set
+# key: s
+# group: definitions
+# --
+set ${1:var} [$0]
