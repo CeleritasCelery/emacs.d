@@ -239,7 +239,23 @@ This function will garbage collect on an idle timer to keep emacs more performan
   (use-package gcmh
     :init
     (add-hook 'after-init-hook 'gcmh-mode))
+#+END_SRC
 
+** Windows
+Always select new popup windows
+#+BEGIN_SRC emacs-lisp
+  (defun $default-display-function (buffer alist)
+    "Display the window and select it"
+    (cl-loop for fn in (car display-buffer-fallback-action)
+             if (funcall fn buffer alist)
+             return (select-window (get-buffer-window buffer))))
+
+  (defun $select-popup-window-p (buffer _action)
+    (provided-mode-derived-p
+     (buffer-local-value 'major-mode (get-buffer buffer))
+     'compilation-mode 'flycheck-error-list-mode))
+
+  (add-to-list 'display-buffer-alist '($select-popup-window-p $default-display-function))
 #+END_SRC
 
 * Packages
@@ -668,22 +684,6 @@ pretty well, but I have a couple of things I would like to change.
       (progn
         (window-configuration-to-register ?_)
         (delete-other-windows))))
-#+END_SRC
-
-*** shackle
-this is a window managment package that is very minimalistic. I am
-going to use it until I find a case where it won't work, then I might
-try a more powerful package like popwin.
-#+BEGIN_SRC elisp
-  (use-package shackle
-    :demand t
-    :config
-    (shackle-mode))
-
-  (defmacro $shacklize (fn)
-    "change the function signature of display-buffer functions to
-  account for shackle calling convetion"
-    `(lambda (buf alist _plist) (,fn buf alist)))
 #+END_SRC
 
 *** buffers
@@ -3295,7 +3295,7 @@ smarter
 
 fix [[https://github.com/kyagi/shell-pop-el/issues/51][kyagi/shell-pop-el#51]]
 #+BEGIN_SRC elisp
-  (add-to-list 'shackle-rules `(,(rx "*shell*") :regexp t :same t))
+  (push (cons "\\*shell" display-buffer--same-window-action) display-buffer-alist)
 #+END_SRC
 
 This advice endeavors to fix two problems.
@@ -3982,9 +3982,7 @@ make scripts executable on save
       "tf" 'flycheck-mode)
     :general
     (:keymaps 'flycheck-error-list-mode-map
-     "q" 'quit-window)
-    :config
-    (add-to-list 'shackle-rules '(flycheck-error-list-mode :select t)))
+     "q" 'quit-window))
 
   (defhydra $flycheck (:exit nil)
     "navigate by flycheck errors"
