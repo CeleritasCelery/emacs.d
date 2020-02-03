@@ -13,7 +13,7 @@ use lexical bindings in the file make this file lexically bound
 ** compile
 #+BEGIN_SRC emacs-lisp
   (defun $compile (arg)
-    "compile with hdk enviroment sourced"
+    "Compile with model root set"
     (interactive "P")
     (let* ((model-root (or ($model-root) "no-model"))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
@@ -27,7 +27,7 @@ use lexical bindings in the file make this file lexically bound
                        until (or (null buf)
                                  (not (get-buffer-process buf)))
                        finally return buf-name))))
-      (compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " (read-string "Compile Command: " nil 'compile-history))
+      (compilation-start (read-string "Compile Command: " nil 'compile-history)
                          (when arg
                            (intern-soft (read-string "set mode: "))))))
 #+END_SRC
@@ -414,9 +414,7 @@ define a custom compliation mode that is run based on the hydra above
            (cmd (if (equal "bman" (car (split-string filter)))
                     filter
                   (concat "bman" ($get-model-arguments) filter))))
-      ($compilation-start (concat "source /p/hdk/rtl/hdk.rc -cfg shdk74 && " cmd)
-                          'bman-mode
-                          name-fn)))
+      ($compilation-start cmd 'bman-mode name-fn)))
 
   (defun bman-run-clean-maybe (_proc)
     "Run bman clean unless we are running specific stages"
@@ -462,7 +460,7 @@ custom compilation command for running regressions
               (format "*%s simregress %s*"
                       (f-filename model-root)
                       (f-filename test-list)))))
-      ($compilation-start (format "source /p/hdk/rtl/hdk.rc -cfg shdk74 && simregress -net %s -l %s -C 'SLES11SP4&&20G' -save %s"
+      ($compilation-start (format "simregress -net %s -l %s -C 'SLES11SP4&&20G' -save %s"
                                   ($get-model-arguments) test-list fsdb)
                           'simregress-mode)))
 #+END_SRC
@@ -513,7 +511,7 @@ a custom compilation command for running a turnin
                       (downcase mm)))))
       ($compilation-start (string-join
                            (delq nil
-                                 (list "source /p/hdk/rtl/hdk.rc -cfg shdk74 && turnin -c"
+                                 (list "turnin -c"
                                        ($git-command "config intel.cluster")
                                        "-s"
                                        ($git-command "config intel.stepping")
