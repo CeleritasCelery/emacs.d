@@ -1530,7 +1530,7 @@ evil unimpaired binds some usefull functions to some quick keys.
   (use-package evil-unimpaired
     :defer 2
     :straight
-    (:repo "zmaas/evil-unimpaired")
+    (:host github :repo "zmaas/evil-unimpaired")
     :init
     (setq evil-unimpaired-leader-keys '("gk" . "gj"))
     :config
