@@ -72,6 +72,12 @@ the variable's :set property.
       `(progn ,@(nreverse forms))))
 #+END_SRC
 
+Some settings need to be changed based on what user there is.
+#+BEGIN_SRC emacs-lisp
+  (defun $dev-config-p ()
+    (equal user-login-name "tjhinckl"))
+#+END_SRC
+
 *** Settings
 
 #+BEGIN_SRC emacs-lisp
@@ -86,7 +92,8 @@ don't use menu or scroll bars. We want the UI to be as clean as
 possible.
 #+BEGIN_SRC emacs-lisp
   (setq inhibit-startup-screen t)
-  (toggle-frame-fullscreen)
+  (when ($dev-config-p)
+    (toggle-frame-fullscreen))
 #+END_SRC
 
 Don't create auto save and lock files. I am only working with 1 emacs instance.
@@ -180,7 +187,8 @@ We are going to use =straight.el= as package manager because it allows
 us to easily maintain private repos of packages.
 The intel proxy does not work with HTTPS so we need to use the http repo
 #+BEGIN_SRC emacs-lisp
-  (setq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git")
+  (when ($dev-config-p)
+    (setq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git"))
 #+END_SRC
 
 This is still slower then using package.el, but I think it is worth
@@ -1095,10 +1103,12 @@ display
     (setf (alist-get 'counsel-M-x ivy-initial-inputs-alist) nil))
 
   (defun $normalize-git-version (symbol)
-    (set symbol (replace-regexp-in-string
-                 (rx symbol-start "git ")
-                 "/usr/intel/bin/git "
-                 (symbol-value symbol))))
+    (when ($dev-config-p)
+      (set symbol
+           (replace-regexp-in-string
+            (rx symbol-start "git ")
+            "/usr/intel/bin/git "
+            (symbol-value symbol)))))
 #+END_SRC
 
 a function to call counsel-rg from the current directory
@@ -2883,16 +2893,16 @@ get weird errors in magit.
      "C-c M-g" 'magit-file-dispatch)
     (magit-diff-mode-map
      "SPC" nil)
-    :custom
-    (magit-git-executable "/usr/intel/pkgs/git/2.12.0/bin/git")
     :init
+    (when ($dev-config-p)
+      (setq magit-git-executable "/usr/intel/bin/git"))
     ($leader-set-key
       "g" '(:ignore t :wk "git"))
     (evil-ex-define-cmd "git" 'magit-status)
     ;; make transient not take the width of the whole frame
     (setq transient-display-buffer-action
           '(display-buffer-below-selected))
-:config
+    :config
     (add-hook 'dired-mode-hook 'magit-file-mode))
 #+END_SRC
 
@@ -3118,7 +3128,7 @@ a text object to get the current hunk
 ** shell
 
 #+BEGIN_SRC emacs-lisp
-  (csetq shell-file-name "/usr/intel/bin/bash")
+  (csetq shell-file-name "bash")
 #+END_SRC
 
 *** comint
@@ -4485,14 +4495,15 @@ automatically detect it.
 
 *** completion
 #+BEGIN_SRC emacs-lisp
-  (use-package company-syntcl
-    :straight
-    (:repo "https://gitlab.devtools.intel.com/emacs-users/company-syntcl.git"
-     :files ("company-syntcl.el"))
-    :custom
-    (company-syntcl-dir "~/temp/TclComplete")
-    :config
-    (defun company-syntcl--annotation (_) nil))
+  (when ($dev-config-p)
+    (use-package company-syntcl
+      :straight
+      (:repo "https://gitlab.devtools.intel.com/emacs-users/company-syntcl.git"
+       :files ("company-syntcl.el"))
+      :custom
+      (company-syntcl-dir "~/temp/TclComplete")
+      :config
+      (defun company-syntcl--annotation (_) nil)))
 #+END_SRC
 
 ** ICL
