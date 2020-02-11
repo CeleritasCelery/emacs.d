@@ -3725,6 +3725,12 @@ of our theme.
   (setq org-html-htmlize-output-type 'css)
 #+END_SRC
 
+Treat =verbatim= markup as ~kbd~ tags in html.
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'ox-html
+    (setf (alist-get 'verbatim org-html-text-markup-alist)  "<kbd>%s</kbd>"))
+#+END_SRC
+
 create a custom HTML preamble that includes our default CSS to make
 things more clean and modern. load it after the export libraries are
 loaded so it does not effect startup time.
