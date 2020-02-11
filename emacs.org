@@ -1133,7 +1133,6 @@ Use fd instead of find to search faster
                 :preselect (counsel--preselect-file)
                 :require-match 'confirm-after-completion
                 :history 'file-name-history
-                :keymap counsel-find-file-map
                 :caller 'counsel-file-jump)))
 #+END_SRC
 
