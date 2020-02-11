@@ -858,7 +858,7 @@ functions. only tweak we need to make is let the window close with q
     :general ("C-h k" 'helpful-key)
     :init
     (setq find-function-C-source-directory
-          (expand-file-name "~/custom/emacs-mirror/src/")))
+          (expand-file-name "~/custom/emacs-git/src")))
 #+END_SRC
 
 Always select the help window
