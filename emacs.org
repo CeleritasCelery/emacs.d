@@ -1226,7 +1226,7 @@ flashing issue.
                'counsel-find-file
                '(:columns
                  ((ivy-read-file-transformer)
-                  (ivy-rich-counsel-find-file-truename (:face font-lock-doc-face)))))
+                  ($ivy-rich-counsel-find-file-truename (:face font-lock-doc-face)))))
     (plist-put ivy-rich-display-transformers-list
                'counsel-describe-variable
                '(:columns
@@ -1249,7 +1249,7 @@ flashing issue.
                   (ivy-rich-counsel-function-docstring (:width 80 :face font-lock-doc-face)))))
     (ivy-rich-mode))
 
-  (defun ivy-rich-counsel-find-file-truename (candidate)
+  (defun $ivy-rich-counsel-find-file-truename (candidate)
     (let ((type (and (not (file-remote-p ivy--directory))
                      (car (file-attributes
                            (directory-file-name
