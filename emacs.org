@@ -2111,6 +2111,13 @@ with their ascii equivalents.
     "H-i" #'insert-current-file-name-at-point)
 #+END_SRC
 
+Get the next input matching element
+#+BEGIN_SRC emacs-lisp
+  (general-def '(evil-ex-completion-map minibuffer-local-map)
+    "C-n" 'next-complete-history-element
+    "C-p" 'previous-complete-history-element)
+#+END_SRC
+
 *** narrowing
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
