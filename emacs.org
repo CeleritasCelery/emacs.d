@@ -971,13 +971,10 @@ want to live with it though.
   (use-package ivy
     :general
     (ivy-minibuffer-map
-     "C-j" 'ivy-next-line
-     "C-k" 'ivy-previous-line
      "C-h" "DEL"
      "C-w" 'ivy-backward-kill-word
      "C-S-H" help-map
      "C-l" 'ivy-alt-done
-     "TAB" 'ivy-alt-done
      "<C-return>" 'ivy-immediate-done
      [mouse-1] 'ignore
      [mouse-2] 'ignore
@@ -1774,8 +1771,6 @@ the display function to be more consistent.
     :commands helm-find-files-1
     :general
     (:keymaps 'helm-map
-     "C-j" 'helm-next-line
-     "C-k" 'helm-previous-line
      "C-h" 'helm-next-source
      "C-S-h" 'helm-help
      "C-c C-h" 'describe-key
@@ -2089,12 +2084,6 @@ with their ascii equivalents.
 #+END_SRC
 
 *** minibuffer
-Use our next and previous commands to navigate minibuffer history
-#+BEGIN_SRC emacs-lisp
-  (general-def '(evil-ex-completion-map minibuffer-local-map)
-    "C-j" 'next-complete-history-element
-    "C-k" 'previous-complete-history-element)
-#+END_SRC
 
 #+BEGIN_SRC emacs-lisp
   (defun insert-current-file-name-at-point (&optional full-path)
@@ -3166,13 +3155,12 @@ previous command it will automatically move us the the command line.
     :straight nil
     :general
     (:keymaps 'comint-mode-map
-     :states '(normal insert visual)
-     "C-k" 'comint-previous-matching-input-from-input
-     "C-j" 'comint-next-matching-input-from-input
-     "C-S-k" 'comint-previous-prompt
-     "C-S-j" 'comint-next-prompt
-     "C-<return>" '$copy-path
-     [remap comint-dynamic-list-input-ring] 'counsel-shell-history)
+     [remap comit-previous-input] 'comint-previous-matching-input-from-input
+     [remap comint-next-input] 'comint-next-matching-input-from-input
+     [remap comint-dynamic-list-input-ring] 'counsel-shell-history
+     "C-S-p" 'comint-previous-prompt
+     "C-S-n" 'comint-next-prompt
+     "C-<return>" '$copy-path)
     :custom
     (comint-input-ring-size 1000)
     (comint-scroll-to-bottom-on-input t)
