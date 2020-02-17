@@ -81,7 +81,7 @@ Some settings need to be changed based on what user there is.
 *** Settings
 
 #+BEGIN_SRC emacs-lisp
-  (defvar $leader-key ";"
+  (defvar $leader-key "SPC"
     "leader key used to quicky access commands.")
 
   (defvar $mm-leader-key ","
