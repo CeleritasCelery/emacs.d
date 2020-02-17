@@ -377,7 +377,8 @@ highlight the current line with a background face
 Setup the font that I want to use. Symbola is a backup font that has
 many unicode symbols
 #+BEGIN_SRC emacs-lisp
-  (set-face-attribute 'default nil :family "Source Code Pro" :height 120)
+  (defvar $font-height (if ($dev-config-p) 120 90))
+  (set-face-attribute 'default nil :family "Source Code Pro" :height $font-height)
   (set-fontset-font t nil "Symbola" nil 'append)
 #+END_SRC
 
@@ -3918,10 +3919,10 @@ Use a proportional font for org mode because it is more readable
   (use-package org-variable-pitch
     :hook (org-mode . org-variable-pitch-minor-mode)
     :init
-    (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height 130)
+    (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height (+ 10 $font-height))
     (setq org-variable-pitch-fixed-font "Source Code Pro")
     :config
-    (set-face-attribute 'org-variable-pitch-face nil :height 120))
+    (set-face-attribute 'org-variable-pitch-face nil :height $font-height))
 #+END_SRC
 
 ** src blocks
