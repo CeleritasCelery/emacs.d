@@ -179,7 +179,11 @@ use the emacs client server so that we can send output to this emacs instance
 *** site
 set the site I will be working in
 #+BEGIN_SRC emacs-lisp
-  (load-file (expand-file-name "site/site.el" user-emacs-directory))
+  (defun $user-credentials ()
+    (list (format "\"%s\"" user-full-name) user-mail-address))
+
+  (when ($dev-config-p)
+    (load-file (expand-file-name "site/site.el" user-emacs-directory)))
 #+END_SRC
 
 ** Package Manager
@@ -207,6 +211,12 @@ run it.
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+Currently recipe inheritance is only available on develop. Need to remove this
+at some point.
+#+BEGIN_SRC emacs-lisp
+  (setq straight-repository-branch "develop")
 #+END_SRC
 
 ** use package
