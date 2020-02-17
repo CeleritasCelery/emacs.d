@@ -136,6 +136,11 @@ turn it off.
   (setq auto-window-vscroll nil)
 #+END_SRC
 
+Don't ring the bell, ... Ever.
+#+BEGIN_SRC emacs-lisp
+  (setq ring-bell-function 'ignore)
+#+END_SRC
+
 *** tangling
 we want to tangle on exit so that it will make startup time quicker.
 #+BEGIN_SRC emacs-lisp
