@@ -2984,7 +2984,7 @@ I don't like to commit to my github repos using my work credentials, but I can't
 use my private credentials on my work repos. therefore I set ~useconfigonly =
 true~ so that I have to set the credentials for every repo. This hook will
 automatically set my credentials based on where the repo is located.
-#+BEGIN_SRC elisp
+#+BEGIN_SRC emacs-lisp
   (defun $git-set-user ()
     "set the git user based on where the repo is located."
     (when (and (equal "tjhinckl" (nth 2 (file-attributes (vc-git-root default-directory) 'string)))
