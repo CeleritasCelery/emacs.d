@@ -990,6 +990,7 @@ want to live with it though.
      "SPC" nil)
     (minibuffer-local-map
      "C-c C-l" 'counsel-minibuffer-history)
+    ("C-x C-b" 'ivy-switch-buffer)
     :init
     (setq ivy-height 15
           ivy-use-virtual-buffers t
@@ -2324,7 +2325,7 @@ counsel and git as well as the specialized functions below.
     (ivy-add-actions '$project-buffers
                      '(("k" ivy--kill-buffer-action "kill"))))
 
-  (general-def "C-x C-b" '$project-buffers)
+  ($leader-set-key "bb" '$project-buffers)
 #+END_SRC
 
 **** bookmarks
