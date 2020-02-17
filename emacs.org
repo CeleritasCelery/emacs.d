@@ -4424,19 +4424,12 @@ we have some nonstandard extensions for SV
     :general
     (:definer 'leader
      :keymaps 'verilog-mode-map
-     "j" 'counsel-semantic-or-imenu))
-
-  (defun $verilog-imenu-populated ()
-    (setq-local imenu-generic-expression
-                `(("instances" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
-                                                (: symbol))
-                                     spc (group symbol "_" symbol) eol) 1)
-                  ("modules" ,($rx ^ "module " (group symbol) " (") 1)
-                  ("functions" ,($rx ^ spc* "function" spc+ (opt (or "automatic" "static") spc+)
-                                     (1+ symbol) spc+ (group symbol)) 1)
-                  ("packages" ,($rx ^ spc* "package" spc+ (group symbol)) 1))))
-
-  (add-hook 'verilog-mode-hook '$verilog-imenu-populated)
+     "j" 'counsel-semantic-or-imenu)
+    :config
+    (add-to-list 'verilog-imenu-generic-expression
+                 `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
+                                                  (: symbol "_" symbol))
+                                       spc+ (group symbol) (or eol (: spc+ "("))) 1)))
 #+END_SRC
 
 *** display
