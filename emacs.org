@@ -198,8 +198,11 @@ The intel proxy does not work with HTTPS so we need to use the http repo
 This is still slower then using package.el, but I think it is worth
 it. below is the bootstrap code to download the package manager and
 run it.
+Currently recipe inheritance is only available on develop. Need to remove this
+at some point.
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
+  (setq straight-repository-branch "develop")
   (defvar bootstrap-version 5)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
@@ -211,12 +214,6 @@ run it.
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
-#+END_SRC
-
-Currently recipe inheritance is only available on develop. Need to remove this
-at some point.
-#+BEGIN_SRC emacs-lisp
-  (setq straight-repository-branch "develop")
 #+END_SRC
 
 ** use package
