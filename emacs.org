@@ -4126,7 +4126,7 @@ helm company provides a helm interface to helm completion
     :init
     :general
     (:keymaps '(company-mode-map company-active-map)
-     "C-/" 'helm-company))
+     "C-," 'helm-company))
 #+END_SRC
 
 ** elisp
