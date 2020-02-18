@@ -245,12 +245,17 @@ unless explicitly stated otherwise.
         use-package-always-defer t)
 #+END_SRC
 
-** emacs startup profiler
+** startup
 The "Emacs Startup profiler". This allows us to see what parts of the
 config are most heavily impacting start up time. you can't optimize
 until you have good info
 #+BEGIN_SRC emacs-lisp
   (use-package esup)
+#+END_SRC
+
+This packages lets us bisect our config to find issues.
+#+BEGIN_SRC emacs-lisp
+  (use-package bug-hunter)
 #+END_SRC
 
 ** Garbage collection
