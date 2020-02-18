@@ -1412,20 +1412,20 @@ create text objects for the buffer, pasted region, and filename
   (evil-define-text-object evil-entire-buffer (count &optional _beg _end _type)
     (list (point-min) (point-max)))
 
-  (evil-define-text-object evil-pasted (count &rest _args)
+  (evil-define-text-object evil-pasted (count &optional _beg _end _type)
     (list (save-excursion (evil-goto-mark ?\[) (point))
           (save-excursion (evil-goto-mark ?\]) (1+ (point)))))
 
-  (evil-define-text-object evil-filename (count &rest _args)
+  (evil-define-text-object evil-filename (count &optional _beg _end _type)
     (let ((bounds (bounds-of-thing-at-point 'filename)))
       (list (car bounds) (cdr bounds))))
 
-  (evil-define-text-object evil-a-dir (count &rest _args)
+  (evil-define-text-object evil-a-dir (count &optional _beg _end _type)
     (list (save-excursion (search-backward "/") (point))
           (save-excursion (search-forward "/") (1- (point)))))
 
   (defmacro $define-evil-inner-object (name char)
-    `(evil-define-text-object ,(evil-unquote name) (count &rest _args)
+    `(evil-define-text-object ,(evil-unquote name) (count &optional _beg _end _type)
        (list (save-excursion (search-backward ,char) (1+ (point)))
              (save-excursion (search-forward ,char) (1- (point))))))
 
