@@ -3152,12 +3152,12 @@ previous command it will automatically move us the the command line.
     :straight nil
     :general
     (:keymaps 'comint-mode-map
-     [remap comit-previous-input] 'comint-previous-matching-input-from-input
-     [remap comint-next-input] 'comint-next-matching-input-from-input
-     [remap comint-dynamic-list-input-ring] 'counsel-shell-history
-     "C-S-p" 'comint-previous-prompt
-     "C-S-n" 'comint-next-prompt
+     :states '(normal insert)
+     "C-p" 'comint-previous-matching-input-from-input
+     "C-n" 'comint-next-matching-input-from-input
      "C-<return>" '$copy-path)
+    (:keymaps 'comint-mode-map
+     [remap comint-dynamic-list-input-ring] 'counsel-shell-history)
     :custom
     (comint-input-ring-size 1000)
     (comint-scroll-to-bottom-on-input t)
