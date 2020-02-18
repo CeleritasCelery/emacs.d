@@ -2642,13 +2642,14 @@ email. automatically add the tramp header if from a different site
   (defun $change-model ()
     "Open a model in workspace"
     (interactive)
-    (let ((default-directory
-            (expand-file-name "~/workspace/")))
+    (let ((default-directory "~/workspace/")
+          (major-mode 'fundamental-mode))
       (counsel-find-file)))
 
   (defun $goto-repo ()
     (interactive)
-    (let ((default-directory "~/.emacs.d/straight/repos/"))
+    (let ((default-directory "~/.emacs.d/straight/repos/")
+          (major-mode 'fundamental-mode))
       (counsel-find-file)))
 
   ($leader-set-key
