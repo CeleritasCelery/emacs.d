@@ -3842,6 +3842,18 @@ blocks
           "0"))))
 #+END_SRC
 
+** roam
+Roam is linking workflow. I am going to give this a try as a BASB tool.
+#+BEGIN_SRC emacs-lisp
+  (use-package org-roam
+    :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
+    :demand t
+    :after org
+    :hook (org-mode . org-roam-mode)
+    :config
+    (setq org-roam-directory (expand-file-name "coredump" org-directory)
+          org-roam-use-timestamp-as-filename nil))
+#+END_SRC
 ** tags
 #+BEGIN_SRC emacs-lisp
   (csetq org-tags-column 0
