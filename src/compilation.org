@@ -555,7 +555,8 @@ it trying prompt us to save all buffers.
             (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
                  (f-same? comp-root root)))))
 
-  (advice-add 'compilation-start :around #'$compile-with-tcsh)
+  (when ($dev-config-p)
+    (advice-add 'compilation-start :around #'$compile-with-tcsh))
   (advice-add 'compilation-start :before #'$set-compilation-dir)
 #+END_SRC
 
