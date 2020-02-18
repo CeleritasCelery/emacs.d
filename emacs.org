@@ -925,19 +925,6 @@ set then all errors will trigger a back trace.
     "ts" '$toggle-debug-on-signal)
 #+END_SRC
 
-*** outshine
-The outshine package is an advanced version of outline mode that aims
-to add more org like features. It may eventually replace my literate
-config. Navi allows navigation of outshine headers.
-#+BEGIN_SRC emacs-lisp
-  (use-package outshine
-    :hook emacs-lisp-mode
-    :straight
-    (:fork "CeleritasCelery/outshine"))
-
-  (use-package navi-mode)
-#+END_SRC
-
 *** restart
 #+BEGIN_SRC emacs-lisp
   (use-package restart-emacs
@@ -1927,16 +1914,6 @@ this file or not
 
   ($leader-set-key
     "fj" '$helm-org-init-files-headings)
-#+END_SRC
-
-*** navi
-use helm for outshine navigation with navi
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-navi
-    :general
-    (:definer 'leader
-     :keymaps 'emacs-lisp-mode-map
-     "j" 'helm-navi))
 #+END_SRC
 
 *** ediff
@@ -4154,7 +4131,8 @@ helm company provides a helm interface to helm completion
       "ee" 'eval-last-sexp
       "eb" 'eval-buffer
       "er" 'eval-region
-      "ef" 'eval-defun))
+      "ef" 'eval-defun
+      "j"  'counsel-semantic-or-imenu))
 #+END_SRC
 
 *** prettify symbols
