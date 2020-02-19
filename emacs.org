@@ -854,14 +854,17 @@ zoom lets me make a smaller window larger so that we can see it easier
 *** scroll bar
 add a fringe scroll bar it make it visually clearer where we are in the buffer
 #+BEGIN_SRC emacs-lisp
-  (use-package yascroll
-    :defer 2
-    :init
-    (fringe-mode '(8 . 5))
-    :config
-    (global-yascroll-bar-mode)
-    (setq yascroll:disabled-modes '(compilation-mode bman-mode ipgen-mode))
-    (advice-add 'yascroll:enabled-buffer-p :filter-return #'$yascroll-disable-large-files))
+  (if ($dev-config-p)
+      (use-package yascroll
+        :defer 2
+        :init
+        (scroll-bar-mode -1)
+        (fringe-mode '(8 . 5))
+        :config
+        (global-yascroll-bar-mode)
+        (setq yascroll:disabled-modes '(compilation-mode bman-mode ipgen-mode))
+        (advice-add 'yascroll:enabled-buffer-p :filter-return #'$yascroll-disable-large-files))
+    (general-def "<Scroll_Lock>" 'ignore))
 
   (defun $yascroll-disable-large-files (ret)
     (when (<= (buffer-size) 50000000)
