@@ -2249,7 +2249,7 @@ writing regexp clearer.
       (-> (1+ any))
       (^ bol)
       (file (1+ (any alnum "-_/.~")))
-      (symbol (1+ (any alnum "_")))
+      (symbol (1+ (any alnum "_-")))
       (nums (1+ num))
       (fp (1+ (any num "."))))
     "modified rx forms that are really usefull")
