@@ -3236,7 +3236,7 @@ these are utility functions used to setting up the Emacs shell.
     (shell-dirtrack-mode 0)
     (setq-local comint-prompt-regexp ($rx bol (or "╰─→"
                                                   (: symbol "(" nums ")%")
-                                                  (: symbol "@" symbol ":" file "(" nums ")>")
+                                                  (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
                                                   (: "bash-" num "." num "$")
                                                   (: symbol ">"))
                                           " "))
