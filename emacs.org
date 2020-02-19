@@ -3985,7 +3985,7 @@ Babel is way to execute source code from within blocks.
     (interactive)
     (if (org-at-heading-p)
         (org-todo)
-      (evilem-motion-find-char-to)))
+      (evil-find-char-to)))
 
   (general-def 'normal org-mode-map
     "t" '$org-todo-or-evil-t)
