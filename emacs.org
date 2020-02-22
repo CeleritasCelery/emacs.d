@@ -3485,6 +3485,7 @@ stalls.
       (let ((inhibit-message t))
         (toggle-truncate-lines)))
     :config
+    (setf (alist-get 'file org-link-frame-setup) 'find-file)
     (general-advice-add '(org-insert-subheading org-insert-todo-subheading)
                         :before
                         (defun $org-insert-subheading (_arg)
