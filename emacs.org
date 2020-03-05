@@ -3855,8 +3855,13 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
     :after org
     :hook (org-mode . org-roam-mode)
     :config
-    (setq org-roam-directory (expand-file-name "coredump" org-directory)
-          org-roam-use-timestamp-as-filename nil))
+    (setq org-roam-directory (expand-file-name "coredump" org-directory))
+    (add-to-list 'org-roam-capture-templates
+                 '("r" "reading" plain (function org-roam--capture-get-point)
+                   "%?"
+                   :file-name "%<%Y%m%d%H%M%S>-${slug}"
+                   :head "#+TITLE: ${title}\n\n#+AUTHOR: \n[[file:20200220234404_reading_list.org][reading list]]\n\n[[%c][link]]\n\n"
+                   :unnarrowed t)))
 #+END_SRC
 ** tags
 #+BEGIN_SRC emacs-lisp
