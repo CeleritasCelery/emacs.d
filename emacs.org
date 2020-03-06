@@ -3220,23 +3220,10 @@ these are utility functions used to setting up the Emacs shell.
   (with-eval-after-load 'shell
     (modify-syntax-entry ?= "." shell-mode-syntax-table)
     (modify-syntax-entry ?> "." shell-mode-syntax-table)
-    (modify-syntax-entry ?> "." shell-mode-syntax-table))
+    (modify-syntax-entry ?< "." shell-mode-syntax-table))
+  #+END_SRC
 
-  (defun $shell-mode-hook ()
-    (shell-dirtrack-mode 0)
-    (setq-local comint-prompt-regexp ($rx bol (or "╰─→"
-                                                  (: symbol "(" nums ")%")
-                                                  (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
-                                                  (: "bash-" num "." num "$")
-                                                  (: symbol ">"))
-                                          " "))
-    (setq-local evil-search-wrap nil)
-    (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local))
-  (add-hook 'shell-mode-hook '$shell-mode-hook)
-#+END_SRC
-
-generic wrapper function that can be called from other code. currently
-used in helm
+generic wrapper function that can be called from other code.
 #+BEGIN_SRC emacs-lisp
   (defun $shell-pop (arg buffer dir)
     "shell-pop to current buffers directory or dir"
@@ -3248,6 +3235,44 @@ used in helm
         (shell-pop arg))))
 #+END_SRC
 
+**** hook
+#+BEGIN_SRC emacs-lisp
+  (defun $shell-mode-hook ()
+    (shell-dirtrack-mode 0)
+    (setq-local comint-prompt-regexp ($rx bol (or (: (opt control "K") "╰─→")
+                                                  (: symbol "(" nums ")%")
+                                                  (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
+                                                  (: "bash-" num "." num "$")
+                                                  (: symbol ">"))
+                                          " "))
+    (setq-local evil-search-wrap nil)
+    (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local))
+    (add-hook 'shell-mode-hook '$shell-mode-hook)
+#+END_SRC
+
+**** send to shell
+Send the current region or line to the active process. Can be enabled in certain major modes.
+#+BEGIN_SRC emacs-lisp
+  (defun $send-command (arg)
+    "Send the current region or line to a process buffer."
+    (interactive "P")
+    (when-let* ((proc (thread-last (window-list)
+                        (mapcar 'window-buffer)
+                        (mapcar 'get-buffer-process)
+                        (remove nil)
+                        (car)))
+                (beg (if (region-active-p)
+                         (region-beginning)
+                       (save-excursion (back-to-indentation) (point))))
+                (end (if (region-active-p)
+                         (region-end)
+                       (line-end-position)))
+                (cmd (buffer-substring beg end)))
+      (with-current-buffer (process-buffer proc)
+        (goto-char (point-max))
+        (insert cmd)
+        (comint-send-input))))
+#+END_SRC
 
 *** Ansi term
 #+BEGIN_SRC emacs-lisp
