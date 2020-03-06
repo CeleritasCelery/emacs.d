@@ -4527,6 +4527,7 @@ automatically detect it.
     (tcl-mode-map "TAB" 'indent-for-tab-command)
     (:definer 'leader :keymaps 'tcl-mode-map
      "j" 'counsel-semantic-or-imenu)
+    (tcl-mode-map "C-<return>" '$send-command)
     :custom
     (flycheck-tcl-nagelfar-syntaxdb-file "~/temp/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh"))
