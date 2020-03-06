@@ -2189,13 +2189,11 @@ arguments. Can also launch a repl for some languages
 provides snippets for adding complex blocks. use it with =M-/=
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
-    :diminish
     :defer 3
     :config
     (let ((inhibit-message t))
       (yas-global-mode)))
   (use-package yasnippet-snippets
-    :diminish
     :after yasnippet)
 #+END_SRC
 
@@ -3089,7 +3087,6 @@ want to do when I enable flycheck.
     (global-git-gutter-mode))
 
   (use-package git-gutter-fringe
-    :diminish
     :demand t
     :after git-gutter)
 #+END_SRC
@@ -3271,7 +3268,6 @@ shx mode allows us to call emacs lisp functions from within the
 builtin shell, gives us the best of both worlds.
 #+BEGIN_SRC emacs-lisp
   (use-package shx
-    :diminish
     :hook shell-mode
     :general
     (:keymaps 'shx-mode-map
@@ -4016,7 +4012,6 @@ advantage of unicode
     :hook org-mode)
 
   (use-package org-fancy-priorities
-    :diminish
     :hook org-mode)
 #+END_SRC
 
