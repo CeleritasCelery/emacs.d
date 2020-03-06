@@ -2570,7 +2570,13 @@ email. automatically add the tramp header if from a different site
   (defun $open-file-in-clipboard ()
     "Open the file name in the clipboard"
     (interactive)
-    (find-file ($normalize-file-name (string-trim (current-kill 0)))))
+    (let ((is-path-p (apply-partially 'string-match-p ($rx bos (or "$" "/") file eos))))
+      (thread-last (current-kill 0)
+        (string-trim)
+        (split-string)
+        (cl-find-if is-path-p)
+        ($normalize-file-name)
+        (find-file))))
 
   (defun $find-file-at-point ()
     "A better replacement for `find-file-at-point'"
