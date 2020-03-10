@@ -3874,7 +3874,7 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
                  '("r" "reading" plain (function org-roam--capture-get-point)
                    "%?"
                    :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                   :head "#+TITLE: ${title}\n\n#+AUTHOR: \n[[file:20200220234404_reading_list.org][reading list]]\n\n[[%c][link]]\n\n"
+                   :head "#+TITLE: ${title}\n\n- author :: \n- type :: [[file:20200305223821-article.org][article]]\n- tags ::\n\n[[file:20200220234404_reading_list.org][reading list]]\n\n[[%c][link]]\n\n"
                    :unnarrowed t)))
 #+END_SRC
 ** tags
