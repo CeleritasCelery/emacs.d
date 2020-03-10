@@ -3582,29 +3582,6 @@ inherit the priority of the parent heading and make sure the default state is al
     "a" '$org-archive-done-tasks
     "h" '$org-show-current-heading-tidily)
 
-  (defun $org-smart-return ()
-    "if in a list return should add a new item. If the item is
-  blank, we want to break out of the list and delete the blank
-  item"
-    (interactive)
-    (if (org-at-item-p)
-        (if (and (looking-back (rx space) (- (point) 1))
-                 (memq (- (point) (org-in-item-p))
-                       (number-sequence 1 3)))
-            ;; If at a blank item, delete it
-            (progn
-              (beginning-of-line)
-              (kill-line)
-              (org-return))
-          ;; If at a non-blank item, insert a new item
-          (org-return)
-          (org-insert-item))
-      ;; If not at item, normal return
-      (org-return)))
-  (general-def '(insert normal) org-mode-map
-    "<ret>" '$org-smart-return
-    "RET" '$org-smart-return)
-
   (defun $org-procrastinate (arg)
     "shedule the selected item for tomrrow, effectivly removing
   it from todays agenda."
