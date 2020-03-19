@@ -57,14 +57,8 @@ a few issues that we are going to resolve now:
    :keymaps 'compilation-shell-minor-mode
    "q" 'quit-window
    "gr" 'recompile
-   "gf" '$find-file-at-point
-   "C-j" 'compilation-next-error
-   "C-k" 'compilation-previous-error)
-  (general-define-key
-   :states 'normal
-   :keymaps 'compilation-minor-mode-map
-   "C-j" 'compilation-next-error
-   "C-k" 'compilation-previous-error)
+   "gf" '$find-file-at-point)
+
   (general-define-key
    :states 'normal
    :keymaps 'compilation-mode-map
