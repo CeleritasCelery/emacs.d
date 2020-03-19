@@ -237,14 +237,15 @@ that hook and set the alist back to our canonical version.
                  1)
                 (,(err-rx ^ "Error-[SE] Syntax error"
                           "\n  Following verilog source has syntax error :"
-                          "\n  \"" filename "\","
-                          "\n  " line ":")
+                          "\n  \"" filename "\"," (opt "\n ") " " line ":")
                  1 2)
                 (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
                           "\n" filename ", " line)
                  1 2)
                 (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
-                 $bman-find-generic-log))))
+                 $bman-find-generic-log)
+                (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
+                )))
 
   (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
@@ -262,17 +263,23 @@ on error messages.
     (defvar font-lock-end)
     (save-excursion
       (goto-char font-lock-end)
-      (beginning-of-line)
-      (when (looking-at-p (rx (opt "-I-:")
-                              (or "Error: "
-                                  " Error"
-                                  "Error-"
-                                  "Errormessage"
-                                  "-E-:"
-                                  "-F-:"
-                                  "Information:")))
+      (when (or ($font-lock-at-error-p 'beginning-of-line-text)
+                ($font-lock-at-error-p (apply-partially 'beginning-of-line-text 0)))
         (forward-line 2)
+        (end-of-line)
         (setq font-lock-end (point)))))
+
+  (defun $font-lock-at-error-p (move)
+    (save-excursion
+      (funcall move)
+      (looking-at-p (rx (opt "-I-:")
+                        (or "Error: "
+                            "Error-"
+                            "Errormessage"
+                            "-E-:"
+                            "-F-:"
+                            "Information:")))))
+
   (byte-compile '$font-lock-extend-region-error-message)
 
   (general-add-hook '(compilation-mode-hook
