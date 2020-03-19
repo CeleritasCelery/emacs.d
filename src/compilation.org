@@ -417,10 +417,6 @@ define a custom compliation mode that is run based on the hydra above
       (when (and (string-match-p ($get-model-arguments) cmd)
                  (not (string-match-p "-s all" cmd)))
         ($async-delete-file "target" nil 'no-prompt))))
-
-  (add-hook 'bman-mode-hook
-            (defun bman-setup ()
-              (add-hook 'compilation-start-hook 'bman-run-clean-maybe nil 'local)))
 #+END_SRC
 
 *** simregress
