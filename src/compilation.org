@@ -363,7 +363,7 @@ some point I would like to make this automatic by inspection.
 
   (defun $model-root (&optional dir)
     "current model root"
-    (file-truename (vc-git-root (or dir default-directory))))
+    (expand-file-name (vc-git-root (or dir default-directory))))
 
   (defun $check-gcc-version ()
     "If the GCC version is not default, build can fail"
