@@ -312,7 +312,7 @@ run any command
     ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
     ("r" ($run-bman "-s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra") "RTL only")
     ("u" ($run-bman "-s all +s emu,sglp,sgdft,vclp,lintra_ol,FLG,hip_listgen,lintra,sgcdc") "DRC only")
-    ("g" ($run-bman (read-string "run bman as: " (car $bman-command-history) '$bman-command-history)) "generic"))
+    ("g" ($run-bman (read-string "run bman as: " nil '$bman-command-history (car $bman-command-history))) "generic"))
 
   (defvar $bman-command-history nil)
 #+END_SRC
