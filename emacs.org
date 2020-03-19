@@ -4333,6 +4333,10 @@ I use regular perl-mode for files that are considered read-only.
   (use-package perl-mode
     :straight nil
     :mode (rx "." (or "ip_info" "espflist" "udf" "hdl" "map") eos)
+    :general
+    (:definer 'leader
+     :keymaps 'perl-mode-map
+     "r" 'quickrun)
     :init
     (setq perl-indent-parens-as-block t
           perl-continued-brace-offset 0
