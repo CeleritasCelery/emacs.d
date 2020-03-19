@@ -1024,7 +1024,7 @@ display
   (with-eval-after-load 'counsel
     (ivy-add-actions
      t
-     '(("y" kill-new "yank" $ivy-yank-all)))
+     '(("y" $ivy-yank "yank" $ivy-yank-all)))
     (ivy-add-actions
      'counsel-find-file
      '(("g" $magit-status-in-dir "git status")
@@ -1036,12 +1036,18 @@ display
        ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
        ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
+  (defun $ivy-yank (x)
+    (kill-new
+     (if (consp x)
+         (car x)
+       x)))
+
   (defun $ivy-file-jump (x)
     (let ((args (split-string x)))
       (counsel-fd-jump (cdr args) (car args))))
 
   (defun $ivy-yank-all (x)
-    (kill-new (mapconcat 'identity x "\n")))
+    ($ivy-yank (mapconcat 'identity x "\n")))
 
   (defun $yank-file-name (x)
     (kill-new ($correct-file-path x)))
