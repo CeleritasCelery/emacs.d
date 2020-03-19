@@ -2725,6 +2725,12 @@ we don't need so many dired confirmation prompts
   (general-def dired-mode-map
     "C-c C-e" 'wdired-change-to-wdired-mode)
 
+  (defun $dired-here ()
+    (interactive)
+    (dired default-directory))
+
+  ($leader-set-key "SPC" '$dired-here)
+
   (with-eval-after-load 'dired-aux
     (add-to-list 'dired-compress-file-suffixes '("\\.gtar\\'" ".tar" nil)))
 #+END_SRC
