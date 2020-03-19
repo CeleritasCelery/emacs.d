@@ -675,6 +675,26 @@ it blocks until the current one is done.
   (add-hook 'compilation-finish-functions '$compilation-pop-command-queue)
 #+END_SRC
 
+*** stalled
+Tessent will sometimes return to a prompt when it fails.
+#+BEGIN_SRC emacs-lisp
+  (defvar $compilation-stalled-buffers nil
+    "buffers that have a stalled compilation")
+
+  (defun $alert-compilation-stall ()
+    (when (looking-back (rx bol (+ alpha) "> ") (line-beginning-position))
+      (add-to-list '$compilation-stalled-buffers (current-buffer))
+      (alert "Compilation stalled"
+             :severity 'moderate)))
+  (byte-compile #'$alert-compilation-stall)
+
+  (defun $compilation-remove-stalled-buffer (buffer _exit)
+    (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers)))
+
+  (add-hook 'compilation-filter-hook #'$alert-compilation-stall)
+  (add-hook 'compilation-finish-functions #'$compilation-remove-stalled-buffer)
+#+END_SRC
+
 ** status
 set of functions to show the status of all compilations, whether
 finished or running, and easily jump to the associated buffer.
@@ -686,8 +706,6 @@ finished or running, and easily jump to the associated buffer.
             (defun $compilation-add-buffer (buffer msg)
               (push (cons buffer (replace-regexp-in-string "\n" "" msg))
                     $compilation-finished-buffers)))
-
-  (defvar $compilation-stalled-buffers nil)
 
   ;; Helper function for $compilation-buffer-candidates
   (defun $compilation-proc-stalled (proc)
