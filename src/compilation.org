@@ -15,23 +15,17 @@ use lexical bindings in the file make this file lexically bound
   (defun $compile (arg)
     "Compile with model root set"
     (interactive "P")
-    (let* ((model-root (or ($model-root) "no-model"))
+    (let* ((model-root (or ($model-root) default-directory))
+           (cmd (read-string "Compile Command: " nil 'compile-history))
+           (shorten-fn (lambda (text) (match-string 1 text)))
+           (cmd-name (thread-last cmd
+                       (replace-regexp-in-string ($rx ^ "source " -> "&& ") "")
+                       (replace-regexp-in-string ($rx "/" file "/" (group (+ (in alnum "-_."))) symbol-end) shorten-fn)))
+           (buffer-name (format "*%s - %s*" (f-filename model-root) cmd-name))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
-           (compilation-buffer-name-function
-            (lambda (_mode)
-              (cl-loop for i from 0 to 10
-                       for buf-name = (format "*%s compile-%d*"
-                                              (f-filename model-root)
-                                              i)
-                       for buf = (get-buffer buf-name)
-                       until (or (null buf)
-                                 (not (get-buffer-process buf)))
-                       finally return buf-name))))
-      (compilation-start (read-string "Compile Command: " nil 'compile-history)
-                         (when arg
-                           (intern-soft (read-string "set mode: "))))))
+           (compilation-buffer-name-function (lambda (_mode) buffer-name)))
+      (compile cmd (consp arg))))
 #+END_SRC
-
 
 compilation mode will throw warnings about clearing large buffers, but
 we don't need undo in compilation buffers anyways so we can just turn
