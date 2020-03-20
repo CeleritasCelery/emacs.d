@@ -539,12 +539,14 @@ it trying prompt us to save all buffers.
     "set the root of the current compilation"
     (setq $current-compilation-dir default-directory))
 
-  (setq compilation-save-buffers-predicate
-        (lambda ()
-          (when-let ((root (vc-git-root (buffer-file-name)))
-                     (comp-root (vc-git-root $current-compilation-dir)))
-            (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
-                 (f-same? comp-root root)))))
+  (defun $compilation-save-buffer-p ()
+    (when-let ((root (vc-git-root (buffer-file-name)))
+               (comp-root (vc-git-root (or $current-compilation-dir
+                                           default-directory))))
+      (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
+           (f-same? comp-root root))))
+
+  (setq compilation-save-buffers-predicate '$compilation-save-buffer-p)
 
   (when ($dev-config-p)
     (advice-add 'compilation-start :around #'$compile-with-tcsh))
