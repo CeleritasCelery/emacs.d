@@ -3865,9 +3865,6 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
   (use-package org-roam
     :straight (:host github :repo "jethrokuan/org-roam" :branch "develop")
-    :demand t
-    :after org
-    :hook (org-mode . org-roam-mode)
     :config
     (setq org-roam-directory (expand-file-name "coredump" org-directory))
     (add-to-list 'org-roam-capture-templates
