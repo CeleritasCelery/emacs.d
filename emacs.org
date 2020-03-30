@@ -3460,6 +3460,11 @@ A small package to jump to links in eww buffer.
      "J" 'eww-lnum-follow))
 #+END_SRC
 
+*** elfeed
+#+BEGIN_SRC emacs-lisp
+  (use-package elfeed)
+#+END_SRC
+
 ** compilation
 packages that assist in compiling and building code
 #+BEGIN_SRC emacs-lisp
