@@ -3267,6 +3267,7 @@ generic wrapper function that can be called from other code.
                                                   (: symbol "(" nums ")%")
                                                   (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
                                                   (: "bash-" num "." num "$")
+                                                  (: "|" (+ (not blank)) "|→")
                                                   (: symbol ">"))
                                           " "))
     (setq-local evil-search-wrap nil)
