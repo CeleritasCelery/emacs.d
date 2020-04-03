@@ -2606,6 +2606,7 @@ email. automatically add the tramp header if from a different site
                                           (or ":"
                                               (: "," (* (any " \n")))
                                               (: (opt ",") " line ")
+                                              (: "(")
                                               (: ", Line: "))
                                           (group nums))
                                      context)
