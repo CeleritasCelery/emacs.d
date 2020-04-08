@@ -1809,7 +1809,6 @@ the display function to be more consistent.
     (helm-find-files-ignore-thing-at-point t)
     :config
     (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command))
-    (helm-adaptive-mode)
     (dired-async-mode))
 #+END_SRC
 
