@@ -1181,6 +1181,7 @@ will always be the same width as a window we are searching.
     :custom
     (ivy-posframe-size-function '$ivy-posframe-size)
     (ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+    (ivy-posframe-parameters '((parent-frame nil)) "Needed for EXWM")
     :config
     (ivy-posframe-mode))
 
@@ -3496,6 +3497,64 @@ stalls.
   (use-package alert
     :init
     (setq alert-default-style 'fringe))
+#+END_SRC
+
+** EXWM
+EXWM is the Emacs X window manager. In order to get it working for me I needed
+to use [[https://github.com/WJCFerguson/exwm-gnome-flashback][gnome-flashback]] and install it first. Notice that my config does not
+actually load or enable EXWM, because the Session manager that I installed will
+do that for me. This way the config does not load on non-exwm environments like
+windows.
+#+BEGIN_SRC emacs-lisp
+  (use-package exwm
+    :general
+    (exwm-mode-map "C-w" evil-window-map)
+    (exwm-mode-map "C-q" 'exwm-input-send-next-key)
+    :init
+    (setq exwm-input-simulation-keys
+          `(([?\C-b] . [left])
+            ([?\C-f] . [right])
+            ([?\C-p] . [up])
+            ([?\C-n] . [down])
+            ([?\C-a] . [home])
+            ([?\C-e] . [end])
+            ([?\M-v] . [prior])
+            ([?\C-v] . [next])
+            ([?\C-d] . [delete])
+            ([?\C-k] . [S-end delete])
+            ([?\C-s] . [C-f])
+            ([?\C-v] . [C-v])
+            ([?\C-y] . [C-v])
+            ([?\M-w] . [C-c])
+            (,(kbd "C-S-DEL") . [home S-end delete])))
+    (setq exwm-input-global-keys
+          `(([?\s-r] . exwm-reset)
+            ([?\s-w] . exwm-workspace-switch)
+            ([?\s-&] . $exwm-open-app)
+            ([M-tab] . $alternate-buffer)
+            ,(cons (kbd "s-SPC") (key-binding (kbd $leader-key)))
+            ;; 's-N': Switch to certain workspace.
+            ,@(mapcar (lambda (i)
+                        `(,(kbd (format "s-%d" i)) .
+                          (lambda ()
+                            (interactive)
+                            (exwm-workspace-switch-create ,i))))
+                      (number-sequence 0 9))))
+    (add-hook 'exwm-update-class-hook '$exwm-rename-buffer-to-class)
+    (add-hook 'exwm-update-title-hook '$exwm-rename-buffer-to-title)
+    (evil-set-initial-state 'exwm-mode 'emacs)
+    :config
+    (add-to-list 'exwm-input-prefix-keys ?\C-w))
+
+  (defun $exwm-rename-buffer-to-class ()
+    (exwm-workspace-rename-buffer exwm-class-name))
+
+  (defun $exwm-rename-buffer-to-title ()
+    (exwm-workspace-rename-buffer exwm-title))
+
+  (defun $exwm-open-app (command)
+    (interactive (list (read-shell-command "EXWM open: ")))
+    (start-process-shell-command command nil command))
 #+END_SRC
 
 * Org
