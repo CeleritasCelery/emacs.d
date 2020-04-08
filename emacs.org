@@ -382,9 +382,7 @@ highlight the current line with a background face
 Setup the font that I want to use. Symbola is a backup font that has
 many unicode symbols
 #+BEGIN_SRC emacs-lisp
-  (defvar $font-height (cond (($dev-config-p) 120)
-                             ((eq system-type 'windows-nt) 100)
-                             (t 90)))
+  (defvar $font-height (if ($dev-config-p) 120 100))
   (set-face-attribute 'default nil
                       :family (if (eq system-type 'windows-nt)
                                   "Source Code Variable"
@@ -968,7 +966,6 @@ Accidentally hit this key a lot
     (dolist (mode '(perl-mode cperl-mode python-mode))
       (add-to-list 'hes-mode-alist (cons mode hes-common-escape-sequence-re))))
 #+END_SRC
-
 ** Ivy
 I feel like ivy is simpler to setup so I am going to give it a try. I
 am going to have to try to fix =counsel-ag= out of order matching if I
