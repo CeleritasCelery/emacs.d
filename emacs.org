@@ -3417,11 +3417,8 @@ This advice endeavors to fix two problems.
 Use the native completion in shells
 #+BEGIN_SRC emacs-lisp
   (use-package native-complete
-    :straight
-    (:host github :repo "CeleritasCelery/emacs-native-shell-complete")
     :compdef shell-mode
     :capf native-complete-at-point
-    :company company-native-complete
     :init
     (with-eval-after-load 'shell
       (native-complete-setup-bash))
@@ -3430,6 +3427,9 @@ Use the native completion in shells
      `(("╰─→ " . bash)
        (,(rx (or "% " (: (+ (in "0-9")) "> ") ")> ")) . zsh)
        ("[A-Z]+> " . tab))))
+
+  (use-package company-native-complete
+    :company company-native-complete)
 #+END_SRC
 
 *** async file completion
