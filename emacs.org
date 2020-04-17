@@ -4478,13 +4478,18 @@ perltidy is a perl foratting tool
 ** python
 Setting to add jump to definition, auto-complete, and formatting to python mode
 #+BEGIN_SRC emacs-lisp
-  (setq python-prettify-symbols-alist '(("lambda" . ?λ))
-        python-shell-interpreter "python3.6.3a"
-        flycheck-python-flake8-executable "python3.6.3a"
-        flycheck-python-mypy-executable "python3.6.3a"
-        flycheck-python-pycompile-executable "python3.6.3a"
-        flycheck-flake8-maximum-line-length 120
-        flycheck-python-pylint-executable "python3.6.3a")
+  (defvar $python-executable "python3.6.3a")
+
+  (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
+
+  (setq flycheck-flake8-maximum-line-length 120)
+
+  (when ($dev-config-p)
+    (setq python-shell-interpreter $python-executable
+          flycheck-python-flake8-executable $python-executable
+          flycheck-python-mypy-executable $python-executable
+          flycheck-python-pycompile-executable $python-executable
+          flycheck-python-pylint-executable $python-executable))
 
   (use-package company-anaconda
     :demand t
@@ -4495,7 +4500,7 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (use-package live-py-mode
     :custom
-    (live-py-version "python3.6.3a"))
+    (live-py-version $python-executable))
 
   (use-package python
     :straight nil
@@ -4684,7 +4689,8 @@ locked
   (use-package json-mode
     :gfhook 'flycheck-mode 'hs-minor-mode
     :init
-    (setq flycheck-json-python-json-executable "python3.6.3")
+    (when ($dev-config-p)
+      (setq flycheck-json-python-json-executable $python-executable))
     :config
     (add-to-list 'hs-special-modes-alist (list 'json-mode (rx (any "{[")) (rx (any "]}")) (rx "/" (any "/*"))))
     (font-lock-add-keywords 'json-mode
