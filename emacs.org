@@ -1114,8 +1114,12 @@ display
     ($normalize-git-version 'counsel-git-cmd)
     ($normalize-git-version 'counsel-git-grep-cmd-default)
     ($normalize-git-version 'counsel-git-log-cmd)
-    (setq ivy-initial-inputs-alist nil)
-    (setf (alist-get 'counsel-M-x ivy-initial-inputs-alist) nil))
+
+    (setf (alist-get 'counsel-company ivy-display-functions-alist) 'ivy-display-function-overlay)
+    (ivy-configure t
+      :initial-input "")
+    (ivy-configure 'counsel-M-x
+      :initial-input ""))
 
   (defun $normalize-git-version (symbol)
     (when ($dev-config-p)
