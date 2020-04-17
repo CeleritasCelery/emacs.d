@@ -4174,6 +4174,7 @@ just using =C-l=
     (:keymaps 'company-active-map
      "RET" nil
      [return] nil
+     "C-," 'counsel-company
      "C-l" 'company-complete-selection)
     (:definer 'leader
      "tc" 'company-mode)
@@ -4209,15 +4210,6 @@ collect usage statistics and filter candidates based on that
     :after company
     :config
     (company-statistics-mode))
-#+END_SRC
-
-helm company provides a helm interface to helm completion
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-company
-    :init
-    :general
-    (:keymaps '(company-mode-map company-active-map)
-     "C-," 'helm-company))
 #+END_SRC
 
 ** elisp
