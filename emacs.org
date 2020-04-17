@@ -1293,19 +1293,14 @@ flashing issue.
   (use-package ivy-prescient
     :demand t
     :after counsel
-    :init
-    (setq prescient-filter-method '(regexp initialism)
-          ivy-prescient-sort-commands '(counsel-bookmark))
     :config
     (prescient-persist-mode)
-    (advice-add #'ivy-read :filter-args #'ivy-prescient--enable-sort-commands)
     (advice-add #'ivy--get-action :filter-return #'ivy-prescient--wrap-action)
-    (setf (alist-get 'counsel-describe-variable ivy-re-builders-alist) 'ivy-prescient-re-builder)
-    (setf (alist-get 'counsel-describe-variable ivy-sort-functions-alist) 'ivy-string<)
-    (setf (alist-get 'counsel-describe-function ivy-re-builders-alist) 'ivy-prescient-re-builder)
-    (setf (alist-get 'counsel-describe-function ivy-sort-functions-alist) 'ivy-string<)
-    (setf (alist-get 'read-file-name-internal ivy-sort-functions-alist) 'ivy-prescient-sort-function)
-    (setf (alist-get t ivy-sort-functions-alist) 'ivy-prescient-sort-function))
+    (advice-add #'ivy--directory-enter :filter-return #'ivy-prescient--remember-directory)
+    (ivy-configure 'read-file-name-internal
+      :sort-fn  'ivy-prescient-sort-function)
+    (ivy-configure 'counsel-bookmark
+      :sort-fn  'ivy-prescient-sort-function))
 #+END_SRC
 
 ** evil
