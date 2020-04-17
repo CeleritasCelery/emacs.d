@@ -4045,12 +4045,18 @@ Babel is way to execute source code from within blocks.
 ** evil
 #+BEGIN_SRC emacs-lisp
   (use-package evil-org
+    :straight (:repo "hlissner/evil-org-mode")
     :hook org-mode
-    :init (add-hook 'org-insert-heading-hook 'evil-insert-state)
+    :custom
+    (evil-org-key-theme '(navigation insert return textobjects additional calendar))
+    :init
+    (add-hook 'org-insert-heading-hook 'evil-insert-state)
     :config
+    (evil-org-set-key-theme)
     (general-def 'normal 'org-mode-map
       "[[" '$org-headings/org-previous-visible-heading
       "]]" '$org-headings/org-next-visible-heading))
+
 
   (defhydra $org-headings (:exit nil)
     ("[" org-previous-visible-heading  "prev")
