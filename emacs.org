@@ -3958,8 +3958,8 @@ the default open link behavior
         (message "copied org link: %s"
                  (kill-new (org-element-property :raw-link context))))))
 
-
-  (add-hook 'org-open-at-point-functions '$org-copy-url)
+  (when ($dev-config-p)
+    (add-hook 'org-open-at-point-functions '$org-copy-url))
 #+END_SRC
 
 follow links with org return
