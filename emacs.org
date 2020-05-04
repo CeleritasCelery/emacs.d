@@ -3563,10 +3563,15 @@ windows.
                             (exwm-workspace-switch-create ,i))))
                       (number-sequence 0 9))))
     (add-hook 'exwm-update-class-hook '$exwm-rename-buffer-to-class)
-    (add-hook 'exwm-update-title-hook '$exwm-rename-buffer-to-title)
+    ;; (add-hook 'exwm-update-title-hook '$exwm-rename-buffer-to-title)
     (evil-set-initial-state 'exwm-mode 'emacs)
     :config
+    (general-def :definer 'leader "k" '$switch-to-firefox)
     (add-to-list 'exwm-input-prefix-keys ?\C-w))
+
+  (defun $switch-to-firefox ()
+    (interactive)
+    (switch-to-buffer "Firefox"))
 
   (defun $exwm-rename-buffer-to-class ()
     (exwm-workspace-rename-buffer exwm-class-name))
