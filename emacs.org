@@ -75,7 +75,8 @@ the variable's :set property.
 Some settings need to be changed based on what user there is.
 #+BEGIN_SRC emacs-lisp
   (defun $dev-config-p ()
-    (equal user-login-name "tjhinckl"))
+    (and (not (eq system-type 'windows-nt))
+         (equal user-login-name "tjhinckl")))
 #+END_SRC
 
 *** Settings
@@ -208,7 +209,8 @@ at some point.
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
   (setq straight-repository-branch "develop")
-  (unless ($dev-config-p)
+  (when (and (not ($dev-config-p))
+             (eq system-type 'gnu/linux))
     (setq straight-vc-git-default-protocol 'ssh))
   (defvar bootstrap-version 5)
   (let ((bootstrap-file
