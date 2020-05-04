@@ -3299,6 +3299,37 @@ Send the current region or line to the active process. Can be enabled in certain
         (comint-send-input))))
 #+END_SRC
 
+**** Progress bars
+Shell mode does not understand progress bars since they are deleted and moved to
+bottom of the screen every time they are updated. This code from [[https://oremacs.com/2019/03/24/shell-apt/][here]] will take
+progress bar from a shell and display it in the minibuffer.
+#+BEGIN_SRC emacs-lisp
+  (advice-add
+   'ansi-color-apply-on-region
+   :before 'ora-ansi-color-apply-on-region)
+
+  (defun ora-ansi-color-apply-on-region (begin end)
+    "Fix progress bars for e.g. apt(8).
+  Display progress in the minibuffer instead."
+    (let ((end-marker (copy-marker end))
+          mb)
+      (save-excursion
+        (goto-char (copy-marker begin))
+        (while (re-search-forward "\0337" end-marker t)
+          (setq mb (match-beginning 0))
+          (when (re-search-forward "\0338" end-marker t)
+            (ora-apt-progress-message
+             (substring-no-properties
+              (delete-and-extract-region mb (point))
+              2 -2)))))))
+
+  (defun ora-apt-progress-message (progress)
+    (message
+     (replace-regexp-in-string
+      "%" "%%"
+      (ansi-color-apply progress))))
+#+END_SRC
+
 *** Ansi term
 #+BEGIN_SRC emacs-lisp
   (add-hook 'term-mode-hook
