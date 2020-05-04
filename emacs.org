@@ -208,6 +208,8 @@ at some point.
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
   (setq straight-repository-branch "develop")
+  (unless ($dev-config-p)
+    (setq straight-vc-git-default-protocol 'ssh))
   (defvar bootstrap-version 5)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
