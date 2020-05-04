@@ -2854,6 +2854,14 @@ folding, which looks nice.
     (vdiff-diff-algorithm 'git-diff-patience))
 #+END_SRC
 
+*** PDF
+#+BEGIN_SRC emacs-lisp
+  (unless ($dev-config-p)
+    (use-package pdf-tools
+      :init
+      (pdf-loader-install)))
+#+END_SRC
+
 ** git
 
 don't ask about following symlinks
