@@ -793,6 +793,8 @@ quick movement hydra and keybindings
      (selected-window)
      (get-buffer-create "*scratch*")))
 
+  (general-def "C-c b" '$open-scratch-buffer)
+
   ($leader-set-key
     "bs" '$open-scratch-buffer)
 #+END_SRC
