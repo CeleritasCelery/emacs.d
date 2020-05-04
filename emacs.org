@@ -4222,6 +4222,8 @@ collect usage statistics and filter candidates based on that
 #+BEGIN_SRC emacs-lisp
   (use-package elisp-mode
     :straight nil
+    :custom
+    (eval-expression-print-length nil)
     :init
     ($leader-local-set-key
       :keymaps 'emacs-lisp-mode-map
