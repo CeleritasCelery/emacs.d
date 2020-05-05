@@ -389,7 +389,7 @@ many unicode symbols
   (defvar $font-height (if ($dev-config-p) 120 100))
   (set-face-attribute 'default nil
                       :family (if (eq system-type 'windows-nt)
-                                  "Source Code Variable"
+                                  "Consolas"
                                 "Source Code Pro")
                       :height $font-height)
   (set-fontset-font t nil "Symbola" nil 'append)
@@ -4048,10 +4048,14 @@ Use a proportional font for org mode because it is more readable
   (use-package org-variable-pitch
     :hook (org-mode . org-variable-pitch-minor-mode)
     :init
-    (set-face-attribute 'variable-pitch nil :font "Source Sans Pro" :height (+ 10 $font-height))
+    (set-face-attribute 'variable-pitch nil
+                        :font (if (eq system-type 'windows-nt)
+                                  "Calibri"
+                                "Source Sans Pro")
+                        :height (+ 10 $font-height))
     (setq org-variable-pitch-fixed-font
           (if (eq system-type 'windows-nt)
-              "Source Code Variable"
+              "Consolas"
             "Source Code Pro"))
     :config
     (set-face-attribute 'org-variable-pitch-face nil :height $font-height))
