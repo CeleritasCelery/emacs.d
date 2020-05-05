@@ -1087,8 +1087,8 @@ display
           (str (with-current-buffer (window-buffer (active-minibuffer-window))
                  (let ((point (point))
                        (string (concat (buffer-string) "  " text)))
-                   (ivy-add-face-text-property
-                    (- point 1) point 'ivy-cursor string t)
+                   (add-face-text-property
+                    (- point 1) point 'ivy-cursor t string)
                    string))))
       (with-current-buffer buffer
         (let ((inhibit-read-only t))
@@ -1122,12 +1122,9 @@ display
     ($normalize-git-version 'counsel-git-cmd)
     ($normalize-git-version 'counsel-git-grep-cmd-default)
     ($normalize-git-version 'counsel-git-log-cmd)
-
-    (setf (alist-get 'counsel-company ivy-display-functions-alist) 'ivy-display-function-overlay)
-    (ivy-configure t
-      :initial-input "")
-    (ivy-configure 'counsel-M-x
-      :initial-input ""))
+    (ivy-configure 'counsel-company
+      :display-fn 'ivy-display-function-overlay)
+    (setq ivy-initial-inputs-alist nil))
 
   (defun $normalize-git-version (symbol)
     (when ($dev-config-p)
