@@ -1571,10 +1571,14 @@ behave better with evil.
                            (not (memq 'ediff-mode-map keymaps)))
                   (general-define-key
                    :states 'normal
-                    :keymaps keymaps
+                   :keymaps keymaps
                    $leader-key nil
                    $mm-leader-key nil))))
-    (evil-collection-init))
+    (evil-collection-init)
+    ;; evil-integration overloads `0'. Since we swap ^ and 0, we need to bind it
+    ;; back
+    (evil-define-minor-mode-key 'motion 'visual-line-mode
+      "0" 'evil-first-non-blank-of-visual-line))
 #+END_SRC
 
 *** surround
