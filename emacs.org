@@ -1187,7 +1187,6 @@ will always be the same width as a window we are searching.
     :custom
     (ivy-posframe-size-function '$ivy-posframe-size)
     (ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-    (ivy-posframe-parameters '((parent-frame nil)) "Needed for EXWM")
     :config
     (ivy-posframe-mode))
 
@@ -3581,6 +3580,7 @@ windows.
     ;; (add-hook 'exwm-update-title-hook '$exwm-rename-buffer-to-title)
     (evil-set-initial-state 'exwm-mode 'emacs)
     :config
+    (setq ivy-posframe-parameters '((parent-frame nil)))
     (general-def :definer 'leader "k" '$switch-to-firefox)
     (add-to-list 'exwm-input-prefix-keys ?\C-w))
 
