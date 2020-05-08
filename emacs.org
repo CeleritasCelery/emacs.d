@@ -4686,7 +4686,8 @@ ICL is the Instrument Control Language defined by IEEE
                                    spc+ (group symbol) spc+ "{") 1)
                   ("instances" ,($rx ^ spc+ "Instance"
                                      spc+ (group symbol) spc+ "Of") 1)))
-    (modify-syntax-entry ?\' "." icl-mode-syntax-table))
+    (modify-syntax-entry ?\' "." icl-mode-syntax-table)
+    (modify-syntax-entry ?$ "." icl-mode-syntax-table))
 
   (general-def :definer 'leader :keymaps 'icl-mode-map "j" 'counsel-semantic-or-imenu)
   (add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
