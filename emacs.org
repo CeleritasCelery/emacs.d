@@ -169,11 +169,15 @@ by setting the initial mode we won't have to load lisp at startup
   (setq initial-major-mode 'fundamental-mode)
 #+END_SRC
 
-*** git version
+*** environment
 
 fix the path to use a new version of git
 #+BEGIN_SRC emacs-lisp
   (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  (setenv "PAGER" "cat")
 #+END_SRC
 
 *** server
