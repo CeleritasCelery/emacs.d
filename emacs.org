@@ -3465,6 +3465,7 @@ Use the native completion in shells
        ("[A-Z]+> " . tab))))
 
   (use-package company-native-complete
+    :compdef shell-mode
     :company company-native-complete)
 #+END_SRC
 
@@ -4237,8 +4238,7 @@ just using =C-l=
     (company-require-match nil)
     (company-dabbrev-code-ignore-case t)
     (company-dabbrev-ignore-case t)
-    (company-backends '(company-capf
-                        (company-dabbrev-code company-keywords)
+    (company-backends '((company-capf company-dabbrev-code company-keywords)
                         company-dabbrev))
     :config
     (defun $company-select-prev-or-comint-match-input (&optional _)
