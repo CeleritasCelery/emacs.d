@@ -1318,7 +1318,7 @@ without the draw back of using vimscript for config.
 
 *** general
 
-we want to override most control keybindings to make them behave like
+we want to overide most control keybindings to make them behave like
 Vim instead of like Emacs.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
@@ -1331,7 +1331,6 @@ Vim instead of like Emacs.
     (evil-ex-substitute-global t)
     (evil-want-keybinding nil "Evil collection will provide this for us")
     (evil-want-abbrev-expand-on-insert-exit nil "Don't try abbrev expand on exit. Causes real issues in verilog mode")
-    (evil-respect-visual-line-mode t)
     :init
     (setq evil-split-window-below t)
     :config
@@ -1347,6 +1346,20 @@ rebind these to the normal scroll function.
   (general-def '(normal visual)
     "C-f" 'evil-scroll-down
     "C-b" 'evil-scroll-up)
+#+END_SRC
+
+we want to use visual lines, but then the line operators don't work
+(i.e. =dj= will not operate on literal lines). So we do some simple
+remapping instead of setting =evil-respect-visual-line-mode=.
+[[https://github.com/emacs-evil/evil/issues/188][emacs-evil/evil#188]]
+#+BEGIN_SRC emacs-lisp
+  (general-def 'motion
+    [remap evil-next-line] 'evil-next-visual-line
+    [remap evil-previous-line] 'evil-previous-visual-line)
+
+  (general-def 'operator
+    [remap evil-next-line] 'evil-next-line
+    [remap evil-previous-line] 'evil-previous-line)
 #+END_SRC
 
 add a little hack to prevent =v$= from grabbing the newline. This is a
@@ -1980,11 +1993,6 @@ Only communists end sentences with two spaces.
 Give us some breathing room
 #+BEGIN_SRC emacs-lisp
   (setq-default fill-column 80)
-#+END_SRC
-
-Always use visual lines
-#+BEGIN_SRC emacs-lisp
-  (global-visual-line-mode 1)
 #+END_SRC
 
 *** TAB key
