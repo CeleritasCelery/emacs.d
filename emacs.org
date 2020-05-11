@@ -983,6 +983,7 @@ want to live with it though.
 
 #+BEGIN_SRC emacs-lisp
   (use-package ivy
+    :bind (("C-x b" . ivy-switch-buffer))
     :general
     (ivy-minibuffer-map
      "C-h" "DEL"
