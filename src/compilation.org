@@ -242,6 +242,8 @@ that hook and set the alist back to our canonical version.
                 (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
                           "\n" filename ", " line)
                  1 2)
+                (,(err-rx ^ filename ": undefined reference to `" symbol "'")
+                 1)
                 (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
                  $bman-find-generic-log)
                 (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
