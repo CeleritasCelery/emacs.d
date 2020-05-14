@@ -1318,7 +1318,7 @@ without the draw back of using vimscript for config.
 
 *** general
 
-we want to overide most control keybindings to make them behave like
+we want to override most control keybindings to make them behave like
 Vim instead of like Emacs.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
@@ -4073,7 +4073,7 @@ Use a proportional font for org mode because it is more readable
               "Consolas"
             "Source Code Pro"))
     :config
-    (set-face-attribute 'org-variable-pitch-face nil :height $font-height))
+    (set-face-attribute 'org-variable-pitch-face nil :height 0.9))
 #+END_SRC
 
 ** src blocks
