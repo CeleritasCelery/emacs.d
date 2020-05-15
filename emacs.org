@@ -971,9 +971,9 @@ Accidentally hit this key a lot
 
 #+BEGIN_SRC emacs-lisp
   (use-package highlight-escape-sequences
-    :ghook ('(cperl-mode-hook perl-mode-hook python-mode-hook) 'hes-mode)
+    :ghook ('(cperl-mode-hook perl-mode-hook python-mode-hook tcl-mode-hook) 'hes-mode)
     :config
-    (dolist (mode '(perl-mode cperl-mode python-mode))
+    (dolist (mode '(perl-mode cperl-mode python-mode tcl-mode))
       (add-to-list 'hes-mode-alist (cons mode hes-common-escape-sequence-re))))
 #+END_SRC
 ** Ivy
@@ -4513,17 +4513,19 @@ This fixes a ligature issue.
 *** font lock
 highlight variables in strings
 #+BEGIN_SRC emacs-lisp
-  (font-lock-add-keywords 'perl-mode
-                          `((,(rx (group-n 1 "$" (opt "{")) (group-n 2 (1+ (any alnum "_"))) (group-n 3 (opt "}")))
-                             (1 (when (not (nth 4 (syntax-ppss)))
-                                  'default)
-                                prepend)
-                             (2 (when (not (nth 4 (syntax-ppss)))
-                                  font-lock-variable-name-face)
-                                prepend)
-                             (3 (when (not (nth 4 (syntax-ppss)))
-                                  'default)
-                                prepend))))
+  (setq $string-interpolation-keywords
+        `((,(rx (not (in "\\")) (group-n 1 "$" (opt "{")) (group-n 2 (1+ (any alnum "_"))) (group-n 3 (opt "}")))
+           (1 (when (not (nth 4 (syntax-ppss)))
+                'default)
+              prepend)
+           (2 (when (not (nth 4 (syntax-ppss)))
+                font-lock-variable-name-face)
+              prepend)
+           (3 (when (not (nth 4 (syntax-ppss)))
+                'default)
+              prepend))))
+
+  (font-lock-add-keywords 'perl-mode $string-interpolation-keywords)
 #+END_SRC
 
 *** perltidy
@@ -4663,6 +4665,7 @@ automatically detect it.
      "j" 'counsel-semantic-or-imenu)
     (tcl-mode-map "C-<return>" '$send-command)
     :custom
+    (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords)
     (flycheck-tcl-nagelfar-syntaxdb-file "~/temp/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh"))
 
