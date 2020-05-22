@@ -2264,10 +2264,14 @@ writing regexp clearer.
       (fp (1+ (any num "."))))
     "modified rx forms that are really usefull")
 
-  (use-package ample-regexps
-    :commands $rx
-    :config
-    (define-arx $rx $rx-defaults))
+  (if (version< "27.0.0" emacs-version)
+      (defmacro define-arx (name defs)
+        `(defmacro ,name (&rest forms)
+           `(rx-let ,,defs
+              (rx ,@forms))))
+    (use-package ample-regexps))
+
+  (define-arx $rx $rx-defaults)
 #+END_SRC
 
 pcre2el lets us convert between Emacs regexp and PCRE. very
