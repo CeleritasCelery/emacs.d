@@ -4257,6 +4257,7 @@ just using =C-l=
     (:keymaps 'company-active-map
      "RET" nil
      [return] nil
+     "C-w" nil
      "C-," 'counsel-company
      "C-l" 'company-complete-selection)
     (:definer 'leader
