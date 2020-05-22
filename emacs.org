@@ -4065,6 +4065,17 @@ Use flyspell to check our spelling in real time
   (add-hook 'with-editor-mode-hook 'flyspell-mode)
 #+END_SRC
 
+For windows I copied the dictionaries as explain [[https://github.com/hunspell/hunspell#usage][here]] to ~C:/hunspell~. you can
+see where hunspell looks for dictionaries with ~hunspell -D~. I installed hunspell
+with chocolate.
+#+BEGIN_SRC emacs-lisp
+  (when (eq system-type 'windows-nt)
+    (setq-default ispell-local-dictionary "en_US")
+    (setq ispell-dictionary-alist
+          '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
+    (setq ispell-local-dictionary-alist ispell-dictionary-alist))
+#+END_SRC
+
 *** company
 Use company-ispell to provide spelling auto complete
 #+BEGIN_SRC emacs-lisp
