@@ -3515,7 +3515,25 @@ A small package to jump to links in eww buffer.
 
 *** elfeed
 #+BEGIN_SRC emacs-lisp
-  (use-package elfeed)
+  (use-package elfeed
+    :custom
+    (elfeed-feeds
+     '("https://www.kill-the-newsletter.com/feeds/h1bnkuqulin0ilmn1ox6.xml" ;; James Clear 1-2-3
+       "https://www.reddit.com/message/inbox/.rss?feed=eb4b7fed8dfa9e400b6c314d465a06f07fecd627&user=celeritasCelery"
+       "https://blog.nelhage.com/atom.xml"
+       ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w" video);; CPG Grey
+       "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
+       ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" video) ;; Kurzgesagt
+       "https://www.kill-the-newsletter.com/feeds/ih9v3lgqbltd4tu07q7f.xml" ;; Mastering Vim
+       "https://www.kill-the-newsletter.com/feeds/zxeug9volv7x1cfl54uc.xml" ;; David Perell Monday Musings
+       "http://nullprogram.com/feed"
+       ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8tThli1ZY7LW5Dxqr3Y0jA" video);; Emacs macros channel
+       "hnrss.org/replies/?id=celeritascelery"
+       "hnrss.org/newest?points=50"
+       "https://www.reddit.com/r/emacs.rss"
+       "http://daringfireball.net/index.xml"
+       "https://irreal.org/blog/?feed=rss2"
+       "https://sachachua.com/blog/category/emacs-news/feed")))
 #+END_SRC
 
 ** compilation
