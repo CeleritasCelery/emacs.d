@@ -4634,6 +4634,12 @@ Inferior shell
   (general-def 'normal python-mode-map "gz" #'$python-shell)
 #+END_SRC
 
+** Rust
+#+begin_src emacs-lisp
+  (setq-default flycheck-rust-crate-type nil)
+  (use-package rust-mode)
+#+end_src
+
 ** verilog
 we have some nonstandard extensions for SV
 #+BEGIN_SRC emacs-lisp
