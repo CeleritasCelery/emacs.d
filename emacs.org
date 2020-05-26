@@ -569,6 +569,10 @@ not match the resolution of my monitor results in weird text sizes.
 #+END_SRC
 
 *** themes
+Apply theme changes immediately
+#+begin_src emacs-lisp
+  (setq custom--inhibit-theme-enable nil)
+#+end_src
 Creating a collection of themes that I like. I can use =helm-themes=
 to switch between them. Some of these themes do not have all faces
 that I would like, so When I get some time I will modify them. See
