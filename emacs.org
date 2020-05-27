@@ -3702,7 +3702,7 @@ windows.
     (add-to-list 'org-structure-template-alist
                  (if (version< "27.0.0" emacs-version)
                      '("el" . "src emacs-lisp")
-                   '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" "")))
+                   '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
 #+END_SRC
 
 *** inherit priority
