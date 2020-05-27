@@ -368,6 +368,7 @@ save minibuffer history between sessions.
     :straight nil
     :defer 1
     :config
+    (add-to-list 'savehist-additional-variables 'read-expression-history)
     (savehist-mode))
 #+END_SRC
 
