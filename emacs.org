@@ -1143,7 +1143,7 @@ display
     (:definer 'leader
      "T" 'counsel-load-theme)
     :init
-    (setq counsel-rg-base-command "rg --with-filename --no-heading --line-number --search-zip --color never %s"
+    (setq counsel-rg-base-command "rg -M 240 --with-filename --search-zip --no-heading --line-number --color never %s --path-separator / ."
           counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t)
     :config
