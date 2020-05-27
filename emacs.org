@@ -4100,6 +4100,7 @@ see where hunspell looks for dictionaries with ~hunspell -D~. I installed hunspe
 with chocolate.
 #+BEGIN_SRC emacs-lisp
   (when (eq system-type 'windows-nt)
+    (setq ispell-program-name "hunspell")
     (setq-default ispell-local-dictionary "en_US")
     (setq ispell-dictionary-alist
           '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
