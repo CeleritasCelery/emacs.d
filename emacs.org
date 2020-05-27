@@ -180,6 +180,27 @@ fix the path to use a new version of git
   (setenv "PAGER" "cat")
 #+END_SRC
 
+Proxy for windows setup
+#+BEGIN_SRC emacs-lisp
+  (defun $enable-proxy ()
+    "enable the proxy for windows"
+    (interactive)
+    (setenv "http_proxy" "http://proxy-dmz.intel.com:911")
+    (setenv "https_proxy" "http://proxy-dmz.intel.com:912")
+    (setenv "NO_PROXY" "localhost,intel.com,192.168.0.0/16,172.16.0.0/12,127.0.0.0/8,10.0.0.0/8"))
+
+  (defun $disable-proxy ()
+    "Remove the proxy settings for windows"
+    (interactive)
+    (setenv "http_proxy")
+    (setenv "https_proxy")
+    (setenv "NO_PROXY"))
+
+  (when (and (eq system-type 'windows-nt)
+             (equal user-login-name "tjhinckl"))
+    ($enable-proxy))
+#+END_SRC
+
 *** server
 use the emacs client server so that we can send output to this emacs instance
 #+BEGIN_SRC emacs-lisp
