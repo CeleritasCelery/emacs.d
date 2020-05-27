@@ -4034,9 +4034,9 @@ blocks
 Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
   (use-package org-roam
-    :straight (:host github :repo "jethrokuan/org-roam")
+    :init
+    (setq org-roam-directory "c:/Users/tjhinckl/Dropbox/org/coredump")
     :config
-    (setq org-roam-directory (expand-file-name "coredump" org-directory))
     (add-to-list 'org-roam-capture-templates
                  '("r" "reading" plain (function org-roam--capture-get-point)
                    "%?"
