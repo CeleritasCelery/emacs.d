@@ -23,7 +23,7 @@
            (fboundp
             (quote rainbow-mode))
            (rainbow-mode 1))
-     (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)"))))
+     (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))
  '(savehist-additional-variables (quote (helm-ff-history)))
  '(scroll-bar-mode nil)
  '(shx-kept-commands
