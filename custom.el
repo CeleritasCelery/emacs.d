@@ -9,8 +9,8 @@
  '(debug-on-error nil)
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   (quote
-    ((org-src-preserve-indentation . t)
+   '((eval require 'org-roam-dev)
+     (org-src-preserve-indentation . t)
      (eval visit-tags-table
            (expand-file-name "TAGS"
                              (vc-git-root default-directory))
