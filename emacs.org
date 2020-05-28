@@ -4660,7 +4660,9 @@ Inferior shell
 ** Rust
 #+begin_src emacs-lisp
   (setq-default flycheck-rust-crate-type nil)
-  (use-package rust-mode)
+  (use-package rustic)
+  (with-eval-after-load 'org-src
+    (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 #+end_src
 
 ** verilog
