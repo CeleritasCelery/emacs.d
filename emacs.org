@@ -3558,7 +3558,6 @@ A small package to jump to links in eww buffer.
        "hnrss.org/replies/?id=celeritascelery"
        "hnrss.org/newest?points=100"
        "https://www.reddit.com/r/emacs.rss"
-       "http://daringfireball.net/index.xml"
        "https://irreal.org/blog/?feed=rss2"
        "https://sachachua.com/blog/category/emacs-news/feed")))
 #+END_SRC
