@@ -3790,6 +3790,18 @@ inherit the priority of the parent heading and make sure the default state is al
     "s" '$org-procrastinate)
 #+END_SRC
 
+** WSL
+Fix ~org-open-file~ on WSL. Based on [[https://vxlabs.com/2020/03/07/patch-emacs-org-open-file-using-advice/][this]] link
+#+BEGIN_SRC emacs-lisp
+(defun wsl-fix-org-open-file (orig-org-open-file &rest args)
+  ;; temporarily replace function,
+  ;; see https://endlessparentheses.com/understanding-letf-and-how-it-replaces-flet.html
+  (cl-letf (((symbol-function 'start-process-shell-command) #'call-process-shell-command))
+    (apply orig-org-open-file args)))
+
+(advice-add #'org-open-file :around #'wsl-fix-org-open-file)
+#+END_SRC
+
 ** agenda
 #+BEGIN_SRC emacs-lisp
   (csetq org-agenda-todo-ignore-scheduled 'future
