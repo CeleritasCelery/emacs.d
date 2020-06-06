@@ -4047,6 +4047,12 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
   (use-package org-roam
     :init
     (setq org-roam-directory "~/Dropbox/org/coredump")
+    :bind (:map org-roam-mode-map
+           (("C-c n l" . org-roam)
+            ("C-c n f" . org-roam-find-file)
+            ("C-c n g" . org-roam-show-graph))
+           :map org-mode-map
+           (("C-c n i" . org-roam-insert)))
     :config
     (add-to-list 'org-roam-capture-templates
                  '("r" "reading" plain (function org-roam--capture-get-point)
