@@ -3548,6 +3548,7 @@ A small package to jump to links in eww buffer.
      '("https://www.kill-the-newsletter.com/feeds/h1bnkuqulin0ilmn1ox6.xml" ;; James Clear 1-2-3
        "https://www.reddit.com/message/inbox/.rss?feed=eb4b7fed8dfa9e400b6c314d465a06f07fecd627&user=celeritasCelery"
        "https://blog.nelhage.com/atom.xml"
+       "https://accidentallyquadratic.tumblr.com/rss"
        ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w" video);; CPG Grey
        "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
        ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" video) ;; Kurzgesagt
