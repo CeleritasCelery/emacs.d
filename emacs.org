@@ -4679,6 +4679,8 @@ Inferior shell
 #+begin_src emacs-lisp
   (setq-default flycheck-rust-crate-type nil)
   (use-package rustic)
+  (use-package lsp-mode)
+  (use-package company-lsp)
   (with-eval-after-load 'org-src
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 #+end_src
