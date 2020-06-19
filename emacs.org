@@ -1347,7 +1347,6 @@ Vim instead of like Emacs.
   (use-package evil
     :demand t
     :custom
-    (evil-jumps-cross-buffers nil)
     (evil-want-C-i-jump nil)
     (evil-want-Y-yank-to-eol t)
     (evil-symbol-word-search t "Using * and #, search foward for symbols, not words")
