@@ -3705,7 +3705,6 @@ windows.
 ** todos and general
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :straight (:type built-in)
     :gfhook #'$org-truncate-lines #'toggle-word-wrap
     :general
     (:definer 'leader
@@ -3740,9 +3739,7 @@ windows.
       "C-c C-<return>" 'org-insert-subheading
       "C-c C-SPC" 'org-insert-todo-subheading)
     (add-to-list 'org-structure-template-alist
-                 (if (version< "27.0.0" emacs-version)
-                     '("el" . "src emacs-lisp")
-                   '("el" "#+BEGIN_SRC emacs-lisp\n?\n#+END_SRC" ""))))
+                 '("el" . "src emacs-lisp")))
 #+END_SRC
 
 *** inherit priority
