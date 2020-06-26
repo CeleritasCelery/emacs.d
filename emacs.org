@@ -4792,6 +4792,10 @@ automatically detect it.
      "j" 'counsel-semantic-or-imenu)
     (tcl-mode-map "C-<return>" '$send-command)
     :custom
+    (setq tcl-imenu-generic-expression
+          `((nil ,(rx bol (0+ space)
+                      (or "body" "class" "configbody" "method" "proc" "iProc" "iTopProc")
+                      (1+ space) (group (1+ (in alnum "-_:*+")))) 1)))
     (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords)
     (flycheck-tcl-nagelfar-syntaxdb-file "~/temp/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh"))
