@@ -3337,20 +3337,26 @@ generic wrapper function that can be called from other code.
 
 **** hook
 #+BEGIN_SRC emacs-lisp
+  (defun $remove-control-char-comint (str)
+    (replace-regexp-in-string "^K" "" str))
+
   (defun $shell-mode-hook ()
     (shell-dirtrack-mode 0)
-    (setq-local comint-prompt-regexp ($rx bol (or (: (opt control "K") "╰─→")
-                                                  (: symbol "(" nums ")%")
-                                                  (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
-                                                  (: "bash-" num "." num "$")
-                                                  (: "|" (+ (not blank)) "|→")
-                                                  (: (+ (not blank)) "%")
-                                                  (: (* nonl) " %")
-                                                  (: symbol ">"))
-                                          " "))
+    (setq-local comint-prompt-regexp
+                ($rx bol (or (: (opt control "K") "╰─→")
+                             (: symbol "(" nums ")%")
+                             (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
+                             (: "bash-" num "." num "$")
+                             (: "|" (+ (not blank)) "|→")
+                             (: (+ (not blank)) "%")
+                             (: (* nonl) " %")
+                             (: symbol ">"))
+                     " "))
     (setq-local evil-search-wrap nil)
+    (add-hook 'comint-preoutput-filter-functions '$remove-control-char-comint nil t)
     (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local))
-    (add-hook 'shell-mode-hook '$shell-mode-hook)
+
+  (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
 
 **** send to shell
