@@ -490,11 +490,12 @@ a custom compilation command for running a turnin
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
            (mock (y-or-n-p "Run as Mock? "))
            (clone (when mock (y-or-n-p "Clone ToT? ")))
-           (eco (when (and (not mock)
+           (submit (when mock (y-or-n-p "Auto Submit? ")))
+           (eco (when (and (or submit (not mock))
                            (y-or-n-p "bug fix? "))
                   (read-string "Bug or ECO number(s): " nil
                                (defvar $turnin-eco-history nil))))
-           (comment (unless mock
+           (comment (when (or submit (not mock))
                       (read-string "turnin comment: " nil
                                    (defvar $turnin-message-history nil))))
            (default-directory model-root)
@@ -511,6 +512,7 @@ a custom compilation command for running a turnin
                                        "-s"
                                        ($git-command "config intel.stepping")
                                        (and mock "-mock")
+                                       (and submit "-turnin -submit")
                                        (and mock (not clone) "-no_clone")
                                        (and eco (concat "-bugecos " eco))
                                        (and comment (format "-comments \"%s\"" comment))))
