@@ -2187,6 +2187,34 @@ move me to the start of the line or start of code, based on heuristics
      "C-a" 'mwim-beginning))
 #+END_SRC
 
+**** indentation
+When looking at very long files or function is can be nice to go up and down
+indentation levels. This lets me skip up to the start of a function.
+#+BEGIN_SRC emacs-lisp
+  (defun $get-indent-level ()
+    (length (buffer-substring-no-properties
+             (line-beginning-position)
+             (save-excursion (back-to-indentation)
+                             (point)))))
+
+  (defun $up-indent-level ()
+    "go up an indentation level"
+    (interactive)
+    (let ((indent ($get-indent-level)))
+      (while (<= indent ($get-indent-level))
+        (previous-line))))
+
+  (defun $down-indent-level ()
+    "go up an indentation level"
+    (interactive)
+    (let ((indent ($get-indent-level)))
+      (while (<= indent ($get-indent-level))
+        (next-line))))
+
+  (general-def 'motion "gh" '$up-indent-level)
+  (general-def 'motion "gH" '$down-indent-level)
+#+END_SRC
+
 **** dumb jump
 dumb jump uses regexp search to try and find the definition of a symbol
 #+BEGIN_SRC emacs-lisp
