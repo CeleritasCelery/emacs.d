@@ -2610,14 +2610,19 @@ email. automatically add the tramp header if from a different site
                  (file-directory-p file))
         (cl-callf concat file "/"))
       ;; remove problematic formatting from files
-      (thread-last file
-        (concat remote-url)
-        (replace-regexp-in-string (rx (1+ (any space "\""))) "")
-        (replace-regexp-in-string (rx (1+ "/")) "/")
-        (replace-regexp-in-string "\"" "")
-        (string-remove-prefix "./")
-        (replace-regexp-in-string "$ENV" "$")
-        (substitute-in-file-name))))
+      (let* ((path (thread-last file
+                     (concat remote-url)
+                     (replace-regexp-in-string (rx (1+ (any space "\""))) "")
+                     (replace-regexp-in-string (rx (1+ "/")) "/")
+                     (replace-regexp-in-string "\"" "")
+                     (string-remove-prefix "./")
+                     (replace-regexp-in-string "$ENV" "$")
+                     (substitute-in-file-name)))
+             (root-path (concat (vc-git-root default-directory)
+                                path)))
+        (cond ((file-exists-p path) path)
+              ((file-exists-p root-path) root-path)
+              (t path)))))
 
   (defun $get-chars-at-point (chars)
     (let ((beg (save-excursion
