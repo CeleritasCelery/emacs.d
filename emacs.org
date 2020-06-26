@@ -576,7 +576,7 @@ not match the resolution of my monitor results in weird text sizes.
     "Use xrandr to resize my VNC window"
     (let ((default-directory "~/")
           (inhibit-message t))
-      (shell-command (concat "xrandr --size " size))))
+      (shell-command (concat "xrandr --size 2 && xrandr --size " size))))
 
   (defhydra vnc-resize (:columns 2 :exit t)
     "VNC Resize"
