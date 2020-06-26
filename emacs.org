@@ -4898,6 +4898,10 @@ locked
                             `((,(rx (group "//" (0+ nonl)) eol) 1 font-lock-comment-face))))
 #+END_SRC
 
+** CSV
+#+BEGIN_SRC emacs-lisp
+  (use-package csv-mode)
+#+END_SRC
 ** makefile
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'interpreter-mode-alist '("gmake" . makefile-gmake-mode))
