@@ -3582,8 +3582,10 @@ A small package to jump to links in eww buffer.
 #+BEGIN_SRC emacs-lisp
   (use-package elfeed
     :custom
+    (elfeed-db-directory "~/Dropbox/elfeed/db")
     (elfeed-feeds
      '("https://www.kill-the-newsletter.com/feeds/h1bnkuqulin0ilmn1ox6.xml" ;; James Clear 1-2-3
+       "https://planet.emacslife.com/atom.xml"
        "https://www.reddit.com/message/inbox/.rss?feed=eb4b7fed8dfa9e400b6c314d465a06f07fecd627&user=celeritasCelery"
        "https://blog.nelhage.com/atom.xml"
        "https://accidentallyquadratic.tumblr.com/rss"
