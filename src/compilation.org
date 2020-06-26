@@ -15,7 +15,7 @@ use lexical bindings in the file make this file lexically bound
   (defun $compile (arg)
     "Compile with model root set"
     (interactive "P")
-    (let* ((model-root (or ($model-root) default-directory))
+    (let* ((model-root ($model-root))
            (cmd (read-string "Compile Command: " nil 'compile-history))
            (shorten-fn (lambda (text) (match-string 1 text)))
            (cmd-name (thread-last cmd
@@ -365,7 +365,7 @@ some point I would like to make this automatic by inspection.
 
   (defun $model-root (&optional dir)
     "current model root"
-    (expand-file-name (vc-git-root (or dir default-directory))))
+    (expand-file-name (or (vc-git-root (or dir default-directory)) "")))
 
   (defun $check-gcc-version ()
     "If the GCC version is not default, build can fail"
