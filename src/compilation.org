@@ -247,6 +247,8 @@ that hook and set the alist back to our canonical version.
                 (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
                  $bman-find-generic-log)
                 (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
+                (,(err-rx ^ "// 'DOFile " filename "' aborted at line " line)
+                 1 2)
                 )))
 
   (with-eval-after-load 'verilog-mode
