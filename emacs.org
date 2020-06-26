@@ -1430,9 +1430,9 @@ prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 *** magic searching
 Very magic mode makes evil-ex more PCRE like
 #+BEGIN_SRC emacs-lisp
-  (setq evil-search-module 'evil-search
-        evil-ex-search-vim-style-regexp t
-        evil-magic 'very-magic)
+  (csetq evil-search-module 'evil-search
+         evil-ex-search-vim-style-regexp t
+         evil-magic 'very-magic)
 #+END_SRC
 
 *** text objects
