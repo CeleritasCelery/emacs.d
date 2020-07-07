@@ -3587,7 +3587,9 @@ A small package to jump to links in eww buffer.
      '("https://www.kill-the-newsletter.com/feeds/h1bnkuqulin0ilmn1ox6.xml" ;; James Clear 1-2-3
        "https://planet.emacslife.com/atom.xml"
        "https://www.reddit.com/message/inbox/.rss?feed=eb4b7fed8dfa9e400b6c314d465a06f07fecd627&user=celeritasCelery"
+       "https://www.kill-the-newsletter.com/feeds/nkl4iezsamb32bdyii1l.xml" ;; Zen Habits
        "https://blog.nelhage.com/atom.xml"
+       "https://xkcd.com/atom.xml"
        "https://accidentallyquadratic.tumblr.com/rss"
        ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w" video);; CPG Grey
        "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
@@ -3595,7 +3597,6 @@ A small package to jump to links in eww buffer.
        "https://www.kill-the-newsletter.com/feeds/ih9v3lgqbltd4tu07q7f.xml" ;; Mastering Vim
        "https://www.kill-the-newsletter.com/feeds/zxeug9volv7x1cfl54uc.xml" ;; David Perell Monday Musings
        "http://nullprogram.com/feed"
-       ("https://www.youtube.com/feeds/videos.xml?channel_id=UC8tThli1ZY7LW5Dxqr3Y0jA" video);; Emacs macros channel
        "hnrss.org/replies/?id=celeritascelery"
        "hnrss.org/newest?points=100"
        "https://www.reddit.com/r/emacs.rss"
