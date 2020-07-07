@@ -386,6 +386,7 @@ some point I would like to make this automatic by inspection.
 
   (defun $gatekeeper-env ()
     `("GK_EVENTTYPE=mock"
+      ,(concat "MODEL_ROOT=" ($model-root))
       ,(concat "GIT_TOOL_FLOW=" ($git-command "config intel.toolflow"))
       ,(concat "GIT_BUSINESS_UNIT=" ($git-command "config intel.businessunit"))
       ,(concat "GK_CLUSTER=" ($git-command "config intel.cluster"))
@@ -402,9 +403,7 @@ define a custom compliation mode that is run based on the hydra above
     "run dft ipgen in the current model"
     ($check-gcc-version)
     (let* ((model-root ($model-root))
-           (compilation-environment
-            (cons (concat "MODEL_ROOT=" model-root)
-                  ($gatekeeper-env)))
+           (compilation-environment ($gatekeeper-env))
            (default-directory model-root)
            (name-fn
             (lambda (_mode)
@@ -448,8 +447,7 @@ custom compilation command for running regressions
                             (t (user-error "invalid file name %s" file))))
            (fsdb (if (y-or-n-p "With waves? ") "-trex -fsdb -trex-" ""))
            (default-directory model-root)
-           (compilation-environment (cons (concat "MODEL_ROOT=" model-root)
-                                          ($gatekeeper-env)))
+           (compilation-environment (cons "VCS_HOME" ($gatekeeper-env)))
            (compilation-buffer-name-function
             (lambda (mode)
               (format "*%s simregress %s*"
@@ -487,7 +485,8 @@ a custom compilation command for running a turnin
     "run a turnin command"
     (interactive)
     (let* ((model-root ($model-root))
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (compilation-environment (list (concat "MODEL_ROOT=" model-root)
+                                          "VCS_HOME"))
            (mock (y-or-n-p "Run as Mock? "))
            (clone (when mock (y-or-n-p "Clone ToT? ")))
            (submit (when mock (y-or-n-p "Auto Submit? ")))
