@@ -2197,18 +2197,22 @@ indentation levels. This lets me skip up to the start of a function.
              (save-excursion (back-to-indentation)
                              (point)))))
 
+  (defun $check-indent-level (indent)
+    (or (looking-at-p (rx bol (0+ space) eol))
+        (<= indent ($get-indent-level))))
+
   (defun $up-indent-level ()
     "go up an indentation level"
     (interactive)
     (let ((indent ($get-indent-level)))
-      (while (<= indent ($get-indent-level))
+      (while ($check-indent-level indent)
         (previous-line))))
 
   (defun $down-indent-level ()
     "go up an indentation level"
     (interactive)
     (let ((indent ($get-indent-level)))
-      (while (<= indent ($get-indent-level))
+      (while ($check-indent-level indent)
         (next-line))))
 
   (general-def 'motion "gh" '$up-indent-level)
