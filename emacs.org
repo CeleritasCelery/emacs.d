@@ -3595,10 +3595,11 @@ A small package to jump to links in eww buffer.
        "https://www.kill-the-newsletter.com/feeds/nkl4iezsamb32bdyii1l.xml" ;; Zen Habits
        "https://blog.nelhage.com/atom.xml"
        "https://xkcd.com/atom.xml"
+       "https://www.smbc-comics.com/comic/rss"
        "https://accidentallyquadratic.tumblr.com/rss"
-       ("https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w" video);; CPG Grey
+       "https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w";; CPG Grey
        "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
-       ("https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" video) ;; Kurzgesagt
+       "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" ;; Kurzgesagt
        "https://www.kill-the-newsletter.com/feeds/ih9v3lgqbltd4tu07q7f.xml" ;; Mastering Vim
        "https://www.kill-the-newsletter.com/feeds/zxeug9volv7x1cfl54uc.xml" ;; David Perell Monday Musings
        "http://nullprogram.com/feed"
