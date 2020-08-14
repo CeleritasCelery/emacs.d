@@ -416,6 +416,15 @@ many unicode symbols
                                 "Source Code Pro")
                       :height $font-height)
   (set-fontset-font t nil "Symbola" nil 'append)
+
+  (defun $toggle-large-font ()
+    "Toggle between normal and large font size."
+    (interactive)
+    (set-face-attribute
+     'default nil :height
+     (if (< 200 (face-attribute 'default :height))
+         $font-height
+       200)))
 #+END_SRC
 
 use a hydra to scale the text size
