@@ -3985,6 +3985,11 @@ of our theme.
   (setq org-html-htmlize-output-type 'css)
 #+END_SRC
 
+Make check boxes look decent
+#+BEGIN_SRC emacs-lisp
+  (setq org-html-checkbox-type 'unicode)
+#+END_SRC
+
 Treat =verbatim= markup as ~kbd~ tags in html.
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'ox-html
