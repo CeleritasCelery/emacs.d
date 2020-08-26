@@ -3597,6 +3597,8 @@ A small package to jump to links in eww buffer.
 *** elfeed
 #+BEGIN_SRC emacs-lisp
   (use-package elfeed
+    :general
+    ('normal elfeed-search-mode-map "gu" 'elfeed-update)
     :custom
     (elfeed-db-directory "~/Dropbox/elfeed/db")
     (elfeed-feeds
@@ -3604,22 +3606,19 @@ A small package to jump to links in eww buffer.
        "https://www.kill-the-newsletter.com/feeds/ozdcnkhi3fs11ulmd7ha.xml" ;; Ali Abdaal Sunday Snippets
        "https://planet.emacslife.com/atom.xml"
        "https://www.reddit.com/message/inbox/.rss?feed=eb4b7fed8dfa9e400b6c314d465a06f07fecd627&user=celeritasCelery"
-       "https://www.kill-the-newsletter.com/feeds/nkl4iezsamb32bdyii1l.xml" ;; Zen Habits
+       "https://tratt.net/laurie/blog/entries.rss"
        "https://blog.nelhage.com/atom.xml"
+       "https://raphlinus.github.io/feed.xml"
+       "https://pcwalton.github.io/feed.xml"
        "https://xkcd.com/atom.xml"
        "https://www.smbc-comics.com/comic/rss"
        "https://accidentallyquadratic.tumblr.com/rss"
-       "https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w";; CPG Grey
        "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
        "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" ;; Kurzgesagt
-       "https://www.kill-the-newsletter.com/feeds/ih9v3lgqbltd4tu07q7f.xml" ;; Mastering Vim
-       "https://www.kill-the-newsletter.com/feeds/zxeug9volv7x1cfl54uc.xml" ;; David Perell Monday Musings
        "http://nullprogram.com/feed"
        "hnrss.org/replies/?id=celeritascelery"
-       "hnrss.org/newest?points=100"
-       "https://www.reddit.com/r/emacs.rss"
-       "https://irreal.org/blog/?feed=rss2"
-       "https://sachachua.com/blog/category/emacs-news/feed")))
+       "hnrss.org/newest?points=200"
+       "https://reddit-top-rss.herokuapp.com/?subreddit=emacs&averagePostsPerDay=5&view=rss")))
 #+END_SRC
 
 ** compilation
