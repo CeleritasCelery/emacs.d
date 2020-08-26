@@ -3577,6 +3577,12 @@ while typing.
 *** eww
 Eww is the =Emacs Web Wowser= and allows basic views of webpages.
 
+Make the renderings a little bit prettier.
+#+begin_src emacs-lisp
+  (setq shr-use-colors nil
+        shr-bullet "• ")
+#+end_src
+
 A small package to jump to links in eww buffer.
 #+BEGIN_SRC emacs-lisp
   (use-package eww-lnum
