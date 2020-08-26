@@ -4247,7 +4247,9 @@ Babel is way to execute source code from within blocks.
 
   (use-package evil-org-agenda
     :straight nil
-    :commands evil-org-agenda-set-keys
+    :demand t
+    :after org-agenda
+    :config (evil-org-agenda-set-keys)
     :hook (org-agenda-mode . evil-org-agenda-mode))
 
   (defun $org-todo-or-evil-t ()
