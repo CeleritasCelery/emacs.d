@@ -1186,7 +1186,9 @@ Use fd instead of find to search faster
     (interactive)
     (let ((default-directory (or initial-directory default-directory)))
       (ivy-read "Jump file: "
-                (counsel--call '("fd" "--no-ignore" "--hidden" "--exclude" ".git" "--type" "f")
+                (counsel--call (list (or (executable-find "fd")
+                                         (executable-find "fdfind"))
+                                     "--no-ignore" "--hidden" "--exclude" ".git" "--type" "f")
                                (lambda () (split-string (buffer-string) "\n")))
                 :matcher #'counsel--find-file-matcher
                 :initial-input initial-input
