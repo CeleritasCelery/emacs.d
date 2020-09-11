@@ -16,15 +16,25 @@ use lexical bindings in the file make this file lexically bound
     "Compile with model root set"
     (interactive "P")
     (let* ((model-root ($model-root))
-           (cmd (read-string "Compile Command: " nil 'compile-history))
+           (file-name (buffer-file-name))
+           (cmd (read-string "Compile Command: "
+                             (when file-name
+                               (file-name-nondirectory file-name))
+                             'compile-history))
            (shorten-fn (lambda (text) (match-string 1 text)))
            (cmd-name (thread-last cmd
                        (replace-regexp-in-string ($rx ^ "source " -> "&& ") "")
-                       (replace-regexp-in-string ($rx "/" file "/" (group (+ (in alnum "-_."))) symbol-end) shorten-fn)))
+                       (replace-regexp-in-string ($rx "/" file "/"
+                                                      (group (+ (in alnum "-_."))) symbol-end)
+                                                 shorten-fn)))
            (buffer-name (format "*%s - %s*" (f-filename model-root) cmd-name))
-           (compilation-environment (list (concat "MODEL_ROOT=" model-root)))
+           (env-var? (lambda (x) (string-match-p "=" x)))
+           (parts (split-string cmd))
+           (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
+           (compilation-environment (append (-take-while env-var? parts)
+                                            (list (concat "MODEL_ROOT=" model-root))))
            (compilation-buffer-name-function (lambda (_mode) buffer-name)))
-      (compile cmd (consp arg))))
+      (compile final-cmd (consp arg))))
 #+END_SRC
 
 compilation mode will throw warnings about clearing large buffers, but
