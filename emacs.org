@@ -2237,9 +2237,8 @@ indentation levels. This lets me skip up to the start of a function.
 dumb jump uses regexp search to try and find the definition of a symbol
 #+BEGIN_SRC emacs-lisp
   (use-package dumb-jump
-    :general
-    (:definer 'leader
-     "J" 'dumb-jump-go))
+    :init
+    (add-hook 'xref-backend-functions #'dumb-jump-xref-activate 'append))
 #+END_SRC
 
 **** avy
