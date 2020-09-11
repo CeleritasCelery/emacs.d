@@ -730,7 +730,7 @@ finished or running, and easily jump to the associated buffer.
 
 
   (defun $compilation-format-helm-candidate (buffer msg face)
-    (cons (format "%-50s%s" buffer (propertize msg 'face face))
+    (cons (format "%-10s%s" (propertize msg 'face face) buffer)
           buffer))
 
   (defun $compilation-buffers-candidates ()
@@ -771,7 +771,7 @@ finished or running, and easily jump to the associated buffer.
                                                      (face (if (string-prefix-p "exited abnormally" msg)
                                                                'compilation-error
                                                              'compilation-info)))
-                                                ($compilation-format-helm-candidate buffer msg face))
+                                                ($compilation-format-helm-candidate buffer (string-remove-prefix "exited abnormally with " msg) face))
                                               finished-buffers)))
       (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers formatted-waiting-buffers)))
 
