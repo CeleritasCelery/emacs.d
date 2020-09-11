@@ -1357,6 +1357,14 @@ Vim instead of like Emacs.
 #+BEGIN_SRC emacs-lisp
   (use-package evil
     :demand t
+    :general
+    ('evil-ex-completion-map
+     "C-f" nil
+     "C-b" nil
+     "C-o" 'evil-ex-command-window)
+    ('evil-ex-search-keymap
+     "C-f" nil
+     "C-o" 'evil-ex-search-command-window)
     :custom
     (evil-want-C-i-jump nil)
     (evil-want-Y-yank-to-eol t)
