@@ -3614,6 +3614,7 @@ A small package to jump to links in eww buffer.
        "https://planet.emacslife.com/atom.xml"
        "https://www.reddit.com/message/inbox/.rss?feed=eb4b7fed8dfa9e400b6c314d465a06f07fecd627&user=celeritasCelery"
        "https://tratt.net/laurie/blog/entries.rss"
+       "https://blog.rust-lang.org/feed.xml"
        "https://blog.nelhage.com/atom.xml"
        "https://raphlinus.github.io/feed.xml"
        "https://pcwalton.github.io/feed.xml"
