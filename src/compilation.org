@@ -496,7 +496,11 @@ a custom compilation command for running a turnin
     (interactive)
     (let* ((model-root ($model-root))
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)
-                                          "VCS_HOME"))
+                                          "VCS_HOME"
+                                          "LD_LIBRARY_PATH"
+                                          "SNPSLMD_LICENSE_FILE"
+                                          "VCS_TARGET_ARCH"
+                                          "PERL5LIB"))
            (mock (y-or-n-p "Run as Mock? "))
            (clone (when mock (y-or-n-p "Clone ToT? ")))
            (submit (when mock (y-or-n-p "Auto Submit? ")))
