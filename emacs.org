@@ -4684,7 +4684,6 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (setq python-shell-interpreter $python-executable
         flycheck-python-flake8-executable $python-executable
-        flycheck-python-mypy-executable $python-executable
         flycheck-python-pycompile-executable $python-executable
         flycheck-python-pylint-executable $python-executable)
 
