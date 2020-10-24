@@ -2139,9 +2139,11 @@ with their ascii equivalents.
 *** minibuffer
 
 #+BEGIN_SRC emacs-lisp
+  (setq enable-recursive-minibuffers t)
+
   (defun insert-current-file-name-at-point (&optional full-path)
     "Insert the current filename at point.
-   With prefix argument, use full path."
+     With prefix argument, use full path."
     (interactive "P")
     (let* ((buffer (if (minibufferp)
                        (window-buffer (minibuffer-selected-window))
@@ -2291,7 +2293,6 @@ provides snippets for adding complex blocks. use it with =M-/=
 
 *** multiedit
 mutliedit is a hybrid of evil-iedit-state and evil-mc.
-
 #+BEGIN_SRC emacs-lisp
   (use-package evil-multiedit
     :custom
