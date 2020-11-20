@@ -127,7 +127,8 @@ Never load outdated byte code
 We never use right to left scripts, so disable that feature for better
 performance
 #+BEGIN_SRC emacs-lisp
-  (setq-default bidi-display-reordering nil)
+  (setq bidi-inhibit-bpa t
+        bidi-paragraph-direction 'left-to-right)
 #+END_SRC
 
 [[https://emacs.stackexchange.com/questions/28736/emacs-pointcursor-movement-lag/28746][fix movement lag]] not sure if this will do anything. But since I don't
