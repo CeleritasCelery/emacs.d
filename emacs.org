@@ -4803,8 +4803,8 @@ Inferior shell
     (:definer 'leader :keymaps 'rustic-mode-map
      "j" 'counsel-semantic-or-imenu
      "m" 'lsp-rust-analyzer-expand-macro)
-    ('normal :keymaps 'rustic-mode-map
-      "J" 'lsp-rust-analyzer-join-lines)
+    (:states '(normal) :keymaps 'rustic-mode-map
+     "J" 'lsp-rust-analyzer-join-lines)
     :custom
     (rustic-compile-backtrace "1"))
 
