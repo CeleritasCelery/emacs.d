@@ -1,0 +1,4 @@
+# name: println 0
+# key: p0
+# --
+println!("$0");

@@ -1,0 +1,4 @@
+# name: println 2
+# key: p2
+# --
+println!("{} {}", $1, $2);
