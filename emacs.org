@@ -4089,7 +4089,7 @@ loaded so it does not effect startup time.
            "<!--/*--><![CDATA[/*><!--*/\n"
            (with-temp-buffer
              (insert-file-contents
-              "~/org/org-html-themes/styles/email/css/email.css")
+              "~/.emacs.d/org-html-themes/styles/email/css/email.css")
              (buffer-string))
            "/*]]>*/-->\n"
            "</style>\n")))
