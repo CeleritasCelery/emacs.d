@@ -3615,16 +3615,20 @@ A small package to jump to links in eww buffer.
        "https://planet.emacslife.com/atom.xml"
        "https://bzg.fr/index.xml" ;; Bastien Guerry (org maintainer)
        "https://tratt.net/laurie/blog/entries.rss"
+       "http://www.aaronsw.com/2002/feeds/pgessays.rss"
        "https://blog.rust-lang.org/feed.xml"
        "https://blog.nelhage.com/atom.xml"
+       "http://blog.cleancoder.com/atom.xml"
        "https://raphlinus.github.io/feed.xml"
        "https://pcwalton.github.io/feed.xml"
+       "https://kill-the-newsletter.com/feeds/0ublinkmgw51td1ix4k4.xml" ;; Dion Systems
        "https://fasterthanli.me/index.xml"
        "https://xkcd.com/atom.xml"
        "https://accidentallyquadratic.tumblr.com/rss"
        "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
        "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" ;; Kurzgesagt
        "http://nullprogram.com/feed"
+       "https://reddit-top-rss.herokuapp.com/?subreddit=rust&averagePostsPerDay=1&view=rss"
        "https://reddit-top-rss.herokuapp.com/?subreddit=emacs&averagePostsPerDay=1&view=rss")))
 #+END_SRC
 
