@@ -2209,10 +2209,16 @@ When looking at very long files or function is can be nice to go up and down
 indentation levels. This lets me skip up to the start of a function.
 #+BEGIN_SRC emacs-lisp
   (defun $get-indent-level ()
-    (length (buffer-substring-no-properties
-             (line-beginning-position)
-             (save-excursion (back-to-indentation)
-                             (point)))))
+    (let ((indentation (buffer-substring-no-properties
+                        (line-beginning-position)
+                        (save-excursion (back-to-indentation)
+                                        (point)))))
+      (seq-reduce
+       #'+
+       (seq-map
+        (lambda (x) (if (eq x ?\t) tab-width 1))
+        indentation)
+       0)))
 
   (defun $check-indent-level (indent)
     (or (looking-at-p (rx bol (0+ space) eol))
