@@ -5033,7 +5033,11 @@ locked
 
 ** CSV
 #+BEGIN_SRC emacs-lisp
-  (use-package csv-mode)
+  (use-package csv-mode
+    :general
+    (:definer 'leader
+     :keymaps 'csv-mode-map
+     "a" 'csv-align-mode))
 #+END_SRC
 ** makefile
 #+BEGIN_SRC emacs-lisp
