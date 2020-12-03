@@ -317,15 +317,9 @@ run any command
   (defhydra bman-cmd (:exit t :columns 2)
     "run a bman command"
     ("a" ($run-bman "") "all")
-    ("A" ($run-bman "+s sgcdc") "extra")
-    ("l" ($run-bman "-s all +s lintra") "lintra")
     ("v" ($run-bman "-s all +s vcs") "vcs")
-    ("e" ($run-bman "-s all +s espfmodel") "espf")
-    ("c" ($run-bman "-s all +s collage") "collage")
-    ("s" ($run-bman "-s all +s sgdft") "SG DFT")
-    ("d" ($run-bman "-s all +s sgcdc") "SG CDC")
     ("r" ($run-bman "-s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra") "RTL only")
-    ("u" ($run-bman "-s all +s emu,sglp,sgdft,vclp,lintra_ol,FLG,hip_listgen,lintra,sgcdc") "DRC only")
+    ("i" ($run-bman "-s all +s collage.collage_assemble_gnrio_dft_sub_parition_1_lib,collage.collage_assemble_gnrio_dft_sub_parition_2_lib,collage.collage_assemble_gnrio_dft_sub_parition_3_lib,collage.collage_assemble_gnrio_dft_sub_parition_4_lib,collage.collage_assemble_gnrio_dft_sub_parition_5_lib,collage.collage_assemble_gnrio_dft_sub_parition_6_lib,collage.collage_assemble_gnrio_dft_sub_parition_7_lib,collage.collage_assemble_gnrio_dft_sub_parition_8_lib,collage.collage_assemble_gnrio_dft_sub_parition_9_lib,collage.collage_assemble_gnrio_dft_sub_parition_10_lib,collage.collage_assemble_gnrio_dft_insertion_lib,collage.collage_assemble_gnrio_dft_integration_pre_lib") "DFT integration")
     ("g" ($run-bman (read-string "run bman as: " nil '$bman-command-history (car $bman-command-history))) "generic"))
 
   (defvar $bman-command-history nil)
@@ -395,7 +389,7 @@ some point I would like to make this automatic by inspection.
         (message "%s" (shell-command-to-string (format "%s %d" link-script time))))))
 
   (defun $gatekeeper-env ()
-    `("GK_EVENTTYPE=mock"
+    `("GK_EVENTTYPE=mock" "LD_LIBRARY_PATH"
       ,(concat "MODEL_ROOT=" ($model-root))
       ,(concat "GIT_TOOL_FLOW=" ($git-command "config intel.toolflow"))
       ,(concat "GIT_BUSINESS_UNIT=" ($git-command "config intel.businessunit"))
@@ -498,8 +492,6 @@ a custom compilation command for running a turnin
            (compilation-environment (list (concat "MODEL_ROOT=" model-root)
                                           "VCS_HOME"
                                           "LD_LIBRARY_PATH"
-                                          "SNPSLMD_LICENSE_FILE"
-                                          "VCS_TARGET_ARCH"
                                           "PERL5LIB"))
            (mock (y-or-n-p "Run as Mock? "))
            (clone (when mock (y-or-n-p "Clone ToT? ")))
@@ -559,7 +551,8 @@ it trying prompt us to save all buffers.
     (setq $current-compilation-dir default-directory))
 
   (defun $compilation-save-buffer-p ()
-    (when-let ((root (vc-git-root (buffer-file-name)))
+    (when-let ((name (buffer-file-name))
+               (root (vc-git-root name))
                (comp-root (vc-git-root (or $current-compilation-dir
                                            default-directory))))
       (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
