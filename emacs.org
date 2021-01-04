@@ -3663,7 +3663,10 @@ A small package to jump to links in eww buffer.
        "https://blog.nelhage.com/atom.xml"
        "http://blog.cleancoder.com/atom.xml"
        "https://raphlinus.github.io/feed.xml"
+       "https://martinfowler.com/feed.atom"
+       "http://journal.stuffwithstuff.com/atom.xml"
        "https://pcwalton.github.io/feed.xml"
+       "https://probablydance.com/feed/"
        "https://kill-the-newsletter.com/feeds/0ublinkmgw51td1ix4k4.xml" ;; Dion Systems
        "https://fasterthanli.me/index.xml"
        "https://xkcd.com/atom.xml"
