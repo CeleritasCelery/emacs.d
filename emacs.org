@@ -2887,6 +2887,7 @@ clear status.
   (add-to-list 'clean-buffer-list-kill-never-regexps '$never-kill-compilation-buffers)
 
   (add-hook 'midnight-hook 'recentf-save-list)
+  (add-hook 'midnight-hook 'mu4e-update-mail-and-index)
 #+END_SRC
 
 *** auto-insert
