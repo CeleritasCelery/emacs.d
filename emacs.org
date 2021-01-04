@@ -3107,7 +3107,8 @@ automatically set my credentials based on where the repo is located.
       (shell-command-to-string "git config --local pull.rebase true")
       (message "setting git user credentials")))
 
-  (add-hook 'magit-status-mode-hook '$git-set-user)
+  (when ($dev-config-p)
+    (add-hook 'magit-status-mode-hook '$git-set-user))
 #+END_SRC
 
 **** org
