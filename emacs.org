@@ -4234,18 +4234,11 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
     :init
     (setq org-roam-directory "~/Dropbox/org/coredump")
     :bind (:map org-roam-mode-map
-           (("C-c n l" . org-roam)
+           (("C-c n n" . org-roam)
             ("C-c n f" . org-roam-find-file)
-            ("C-c n g" . org-roam-show-graph))
+            ("C-c n b" . org-roam-buffer-activate))
            :map org-mode-map
-           (("C-c n i" . org-roam-insert)))
-    :config
-    (add-to-list 'org-roam-capture-templates
-                 '("r" "reading" plain (function org-roam--capture-get-point)
-                   "%?"
-                   :file-name "%<%Y%m%d%H%M%S>-${slug}"
-                   :head "#+TITLE: ${title}\n\n- author :: \n- type :: [[file:20200305223821-article.org][article]]\n- tags ::\n\n[[file:20200220234404_reading_list.org][reading list]]\n\n[[%c][link]]\n\n"
-                   :unnarrowed t)))
+           (("C-c n i" . org-roam-insert))))
 #+END_SRC
 ** tags
 #+BEGIN_SRC emacs-lisp
