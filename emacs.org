@@ -923,10 +923,7 @@ helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
 #+BEGIN_SRC emacs-lisp
   (use-package helpful
-    :general ("C-h k" 'helpful-key)
-    :init
-    (setq find-function-C-source-directory
-          (expand-file-name "~/custom/emacs-git/src")))
+    :general ("C-h k" 'helpful-key))
 #+END_SRC
 
 Always select the help window
