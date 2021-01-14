@@ -3816,7 +3816,7 @@ windows.
                   (make-mu4e-context
                    :name "pro"
                    :match-func (apply-partially '$mu4e-check-context "/Pro")
-                   :vars '((user-mail-address . "troy.hinckley@gmail.com" )
+                   :vars '((user-mail-address . "troyhinckley@gmail.com" )
                            (smtpmail-smtp-user . "troyhinckley@gmail.com")
                            (smtpmail-smtp-server . "smtp.gmail.com")
                            (user-full-name . "Troy Hinckley")
