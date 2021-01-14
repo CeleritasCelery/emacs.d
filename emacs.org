@@ -4187,8 +4187,6 @@ blocks
       :definer 'minor-mode
       :keymaps 'org-capture-mode
       "e" '$org-export-buffer)
-    (unless ($dev-config-p)
-      (setq org-directory "~/Dropbox/Apps/MobileOrg"))
     :config
     (setq
      $org-inbox-file (expand-file-name "inbox.org" org-directory)
