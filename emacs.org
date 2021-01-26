@@ -3652,8 +3652,8 @@ A small package to jump to links in eww buffer.
     (elfeed-db-directory "~/Dropbox/elfeed/db")
     (elfeed-feeds
      '("https://www.kill-the-newsletter.com/feeds/h1bnkuqulin0ilmn1ox6.xml" ;; James Clear 1-2-3
-       "https://planet.emacslife.com/atom.xml"
        "https://bzg.fr/index.xml" ;; Bastien Guerry (org maintainer)
+       "https://sachachua.com/blog/feed/"
        "https://tratt.net/laurie/blog/entries.rss"
        "http://www.aaronsw.com/2002/feeds/pgessays.rss"
        "https://blog.rust-lang.org/feed.xml"
@@ -3663,7 +3663,12 @@ A small package to jump to links in eww buffer.
        "https://martinfowler.com/feed.atom"
        "http://journal.stuffwithstuff.com/atom.xml"
        "https://pcwalton.github.io/feed.xml"
+       "https://irreal.org/blog/?feed=rss2"
        "https://probablydance.com/feed/"
+       "http://www.gingerbill.org/article/index.xml"
+       "https://kill-the-newsletter.com/feeds/86edfwklno2p5s00.xml" ;; Mukul Rathi
+       "https://kill-the-newsletter.com/feeds/cknhju58opgj9quw.xml" ;; Naval
+       "https://kill-the-newsletter.com/feeds/j0mm7ibixsb7o20q.xml" ;; 4coder
        "https://kill-the-newsletter.com/feeds/0ublinkmgw51td1ix4k4.xml" ;; Dion Systems
        "https://fasterthanli.me/index.xml"
        "https://xkcd.com/atom.xml"
