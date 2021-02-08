@@ -3665,6 +3665,9 @@ A small package to jump to links in eww buffer.
        "https://pcwalton.github.io/feed.xml"
        "https://irreal.org/blog/?feed=rss2"
        "https://probablydance.com/feed/"
+       "https://www.tedinski.com/feed.xml"
+       "https://rust-analyzer.github.io/feed.xml"
+       "https://rustpython.github.io/feed.xml"
        "http://www.gingerbill.org/article/index.xml"
        "https://kill-the-newsletter.com/feeds/86edfwklno2p5s00.xml" ;; Mukul Rathi
        "https://kill-the-newsletter.com/feeds/cknhju58opgj9quw.xml" ;; Naval
