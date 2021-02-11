@@ -1849,8 +1849,7 @@ the display function to be more consistent.
     (helm-adaptive-history-length 100)
     (helm-find-files-ignore-thing-at-point t)
     :config
-    (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command))
-    (dired-async-mode))
+    (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command)))
 #+END_SRC
 
 *** evil
