@@ -3012,7 +3012,6 @@ get weird errors in magit.
           '(display-buffer-below-selected))
     :config
     (when ($dev-config-p)
-      (remove-hook 'magit-status-sections-hook 'magit-insert-untracked-files)
       (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
       (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
       (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote))
