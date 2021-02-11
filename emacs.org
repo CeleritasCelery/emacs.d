@@ -3098,7 +3098,6 @@ automatically set my credentials based on where the repo is located.
       (shell-command-to-string
        (apply 'format "git config --local user.name %s && git config --local user.email %s"
               ($user-credentials)))
-      (shell-command-to-string "git config --local pull.rebase true")
       (message "setting git user credentials")))
 
   (when ($dev-config-p)
