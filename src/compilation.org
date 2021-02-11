@@ -639,9 +639,10 @@ it blocks until the current one is done.
   (defun $same-root (buffer1 buffer2)
     "return t if commands are being run using the current root"
     (apply 'file-equal-p
-           (--map (vc-git-root (if (bufferp it)
-                                   (with-current-buffer it default-directory)
-                                 it))
+           (--map (let ((dir (if (bufferp it)
+                                 (buffer-local-value 'default-directory it)
+                               it)))
+                    (or (vc-git-root dir) dir))
                   (list buffer1 buffer2))))
 
   (defvar $command-build-order
