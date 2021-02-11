@@ -3393,7 +3393,7 @@ generic wrapper function that can be called from other code.
 **** hook
 #+BEGIN_SRC emacs-lisp
   (defun $remove-control-char-comint (str)
-    (replace-regexp-in-string "^K" "" str))
+    (replace-regexp-in-string "^(K|)" "" str))
 
   (defun $shell-mode-hook ()
     (shell-dirtrack-mode 0)
@@ -3402,7 +3402,7 @@ generic wrapper function that can be called from other code.
                              (: symbol "(" nums ")%")
                              (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
                              (: "bash-" num "." num "$")
-                             (: "|" (+ (not blank)) "|→")
+                             (: (opt control "K") "|" (+ (not blank)) "|→")
                              (: (+ (not blank)) "%")
                              (: (* nonl) " %")
                              (: symbol ">"))
