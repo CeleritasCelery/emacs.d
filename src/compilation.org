@@ -392,7 +392,7 @@ some point I would like to make this automatic by inspection.
         (message "%s" (shell-command-to-string (format "%s %d" link-script time))))))
 
   (defun $gatekeeper-env ()
-    `("GK_EVENTTYPE=mock" "LD_LIBRARY_PATH"
+    `("GK_EVENTTYPE=mock" "LD_LIBRARY_PATH" "PERL5LIB" "VCS_HOME"
       ,(concat "MODEL_ROOT=" ($model-root))
       ,(concat "GIT_TOOL_FLOW=" ($git-command "config intel.toolflow"))
       ,(concat "GIT_BUSINESS_UNIT=" ($git-command "config intel.businessunit"))
@@ -515,7 +515,7 @@ a custom compilation command for running a turnin
                       (downcase mm)))))
       ($compilation-start (string-join
                            (delq nil
-                                 (list "turnin -c"
+                                 (list "turnin -new_clonedir -c"
                                        ($git-command "config intel.cluster")
                                        "-s"
                                        ($git-command "config intel.stepping")
