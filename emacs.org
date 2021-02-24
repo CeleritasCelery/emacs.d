@@ -3626,37 +3626,8 @@ A small package to jump to links in eww buffer.
     ('normal elfeed-search-mode-map "gu" 'elfeed-update)
     :custom
     (elfeed-db-directory "~/Dropbox/elfeed/db")
-    (elfeed-feeds
-     '("https://www.kill-the-newsletter.com/feeds/h1bnkuqulin0ilmn1ox6.xml" ;; James Clear 1-2-3
-       "https://bzg.fr/index.xml" ;; Bastien Guerry (org maintainer)
-       "https://sachachua.com/blog/feed/"
-       "https://tratt.net/laurie/blog/entries.rss"
-       "http://www.aaronsw.com/2002/feeds/pgessays.rss"
-       "https://blog.rust-lang.org/feed.xml"
-       "https://blog.nelhage.com/atom.xml"
-       "http://blog.cleancoder.com/atom.xml"
-       "https://raphlinus.github.io/feed.xml"
-       "https://martinfowler.com/feed.atom"
-       "http://journal.stuffwithstuff.com/atom.xml"
-       "https://pcwalton.github.io/feed.xml"
-       "https://irreal.org/blog/?feed=rss2"
-       "https://probablydance.com/feed/"
-       "https://www.tedinski.com/feed.xml"
-       "https://rust-analyzer.github.io/feed.xml"
-       "https://rustpython.github.io/feed.xml"
-       "http://www.gingerbill.org/article/index.xml"
-       "https://kill-the-newsletter.com/feeds/86edfwklno2p5s00.xml" ;; Mukul Rathi
-       "https://kill-the-newsletter.com/feeds/cknhju58opgj9quw.xml" ;; Naval
-       "https://kill-the-newsletter.com/feeds/j0mm7ibixsb7o20q.xml" ;; 4coder
-       "https://kill-the-newsletter.com/feeds/0ublinkmgw51td1ix4k4.xml" ;; Dion Systems
-       "https://fasterthanli.me/index.xml"
-       "https://xkcd.com/atom.xml"
-       "https://accidentallyquadratic.tumblr.com/rss"
-       "https://www.kill-the-newsletter.com/feeds/b3qmtgoopyw6bd8fuhlg.xml" ;;CGP Grey newsletter
-       "https://www.youtube.com/feeds/videos.xml?channel_id=UCsXVk37bltHxD1rDPwtNM8Q" ;; Kurzgesagt
-       "http://nullprogram.com/feed"
-       "https://reddit-top-rss.herokuapp.com/?subreddit=rust&averagePostsPerDay=1&view=rss"
-       "https://reddit-top-rss.herokuapp.com/?subreddit=emacs&averagePostsPerDay=1&view=rss")))
+    :config
+    (load-file "~/Dropbox/elfeed/feeds.el"))
 #+END_SRC
 
 ** compilation
@@ -4845,9 +4816,12 @@ Inferior shell
     (:states '(normal) :keymaps 'rustic-mode-map
      "J" 'lsp-rust-analyzer-join-lines)
     :custom
+    (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1"))
 
   (use-package lsp-mode)
+  (use-package lsp-ui)
   (with-eval-after-load 'org-src
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 #+end_src
