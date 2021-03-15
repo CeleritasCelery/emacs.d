@@ -293,9 +293,20 @@ Define use-package for org so that we get the correct version
 ** Garbage collection
 This function will garbage collect on an idle timer to keep emacs more performant.
 #+BEGIN_SRC emacs-lisp
-  (use-package gcmh
-    :init
-    (add-hook 'after-init-hook 'gcmh-mode))
+  (defvar $gc-timer nil)
+  (defvar $use-gc-timer t)
+  (defun $maybe-gc ()
+    (setq gc-cons-threshold 800000)
+    (setq $gc-timer (run-with-timer 5 nil #'$schedule-maybe-gc))
+    (setq gc-cons-threshold 100000000))
+
+  (defun $schedule-maybe-gc ()
+    (if $use-gc-timer
+        (setq $gc-timer (run-with-idle-timer 3 nil #'$maybe-gc))
+      (setq gc-cons-threshold 800000
+            $gc-timer nil)))
+
+  (add-hook 'after-init-hook '$schedule-maybe-gc)
 #+END_SRC
 
 ** Windows
