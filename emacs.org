@@ -3031,7 +3031,8 @@ get weird errors in magit.
       (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
       (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
       (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote))
-    (add-hook 'dired-mode-hook 'magit-file-mode))
+    (add-hook 'magit-process-find-password-functions
+              'magit-process-password-auth-source))
 #+END_SRC
 
 the trash at Intel is in the home disk, which is only 100 MB.
