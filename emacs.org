@@ -4843,9 +4843,10 @@ Inferior shell
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 #+end_src
 
-C
+** C mode
 #+begin_src emacs-lisp
-  (add-hook 'c-mode-hook #'lsp)
+  (unless ($dev-config-p)
+    (add-hook 'c-mode-hook #'lsp))
 #+end_src
 
 ** verilog
