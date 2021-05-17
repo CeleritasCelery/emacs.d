@@ -489,77 +489,77 @@ Emacs does not have built-in support for ligatures, so we have to use
 a font that maps them to open unicode points. This lets us compose our
 own ligatures.
 #+BEGIN_SRC emacs-lisp
-  (setq $fira-ligature-alist
-        '(("&&"   . #xEF3B)
-          ("||"   . #xEF3C)
-          ("::"   . #xEF07)
-          ("=="   . #xEF4C)
-          ("->"   . #xEF15)
-          ("=>"   . #xEF4F)
-          ("/*"   . #xEF32)
-          ("*/"   . #xEF03)
-          ("*>"   . #xEF02)
-          (">>"   . #xEF58)
-          ("<<"   . #xEF72)
-          (".."   . #xEF28)
-          ("__"   . #xEF39)
-          ("~~"   . #xEF7F)
-          ("++"   . #xEF47)
-          ("!="   . #xEF0F)
-          (".="   . #xEF27)
-          ("=~"   . #xEF83)
-          ("!~"   . #xEF84)
-          (";;"   . #xEF31)
-          ("##"   . #xEF1E)
-          ("#!"   . #xEF1D)
-          ("//"   . #xEF36)
-          (":="   . #xEF0A)
-          ("?="   . #xEF2E)
-          ("?:"   . #xEF2D)
-          ("<="   . #xEF91)
-          (">="   . #xEF90)
-          ("</"   . #xEF79)
-          ("/>"   . #xEF35)
-          ("</>"  . #xEF7A)
-          ("///"  . #xEF37)
-          ("==="  . #xEF4D)
-          ("!=="  . #xEF10)
-          ("<=>"  . #xEF6F)
-          ("..."  . #xEF2B)
-          ("->>"  . #xEF16)
-          ("-->"  . #xEF14)
-          ("<--"  . #xEF67)
-          ("|->"  . #xEF8C)
-          ("|=>"  . #xEF8D)
-          ("<<<"  . #xEF75)
-          (">>>"  . #xEF5B)
-          ("###"  . #xEF1F)
-          ("####" . #xEF20)
-          ("<!--" . #xEF65)
-          ("\\\\" . #xEF85)))
+    (setq $fira-ligature-alist
+          '(("&&"   . #xEF3B)
+            ("||"   . #xEF3C)
+            ("::"   . #xEF07)
+            ("=="   . #xEF4C)
+            ("->"   . #xEF15)
+            ("=>"   . #xEF4F)
+            ("/*"   . #xEF32)
+            ("*/"   . #xEF03)
+            ("*>"   . #xEF02)
+            (">>"   . #xEF58)
+            ("<<"   . #xEF72)
+            (".."   . #xEF28)
+            ("__"   . #xEF39)
+            ("~~"   . #xEF7F)
+            ("++"   . #xEF47)
+            ("!="   . #xEF0F)
+            (".="   . #xEF27)
+            ("=~"   . #xEF83)
+            ("!~"   . #xEF84)
+            (";;"   . #xEF31)
+            ("##"   . #xEF1E)
+            ("#!"   . #xEF1D)
+            ("//"   . #xEF36)
+            (":="   . #xEF0A)
+            ("?="   . #xEF2E)
+            ("?:"   . #xEF2D)
+            ("<="   . #xEF91)
+            (">="   . #xEF90)
+            ("</"   . #xEF79)
+            ("/>"   . #xEF35)
+            ("</>"  . #xEF7A)
+            ("///"  . #xEF37)
+            ("==="  . #xEF4D)
+            ("!=="  . #xEF10)
+            ("<=>"  . #xEF6F)
+            ("..."  . #xEF2B)
+            ("->>"  . #xEF16)
+            ("-->"  . #xEF14)
+            ("<--"  . #xEF67)
+            ("|->"  . #xEF8C)
+            ("|=>"  . #xEF8D)
+            ("<<<"  . #xEF75)
+            (">>>"  . #xEF5B)
+            ("###"  . #xEF1F)
+            ("####" . #xEF20)
+            ("<!--" . #xEF65)
+            ("\\\\" . #xEF85)))
 
-  (set-fontset-font t '(#xEF00 . #xEFFF) "Fira Code Extended")
+    (set-fontset-font t '(#xEF00 . #xEFFF) "Fira Code Extended")
 
-  (defun $make-ligature-glyph (str glyph)
-    (if (or (listp glyph)
-            (eq 1 (string-width str)))
-        glyph
-      `(,@(mapcan (lambda (x) (list ?\s '(Br . Bl)))
-                  (number-sequence 2 (string-width str)))
-        ?\s (Br . Br) ,(decode-char 'ucs glyph))))
+    (defun $make-ligature-glyph (str glyph)
+      (if (or (listp glyph)
+              (eq 1 (string-width str)))
+          glyph
+        `(,@(mapcan (lambda (x) (list ?\s '(Br . Bl)))
+                    (number-sequence 2 (string-width str)))
+          ?\s (Br . Br) ,(decode-char 'ucs glyph))))
 
-  (defun $set-ligature (symbol)
-    (cl-destructuring-bind (str . glyph) symbol
-      (setf (alist-get str prettify-symbols-alist nil nil 'equal)
-            ($make-ligature-glyph str glyph))))
+    (defun $set-ligature (symbol)
+      (cl-destructuring-bind (str . glyph) symbol
+        (setf (alist-get str prettify-symbols-alist nil nil 'equal)
+              ($make-ligature-glyph str glyph))))
 
-  (defun $prettify-base-symbols ()
-    "enable hasklig ligatures"
-    (interactive)
-    (mapc '$set-ligature $fira-ligature-alist)
-    (prettify-symbols-mode))
+    (defun $prettify-base-symbols ()
+      "enable hasklig ligatures"
+      (interactive)
+      (mapc '$set-ligature $fira-ligature-alist)
+      (prettify-symbols-mode))
 
-  (add-hook 'prog-mode-hook '$prettify-base-symbols)
+    (add-hook 'prog-mode-hook '$prettify-base-symbols)
 #+END_SRC
 
 compose symbols (ligatures) no matter where they are. also unformat at
@@ -1256,36 +1256,37 @@ does not acknowledge the WM if it has other code to run. The following
 code will wait to remove the frame until emacs is idle. This fixes the
 flashing issue.
 #+BEGIN_SRC emacs-lisp
-  (defvar posframe-timer nil)
+  (when ($dev-config-p)
+    (defvar posframe-timer nil)
 
-  (setq x-wait-for-event-timeout nil)
+    (setq x-wait-for-event-timeout nil)
 
-  (defun posframe-force-valid (new-buf &rest _)
-    "If we are reusing an exisiting posframe, don't hide the
+    (defun posframe-force-valid (new-buf &rest _)
+      "If we are reusing an exisiting posframe, don't hide the
   previous one. this prevents blanking the frame unnecessarily."
-    (let ((timer (cdr posframe-timer))
-          (old-buf (car posframe-timer)))
-      (when (and (memq timer timer-idle-list)
-                 (eq new-buf (get-buffer old-buf)))
-        (cancel-timer timer))))
+      (let ((timer (cdr posframe-timer))
+            (old-buf (car posframe-timer)))
+        (when (and (memq timer timer-idle-list)
+                   (eq new-buf (get-buffer old-buf)))
+          (cancel-timer timer))))
 
-  (el-patch-feature posframe)
-  (with-eval-after-load 'posframe
-    (advice-add 'posframe--create-posframe :before #'posframe-force-valid)
-    (el-patch-defun posframe-hide (posframe-buffer)
-      "Hide posframe which buffer is POSFRAME-BUFFER."
-      (dolist (frame (frame-list))
-        (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
-          (when (or (equal posframe-buffer (car buffer-info))
-                    (equal posframe-buffer (cdr buffer-info)))
-            (el-patch-swap
-              (posframe--make-frame-invisible frame)
-              (setq posframe-timer
-                    (cons posframe-buffer
-                          (run-with-idle-timer
-                           0.01 nil
-                           (lambda ()
-                             (posframe--make-frame-invisible frame)))))))))))
+    (el-patch-feature posframe)
+    (with-eval-after-load 'posframe
+      (advice-add 'posframe--create-posframe :before #'posframe-force-valid)
+      (el-patch-defun posframe-hide (posframe-buffer)
+        "Hide posframe which buffer is POSFRAME-BUFFER."
+        (dolist (frame (frame-list))
+          (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
+            (when (or (equal posframe-buffer (car buffer-info))
+                      (equal posframe-buffer (cdr buffer-info)))
+              (el-patch-swap
+                (posframe--make-frame-invisible frame)
+                (setq posframe-timer
+                      (cons posframe-buffer
+                            (run-with-idle-timer
+                             0.01 nil
+                             (lambda ()
+                               (posframe--make-frame-invisible frame))))))))))))
 #+END_SRC
 
 *** rich
@@ -2177,6 +2178,41 @@ Get the next input matching element
     "C-p" 'previous-complete-history-element)
 #+END_SRC
 
+*** LSP
+#+begin_src emacs-lisp
+  (use-package lsp-mode
+    :custom
+    (lsp-keymap-prefix "C-l"))
+  (use-package lsp-ui)
+
+  (advice-add #'lsp-execute-code-action :after
+              (defun $evil-normal-state-advice (&rest _)
+                (evil-normal-state)))
+#+end_src
+
+**** DAP
+Debug access protocol
+#+begin_src emacs-lisp
+  ;; (use-package dap-mode
+  ;;   :init
+  ;;   (setq dap-gdb-lldb-debug-program '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/gdb.js"))
+  ;;   (setq dap-gdb-lldb-path-lldb '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/lldb.js"))
+  ;;   :config
+  ;;   (require 'dap-gdb-lldb)
+  ;;   ;; (dap-ui-mode 1)
+  ;;   ;; (dap-tooltip-mode 1)
+  ;;   ;; (tooltip-mode 1)
+  ;;   ;; (dap-ui-controls-mode 1)
+  ;;   (dap-register-debug-template
+  ;;    "Rust::GDB Run Configuration"
+  ;;    (list :type "gdb"
+  ;;          :request "launch"
+  ;;          :name "GDB::Run"
+  ;;          :gdbpath "rust-gdb"
+  ;;          :target nil
+  ;;          :cwd nil)))
+#+end_src
+
 *** narrowing
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
@@ -2898,7 +2934,7 @@ clear status.
   (add-to-list 'clean-buffer-list-kill-never-regexps '$never-kill-compilation-buffers)
 
   (add-hook 'midnight-hook 'recentf-save-list)
-  (add-hook 'midnight-hook 'mu4e-update-mail-and-index)
+  (add-hook 'midnight-hook (lambda () (mu4e-update-mail-and-index t)))
 #+END_SRC
 
 *** auto-insert
@@ -4145,6 +4181,12 @@ blocks
   (use-package htmlize)
 #+END_SRC
 
+*** Hugo
+#+begin_src emacs-lisp
+  (unless ($dev-config-p)
+    (use-package ox-hugo))
+#+end_src
+
 ** capture
 #+BEGIN_SRC emacs-lisp
   (use-package org-capture
@@ -4201,14 +4243,54 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
   (use-package org-roam
     :init
-    (setq org-roam-directory "~/Dropbox/org/coredump")
+    (setq org-roam-directory "/home/foco/repos/logseq"
+          org-roam-dailies-directory "journals/"
+          org-roam-capture-templates
+          '(("d" "default" plain
+             #'org-roam-capture--get-point "%?"
+             :file-name "pages/${slug}" :head "#+title: ${title}\n" :unnarrowed t))
+          org-roam-dailies-capture-templates
+          '(("d" "default" entry
+             #'org-roam-capture--get-point "* %?"
+             :file-name "journals/%<%Y_%m_%d>" :head "#+title: %<%b %o, %Y>\n")))
     :bind (:map org-roam-mode-map
            (("C-c n n" . org-roam)
-            ("C-c n f" . org-roam-find-file)
             ("C-c n b" . org-roam-buffer-activate))
            :map org-mode-map
-           (("C-c n i" . org-roam-insert))))
+           (("C-c n i" . org-roam-insert)))
+    :bind (("C-c n f" . org-roam-find-file)
+           ("C-c n d" . org-roam-dailies-find-today)))
 #+END_SRC
+
+Support ordinal dates
+#+begin_src emacs-lisp
+  (defun format-time-ordinal (n)
+    "Special day of month format."
+    (format
+     (concat
+      "%d"
+      (if (memq n '(11 12 13)) "th"
+        (let ((last-digit (% n 10)))
+          (case last-digit
+            (1 "st")
+            (2 "nd")
+            (3 "rd")
+            (otherwise "th"))))) n))
+
+  (defun format-time-string-insert-ordinal-day (args)
+    (let* ((format-string (nth 0 args))
+           (time (nth 1 args))
+           (day (nth 3 (decode-time (or time (current-time))))))
+      (setcar args
+              (replace-regexp-in-string "%o"
+                                        (format-time-ordinal day)
+                                        format-string)))
+    args)
+
+  (advice-add #'format-time-string
+              :filter-args
+              'format-time-string-insert-ordinal-day)
+#+end_src
 ** tags
 #+BEGIN_SRC emacs-lisp
   (csetq org-tags-column 0
@@ -4444,7 +4526,7 @@ make scripts executable on save
     ("n" flycheck-next-error "next")
     ("p" flycheck-previous-error "prev")
     ("N" flycheck-previous-error "prev")
-    ("l" flycheck-list-errors "list" :exit t))
+    ("e" flycheck-list-errors "list" :exit t))
 
   ($leader-set-key
     "l" '$flycheck/body)
@@ -4829,16 +4911,20 @@ Inferior shell
     :general
     (:definer 'leader :keymaps 'rustic-mode-map
      "j" 'counsel-semantic-or-imenu
-     "m" 'lsp-rust-analyzer-expand-macro)
+     "m" 'lsp-rust-analyzer-expand-macro
+     "c" 'lsp-execute-code-action
+     "r" 'lsp-rename)
     (:states '(normal) :keymaps 'rustic-mode-map
      "J" 'lsp-rust-analyzer-join-lines)
     :custom
     (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
+    (rustic-format-on-save t)
     (rustic-compile-backtrace "1"))
 
-  (use-package lsp-mode)
-  (use-package lsp-ui)
+  (advice-add #'rustic-popup :after #'evil-emacs-state)
+
   (with-eval-after-load 'org-src
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 #+end_src
