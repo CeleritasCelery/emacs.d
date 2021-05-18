@@ -1582,6 +1582,10 @@ general leader key bindings
 
 *** undo-tree
 #+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :demand t
+    :config
+    (global-undo-tree-mode))
   ($leader-set-key
     "U" 'undo-tree-visualize)
   (general-def '(normal visual)
