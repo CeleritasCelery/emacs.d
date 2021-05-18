@@ -6,3 +6,4 @@ elpa/
 src/compilation.el
 site/
 /stash/
+/eln-cache/
