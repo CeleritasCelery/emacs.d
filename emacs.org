@@ -3051,6 +3051,8 @@ get weird errors in magit.
      "C-c M-g" 'magit-file-dispatch)
     (magit-diff-mode-map
      "SPC" nil)
+    (magit-mode-map
+     "SPC" nil)
     :custom
     (magit-refresh-status-buffer nil)
     :init
@@ -3218,13 +3220,6 @@ resolving merge conflicts in magit. stolen for [[https://github.com/alphapapa/un
 
 *** evil
 #+BEGIN_SRC emacs-lisp
-  (use-package evil-magit
-    :demand t
-    :after magit
-    :general
-    (magit-mode-map
-     "SPC" nil))
-
   (use-package git-timemachine
     :general
     (:definer 'leader
