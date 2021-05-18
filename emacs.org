@@ -593,6 +593,14 @@ properly when using ligatures.
                nil '(("/>" . 'rainbow-delimiters-depth-1-face)))))
 #+END_SRC
 
+*** Emoji
+Enable emoji 😃
+#+begin_src emacs-lisp
+(when (member "Segoe UI Emoji" (font-family-list))
+  (set-fontset-font
+   t 'symbol (font-spec :family "Segoe UI Emoji") nil 'prepend))
+#+end_src
+
 *** vnc size
 change the size of the VNC to match the size of the monitor that I am
 using. Since I always run my VNC fullscreen having the VNC resolution
