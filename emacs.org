@@ -1243,17 +1243,10 @@ will always be the same width as a window we are searching.
     :demand t
     :after ivy
     :custom
-    (ivy-posframe-size-function '$ivy-posframe-size)
+    (ivy-posframe-size-function 'ivy-posframe-get-size)
     (ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
     :config
     (ivy-posframe-mode))
-
-  (defun $ivy-posframe-size ()
-    (let ((width (round (* (frame-width) 0.5))))
-      (list
-       :min-height ivy-height
-       :width width
-       :min-width width)))
 #+END_SRC
 
 **** flashing fix
