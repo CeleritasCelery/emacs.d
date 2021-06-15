@@ -4244,25 +4244,26 @@ blocks
 ** roam
 Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
-  (use-package org-roam
-    :init
-    (setq org-roam-directory "/home/foco/repos/logseq"
-          org-roam-dailies-directory "journals/"
-          org-roam-capture-templates
-          '(("d" "default" plain
-             #'org-roam-capture--get-point "%?"
-             :file-name "pages/${slug}" :head "#+title: ${title}\n" :unnarrowed t))
-          org-roam-dailies-capture-templates
-          '(("d" "default" entry
-             #'org-roam-capture--get-point "* %?"
-             :file-name "journals/%<%Y_%m_%d>" :head "#+title: %<%b %o, %Y>\n")))
-    :bind (:map org-roam-mode-map
-           (("C-c n n" . org-roam)
-            ("C-c n b" . org-roam-buffer-activate))
-           :map org-mode-map
-           (("C-c n i" . org-roam-insert)))
-    :bind (("C-c n f" . org-roam-find-file)
-           ("C-c n d" . org-roam-dailies-find-today)))
+  (when (not ($dev-config-p))
+    (use-package org-roam
+      :init
+      (setq org-roam-directory "/home/foco/roam"
+            org-roam-dailies-directory "journals/"
+            org-roam-capture-templates
+            '(("d" "default" plain
+               #'org-roam-capture--get-point "%?"
+               :file-name "pages/${slug}" :head "#+title: ${title}\n" :unnarrowed t))
+            org-roam-dailies-capture-templates
+            '(("d" "default" entry
+               #'org-roam-capture--get-point "* %?"
+               :file-name "journals/%<%Y_%m_%d>" :head "#+title: %<%b %o, %Y>\n")))
+      :bind (:map org-roam-mode-map
+             (("C-c n n" . org-roam)
+              ("C-c n b" . org-roam-buffer-activate))
+             :map org-mode-map
+             (("C-c n i" . org-roam-insert)))
+      :bind (("C-c n f" . org-roam-find-file)
+             ("C-c n d" . org-roam-dailies-find-today))))
 #+END_SRC
 
 Support ordinal dates
