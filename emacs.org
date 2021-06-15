@@ -498,7 +498,6 @@ own ligatures.
           ("=>"   . #xEF4F)
           ("/*"   . #xEF32)
           ("*/"   . #xEF03)
-          ("*>"   . #xEF02)
           (">>"   . #xEF58)
           ("<<"   . #xEF72)
           (".."   . #xEF28)
@@ -554,7 +553,7 @@ own ligatures.
             ($make-ligature-glyph str glyph))))
 
   (defun $prettify-base-symbols ()
-    "enable hasklig ligatures"
+    "enable fira code ligatures"
     (interactive)
     (mapc '$set-ligature $fira-ligature-alist)
     (prettify-symbols-mode))
