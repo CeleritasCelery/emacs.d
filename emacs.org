@@ -2186,8 +2186,12 @@ Get the next input matching element
 #+begin_src emacs-lisp
   (use-package lsp-mode
     :custom
-    (lsp-keymap-prefix "C-l"))
-  (use-package lsp-ui)
+    (lsp-keymap-prefix "C-l")
+    (read-process-output-max (* 1024 1024) "needed for better performace"))
+
+  (use-package lsp-ui
+    :custom
+    (lsp-ui-sideline-update-mode 'line))
 
   (advice-add #'lsp-execute-code-action :after
               (defun $evil-normal-state-advice (&rest _)
