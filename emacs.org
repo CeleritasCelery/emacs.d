@@ -3789,7 +3789,7 @@ windows.
       :load-path "/usr/share/emacs/site-lisp/mu4e"
       :general
       ('visual mu4e-headers-mode-map "!" 'mu4e-headers-mark-for-read)
-      :commands mu4e
+      :commands (mu4e mu4e-update-mail-and-index)
       :init
       (setq mu4e-get-mail-command "offlineimap"
             mu4e-completing-read-function 'ivy-completing-read
