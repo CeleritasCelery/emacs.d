@@ -327,6 +327,7 @@ run any command
     ("a" ($run-bman "") "all")
     ("v" ($run-bman "-s all +s vcs") "vcs")
     ("r" ($run-bman "-s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra") "RTL only")
+    ("i" ($run-bman "-s all +s dft") "DFT integration")
     ("g" ($run-bman (read-string "run bman as: " nil '$bman-command-history (car $bman-command-history))) "generic"))
 
   (defvar $bman-command-history nil)
@@ -517,19 +518,20 @@ a custom compilation command for running a turnin
                       (f-filename model-root)
                       (if mock "mock " "")
                       (downcase mm)))))
-      ($compilation-start (string-join
-                           (delq nil
-                                 (list "turnin -new_clonedir -c"
-                                       ($git-command "config intel.cluster")
-                                       "-s"
-                                       ($git-command "config intel.stepping")
-                                       (and mock "-mock")
-                                       (and submit "-turnin -submit")
-                                       (and mock (not clone) "-no_clone")
-                                       (and eco (concat "-bugecos " eco))
-                                       (and comment (format "-comments \"%s\"" comment))))
-                           " ")
-                          'turnin-mode)))
+      ($compilation-start
+       (string-join
+        (delq nil
+              (list "turnin -c"
+                    ($git-command "config intel.cluster")
+                    "-s"
+                    ($git-command "config intel.stepping")
+                    (when mock "-mock")
+                    (when submit "-turnin -submit")
+                    (when mock (if clone "-new_clonedir" "-no_clone"))
+                    (when eco (concat "-bugecos " eco))
+                    (when comment (format "-comments \"%s\"" comment))))
+        " ")
+       'turnin-mode)))
 #+END_SRC
 
 ** utility
