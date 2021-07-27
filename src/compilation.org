@@ -30,7 +30,11 @@ use lexical bindings in the file make this file lexically bound
                        (replace-regexp-in-string ($rx "/" file "/"
                                                       (group (+ (in alnum "-_."))) symbol-end)
                                                  shorten-fn)))
-           (buffer-name (format "*%s - %s*" (f-filename model-root) cmd-name))
+           (buffer-name (let ((root (f-filename model-root))
+                              (dir (f-filename default-directory)))
+                          (if (equal root dir)
+                              (format "*%s - %s*" root cmd-name)
+                            (format "*%s/.../%s - %s*" root dir cmd-name))))
            (env-var? (lambda (x) (string-match-p "=" x)))
            (parts (split-string cmd))
            (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
