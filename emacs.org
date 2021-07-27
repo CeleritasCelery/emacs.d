@@ -2697,12 +2697,33 @@ email. automatically add the tramp header if from a different site
                      (replace-regexp-in-string "\"" "")
                      (string-remove-prefix "./")
                      (replace-regexp-in-string "$ENV" "$")
+                     ($substitute-env-in-filename)
                      (substitute-in-file-name)))
              (root-path (concat (vc-git-root default-directory)
-                                path)))
+                                path))
+             (zip-path (concat path ".gz")))
         (cond ((file-exists-p path) path)
               ((file-exists-p root-path) root-path)
+              ((file-exists-p zip-path) zip-path)
               (t path)))))
+
+  (defun $substitute-env-in-filename (file)
+    "if the variables in the file name are present in the file,
+  substitute them in the path"
+    (let ((re-env ($rx "$" (group symbol)))
+          (re-assign ($rx "=" (group (1+ (any alnum "-_/.~$:"))) (or spc eol)))
+          (orig-point (point)))
+      (cl-loop for (var env) in (s-match-strings-all re-env file)
+               if (save-excursion
+                    (goto-char (point-min))
+                    (re-search-forward (concat env re-assign) orig-point t))
+               collect (cons var
+                             ($substitute-env-in-filename
+                              (match-string-no-properties 1)))
+               into matches
+               finally return (if matches
+                                  (s-replace-all matches file)
+                                file))))
 
   (defun $get-chars-at-point (chars)
     (let ((beg (save-excursion
