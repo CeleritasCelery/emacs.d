@@ -63,6 +63,7 @@ a few issues that we are going to resolve now:
 
 3. We want to start in normal state, so we easily dismiss the
    window with =q= right when it first pops up if we want.
+
 #+BEGIN_SRC emacs-lisp
   (general-define-key
    :definer 'minor-mode
@@ -322,7 +323,6 @@ run any command
     ("a" ($run-bman "") "all")
     ("v" ($run-bman "-s all +s vcs") "vcs")
     ("r" ($run-bman "-s emu,sgdft,sglp,vclp,lintra_ol,FLG,hip_listgen,lintra") "RTL only")
-    ("i" ($run-bman "-s all +s collage.collage_assemble_gnrio_dft_sub_parition_1_lib,collage.collage_assemble_gnrio_dft_sub_parition_2_lib,collage.collage_assemble_gnrio_dft_sub_parition_3_lib,collage.collage_assemble_gnrio_dft_sub_parition_4_lib,collage.collage_assemble_gnrio_dft_sub_parition_5_lib,collage.collage_assemble_gnrio_dft_sub_parition_6_lib,collage.collage_assemble_gnrio_dft_sub_parition_7_lib,collage.collage_assemble_gnrio_dft_sub_parition_8_lib,collage.collage_assemble_gnrio_dft_sub_parition_9_lib,collage.collage_assemble_gnrio_dft_sub_parition_10_lib,collage.collage_assemble_gnrio_dft_insertion_lib,collage.collage_assemble_gnrio_dft_integration_pre_lib") "DFT integration")
     ("g" ($run-bman (read-string "run bman as: " nil '$bman-command-history (car $bman-command-history))) "generic"))
 
   (defvar $bman-command-history nil)
@@ -709,8 +709,9 @@ Tessent will sometimes return to a prompt when it fails.
   (defun $compilation-remove-stalled-buffer (buffer _exit)
     (setq $compilation-stalled-buffers (delete buffer $compilation-stalled-buffers)))
 
-  (add-hook 'compilation-filter-hook #'$alert-compilation-stall)
-  (add-hook 'compilation-finish-functions #'$compilation-remove-stalled-buffer)
+  (when ($dev-config-p)
+    (add-hook 'compilation-filter-hook #'$alert-compilation-stall)
+    (add-hook 'compilation-finish-functions #'$compilation-remove-stalled-buffer))
 #+END_SRC
 
 ** status
