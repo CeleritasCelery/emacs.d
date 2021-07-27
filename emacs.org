@@ -4573,14 +4573,15 @@ just using =C-l=
     :config
     (unless ($dev-config-p)
       (company-posframe-mode))
-    (defun $company-select-prev-or-comint-match-input (&optional _)
-      "Disable company mode when when we are selecting a previous
-  prompt in shell mode"
-      (when (and (eq major-mode 'shell-mode)
-                 (eq company-selection 0))
-        (company-abort)
-        (call-interactively 'comint-previous-matching-input-from-input)))
     (advice-add 'company-select-previous :before-until #'$company-select-prev-or-comint-match-input))
+
+  (defun $company-select-prev-or-comint-match-input (&optional _)
+    "Disable company mode when when we are selecting a previous
+  prompt in shell mode"
+    (when (and (eq major-mode 'shell-mode)
+               (eq company-selection 0))
+      (company-abort)
+      (call-interactively 'comint-previous-matching-input-from-input)))
 
   (with-eval-after-load 'company-dabbrev-code
     (add-to-list 'company-dabbrev-code-modes 'shell-mode))
