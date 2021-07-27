@@ -2747,7 +2747,10 @@ email. automatically add the tramp header if from a different site
                 (looking-back (regexp-quote "$::env(MODEL_ROOT)") (line-beginning-position))))
           (concat "$MODEL_ROOT" path)
         path)))
+#+END_SRC
 
+File functions
+#+begin_src emacs-lisp
   (defun $counsel-initial-input (file)
     (unless (file-directory-p file)
       (concat (file-name-nondirectory file) "\\_>")))
@@ -2817,7 +2820,26 @@ email. automatically add the tramp header if from a different site
     "fd" '$goto-repo)
   (general-def '(normal visual motion)
     "gf" '$find-file-at-point)
-#+END_SRC
+#+end_src
+
+**** fix file path
+#+begin_src emacs-lisp
+  (defun $update-filename-with-root ()
+    (interactive)
+    (when-let* ((file (current-kill 0))
+                (root (expand-file-name (vc-git-root file))))
+      (kill-new (s-replace root "$MODEL_ROOT/" file) 'replace)))
+
+  (defun $update-filename-relative ()
+    (interactive)
+    (let* ((file (current-kill 0)))
+      (kill-new (file-relative-name file default-directory) 'replace)))
+
+  ($leader-set-key
+    "fr" '$update-filename-relative
+    "fg" '$update-filename-with-root)
+
+#+end_src
 
 *** find similar file
 search up the directory stack looking for files that only differ from
