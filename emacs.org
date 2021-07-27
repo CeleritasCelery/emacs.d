@@ -4838,7 +4838,8 @@ I use regular perl-mode for files that are considered read-only.
     :general
     (:definer 'leader
      :keymaps 'perl-mode-map
-     "r" 'quickrun)
+     "r" 'quickrun
+     "j" 'counsel-semantic-or-imenu)
     :init
     (setq perl-indent-parens-as-block t
           perl-continued-brace-offset 0
