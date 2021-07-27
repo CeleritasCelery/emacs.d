@@ -4979,8 +4979,9 @@ Inferior shell
     (lsp-rust-analyzer-cargo-watch-command "clippy")
     (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
-    (rustic-clippy-arguments "--all-targets --all-features")
-    (rustic-compile-backtrace "1"))
+    (rustic-compile-backtrace "1")
+    :config
+    (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
   (advice-add #'rustic-popup :after #'evil-emacs-state)
 
