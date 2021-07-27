@@ -4365,12 +4365,14 @@ Use company-ispell to provide spelling auto complete
   (add-hook 'org-mode-hook
             (defun $enable-company-spell ()
               (setq-local company-backends '((company-ispell company-capf company-dabbrev)))
-              (setq-local company-frontends '(company-preview-frontend))
+              (when ($dev-config-p)
+                (setq-local company-frontends '(company-preview-frontend)))
               (company-mode)))
+
 #+END_SRC
 
 ** font
-Use a proportional font for org mode because it is more readable
+Use a proportional font for org mode because it is more readable.
 #+BEGIN_SRC emacs-lisp
   (use-package org-variable-pitch
     :hook (org-mode . org-variable-pitch-minor-mode)
@@ -4569,6 +4571,8 @@ just using =C-l=
     (company-backends '((company-capf company-dabbrev-code company-keywords)
                         company-dabbrev))
     :config
+    (unless ($dev-config-p)
+      (company-posframe-mode))
     (defun $company-select-prev-or-comint-match-input (&optional _)
       "Disable company mode when when we are selecting a previous
   prompt in shell mode"
@@ -4580,6 +4584,9 @@ just using =C-l=
 
   (with-eval-after-load 'company-dabbrev-code
     (add-to-list 'company-dabbrev-code-modes 'shell-mode))
+
+  (unless ($dev-config-p)
+    (use-package company-posframe))
 #+END_SRC
 
 collect usage statistics and filter candidates based on that
