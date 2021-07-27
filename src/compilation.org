@@ -20,9 +20,9 @@ use lexical bindings in the file make this file lexically bound
            (cmd (read-string "Compile Command: "
                              (when file-name
                                (let ((basename (file-name-nondirectory file-name)))
-                                 (if (equal basename "Makefile")
-                                     "make"
-                                   basename)))
+                                 (cond ((equal basename "Makefile") "make")
+                                       ((file-executable-p file-name) basename)
+                                       (t nil))))
                              'compile-history))
            (shorten-fn (lambda (text) (match-string 1 text)))
            (cmd-name (thread-last cmd
