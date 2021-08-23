@@ -3723,13 +3723,14 @@ A small package to jump to links in eww buffer.
 
 *** elfeed
 #+BEGIN_SRC emacs-lisp
-  (use-package elfeed
-    :general
-    ('normal elfeed-search-mode-map "gu" 'elfeed-update)
-    :custom
-    (elfeed-db-directory "~/Dropbox/elfeed/db")
-    :config
-    (load-file "~/Dropbox/elfeed/feeds.el"))
+  (unless ($dev-config-p)
+    (use-package elfeed
+      :general
+      ('normal elfeed-search-mode-map "gu" 'elfeed-update)
+      :custom
+      (elfeed-db-directory "~/Dropbox/elfeed/db")
+      :config
+      (load-file "~/Dropbox/elfeed/feeds.el")))
 #+END_SRC
 
 ** compilation
