@@ -3383,6 +3383,7 @@ previous command it will automatically move us the the command line.
     :custom
     (comint-input-ring-size 1000)
     (comint-scroll-to-bottom-on-input t)
+    (comint-process-echoes t)
     (comint-prompt-read-only t))
 
   (defun $goto-cmd-line (&rest _)
