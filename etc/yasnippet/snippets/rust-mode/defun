@@ -1,0 +1,7 @@
+# name: defun
+# key: df
+# --
+#[defun]
+pub(crate) fn $1($2) -> $3 {
+    $0
+}
