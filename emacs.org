@@ -2803,7 +2803,9 @@ File functions
   (defun $change-model ()
     "Open a model in workspace"
     (interactive)
-    (let ((default-directory "~/workspace/")
+    (let ((default-directory (if ($dev-config-p)
+                                 "~/workspace/"
+                               "~/"))
           (major-mode 'fundamental-mode))
       (counsel-find-file)))
 
