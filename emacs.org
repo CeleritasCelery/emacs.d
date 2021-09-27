@@ -3894,6 +3894,8 @@ windows.
       (add-to-list 'mu4e-view-actions
                    '("ViewInBrowser" . mu4e-action-view-in-browser) t)))
 
+  (add-hook 'mu4e-compose-mode-hook (lambda () (auto-fill-mode -1)))
+
   (defun $mu4e-check-context (maildir msg)
     (and msg
          (string-prefix-p maildir (mu4e-message-field msg :maildir))))
