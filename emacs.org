@@ -3911,7 +3911,7 @@ windows.
 ** todos and general
 #+BEGIN_SRC emacs-lisp
   (use-package org
-    :gfhook #'$org-truncate-lines #'toggle-word-wrap
+    :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
     :general
     (:definer 'leader
      :keymaps 'org-mode-map
@@ -3947,6 +3947,8 @@ windows.
       "C-c C-SPC" 'org-insert-todo-subheading)
     (add-to-list 'org-structure-template-alist
                  '("el" . "src emacs-lisp")))
+
+  (use-package visual-fill-column)
 #+END_SRC
 
 *** inherit priority
