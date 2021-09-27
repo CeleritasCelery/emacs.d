@@ -1171,10 +1171,10 @@ display
     (:definer 'leader
      "T" 'counsel-load-theme)
     :init
-    (setq counsel-rg-base-command "rg -M 240 --with-filename --search-zip --no-heading --line-number --color never %s --path-separator / ."
-          counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
+    (setq counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t)
     :config
+    (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview" "--search-zip")))
     ($normalize-git-version 'counsel-git-cmd)
     ($normalize-git-version 'counsel-git-grep-cmd-default)
     ($normalize-git-version 'counsel-git-log-cmd)
