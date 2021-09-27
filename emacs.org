@@ -4993,7 +4993,7 @@ Inferior shell
     :config
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
-  (advice-add #'rustic-popup :after #'evil-emacs-state)
+  (evil-initial-state 'rustic-popup-mode 'emacs)
 
   (with-eval-after-load 'org-src
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
