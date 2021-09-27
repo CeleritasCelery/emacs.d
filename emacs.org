@@ -2192,6 +2192,7 @@ Get the next input matching element
 
   (use-package lsp-ui
     :custom
+    (lsp-idle-delay 1.0)
     (lsp-ui-sideline-update-mode 'line))
 
   (advice-add #'lsp-execute-code-action :after
