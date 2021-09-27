@@ -3132,7 +3132,8 @@ get weird errors in magit.
 the trash at Intel is in the home disk, which is only 100 MB.
 Therefore we must delete without moving to trash.
 #+BEGIN_SRC emacs-lisp
-  (csetq magit-delete-by-moving-to-trash nil)
+  (when ($dev-config-p)
+    (csetq magit-delete-by-moving-to-trash nil))
 #+END_SRC
 
 improve [[https://magit.vc/manual/magit/Performance.html][performance]] by only reverting buffers in the local repo
@@ -3847,6 +3848,7 @@ windows.
             mu4e-use-fancy-chars t
             mu4e-view-prefer-html t
             mu4e-index-lazy-check t
+            mu4e-user-agent-string nil
             mu4e-sent-messages-behavior 'delete ;; IMAP will take care of moving sent messages
             mu4e-context-policy 'pick-first ;; Don't ask for context when I first start mu4e
             message-send-mail-function 'smtpmail-send-it
