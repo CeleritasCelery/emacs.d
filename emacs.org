@@ -3366,7 +3366,7 @@ a text object to get the current hunk
 ** shell
 
 #+BEGIN_SRC emacs-lisp
-  (when ($dev-config-p)
+  (when (or (eq system-type 'darwin) ($dev-config-p))
     (csetq shell-file-name "bash"))
 #+END_SRC
 
