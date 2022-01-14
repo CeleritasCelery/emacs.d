@@ -3590,9 +3590,8 @@ pop up the shell in my current directory
 #+BEGIN_SRC emacs-lisp
   (use-package shell-pop
     :general
-    (:definer 'leader
-     "'" 'shell-pop
-     "\"" '$shell-pop-root))
+    ("C-;" 'shell-pop)
+    ("C-S-;" '$shell-pop-root))
 
   (defun $shell-pop-root (arg)
     "open a shell in the project root"
