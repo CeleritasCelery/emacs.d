@@ -21,7 +21,7 @@ use lexical bindings in the file make this file lexically bound
                              (when file-name
                                (let ((basename (file-name-nondirectory file-name)))
                                  (cond ((equal basename "Makefile") "make")
-                                       ((file-executable-p file-name) basename)
+                                       ((file-executable-p file-name) (concat "./" basename))
                                        (t nil))))
                              'compile-history))
            (shorten-fn (lambda (text) (match-string 1 text)))
