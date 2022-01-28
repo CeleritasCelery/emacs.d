@@ -521,7 +521,7 @@ a custom compilation command for running a turnin
       ($compilation-start
        (string-join
         (delq nil
-              (list "turnin -c"
+              (list "turnin -proj gnrio -c"
                     ($git-command "config intel.cluster")
                     "-s"
                     ($git-command "config intel.stepping")

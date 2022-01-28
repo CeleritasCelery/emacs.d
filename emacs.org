@@ -175,6 +175,7 @@ by setting the initial mode we won't have to load lisp at startup
 fix the path to use a new version of git
 #+BEGIN_SRC emacs-lisp
   (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
+  (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
