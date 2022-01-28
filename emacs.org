@@ -3009,9 +3009,10 @@ use, but thankfully my usecases are very simple.
             (("\\.p[lm]\\'" . "Perl shebang")
              nil "#!/usr/intel/pkgs/perl/5.14.1/bin/perl\n\n"
              "use strict;\n" "use warnings;\n\n" _)
+            ((sh-mode . "Sh shebang")
+             nil "#!/bin/sh\n\n" _)
             ((python-mode . "Python shebang")
              nil "#!/usr/intel/bin/python3.6.3a\n\n" _)))
-    :config
     (auto-insert-mode))
 #+END_SRC
 
