@@ -291,11 +291,6 @@ This packages lets us bisect our config to find issues.
   (use-package bug-hunter)
 #+END_SRC
 
-Define use-package for org so that we get the correct version
-#+begin_src emacs-lisp
-  (use-package org)
-#+end_src
-
 ** Garbage collection
 This function will garbage collect on an idle timer to keep emacs more performant.
 #+BEGIN_SRC emacs-lisp
@@ -3915,6 +3910,8 @@ windows.
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
+    :gfhook #'$org-truncate-lines #'toggle-word-wrap
+    :straight (:host github :repo "bzg/org-mode")
     :general
     (:definer 'leader
      :keymaps 'org-mode-map
