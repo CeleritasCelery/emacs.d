@@ -600,16 +600,20 @@ the timestamp in the compilation buffer.
     "take the difference between two time stamps and print it"
     (let* ((names '("day" "hour" "minute" "second"))
            (decode (reverse (-take 4 (decode-time (time-subtract time1 time2) "UTC0"))))
-           ;; units is the alist of (value . name) pairs. e.g. (1 . day) (4 . hour) etc.
            ;; since days starts at 1 (instead of 0) we subtract 1 from the first element
-           (units (-zip-pair (cons (1- (car decode)) (cdr decode))
-                             names)))
-      (while units
-        ;; When we find the first non-zero unit we print it as well as
-        ;; the following unit.
-        (when-let ((formatted ($format-time-unit (pop units))))
-          (cl-return-from $time-difference-to-string
-            (s-join ", " (remove nil (list formatted ($format-time-unit (pop units))))))))))
+           (decode (cons (1- (car decode)) (cdr decode)))
+           ;; units is the alist of (value . name) pairs. e.g. (1 . day) (4 . hour) etc.
+           (units (-zip-pair decode names)))
+      ;; The time difference was so small we didn't capture it
+      (if (or (equal decode '(30 23 59 59))
+              (equal decode '(0 0 0 0)))
+          "less than a second"
+        (while units
+          ;; When we find the first non-zero unit we print it as well as
+          ;; the following unit.
+          (when-let ((formatted ($format-time-unit (pop units))))
+            (cl-return-from $time-difference-to-string
+              (s-join ", " (remove nil (list formatted ($format-time-unit (pop units)))))))))))
 
   (defun $format-time-unit (unit)
     "return formatted time string if unit is not 0"
