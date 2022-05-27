@@ -4242,16 +4242,16 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
             org-roam-capture-templates
             '(("d" "default" plain
                "%?" :target
-               (file+head "${slug}.org" "#+title: ${title}\n")))
+               (file+head "pages/${slug}.org" "#+title: ${title}\n")))
             org-roam-dailies-capture-templates
             '(("d" "default" entry
                "* %?" :target
-               (file+head "journals/%<%Y_%m_%d>" "#+title: %<%b %o, %Y>\n"))))
+               (file+head "%<%Y_%m_%d>.org" "#+title: %<%b %o, %Y>\n"))))
       :bind (:map org-mode-map
              (("C-c n i" . org-roam-node-insert)
               ("C-c n b" . org-roam-buffer-toggle)))
       :bind (("C-c n f" . org-roam-node-find)
-             ("C-c n d" . org-roam-dailies-find-today))
+             ("C-c n d" . org-roam-dailies-goto-today))
       :config
       (org-roam-setup)))
 #+END_SRC
