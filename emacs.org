@@ -1637,6 +1637,7 @@ magit because I do that by accident all the time.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-escape
     :demand t
+    :straight (:fork "hlissner/evil-escape")
     :init
     (setq evil-escape-unordered-key-sequence t
           evil-escape-key-sequence "jk")
