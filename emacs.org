@@ -4924,6 +4924,7 @@ Inferior shell
     (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
+    (lsp-rust-analyzer-diagnostics-disabled ["type-mismatch" "unresolved-import" "inactive-code"])
     :config
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
