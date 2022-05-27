@@ -2090,6 +2090,7 @@ H-i, which is bound to evil-jump-forward.
 Use tab for completion if at a symbol
 #+BEGIN_SRC emacs-lisp
   (setq tab-always-indent 'complete)
+  (setq-default tab-width 4)
 #+END_SRC
 
 *** whitespace
