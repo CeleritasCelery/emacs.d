@@ -5117,6 +5117,14 @@ locked
                             `((,(rx (group "//" (0+ nonl)) eol) 1 font-lock-comment-face))))
 #+END_SRC
 
+** CSS
+#+begin_src emacs-lisp
+  (add-hook 'css-mode-hook
+            (defun $setup-css-mode ()
+              (setq tab-width 4)
+              (indent-tabs-mode)))
+#+end_src
+
 ** CSV
 #+BEGIN_SRC emacs-lisp
   (use-package csv-mode
