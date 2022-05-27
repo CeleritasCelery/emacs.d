@@ -3008,8 +3008,6 @@ clear status.
   (add-to-list 'clean-buffer-list-kill-never-regexps '$never-kill-compilation-buffers)
 
   (add-hook 'midnight-hook 'recentf-save-list)
-  (unless ($dev-config-p)
-    (add-hook 'midnight-hook (lambda () (mu4e-update-mail-and-index t))))
 #+END_SRC
 
 *** auto-insert
@@ -3848,78 +3846,6 @@ windows.
     (interactive (list (read-shell-command "EXWM open: ")))
     (start-process-shell-command command nil command))
 #+END_SRC
-
-** Mail
-#+begin_src emacs-lisp
-  (unless ($dev-config-p)
-    (use-package mu4e
-      :straight nil
-      :load-path "/usr/share/emacs/site-lisp/mu4e"
-      :general
-      ('visual mu4e-headers-mode-map "!" 'mu4e-headers-mark-for-read)
-      :commands (mu4e mu4e-update-mail-and-index)
-      :init
-      (setq mu4e-get-mail-command "offlineimap"
-            mu4e-completing-read-function 'ivy-completing-read
-            mu4e-view-show-images t
-            mu4e-use-fancy-chars t
-            mu4e-view-prefer-html t
-            mu4e-index-lazy-check t
-            mu4e-user-agent-string nil
-            mu4e-sent-messages-behavior 'delete ;; IMAP will take care of moving sent messages
-            mu4e-context-policy 'pick-first ;; Don't ask for context when I first start mu4e
-            message-send-mail-function 'smtpmail-send-it
-            smtpmail-smtp-service 587
-
-            mu4e-maildir-shortcuts
-            '(("/Gmail/[Gmail].All Mail" . ?a)
-              ("/Pro/[Gmail].All Mail" . ?p)
-              ("/Main/Notification" . ?z))
-            mu4e-bookmarks
-            '(("not maildir:/Gmail/[Gmail].Trash and not maildir:/Pro/[Gmail].Trash and not maildir:/Main/Trash and flag:unread" "Unread" ?u)
-              ("maildir:/Gmail/INBOX or maildir:/Pro/INBOX or maildir:/Main/INBOX or maildir:/Main/Newsletter or maildir:/Main/Notification" "Inbox" ?i)
-              ("date:today..now" "Today's messages" ?t)))
-      :config
-      (setq mu4e-contexts
-            (list (make-mu4e-context
-                   :name "gmail"
-                   :match-func (apply-partially '$mu4e-check-context "/Gmail")
-                   :vars '((user-mail-address . "t.macman@gmail.com")
-                           (smtpmail-smtp-user . "t.macman@gmail.com")
-                           (smtpmail-smtp-server . "smtp.gmail.com")
-                           (user-full-name . "Mac Man")
-                           (mu4e-trash-folder . "/Gmail/[Gmail].Trash")
-                           (mu4e-refile-folder . "/Gmail/[Gmail].All Mail")))
-                  (make-mu4e-context
-                   :name "pro"
-                   :match-func (apply-partially '$mu4e-check-context "/Pro")
-                   :vars '((user-mail-address . "troyhinckley@gmail.com" )
-                           (smtpmail-smtp-user . "troyhinckley@gmail.com")
-                           (smtpmail-smtp-server . "smtp.gmail.com")
-                           (user-full-name . "Troy Hinckley")
-                           (mu4e-trash-folder . "/Pro/[Gmail].Trash")
-                           (mu4e-refile-folder . "/Pro/[Gmail].All Mail")))
-                  (make-mu4e-context
-                   :name "main"
-                   :match-func (apply-partially '$mu4e-check-context "/Main")
-                   :vars '((user-mail-address . "comms@dabrev.com")
-                           (smtpmail-smtp-user . "comms@dabrev.com")
-                           (smtpmail-smtp-server . "smtp.zoho.com")
-                           (user-full-name . "Troy")
-                           (mu4e-trash-folder . "/Main/Trash")
-                           (mu4e-refile-folder . "/Main/Archive")))))
-      (add-to-list 'mu4e-view-actions
-                   '("ViewInBrowser" . mu4e-action-view-in-browser) t)))
-
-  (add-hook 'mu4e-compose-mode-hook (lambda () (auto-fill-mode -1)))
-
-  (defun $mu4e-check-context (maildir msg)
-    (and msg
-         (string-prefix-p maildir (mu4e-message-field msg :maildir))))
-
-
-
-#+end_src
 
 * Org
 :PROPERTIES:
