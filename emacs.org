@@ -5227,22 +5227,3 @@ Function to reload the postsim file after changing the post process
           (auto-revert-mode))
       (user-error "commandline not found"))))
 #+END_SRC
-
-
-*** digit groups
-allows us to more easily read binary numbers by visually grouping them
-into nibbles.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package digit-groups
-    :hook (spfspec-mode itpp-mode)
-    :init
-    (require 'dash)
-    (setq digit-groups-digits "01LHX"
-          digit-groups-groups
-          (mapcar (lambda (x) `(,x . digit-groups-default-face))
-                  (--mapcat (list (+ 7 (* 8 it)) (+ 6 (* 8 it)) (+ 5 (* 8 it)) (+ 4 (* 8 it)))
-                            '(9 8 7 6 5 4 3 2 1 0))))
-    :config
-    (set-face-attribute 'digit-groups-default-face nil :underline t))
-#+END_SRC
