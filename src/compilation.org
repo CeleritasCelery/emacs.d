@@ -582,10 +582,12 @@ the timestamp in the compilation buffer.
   (defvar $compilation-start-time nil)
   (make-variable-buffer-local '$compilation-start-time)
 
-  (advice-add 'compilation-start :after
-              (defun $compilation-set-start-time (&rest _)
-                (with-current-buffer compilation-last-buffer
-                  (setq-local $compilation-start-time (current-time)))))
+  (defun $compilation-set-start-time (&rest _)
+    (when (buffer-live-p compilation-last-buffer)
+      (with-current-buffer compilation-last-buffer
+        (setq-local $compilation-start-time (current-time)))))
+
+  (add-hook 'compilation-start-hook '$compilation-set-start-time)
 
   (add-hook 'compilation-finish-functions
             (defun $compilation-print-run-time (buffer _msg)
