@@ -956,7 +956,9 @@ Always select the help window
 Make helpful the describe variable function for ivy
 #+BEGIN_SRC emacs-lisp
   (csetq counsel-describe-variable-function 'helpful-variable
-        counsel-describe-function-function 'helpful-callable)
+         counsel-describe-function-function 'helpful-callable)
+
+  (setq find-function-C-source-directory "/Users/troyhinckley/repos/emacs/src")
 
   (general-def
     "C-h f" 'counsel-describe-function
