@@ -1,7 +1,6 @@
-# name: defun
-# key: df
+# name: pub fn
+# key: pf
 # --
-#[defun]
 pub(crate) fn $1($2) -> $3 {
     $0
 }
