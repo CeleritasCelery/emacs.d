@@ -3396,6 +3396,7 @@ previous command it will automatically move us the the command line.
     (:keymaps 'comint-mode-map
      :states '(normal insert)
      "C-p" 'comint-previous-matching-input-from-input
+     "<return>" 'comint-send-input
      "C-n" 'comint-next-matching-input-from-input
      "C-<return>" '$copy-path)
     (:keymaps 'comint-mode-map
