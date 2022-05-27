@@ -1199,6 +1199,10 @@ a function to call counsel-rg from the current directory
   (defun $counsel-rg-here ()
     (interactive)
     (counsel-rg nil default-directory))
+
+  (defun $counsel-rg-root ()
+    (interactive)
+    (counsel-rg nil ($model-root)))
 #+END_SRC
 
 **** functions
@@ -1553,10 +1557,20 @@ a text object that highlights everything with the same font lock
 Use additional evil-ex bindings
 #+BEGIN_SRC emacs-lisp
   (evil-ex-define-cmd "rg" '$counsel-rg-here)
+  (evil-ex-define-cmd "rr" '$counsel-rg-root)
   (evil-ex-define-cmd "j" 'counsel-fd-jump)
   (evil-ex-define-cmd "perl" 'perl-mode)
   (evil-ex-define-cmd "lisp" 'emacs-lisp-mode)
   (evil-ex-define-cmd "pkg" 'straight-use-package)
+
+  ($leader-set-key
+    "rg" '$counsel-rg-here
+    "rr" '$counsel-rg-root)
+
+  ($leader-set-key
+    "ss" '$counsel-rg-here
+    "sr" '$counsel-rg-root)
+
 #+END_SRC
 
 *** keybindings
