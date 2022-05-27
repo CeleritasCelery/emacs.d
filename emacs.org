@@ -3758,6 +3758,7 @@ packages that assist in compiling and building code
      "oj" '$compilation-jump-to-buffer)
     :custom
     (compilation-always-kill t)
+    (compilation-scroll-output 'first-error)
     :config
     ($load-literate-file "src/compilation")
     (general-unbind compilation-mode-map "SPC"))
