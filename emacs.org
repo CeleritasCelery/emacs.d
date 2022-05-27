@@ -3961,10 +3961,6 @@ inherit the priority of the parent heading and make sure the default state is al
     (let ((fn (if (eq major-mode 'org-agenda-mode)
                   'org-agenda-schedule
                 'org-schedule)))
-      (defvar org-state)
-      (let ((org-state "DONE"))
-        (require 'org-clock)
-        (org-clock-out-if-current))
       (funcall fn arg "+1d")))
   ($leader-local-set-key
     :keymaps '(org-mode-map org-agenda-mode-map)
@@ -4039,36 +4035,6 @@ outline path instead of trying to refile in steps.
 #+BEGIN_SRC emacs-lisp
   (csetq org-refile-use-outline-path 'file
          org-outline-path-complete-in-steps nil)
-#+END_SRC
-
-** clock
-I am trying to always be clocked into a task. Not so much so that I
-can see how I am using my time, though that is useful, more just to
-keep me on task.
-#+BEGIN_SRC emacs-lisp
-  (use-package org-clock
-    :straight nil
-    :init
-    ($leader-set-key
-      "og" 'org-clock-goto
-      "oo" 'org-clock-out)
-    ($leader-local-set-key
-      :keymaps 'org-mode-map
-      "i" 'org-clock-in
-      "o" 'org-clock-out)
-    ($leader-local-set-key
-      :keymaps 'org-agenda-mode-map
-      "i" 'org-agenda-clock-in
-      "o" 'org-agenda-clock-out))
-#+END_SRC
-
-*** mru
-Easily clock into most-recently-used clocks
-#+BEGIN_SRC emacs-lisp
-(use-package org-mru-clock
-  :general
-  (:definer 'leader
-   "of" 'org-mru-clock-in))
 #+END_SRC
 
 ** export
