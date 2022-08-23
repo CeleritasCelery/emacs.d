@@ -303,15 +303,6 @@ on error messages.
                             "Information:")))))
 
   (byte-compile '$font-lock-extend-region-error-message)
-
-  (general-add-hook '(compilation-mode-hook
-                      compilation-minor-mode-hook
-                      compilation-shell-minor-mode-hook)
-                    (defun $set-font-lock-error-function ()
-                      (add-hook 'font-lock-extend-region-functions
-                                '$font-lock-extend-region-error-message
-                                'append
-                                'local)))
 #+END_SRC
 
 ** functions
