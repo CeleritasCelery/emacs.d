@@ -3380,7 +3380,10 @@ previous command it will automatically move us the the command line.
   (defun $copy-path ()
     "copy path at point to prompt"
     (interactive)
-    (let ((path ($get-path-at-point)))
+    (let ((path (replace-regexp-in-string
+                 ($rx (or (: bol "{") (: "}" eol)))
+                 ""
+                 ($get-path-at-point))))
       (goto-char (point-max))
       (insert path)))
 #+END_SRC
