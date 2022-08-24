@@ -4914,8 +4914,6 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
 
-  (setq flycheck-flake8-maximum-line-length 120)
-
   (setq python-shell-interpreter $python-executable
         flycheck-python-flake8-executable $python-executable
         flycheck-python-pycompile-executable $python-executable
