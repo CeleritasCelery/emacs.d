@@ -2695,11 +2695,11 @@ email. automatically add the tramp header if from a different site
       (let* ((path (thread-last file
                      (concat remote-url)
                      (replace-regexp-in-string (rx (1+ (any space "\""))) "")
-                     (replace-regexp-in-string (rx (1+ "/")) "/")
                      (replace-regexp-in-string "\"" "")
                      (string-remove-prefix "./")
                      (replace-regexp-in-string "$ENV" "$")
                      ($substitute-env-in-filename)
+                     (replace-regexp-in-string (rx (1+ "/")) "/")
                      (substitute-in-file-name)))
              (root-path (concat (vc-git-root default-directory)
                                 path))
