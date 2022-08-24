@@ -2713,12 +2713,15 @@ email. automatically add the tramp header if from a different site
     "if the variables in the file name are present in the file,
   substitute them in the path"
     (let ((re-env ($rx "$" (group symbol)))
-          (re-assign ($rx "=" (group (1+ (any alnum "-_/.~$:"))) (or spc eol)))
+          (re-path ($rx (group (1+ (any alnum "-_/.~$:"))) (or spc eol)))
           (orig-point (point)))
       (cl-loop for (var env) in (s-match-strings-all re-env file)
                if (save-excursion
                     (goto-char (point-min))
-                    (re-search-forward (concat env re-assign) orig-point t))
+                    ;; bash
+                    (or (re-search-forward (concat env "=" re-path) orig-point t))
+                    ;; tcsh
+                    (or (re-search-forward (concat "setenv +" env " +" re-path) orig-point t)))
                collect (cons var
                              ($substitute-env-in-filename
                               (match-string-no-properties 1)))
@@ -2749,10 +2752,7 @@ email. automatically add the tramp header if from a different site
                 (looking-back (regexp-quote "$::env(MODEL_ROOT)") (line-beginning-position))))
           (concat "$MODEL_ROOT" path)
         path)))
-#+END_SRC
 
-File functions
-#+begin_src emacs-lisp
   (defun $counsel-initial-input (file)
     (unless (file-directory-p file)
       (concat (file-name-nondirectory file) "\\_>")))
