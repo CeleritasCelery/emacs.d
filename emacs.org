@@ -3199,25 +3199,6 @@ me the power to do that.
     "C-c g" '$magit-status-current-dir)
 #+END_SRC
 
-**** user
-I don't like to commit to my github repos using my work credentials, but I can't
-use my private credentials on my work repos. therefore I set ~useconfigonly =
-true~ so that I have to set the credentials for every repo. This hook will
-automatically set my credentials based on where the repo is located.
-#+BEGIN_SRC emacs-lisp
-  (defun $git-set-user ()
-    "set the git user based on where the repo is located."
-    (when (and (equal user-login-name (nth 2 (file-attributes (vc-git-root default-directory) 'string)))
-               (equal "" (shell-command-to-string "git config --local user.name")))
-      (shell-command-to-string
-       (apply 'format "git config --local user.name %s && git config --local user.email %s"
-              ($user-credentials)))
-      (message "setting git user credentials")))
-
-  (when ($dev-config-p)
-    (add-hook 'magit-status-mode-hook '$git-set-user))
-#+END_SRC
-
 **** org
 When visiting a line from a diff in magit, expand point.
 #+BEGIN_SRC emacs-lisp
