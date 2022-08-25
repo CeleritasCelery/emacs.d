@@ -956,7 +956,9 @@ Always select the help window
 Make helpful the describe variable function for ivy
 #+BEGIN_SRC emacs-lisp
   (csetq counsel-describe-variable-function 'helpful-variable
-        counsel-describe-function-function 'helpful-callable)
+         counsel-describe-function-function 'helpful-callable)
+
+  (setq find-function-C-source-directory "/Users/troyhinckley/repos/emacs/src")
 
   (general-def
     "C-h f" 'counsel-describe-function
@@ -1197,6 +1199,10 @@ a function to call counsel-rg from the current directory
   (defun $counsel-rg-here ()
     (interactive)
     (counsel-rg nil default-directory))
+
+  (defun $counsel-rg-root ()
+    (interactive)
+    (counsel-rg nil ($model-root)))
 #+END_SRC
 
 **** functions
@@ -1556,10 +1562,20 @@ a text object that highlights everything with the same font lock
 Use additional evil-ex bindings
 #+BEGIN_SRC emacs-lisp
   (evil-ex-define-cmd "rg" '$counsel-rg-here)
+  (evil-ex-define-cmd "rr" '$counsel-rg-root)
   (evil-ex-define-cmd "j" 'counsel-fd-jump)
   (evil-ex-define-cmd "perl" 'perl-mode)
   (evil-ex-define-cmd "lisp" 'emacs-lisp-mode)
   (evil-ex-define-cmd "pkg" 'straight-use-package)
+
+  ($leader-set-key
+    "rg" '$counsel-rg-here
+    "rr" '$counsel-rg-root)
+
+  ($leader-set-key
+    "ss" '$counsel-rg-here
+    "sr" '$counsel-rg-root)
+
 #+END_SRC
 
 *** keybindings
@@ -1626,6 +1642,7 @@ magit because I do that by accident all the time.
 #+BEGIN_SRC emacs-lisp
   (use-package evil-escape
     :demand t
+    :straight (:fork "hlissner/evil-escape")
     :init
     (setq evil-escape-unordered-key-sequence t
           evil-escape-key-sequence "jk")
@@ -2078,6 +2095,7 @@ H-i, which is bound to evil-jump-forward.
 Use tab for completion if at a symbol
 #+BEGIN_SRC emacs-lisp
   (setq tab-always-indent 'complete)
+  (setq-default tab-width 4)
 #+END_SRC
 
 *** whitespace
@@ -2995,8 +3013,6 @@ clear status.
   (add-to-list 'clean-buffer-list-kill-never-regexps '$never-kill-compilation-buffers)
 
   (add-hook 'midnight-hook 'recentf-save-list)
-  (unless ($dev-config-p)
-    (add-hook 'midnight-hook (lambda () (mu4e-update-mail-and-index t))))
 #+END_SRC
 
 *** auto-insert
@@ -3366,6 +3382,7 @@ previous command it will automatically move us the the command line.
     (:keymaps 'comint-mode-map
      :states '(normal insert)
      "C-p" 'comint-previous-matching-input-from-input
+     "<return>" 'comint-send-input
      "C-n" 'comint-next-matching-input-from-input
      "C-<return>" '$copy-path)
     (:keymaps 'comint-mode-map
@@ -3577,7 +3594,7 @@ pop up the shell in my current directory
   (use-package shell-pop
     :general
     ("C-c C-;" 'shell-pop)
-    ("C-c S-;" '$shell-pop-root))
+    ("C-c C-:" '$shell-pop-root))
 
   (defun $shell-pop-root (arg)
     "open a shell in the project root"
@@ -3713,17 +3730,6 @@ A small package to jump to links in eww buffer.
      "J" 'eww-lnum-follow))
 #+END_SRC
 
-*** elfeed
-#+BEGIN_SRC emacs-lisp
-  (unless ($dev-config-p)
-    (use-package elfeed
-      :general
-      ('normal elfeed-search-mode-map "gu" 'elfeed-update)
-      :custom
-      (elfeed-db-directory "~/Dropbox/elfeed/db")
-      :config
-      (load-file "~/Dropbox/elfeed/feeds.el")))
-#+END_SRC
 
 ** compilation
 packages that assist in compiling and building code
@@ -3741,6 +3747,7 @@ packages that assist in compiling and building code
      "oj" '$compilation-jump-to-buffer)
     :custom
     (compilation-always-kill t)
+    (compilation-scroll-output 'first-error)
     :config
     ($load-literate-file "src/compilation")
     (general-unbind compilation-mode-map "SPC"))
@@ -3819,78 +3826,6 @@ windows.
     (interactive (list (read-shell-command "EXWM open: ")))
     (start-process-shell-command command nil command))
 #+END_SRC
-
-** Mail
-#+begin_src emacs-lisp
-  (unless ($dev-config-p)
-    (use-package mu4e
-      :straight nil
-      :load-path "/usr/share/emacs/site-lisp/mu4e"
-      :general
-      ('visual mu4e-headers-mode-map "!" 'mu4e-headers-mark-for-read)
-      :commands (mu4e mu4e-update-mail-and-index)
-      :init
-      (setq mu4e-get-mail-command "offlineimap"
-            mu4e-completing-read-function 'ivy-completing-read
-            mu4e-view-show-images t
-            mu4e-use-fancy-chars t
-            mu4e-view-prefer-html t
-            mu4e-index-lazy-check t
-            mu4e-user-agent-string nil
-            mu4e-sent-messages-behavior 'delete ;; IMAP will take care of moving sent messages
-            mu4e-context-policy 'pick-first ;; Don't ask for context when I first start mu4e
-            message-send-mail-function 'smtpmail-send-it
-            smtpmail-smtp-service 587
-
-            mu4e-maildir-shortcuts
-            '(("/Gmail/[Gmail].All Mail" . ?a)
-              ("/Pro/[Gmail].All Mail" . ?p)
-              ("/Main/Notification" . ?z))
-            mu4e-bookmarks
-            '(("not maildir:/Gmail/[Gmail].Trash and not maildir:/Pro/[Gmail].Trash and not maildir:/Main/Trash and flag:unread" "Unread" ?u)
-              ("maildir:/Gmail/INBOX or maildir:/Pro/INBOX or maildir:/Main/INBOX or maildir:/Main/Newsletter or maildir:/Main/Notification" "Inbox" ?i)
-              ("date:today..now" "Today's messages" ?t)))
-      :config
-      (setq mu4e-contexts
-            (list (make-mu4e-context
-                   :name "gmail"
-                   :match-func (apply-partially '$mu4e-check-context "/Gmail")
-                   :vars '((user-mail-address . "t.macman@gmail.com")
-                           (smtpmail-smtp-user . "t.macman@gmail.com")
-                           (smtpmail-smtp-server . "smtp.gmail.com")
-                           (user-full-name . "Mac Man")
-                           (mu4e-trash-folder . "/Gmail/[Gmail].Trash")
-                           (mu4e-refile-folder . "/Gmail/[Gmail].All Mail")))
-                  (make-mu4e-context
-                   :name "pro"
-                   :match-func (apply-partially '$mu4e-check-context "/Pro")
-                   :vars '((user-mail-address . "troyhinckley@gmail.com" )
-                           (smtpmail-smtp-user . "troyhinckley@gmail.com")
-                           (smtpmail-smtp-server . "smtp.gmail.com")
-                           (user-full-name . "Troy Hinckley")
-                           (mu4e-trash-folder . "/Pro/[Gmail].Trash")
-                           (mu4e-refile-folder . "/Pro/[Gmail].All Mail")))
-                  (make-mu4e-context
-                   :name "main"
-                   :match-func (apply-partially '$mu4e-check-context "/Main")
-                   :vars '((user-mail-address . "comms@dabrev.com")
-                           (smtpmail-smtp-user . "comms@dabrev.com")
-                           (smtpmail-smtp-server . "smtp.zoho.com")
-                           (user-full-name . "Troy")
-                           (mu4e-trash-folder . "/Main/Trash")
-                           (mu4e-refile-folder . "/Main/Archive")))))
-      (add-to-list 'mu4e-view-actions
-                   '("ViewInBrowser" . mu4e-action-view-in-browser) t)))
-
-  (add-hook 'mu4e-compose-mode-hook (lambda () (auto-fill-mode -1)))
-
-  (defun $mu4e-check-context (maildir msg)
-    (and msg
-         (string-prefix-p maildir (mu4e-message-field msg :maildir))))
-
-
-
-#+end_src
 
 * Org
 :PROPERTIES:
@@ -4017,10 +3952,6 @@ inherit the priority of the parent heading and make sure the default state is al
     (let ((fn (if (eq major-mode 'org-agenda-mode)
                   'org-agenda-schedule
                 'org-schedule)))
-      (defvar org-state)
-      (let ((org-state "DONE"))
-        (require 'org-clock)
-        (org-clock-out-if-current))
       (funcall fn arg "+1d")))
   ($leader-local-set-key
     :keymaps '(org-mode-map org-agenda-mode-map)
@@ -4095,36 +4026,6 @@ outline path instead of trying to refile in steps.
 #+BEGIN_SRC emacs-lisp
   (csetq org-refile-use-outline-path 'file
          org-outline-path-complete-in-steps nil)
-#+END_SRC
-
-** clock
-I am trying to always be clocked into a task. Not so much so that I
-can see how I am using my time, though that is useful, more just to
-keep me on task.
-#+BEGIN_SRC emacs-lisp
-  (use-package org-clock
-    :straight nil
-    :init
-    ($leader-set-key
-      "og" 'org-clock-goto
-      "oo" 'org-clock-out)
-    ($leader-local-set-key
-      :keymaps 'org-mode-map
-      "i" 'org-clock-in
-      "o" 'org-clock-out)
-    ($leader-local-set-key
-      :keymaps 'org-agenda-mode-map
-      "i" 'org-agenda-clock-in
-      "o" 'org-agenda-clock-out))
-#+END_SRC
-
-*** mru
-Easily clock into most-recently-used clocks
-#+BEGIN_SRC emacs-lisp
-(use-package org-mru-clock
-  :general
-  (:definer 'leader
-   "of" 'org-mru-clock-in))
 #+END_SRC
 
 ** export
@@ -4298,16 +4199,16 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
             org-roam-capture-templates
             '(("d" "default" plain
                "%?" :target
-               (file+head "${slug}.org" "#+title: ${title}\n")))
+               (file+head "pages/${slug}.org" "#+title: ${title}\n")))
             org-roam-dailies-capture-templates
             '(("d" "default" entry
                "* %?" :target
-               (file+head "journals/%<%Y_%m_%d>" "#+title: %<%b %o, %Y>\n"))))
+               (file+head "%<%Y_%m_%d>.org" "#+title: %<%b %o, %Y>\n"))))
       :bind (:map org-mode-map
              (("C-c n i" . org-roam-node-insert)
               ("C-c n b" . org-roam-buffer-toggle)))
       :bind (("C-c n f" . org-roam-node-find)
-             ("C-c n d" . org-roam-dailies-find-today))
+             ("C-c n d" . org-roam-dailies-goto-today))
       :config
       (org-roam-setup)))
 #+END_SRC
@@ -4978,6 +4879,7 @@ Inferior shell
     (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
+    (lsp-rust-analyzer-diagnostics-disabled ["type-mismatch" "unresolved-import" "inactive-code"])
     :config
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
@@ -5170,6 +5072,14 @@ locked
                             `((,(rx (group "//" (0+ nonl)) eol) 1 font-lock-comment-face))))
 #+END_SRC
 
+** CSS
+#+begin_src emacs-lisp
+  (add-hook 'css-mode-hook
+            (defun $setup-css-mode ()
+              (setq tab-width 4)
+              (indent-tabs-mode)))
+#+end_src
+
 ** CSV
 #+BEGIN_SRC emacs-lisp
   (use-package csv-mode
@@ -5271,23 +5181,4 @@ Function to reload the postsim file after changing the post process
                      (find-file (string-remove-suffix ".gz" file))))
           (auto-revert-mode))
       (user-error "commandline not found"))))
-#+END_SRC
-
-
-*** digit groups
-allows us to more easily read binary numbers by visually grouping them
-into nibbles.
-
-#+BEGIN_SRC emacs-lisp
-  (use-package digit-groups
-    :hook (spfspec-mode itpp-mode)
-    :init
-    (require 'dash)
-    (setq digit-groups-digits "01LHX"
-          digit-groups-groups
-          (mapcar (lambda (x) `(,x . digit-groups-default-face))
-                  (--mapcat (list (+ 7 (* 8 it)) (+ 6 (* 8 it)) (+ 5 (* 8 it)) (+ 4 (* 8 it)))
-                            '(9 8 7 6 5 4 3 2 1 0))))
-    :config
-    (set-face-attribute 'digit-groups-default-face nil :underline t))
 #+END_SRC

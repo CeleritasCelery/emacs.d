@@ -158,120 +158,121 @@ that hook and set the alist back to our canonical version.
 
   (add-hook 'next-error-hook '$correct-connection-line-number)
 
-  (setq compilation-error-regexp-alist
-        (setq $compilation-error-regexp-alist
-              `((,(err-rx ^ "-I-:Error-" ->
-                          "\n-I-:" filename ", " line)
-                 1 2)
-                (,(err-rx ^ "-E-:SGDFT" -> "FAILED"
-                          "\n-I-:  Error" ->
-                          "\n-I-:  Use" ->
-                          "\n-I-:Report: " filename)
-                 1)
-                (,(err-rx ^ spc+ "simregress invocation failed on " ->
-                          "\n" spc+ "Refer to " -> ": " filename)
-                 1)
-                (,(err-rx ^ "Error-[" (group-n 3 ->) "]" ->
-                          "\n" filename ", " line)
-                 1 2 nil nil nil (3 'warning))
-                (,(err-rx ^ "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
-                          filename)
-                 1)
-                (,(err-rx ^ "  Log: " filename)
-                 1 nil nil 1)
-                (,(err-rx ^ "UPFSEM_4" spc+ (1+ word) spc+
-                          filename spc+ line)
-                 1 2)
-                (,(err-rx ^ "Errormessage   : Failed to open input file ["
-                          filename "]")
-                 1)
-                (,(err-rx ^ info "  Error occurred at File: " filename " Line: " line)
-                 1 2)
-                (,(err-rx ^ "-I-:-E-:" symbol ": invalid HSD waiver: " -> " file '" filename "'")
-                 1)
-                (,(err-rx ^ line ": " (or "OVM" "UVM") (or "_ERROR" "_FATAL") " ")
-                 (0 "acerun.log.gz") 2)
-                (,(err-rx ^ line ": Error: \"")
-                 (0 "acerun.log.gz") 2)
-                (,(err-rx ^ (or "OVM" "UVM") (or "_ERROR" "_FATAL") " " filename ":" line " @ ")
-                 1 2)
-                (,(err-rx ^ "-I-:ERROR: " symbol " has " nums " upf error" (opt "s")
-                          "\n-I-:Check: " filename)
-                 1)
-                (,(err-rx ^ "-I-:Detailed violation log for sgdft_drc for " symbol ": " filename)
-                 1)
-                (,(err-rx ^ "-E-:Error in stage bman." symbol ".vclp." symbol ":"
-                          "\n-I-:***** Cat'ing logs *****"
-                          "\n-I-:Executing: cat " filename)
-                 1)
-                (,(err-rx ^ "-I-:" (opt "DIE signal:") " ERROR " nums ": Couldn't find directory '" filename "'")
-                 1)
-                (,(err-rx ^ "-F-:Failing test in " filename)
-                 1)
-                (,(err-rx ^ "-I-:FAILED: Exit status of pid " nums " was '" nums "', user expected '0'; LOG " filename)
-                 1)
-                ;; this used to be in ipgen, may need to be in both
-                (,(err-rx ^ "Information: script '" filename
-                          "'\n" spc+ "stopped at line " line ->)
-                 1 2)
-                (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
-                 1 2)
-                (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file " (or "adhoc" "std") " connection file " filename
-                          " \n Error at line# " line)
-                 $follow-connection-file 2)
-                (,(err-rx ^ "ERROR: couldn't parse " filename ":")
-                 1)
-                (,(err-rx ^ "FATAL                (F) Exception caught: " (1+ nonl) " at " filename " line " line)
-                 1 2)
-                (,(err-rx ^ "//  Error: File: " filename ", Line: " line ": " (1+ nonl))
-                 1 2)
-                (,(err-rx ^ filename ":" line ": [Error]" (1+ nonl))
-                 1 2)
-                (,(err-rx ^ "Failed Logs:"
-                          "\n\t" filename)
-                 1)
-                (,(err-rx ^ "-E- Can't add parameter '" symbol "' because it already exists at " filename " line " line)
-                 1 2)
-                (,(err-rx ^ "Error-[MPD] Module previously declare" (group-n 1 nonl))
-                 $prev-declaration-file)
-                (,(err-rx ^ "    FileName     : " filename
-                          "\n    LineNumber   : " line)
-                 1 2)
-                (,(err-rx ^ "syntax error at " filename " line " line)
-                 1 2)
-                (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
-                          "\n  Source file \"" filename "\"")
-                 1)
-                (,(err-rx ^ "Error-[URMI] Unresolved modules"
-                          "\n" filename ", " line)
-                 1 2)
-                (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
-                 $find-par-file)
-                (,(err-rx ^ "-E- Lintra [1051] " filename "(" line ")" -> ":" (group-n 3 ->) ":")
-                 1 2 nil nil nil (3 'warning))
-                (,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
-                 $bman-skip-intermediate-log)
-                (,(err-rx ^ "ERROR: In file '" filename "':")
-                 1)
-                (,(err-rx ^ "Error-[SE] Syntax error"
-                          "\n  Following verilog source has syntax error :"
-                          "\n  \"" filename "\"," (opt "\n ") " " line ":")
-                 1 2)
-                (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
-                          "\n" filename ", " line)
-                 1 2)
-                (,(err-rx ^ filename ": undefined reference to `" symbol "'")
-                 1)
-                (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
-                 $bman-find-generic-log)
-                (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
-                (,(err-rx ^ "// 'DOFile " filename "' aborted at line " line)
-                 1 2)
-                )))
+  (when ($dev-config-p)
+    (setq $compilation-error-regexp-alist
+          `((,(err-rx ^ "-I-:Error-" ->
+                      "\n-I-:" filename ", " line)
+             1 2)
+            (,(err-rx ^ "-E-:SGDFT" -> "FAILED"
+                      "\n-I-:  Error" ->
+                      "\n-I-:  Use" ->
+                      "\n-I-:Report: " filename)
+             1)
+            (,(err-rx ^ spc+ "simregress invocation failed on " ->
+                      "\n" spc+ "Refer to " -> ": " filename)
+             1)
+            (,(err-rx ^ "Error-[" (group-n 3 ->) "]" ->
+                      "\n" filename ", " line)
+             1 2 nil nil nil (3 'warning))
+            (,(err-rx ^ "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
+                      filename)
+             1)
+            (,(err-rx ^ "  Log: " filename)
+             1 nil nil 1)
+            (,(err-rx ^ "UPFSEM_4" spc+ (1+ word) spc+
+                      filename spc+ line)
+             1 2)
+            (,(err-rx ^ "Errormessage   : Failed to open input file ["
+                      filename "]")
+             1)
+            (,(err-rx ^ info "  Error occurred at File: " filename " Line: " line)
+             1 2)
+            (,(err-rx ^ "-I-:-E-:" symbol ": invalid HSD waiver: " -> " file '" filename "'")
+             1)
+            (,(err-rx ^ line ": " (or "OVM" "UVM") (or "_ERROR" "_FATAL") " ")
+             (0 "acerun.log.gz") 2)
+            (,(err-rx ^ line ": Error: \"")
+             (0 "acerun.log.gz") 2)
+            (,(err-rx ^ (or "OVM" "UVM") (or "_ERROR" "_FATAL") " " filename ":" line " @ ")
+             1 2)
+            (,(err-rx ^ "-I-:ERROR: " symbol " has " nums " upf error" (opt "s")
+                      "\n-I-:Check: " filename)
+             1)
+            (,(err-rx ^ "-I-:Detailed violation log for sgdft_drc for " symbol ": " filename)
+             1)
+            (,(err-rx ^ "-E-:Error in stage bman." symbol ".vclp." symbol ":"
+                      "\n-I-:***** Cat'ing logs *****"
+                      "\n-I-:Executing: cat " filename)
+             1)
+            (,(err-rx ^ "-I-:" (opt "DIE signal:") " ERROR " nums ": Couldn't find directory '" filename "'")
+             1)
+            (,(err-rx ^ "-F-:Failing test in " filename)
+             1)
+            (,(err-rx ^ "-I-:FAILED: Exit status of pid " nums " was '" nums "', user expected '0'; LOG " filename)
+             1)
+            ;; this used to be in ipgen, may need to be in both
+            (,(err-rx ^ "Information: script '" filename
+                      "'\n" spc+ "stopped at line " line ->)
+             1 2)
+            (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
+             1 2)
+            (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file " (or "adhoc" "std") " connection file " filename
+                      " \n Error at line# " line)
+             $follow-connection-file 2)
+            (,(err-rx ^ "ERROR: couldn't parse " filename ":")
+             1)
+            (,(err-rx ^ "FATAL                (F) Exception caught: " (1+ nonl) " at " filename " line " line)
+             1 2)
+            (,(err-rx ^ "//  Error: File: " filename ", Line: " line ": " (1+ nonl))
+             1 2)
+            (,(err-rx ^ filename ":" line ": [Error]" (1+ nonl))
+             1 2)
+            (,(err-rx ^ "Failed Logs:"
+                      "\n\t" filename)
+             1)
+            (,(err-rx ^ "-E- Can't add parameter '" symbol "' because it already exists at " filename " line " line)
+             1 2)
+            (,(err-rx ^ "Error-[MPD] Module previously declare" (group-n 1 nonl))
+             $prev-declaration-file)
+            (,(err-rx ^ "    FileName     : " filename
+                      "\n    LineNumber   : " line)
+             1 2)
+            (,(err-rx ^ "syntax error at " filename " line " line)
+             1 2)
+            (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
+                      "\n  Source file \"" filename "\"")
+             1)
+            (,(err-rx ^ "Error-[URMI] Unresolved modules"
+                      "\n" filename ", " line)
+             1 2)
+            (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
+             $find-par-file)
+            (,(err-rx ^ "-E- Lintra [1051] " filename "(" line ")" -> ":" (group-n 3 ->) ":")
+             1 2 nil nil nil (3 'warning))
+            (,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
+             $bman-skip-intermediate-log)
+            (,(err-rx ^ "ERROR: In file '" filename "':")
+             1)
+            (,(err-rx ^ "Error-[SE] Syntax error"
+                      "\n  Following verilog source has syntax error :"
+                      "\n  \"" filename "\"," (opt "\n ") " " line ":")
+             1 2)
+            (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
+                      "\n" filename ", " line)
+             1 2)
+            (,(err-rx ^ filename ": undefined reference to `" symbol "'")
+             1)
+            (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
+             $bman-find-generic-log)
+            (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
+            (,(err-rx ^ "// 'DOFile " filename "' aborted at line " line)
+             1 2)))
+    (setq compilation-error-regexp-alist $compilation-error-regexp-alist)
+    (with-eval-after-load 'verilog-mode
+      (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
+      (setq compilation-error-regexp-alist $compilation-error-regexp-alist)))
 
-  (with-eval-after-load 'verilog-mode
-    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
-    (setq compilation-error-regexp-alist $compilation-error-regexp-alist))
+
 #+END_SRC
 
 *** font lock fix
@@ -573,10 +574,12 @@ the timestamp in the compilation buffer.
   (defvar $compilation-start-time nil)
   (make-variable-buffer-local '$compilation-start-time)
 
-  (advice-add 'compilation-start :after
-              (defun $compilation-set-start-time (&rest _)
-                (with-current-buffer compilation-last-buffer
-                  (setq-local $compilation-start-time (current-time)))))
+  (defun $compilation-set-start-time (&rest _)
+    (when (buffer-live-p compilation-last-buffer)
+      (with-current-buffer compilation-last-buffer
+        (setq-local $compilation-start-time (current-time)))))
+
+  (add-hook 'compilation-start-hook '$compilation-set-start-time)
 
   (add-hook 'compilation-finish-functions
             (defun $compilation-print-run-time (buffer _msg)

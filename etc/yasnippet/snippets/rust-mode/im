@@ -1,0 +1,7 @@
+# name: impl for
+# key: im
+# --
+
+impl${1:<'ob>} $2 for $3 {
+    $0
+}
