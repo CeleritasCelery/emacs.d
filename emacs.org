@@ -1998,6 +1998,7 @@ repos.
 use helm to quickly navigate org headings. We can also use this to
 jump to a init header from anywhere.
 #+BEGIN_SRC emacs-lisp
+  (use-package helm-org)
   ($leader-local-set-key
     :keymaps 'org-mode-map
     "j" 'helm-org-in-buffer-headings)
