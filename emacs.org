@@ -4535,6 +4535,12 @@ just using =C-l=
 
   (unless ($dev-config-p)
     (use-package company-posframe))
+
+  ;; https://github.com/doomemacs/doomemacs/commit/2e476de44693c9f4953f3c467284e88b28b6084e
+  (add-hook 'evil-local-mode-hook
+            (defun $fix-evil-company-keymap-conflict ()
+              (when (memq 'company-emulation-alist emulation-mode-map-alists)
+                (company-ensure-emulation-alist))))
 #+END_SRC
 
 collect usage statistics and filter candidates based on that
