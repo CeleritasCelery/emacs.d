@@ -2213,16 +2213,22 @@ Get the next input matching element
   (use-package lsp-mode
     :custom
     (lsp-keymap-prefix "C-l")
-    (read-process-output-max (* 1024 1024) "needed for better performace"))
+    (read-process-output-max (* 1024 1024) "needed for better performace")
+    :general
+    (lsp-mode-map "C-," 'lsp-execute-code-action
+                  "C-l f" 'lsp-ivy-workspace-symbol))
 
   (use-package lsp-ui
     :custom
     (lsp-idle-delay 1.0)
-    (lsp-ui-sideline-update-mode 'line))
+    (lsp-ui-sideline-update-mode 'line)
+    (lsp-ui-doc-show-with-mouse nil))
 
   (advice-add #'lsp-execute-code-action :after
               (defun $evil-normal-state-advice (&rest _)
                 (evil-normal-state)))
+
+  (use-package lsp-ivy)
 #+end_src
 
 **** DAP
