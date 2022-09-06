@@ -1559,6 +1559,13 @@ a text object that highlights everything with the same font lock
     (outer "v" 'evil-a-line))
 #+END_SRC
 
+#+begin_src emacs-lisp
+  (use-package evil-args
+    :general
+    (inner "a" 'evil-inner-arg)
+    (outer "a" 'evil-outer-arg))
+#+end_src
+
 *** EX
 Use additional evil-ex bindings
 #+BEGIN_SRC emacs-lisp
