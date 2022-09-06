@@ -174,8 +174,9 @@ by setting the initial mode we won't have to load lisp at startup
 
 fix the path to use a new version of git
 #+BEGIN_SRC emacs-lisp
-  (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
-  (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path))
+  (when ($dev-config-p)
+    (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
+    (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -3132,8 +3133,6 @@ get weird errors in magit.
      "SPC" nil)
     (magit-mode-map
      "SPC" nil)
-    :custom
-    (magit-refresh-status-buffer nil)
     :init
     (when ($dev-config-p)
       (setq magit-git-executable "/usr/intel/bin/git"))
@@ -3145,6 +3144,7 @@ get weird errors in magit.
           '(display-buffer-below-selected))
     :config
     (when ($dev-config-p)
+      (setq magit-refresh-status-buffer nil)
       (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
       (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
       (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote))
@@ -3508,7 +3508,6 @@ generic wrapper function that can be called from other code.
     (replace-regexp-in-string "^(K|)" "" str))
 
   (defun $shell-mode-hook ()
-    (shell-dirtrack-mode 0)
     (setq-local comint-prompt-regexp
                 ($rx bol (or (: (opt control "K") "╰─→")
                              (: symbol "(" nums ")%")
@@ -3521,7 +3520,9 @@ generic wrapper function that can be called from other code.
                      " "))
     (setq-local evil-search-wrap nil)
     (add-hook 'comint-preoutput-filter-functions '$remove-control-char-comint nil t)
-    (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local))
+    (when ($dev-config-p)
+      (shell-dirtrack-mode 0)
+      (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local)))
 
   (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
