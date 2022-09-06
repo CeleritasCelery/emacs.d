@@ -4361,11 +4361,13 @@ exit in normal state
 Babel is way to execute source code from within blocks.
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'org
+    (csetq org-confirm-babel-evaluate nil)
     (org-babel-do-load-languages
      'org-babel-load-languages '((perl . t)
                                  (shell . t)
                                  (python . t)
-                                 (emacs-lisp . t))))
+                                 (emacs-lisp . t)
+                                 (calc . t))))
 #+END_SRC
 
 ** evil
