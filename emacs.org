@@ -408,11 +408,11 @@ packages that are used to improve the visuals and interface for Emacs
 *** highlight line
 
 highlight the current line with a background face
+#+BEGIN_SRC emacs-lisp
   (use-package hl-line
     :demand t
     :config
     (global-hl-line-mode))
-#+BEGIN_SRC emacs-lisp
 
   (general-add-hook '(evil-visual-state-entry-hook evil-insert-state-entry-hook)
                     (defun $disable-hl-line ()
