@@ -2369,7 +2369,7 @@ avy is an awesome jump to point package.
 #+BEGIN_SRC emacs-lisp
   (use-package avy
     :init
-    (setq avy-timeout-seconds 0.3)
+    (setq avy-timeout-seconds 0.2)
     :general
     (:states '(motion normal)
      "s" 'avy-goto-char-timer))
