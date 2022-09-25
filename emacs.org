@@ -1451,6 +1451,23 @@ it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897
       (setq evil-this-type 'exclusive)))
 #+END_SRC
 
+Normally when operating on snake case names, the evil motion operators stop on all underscores and hyphens. This makes it twice as long to navigate through a word. We redefine the ~evil-word~ "thing" so that those are skipped, just like they are in normal ~word~.
+#+begin_src emacs-lisp
+  (with-eval-after-load 'evil
+    (defun forward-evil-word (&optional count)
+      (evil-forward-nearest
+       count
+       #'(lambda (&optional cnt)
+           (let ((word-separating-categories evil-cjk-word-separating-categories)
+                 (word-combining-categories evil-cjk-word-combining-categories)
+                 (pnt (point)))
+             (forward-word cnt)
+             (if (= pnt (point)) cnt 0)))
+       #'(lambda (&optional cnt)
+           (evil-forward-chars "^[:word:]\n\r\t\f _-" cnt))
+       #'forward-evil-empty-line)))
+#+end_src
+
 Sometimes when I am clicking on a window I will accidentally drag.
 This leaves me in visual state, so my next comamnd behaves
 differently. We can fix this by not letting us drag to select less
