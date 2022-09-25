@@ -1362,19 +1362,21 @@ flashing issue.
   (use-package ivy-prescient
     :demand t
     :after counsel
+    :custom
+    (ivy-prescient-enable-filtering nil "We don't want the initialism filtering")
+    :init
+    (setq ivy-prescient-sort-commands '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x))
     :config
     (prescient-persist-mode)
-    (advice-add #'ivy--get-action :filter-return #'ivy-prescient--wrap-action)
-    (advice-add #'ivy--directory-enter :filter-return #'ivy-prescient--remember-directory)
-    (ivy-configure 'read-file-name-internal
-      :sort-fn  'ivy-prescient-sort-function)
-    (ivy-configure 'counsel-bookmark
-      :sort-fn  'ivy-prescient-sort-function))
+    (ivy-prescient-mode)
+    (setf (alist-get 'counsel-describe-function ivy-sort-functions-alist)
+          #'ivy-prescient-sort-function)
+    (setf (alist-get 'counsel-describe-variable ivy-sort-functions-alist)
+          #'ivy-prescient-sort-function))
 #+END_SRC
 
 ** evil
-evil is the Extensible VI Layer. It gives us all the power of vim
-without the draw back of using vimscript for config.
+evil is the Extensible VI Layer. The only good part of vim is the keybindings. Without that it is just a crappy terminal editor.
 
 *** general
 
