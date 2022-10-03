@@ -4339,7 +4339,7 @@ Use company-ispell to provide spelling auto complete
 #+BEGIN_SRC emacs-lisp
   (add-hook 'org-mode-hook
             (defun $enable-company-spell ()
-              (setq-local company-backends '((company-ispell company-capf company-dabbrev)))
+              (setq-local company-backends '(company-capf (company-ispell company-dabbrev)))
               (when ($dev-config-p)
                 (setq-local company-frontends '(company-preview-frontend)))
               (company-mode)))
