@@ -1496,7 +1496,6 @@ prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+END_SRC
 
 *** text objects
-**** custom
 create text objects for the buffer, pasted region, and filename
 #+BEGIN_SRC emacs-lisp
   (evil-define-text-object evil-entire-buffer (count &optional _beg _end _type)
@@ -1537,7 +1536,6 @@ create text objects for the buffer, pasted region, and filename
     "g" 'evil-entire-buffer)
 #+END_SRC
 
-**** indentation
 The =evil-indent-plus= pakcage provides =i=, =I=, and =J= text objects
 the select based on indentation.
 #+BEGIN_SRC emacs-lisp
@@ -1547,7 +1545,6 @@ the select based on indentation.
     (evil-indent-plus-default-bindings))
 #+END_SRC
 
-**** syntax
 a text object that highlights everything with the same font lock
 #+BEGIN_SRC emacs-lisp
   (use-package evil-textobj-syntax
@@ -1558,7 +1555,6 @@ a text object that highlights everything with the same font lock
     (outer "h" 'evil-a-syntax))
 #+END_SRC
 
-**** columns
 #+BEGIN_SRC emacs-lisp
   (use-package evil-textobj-column
     :general
@@ -1567,7 +1563,6 @@ a text object that highlights everything with the same font lock
      "K" 'evil-textobj-column-WORD))
 #+END_SRC
 
-**** line
 #+BEGIN_SRC emacs-lisp
   (use-package evil-textobj-line
     :init
