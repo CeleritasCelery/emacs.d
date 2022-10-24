@@ -17,3 +17,6 @@ cd ~/emacs-git
 ./configure --with-modules --with-mailutils --with-xwidgets --with-imagemagick --with-native-compilation
 make
 sudo make install
+
+# brew
+# brew install emacs-plus@28 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
