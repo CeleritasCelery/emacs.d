@@ -2243,7 +2243,8 @@ Get the next input matching element
     (lsp-keymap-prefix "C-l")
     (read-process-output-max (* 1024 1024) "needed for better performace")
     :general
-    (lsp-mode-map "C-," 'lsp-execute-code-action
+    ('normal "C-." 'lsp-execute-code-action)
+    (lsp-mode-map "C-." 'lsp-execute-code-action
                   "C-l f" 'lsp-ivy-workspace-symbol))
 
   (use-package lsp-ui
