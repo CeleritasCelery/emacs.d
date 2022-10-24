@@ -1767,12 +1767,11 @@ Use =%= to match more then just parens. Such as =module= keyword in verilog.
   :hook prog-mode)
 #+END_SRC
 
-*** lispy
-I tried lispy for a long time, and tried hard to like it. But
-eventually I had to admit that it is clahses with the design patterns
-of modal editing. Even using lispville (Lispy + evil) can't save it.
-However I will keep using lispyville. Not because of its lispy
-integration but because it reimplements evil-cleverparens in a nice
+*** lispyville
+I tried lispy for a long time, and tried hard to like it. But eventually I had
+to admit that it is clahses with modal editing. Even using lispville (Lispy +
+evil) can't save it. However I will keep using lispyville. Not because of its
+lispy integration but because it reimplements evil-cleverparens in a nice
 package.
 #+BEGIN_SRC emacs-lisp
   (use-package lispyville
@@ -1790,15 +1789,16 @@ package.
             additional
             additional-insert
             additional-wrap))
-    (defhydra lispyville-mark (:pre (require 'lispyville)
-                               :exit nil)
-      ("v" lispyville-wrap-lispy-mark-symbol-visual "symbol")
-      ("V" lispyville-wrap-lispy-mark-visual "sexp"))
-    ($leader-set-key
-      "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual)
     :config
-    (lispyville-wrap-command lispy-mark-symbol visual)
-    (lispyville-wrap-command lispy-mark visual))
+    (defhydra $lispyville-move-sexp (:pre (require 'lispyville)
+                                     :exit nil)
+      ("[" lispyville-previous-opening "( <-")
+      ("]" lispyville-next-closing "-> )")
+      ("{" lispyville-next-opening "-> (")
+      ("}" lispyville-previous-closing ") <-"))
+    (general-def 'normal emacs-lisp-mode-map
+      "[[" '$lispyville-move-sexp/lispyville-previous-opening
+      "]]" '$lispyville-move-sexp/lispyville-next-closing))
 #+END_SRC
 
 add new keybindings for evil paragraph navigation
