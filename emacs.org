@@ -1611,6 +1611,12 @@ keybindings
     "<escape>" 'evil-normal-state)
 #+END_SRC
 
+Replace useless keys with something better
+#+begin_src emacs-lisp
+  (general-def 'motion
+    "K" 'evil-backward-WORD-end)
+#+end_src
+
 general leader key bindings
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
