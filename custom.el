@@ -6,10 +6,24 @@
  '(custom-safe-themes
    '("a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(debug-on-error nil)
- '(lsp-rust-analyzer-diagnostics-disabled ["unresolved-import"])
+ '(helm-minibuffer-history-key "M-p")
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   '((eval require 'org-roam-dev)
+   '((elisp-lint-indent-specs
+      (describe . 1)
+      (it . 1)
+      (org-element-map . defun)
+      (org-roam-dolist-with-progress . 2)
+      (org-roam-with-temp-buffer . 1)
+      (org-with-point-at . 1)
+      (magit-insert-section . defun)
+      (magit-section-case . 0)
+      (org-roam-with-file . 2))
+     (elisp-lint-ignored-validators "byte-compile" "package-lint")
+     (diff-add-log-use-relative-names . t)
+     (vc-git-annotate-switches . "-w")
+     (rust-format-on-save . t)
+     (eval require 'org-roam-dev)
      (org-src-preserve-indentation . t)
      (eval visit-tags-table
            (expand-file-name "TAGS"
