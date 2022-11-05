@@ -787,7 +787,7 @@ easily manipulate files, buffers, and windows.
     "Switch back and forth between current and last buffer in the
   current window."
     (interactive)
-     (let ((current-buffer (window-buffer window))
+    (let ((current-buffer (window-buffer window))
           (buffer-predicate
            (frame-parameter (window-frame window) 'buffer-predicate)))
       ;; switch to first buffer previously shown in this window that matches
@@ -814,7 +814,8 @@ easily manipulate files, buffers, and windows.
     (if-let ((file-name (or (buffer-file-name)
                             list-buffers-directory
                             default-directory)))
-        (message (kill-new ($correct-file-path file-name arg)))
+        (progn (kill-new ($correct-file-path file-name arg))
+               (message (current-kill 0)))
       (error "Buffer not visiting a file")))
 
   (defun $correct-file-path (file &optional invert)
