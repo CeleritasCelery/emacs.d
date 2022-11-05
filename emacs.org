@@ -952,6 +952,9 @@ helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
 #+BEGIN_SRC emacs-lisp
   (use-package helpful
+    :init
+    ;; workaround for https://github.com/Wilfred/helpful/issues/282
+    (setq read-symbol-positions-list nil)
     :general ("C-h k" 'helpful-key))
 #+END_SRC
 
