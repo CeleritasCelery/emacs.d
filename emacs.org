@@ -124,6 +124,11 @@ Never load outdated byte code
   (csetq load-prefer-newer t)
 #+END_SRC
 
+Don't report warnings for native comp
+#+begin_src emacs-lisp
+  (setq native-comp-async-report-warnings-errors nil)
+#+end_src
+
 We never use right to left scripts, so disable that feature for better
 performance
 #+BEGIN_SRC emacs-lisp
