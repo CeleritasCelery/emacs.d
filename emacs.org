@@ -4237,10 +4237,17 @@ blocks
 Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
   (when (not ($dev-config-p))
+    (use-package emacsql
+      :straight (:host github :repo "magit/emacsql"
+                 :files ("emacsql.el" "emacsql-compiler.el" "README.md")))
+    (use-package emacsql-sqlite-builtin
+      :straight (:host github :repo "magit/emacsql"
+                 :files ("emacsql-sqlite-builtin.el")))
     (use-package org-roam
       :init
-      (setq org-roam-directory (file-truename "~/roam")
+      (setq org-roam-directory (expand-file-name "~/roam")
             org-roam-dailies-directory "journals/"
+            org-roam-database-connector 'sqlite-builtin
             org-roam-capture-templates
             '(("d" "default" plain
                "%?" :target
