@@ -36,7 +36,7 @@ use lexical bindings in the file make this file lexically bound
                               (format "*%s - %s*" root cmd-name)
                             (format "*%s/.../%s - %s*" root dir cmd-name))))
            (env-var? (lambda (x) (string-match-p "=" x)))
-           (parts (split-string cmd))
+           (parts (split-string-shell-command cmd))
            (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
            (compilation-environment (append (-take-while env-var? parts)
                                             (list (concat "MODEL_ROOT=" model-root))))
