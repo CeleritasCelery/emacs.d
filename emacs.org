@@ -1596,8 +1596,13 @@ Use additional evil-ex bindings
   (evil-ex-define-cmd "rr" '$counsel-rg-root)
   (evil-ex-define-cmd "j" 'counsel-fd-jump)
   (evil-ex-define-cmd "perl" 'perl-mode)
-  (evil-ex-define-cmd "lisp" 'emacs-lisp-mode)
+  (evil-ex-define-cmd "lisp" '$lisp-mode)
   (evil-ex-define-cmd "pkg" 'straight-use-package)
+
+  (defun $lisp-mode ()
+    (interactive)
+    (emacs-lisp-mode)
+    (setq lexical-binding t))
 
   ($leader-set-key
     "rg" '$counsel-rg-here
