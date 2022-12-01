@@ -2205,6 +2205,43 @@ with their ascii equivalents.
     "zq" 'quick-calc)
 #+END_SRC
 
+Don't kill when deleting line or word
+#+begin_src emacs-lisp
+  (defun backward-delete-word (arg)
+    "Delete characters backward until encountering the beginning of a word.
+  With argument ARG, do this that many times."
+    (interactive "p")
+    (delete-region (point) (progn (forward-word (- arg)) (point))))
+
+  (defun backward-delete-line ()
+    "Delete text between the beginning of the line to the cursor position.
+  This command does not push text to `kill-ring'."
+    (interactive)
+    (let (p1 p2)
+      (setq p1 (point))
+      (beginning-of-line 1)
+      (setq p2 (point))
+      (delete-region p1 p2)))
+
+  (defun ivy-backward-delete-word ()
+    "Forward to `backward-kill-word'."
+    (interactive)
+    (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
+        (progn
+          (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
+          (ivy--exhibit))
+      (ignore-errors
+        (let ((pt (point))
+              (last-command (if (eq last-command 'ivy-backward-delete-word)
+                                'delete-region
+                              last-command)))
+          (forward-word -1)
+          (delete-region pt (point))))))
+
+  (general-def 'ivy-minibuffer-map [remap backward-delete-word] 'ivy-backward-delete-word)
+  (general-def "<C-backspace>" 'backward-delete-word)
+  (general-def "<C-S-backspace>" 'backward-delete-line)
+#+end_src
 *** minibuffer
 
 #+BEGIN_SRC emacs-lisp
