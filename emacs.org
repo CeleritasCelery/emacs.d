@@ -4981,6 +4981,8 @@ we have some nonstandard extensions for SV
     (:definer 'leader
      :keymaps 'verilog-mode-map
      "j" 'counsel-semantic-or-imenu)
+    :init
+    (setq verilog-auto-newline nil)
     :config
     (add-to-list 'verilog-imenu-generic-expression
                  `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
