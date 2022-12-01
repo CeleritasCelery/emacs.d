@@ -1365,7 +1365,8 @@ flashing issue.
     :custom
     (ivy-prescient-enable-filtering nil "We don't want the initialism filtering")
     :init
-    (setq ivy-prescient-sort-commands '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x))
+    (setq ivy-prescient-sort-commands
+          '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x ivy-reverse-i-search))
     :config
     (prescient-persist-mode)
     (ivy-prescient-mode)
