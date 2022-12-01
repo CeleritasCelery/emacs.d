@@ -1394,6 +1394,7 @@ Vim instead of like Emacs.
      "C-f" nil
      "C-o" 'evil-ex-search-command-window)
     :custom
+    (evil-ex-search-persistent-highlight nil)
     (evil-want-C-i-jump nil)
     (evil-symbol-word-search t "Using * and #, search foward for symbols, not words")
     (evil-ex-substitute-global t)
@@ -1401,8 +1402,7 @@ Vim instead of like Emacs.
     (evil-want-abbrev-expand-on-insert-exit nil "Don't try abbrev expand on exit. Causes real issues in verilog mode")
     (evil-ex-search-vim-style-regexp t "use vim style regexp because it is shorter")
     (evil-magic 'very-magic "enable the full power of vim regexp")
-    :init
-    (setq evil-split-window-below t)
+    (evil-split-window-below t)
     :config
     (general-swap-key nil 'motion "0" "^")
     ;; not sure why I can't use :custom for these, but they don't work
