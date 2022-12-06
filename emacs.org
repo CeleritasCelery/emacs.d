@@ -2264,6 +2264,7 @@ Get the next input matching element
   (use-package lsp-ui
     :custom
     (lsp-idle-delay 1.0)
+    (lsp-ui-sideline-show-code-actions t)
     (lsp-ui-sideline-update-mode 'line)
     (lsp-ui-doc-show-with-mouse nil))
 
