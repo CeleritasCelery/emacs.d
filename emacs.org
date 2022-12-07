@@ -2141,6 +2141,16 @@ Use tab for completion if at a symbol
   (setq-default tab-width 4)
 #+END_SRC
 
+*** copilot
+#+begin_src emacs-lisp
+  (when (not ($dev-config-p))
+    (use-package copilot
+      :straight (:host github :repo "zerolfx/copilot.el"
+                 :files ("dist" "copilot.el"))
+      :init
+      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")))
+#+end_src
+
 *** whitespace
 
 use ws-butler to only fix trailing whitespace on lines that I
