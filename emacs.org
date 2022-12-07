@@ -2143,7 +2143,7 @@ Use tab for completion if at a symbol
 
 *** copilot
 #+begin_src emacs-lisp
-  (when (not ($dev-config-p))
+  (unless ($dev-config-p)
     (use-package copilot
       :straight (:host github :repo "zerolfx/copilot.el"
                  :files ("dist" "copilot.el"))
@@ -4258,7 +4258,7 @@ blocks
 ** roam
 Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
-  (when (not ($dev-config-p))
+  (unless ($dev-config-p)
     (use-package emacsql
       :straight (:host github :repo "magit/emacsql"
                  :files ("emacsql.el" "emacsql-compiler.el" "README.md")))
@@ -4907,11 +4907,6 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
         flycheck-python-pycompile-executable $python-executable
         flycheck-python-pylint-executable $python-executable)
 
-  (use-package company-anaconda
-    :demand t
-    :after python
-    :config
-    (add-to-list 'company-backends 'company-anaconda))
   (use-package yapfify)
 
   (use-package live-py-mode
@@ -4922,15 +4917,19 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
     :straight nil
     :interpreter ("python[a-z0-9.]*" . python-mode)
     :gfhook
-    #'anaconda-mode
-    #'company-mode
-    #'flycheck-mode
+    #'lsp
     :compdef python-mode
-    :company (company-anaconda company-dabbrev-code company-capf)
+    :company (company-capf company-dabbrev-code)
     :general
     (:definer 'leader
      :keymaps 'python-mode-map
-     "j" 'counsel-semantic-or-imenu))
+     "j" 'counsel-semantic-or-imenu)
+    :init
+    (unless ($dev-config-p)
+      (add-hook 'python-mode-hook 'tree-sitter-hl-mode)))
+
+  (with-eval-after-load 'flycheck
+    (flycheck-add-next-checker 'lsp '(warning . python-flake8)))
 #+END_SRC
 
 Inferior shell
