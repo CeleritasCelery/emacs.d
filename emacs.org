@@ -2308,6 +2308,12 @@ Debug access protocol
   ;;          :cwd nil)))
 #+end_src
 
+*** tree-sitter
+#+begin_src emacs-lisp
+  (use-package tree-sitter)
+  (use-package tree-sitter-langs)
+#+end_src
+
 *** narrowing
 #+BEGIN_SRC emacs-lisp
   ($leader-set-key
@@ -4942,6 +4948,7 @@ Inferior shell
 #+begin_src emacs-lisp
   (setq-default flycheck-rust-crate-type nil)
   (use-package rustic
+    :gfhook #'tree-sitter-hl-mode
     :general
     (:definer 'leader :keymaps 'rustic-mode-map
      "j" 'counsel-semantic-or-imenu
