@@ -25,4 +25,4 @@ sudo make install
 # note that this takes a really long time to clone. almost an hour.
 # brew edit emacs-plus@29
 #  url "https://github.com/tyler-dodge/emacs.git", :branch => "tyler-main-2"
-# brew install emacs-plus@29 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
+# brew install --verbose emacs-plus@29 --with-native-comp --with-elrumo2-icon --with-imagemagick --with-xwidgets
