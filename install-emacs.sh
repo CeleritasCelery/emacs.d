@@ -17,3 +17,12 @@ cd ~/emacs-git
 ./configure --with-modules --with-mailutils --with-xwidgets --with-imagemagick --with-native-compilation
 make
 sudo make install
+
+# brew 28
+# brew install emacs-plus@28 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
+
+# install with custom macos version
+# note that this takes a really long time to clone. almost an hour.
+# brew edit emacs-plus@29
+#  url "https://github.com/tyler-dodge/emacs.git", :branch => "tyler-main-2"
+# brew install emacs-plus@29 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon

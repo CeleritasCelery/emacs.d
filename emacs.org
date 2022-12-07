@@ -124,6 +124,11 @@ Never load outdated byte code
   (csetq load-prefer-newer t)
 #+END_SRC
 
+Don't report warnings for native comp
+#+begin_src emacs-lisp
+  (setq native-comp-async-report-warnings-errors nil)
+#+end_src
+
 We never use right to left scripts, so disable that feature for better
 performance
 #+BEGIN_SRC emacs-lisp
@@ -782,7 +787,7 @@ easily manipulate files, buffers, and windows.
     "Switch back and forth between current and last buffer in the
   current window."
     (interactive)
-     (let ((current-buffer (window-buffer window))
+    (let ((current-buffer (window-buffer window))
           (buffer-predicate
            (frame-parameter (window-frame window) 'buffer-predicate)))
       ;; switch to first buffer previously shown in this window that matches
@@ -809,7 +814,8 @@ easily manipulate files, buffers, and windows.
     (if-let ((file-name (or (buffer-file-name)
                             list-buffers-directory
                             default-directory)))
-        (message (kill-new ($correct-file-path file-name arg)))
+        (progn (kill-new ($correct-file-path file-name arg))
+               (message (current-kill 0)))
       (error "Buffer not visiting a file")))
 
   (defun $correct-file-path (file &optional invert)
@@ -946,6 +952,9 @@ helpful provides better information about variables and
 functions. only tweak we need to make is let the window close with q
 #+BEGIN_SRC emacs-lisp
   (use-package helpful
+    :init
+    ;; workaround for https://github.com/Wilfred/helpful/issues/282
+    (setq read-symbol-positions-list nil)
     :general ("C-h k" 'helpful-key))
 #+END_SRC
 
@@ -959,7 +968,7 @@ Make helpful the describe variable function for ivy
   (csetq counsel-describe-variable-function 'helpful-variable
          counsel-describe-function-function 'helpful-callable)
 
-  (setq find-function-C-source-directory "/Users/troyhinckley/repos/emacs/src")
+  (setq find-function-C-source-directory "~/Library/Caches/Homebrew/emacs-plus@29--git/src")
 
   (general-def
     "C-h f" 'counsel-describe-function
@@ -1365,8 +1374,7 @@ flashing issue.
     :custom
     (ivy-prescient-enable-filtering nil "We don't want the initialism filtering")
     :init
-    (setq ivy-prescient-sort-commands
-          '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x ivy-reverse-i-search))
+    (setq ivy-prescient-sort-commands '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x))
     :config
     (prescient-persist-mode)
     (ivy-prescient-mode)
@@ -1395,15 +1403,15 @@ Vim instead of like Emacs.
      "C-f" nil
      "C-o" 'evil-ex-search-command-window)
     :custom
-    (evil-ex-search-persistent-highlight nil)
     (evil-want-C-i-jump nil)
     (evil-symbol-word-search t "Using * and #, search foward for symbols, not words")
     (evil-ex-substitute-global t)
-    (evil-want-keybinding nil "Evil collection will provide this for us")
     (evil-want-abbrev-expand-on-insert-exit nil "Don't try abbrev expand on exit. Causes real issues in verilog mode")
     (evil-ex-search-vim-style-regexp t "use vim style regexp because it is shorter")
     (evil-magic 'very-magic "enable the full power of vim regexp")
-    (evil-split-window-below t)
+    :init
+    (setq evil-want-keybinding nil)
+    (setq evil-split-window-below t)
     :config
     (general-swap-key nil 'motion "0" "^")
     ;; not sure why I can't use :custom for these, but they don't work
@@ -1497,7 +1505,6 @@ prevent "vimmers" from quiting my Emacs. Old habbits die hard.
 #+END_SRC
 
 *** text objects
-**** custom
 create text objects for the buffer, pasted region, and filename
 #+BEGIN_SRC emacs-lisp
   (evil-define-text-object evil-entire-buffer (count &optional _beg _end _type)
@@ -1538,7 +1545,6 @@ create text objects for the buffer, pasted region, and filename
     "g" 'evil-entire-buffer)
 #+END_SRC
 
-**** indentation
 The =evil-indent-plus= pakcage provides =i=, =I=, and =J= text objects
 the select based on indentation.
 #+BEGIN_SRC emacs-lisp
@@ -1548,7 +1554,6 @@ the select based on indentation.
     (evil-indent-plus-default-bindings))
 #+END_SRC
 
-**** syntax
 a text object that highlights everything with the same font lock
 #+BEGIN_SRC emacs-lisp
   (use-package evil-textobj-syntax
@@ -1559,7 +1564,6 @@ a text object that highlights everything with the same font lock
     (outer "h" 'evil-a-syntax))
 #+END_SRC
 
-**** columns
 #+BEGIN_SRC emacs-lisp
   (use-package evil-textobj-column
     :general
@@ -1568,7 +1572,6 @@ a text object that highlights everything with the same font lock
      "K" 'evil-textobj-column-WORD))
 #+END_SRC
 
-**** line
 #+BEGIN_SRC emacs-lisp
   (use-package evil-textobj-line
     :init
@@ -1593,8 +1596,13 @@ Use additional evil-ex bindings
   (evil-ex-define-cmd "rr" '$counsel-rg-root)
   (evil-ex-define-cmd "j" 'counsel-fd-jump)
   (evil-ex-define-cmd "perl" 'perl-mode)
-  (evil-ex-define-cmd "lisp" 'emacs-lisp-mode)
+  (evil-ex-define-cmd "lisp" '$lisp-mode)
   (evil-ex-define-cmd "pkg" 'straight-use-package)
+
+  (defun $lisp-mode ()
+    (interactive)
+    (emacs-lisp-mode)
+    (setq lexical-binding t))
 
   ($leader-set-key
     "rg" '$counsel-rg-here
@@ -1616,6 +1624,12 @@ keybindings
   (general-def 'emacs
     "<escape>" 'evil-normal-state)
 #+END_SRC
+
+Replace useless keys with something better
+#+begin_src emacs-lisp
+  (general-def 'motion
+    "K" 'evil-backward-WORD-end)
+#+end_src
 
 general leader key bindings
 #+BEGIN_SRC emacs-lisp
@@ -1767,12 +1781,11 @@ Use =%= to match more then just parens. Such as =module= keyword in verilog.
   :hook prog-mode)
 #+END_SRC
 
-*** lispy
-I tried lispy for a long time, and tried hard to like it. But
-eventually I had to admit that it is clahses with the design patterns
-of modal editing. Even using lispville (Lispy + evil) can't save it.
-However I will keep using lispyville. Not because of its lispy
-integration but because it reimplements evil-cleverparens in a nice
+*** lispyville
+I tried lispy for a long time, and tried hard to like it. But eventually I had
+to admit that it is clahses with modal editing. Even using lispville (Lispy +
+evil) can't save it. However I will keep using lispyville. Not because of its
+lispy integration but because it reimplements evil-cleverparens in a nice
 package.
 #+BEGIN_SRC emacs-lisp
   (use-package lispyville
@@ -1790,15 +1803,16 @@ package.
             additional
             additional-insert
             additional-wrap))
-    (defhydra lispyville-mark (:pre (require 'lispyville)
-                               :exit nil)
-      ("v" lispyville-wrap-lispy-mark-symbol-visual "symbol")
-      ("V" lispyville-wrap-lispy-mark-visual "sexp"))
-    ($leader-set-key
-      "v" 'lispyville-mark/lispyville-wrap-lispy-mark-visual)
     :config
-    (lispyville-wrap-command lispy-mark-symbol visual)
-    (lispyville-wrap-command lispy-mark visual))
+    (defhydra $lispyville-move-sexp (:pre (require 'lispyville)
+                                     :exit nil)
+      ("[" lispyville-previous-opening "( <-")
+      ("]" lispyville-next-closing "-> )")
+      ("{" lispyville-next-opening "-> (")
+      ("}" lispyville-previous-closing ") <-"))
+    (general-def 'normal emacs-lisp-mode-map
+      "[[" '$lispyville-move-sexp/lispyville-previous-opening
+      "]]" '$lispyville-move-sexp/lispyville-next-closing))
 #+END_SRC
 
 add new keybindings for evil paragraph navigation
@@ -2206,43 +2220,6 @@ with their ascii equivalents.
     "zq" 'quick-calc)
 #+END_SRC
 
-Don't kill when deleting line or word
-#+begin_src emacs-lisp
-  (defun backward-delete-word (arg)
-    "Delete characters backward until encountering the beginning of a word.
-  With argument ARG, do this that many times."
-    (interactive "p")
-    (delete-region (point) (progn (forward-word (- arg)) (point))))
-
-  (defun backward-delete-line ()
-    "Delete text between the beginning of the line to the cursor position.
-  This command does not push text to `kill-ring'."
-    (interactive)
-    (let (p1 p2)
-      (setq p1 (point))
-      (beginning-of-line 1)
-      (setq p2 (point))
-      (delete-region p1 p2)))
-
-  (defun ivy-backward-delete-word ()
-    "Forward to `backward-kill-word'."
-    (interactive)
-    (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
-        (progn
-          (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
-          (ivy--exhibit))
-      (ignore-errors
-        (let ((pt (point))
-              (last-command (if (eq last-command 'ivy-backward-delete-word)
-                                'delete-region
-                              last-command)))
-          (forward-word -1)
-          (delete-region pt (point))))))
-
-  (general-def 'ivy-minibuffer-map [remap backward-delete-word] 'ivy-backward-delete-word)
-  (general-def "<C-backspace>" 'backward-delete-word)
-  (general-def "<C-S-backspace>" 'backward-delete-line)
-#+end_src
 *** minibuffer
 
 #+BEGIN_SRC emacs-lisp
@@ -2280,12 +2257,14 @@ Get the next input matching element
     (lsp-keymap-prefix "C-l")
     (read-process-output-max (* 1024 1024) "needed for better performace")
     :general
-    (lsp-mode-map "C-," 'lsp-execute-code-action
+    ('normal "C-." 'lsp-execute-code-action)
+    (lsp-mode-map "C-." 'lsp-execute-code-action
                   "C-l f" 'lsp-ivy-workspace-symbol))
 
   (use-package lsp-ui
     :custom
     (lsp-idle-delay 1.0)
+    (lsp-ui-sideline-show-code-actions t)
     (lsp-ui-sideline-update-mode 'line)
     (lsp-ui-doc-show-with-mouse nil))
 
@@ -4264,10 +4243,17 @@ blocks
 Roam is linking workflow. I am going to give this a try as a BASB tool.
 #+BEGIN_SRC emacs-lisp
   (when (not ($dev-config-p))
+    (use-package emacsql
+      :straight (:host github :repo "magit/emacsql"
+                 :files ("emacsql.el" "emacsql-compiler.el" "README.md")))
+    (use-package emacsql-sqlite-builtin
+      :straight (:host github :repo "magit/emacsql"
+                 :files ("emacsql-sqlite-builtin.el")))
     (use-package org-roam
       :init
-      (setq org-roam-directory (file-truename "~/roam")
+      (setq org-roam-directory (expand-file-name "~/roam")
             org-roam-dailies-directory "journals/"
+            org-roam-database-connector 'sqlite-builtin
             org-roam-capture-templates
             '(("d" "default" plain
                "%?" :target
@@ -4382,7 +4368,7 @@ Use company-ispell to provide spelling auto complete
 #+BEGIN_SRC emacs-lisp
   (add-hook 'org-mode-hook
             (defun $enable-company-spell ()
-              (setq-local company-backends '((company-ispell company-capf company-dabbrev)))
+              (setq-local company-backends '(company-capf (company-ispell company-dabbrev)))
               (when ($dev-config-p)
                 (setq-local company-frontends '(company-preview-frontend)))
               (company-mode)))
@@ -4905,6 +4891,11 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
         flycheck-python-pycompile-executable $python-executable
         flycheck-python-pylint-executable $python-executable)
 
+  (use-package company-anaconda
+    :demand t
+    :after python
+    :config
+    (add-to-list 'company-backends 'company-anaconda))
   (use-package yapfify)
 
   (use-package live-py-mode
@@ -4915,16 +4906,15 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
     :straight nil
     :interpreter ("python[a-z0-9.]*" . python-mode)
     :gfhook
-    #'lsp
+    #'anaconda-mode
+    #'company-mode
+    #'flycheck-mode
     :compdef python-mode
-    :company (company-capf company-dabbrev-code)
+    :company (company-anaconda company-dabbrev-code company-capf)
     :general
     (:definer 'leader
      :keymaps 'python-mode-map
      "j" 'counsel-semantic-or-imenu))
-
-  (with-eval-after-load 'flycheck
-    (flycheck-add-next-checker 'lsp '(warning . python-flake8)))
 #+END_SRC
 
 Inferior shell
@@ -4981,8 +4971,6 @@ we have some nonstandard extensions for SV
     (:definer 'leader
      :keymaps 'verilog-mode-map
      "j" 'counsel-semantic-or-imenu)
-    :init
-    (setq verilog-auto-newline nil)
     :config
     (add-to-list 'verilog-imenu-generic-expression
                  `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
@@ -5042,6 +5030,10 @@ automatically detect it.
      "j" 'counsel-semantic-or-imenu)
     (tcl-mode-map "C-<return>" '$send-command)
     :custom
+    (tcl-imenu-generic-expression
+     `((nil ,(rx bol (0+ space)
+                 (or "body" "class" "configbody" "method" "proc" "iProc" "iTopProc")
+                 (1+ space) (group (1+ (in alnum "-_:*+")))) 1)))
     (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords)
     (flycheck-tcl-nagelfar-syntaxdb-file "~/custom/tcl_json_files/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh"))
@@ -5066,8 +5058,59 @@ automatically detect it.
 ** ICL
 ICL is the Instrument Control Language defined by IEEE
 #+BEGIN_SRC emacs-lisp
-  (when ($dev-config-p)
-    (use-package icl-mode))
+  (define-derived-mode icl-mode c-mode "ICL"
+    (setq-local c-basic-offset 3)
+    (setq-local indent-line-function 'icl-indent-line)
+    (setq-local font-lock-defaults '(icl-font-lock-keywords))
+    (setq-local comment-start "//")
+    (setq-local comment-end "")
+    (setq-local imenu-generic-expression
+                `(("modules" ,($rx ^ "Module"
+                                   spc+ (group symbol) spc+ "{") 1)
+                  ("instances" ,($rx ^ spc+ "Instance"
+                                     spc+ (group symbol) spc+ "Of") 1)))
+    (modify-syntax-entry ?\' "." icl-mode-syntax-table)
+    (modify-syntax-entry ?$ "." icl-mode-syntax-table))
+
+  (general-def :definer 'leader :keymaps 'icl-mode-map "j" 'counsel-semantic-or-imenu)
+  (add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
+#+END_SRC
+
+The indentation function for ICL. Very similar to C
+#+BEGIN_SRC emacs-lisp
+  (defun icl-broken-line-p ()
+    (save-excursion
+      (previous-line)
+      (end-of-line)
+      (skip-syntax-backward " " (line-beginning-position))
+      (save-match-data
+        (looking-back (rx (or "Of" "SelectedBy" "=")) (line-beginning-position)))))
+
+  (defun icl-indent-line ()
+    (interactive)
+    (if (icl-broken-line-p)
+        (let ((c-basic-offset 4))
+          (c-indent-line))
+      (c-indent-line)))
+#+END_SRC
+
+*** Keywords
+#+BEGIN_SRC emacs-lisp
+  (setq icl-font-lock-keywords
+        `((,(rx symbol-start "Attribute" symbol-end) 0 font-lock-variable-name-face)
+          (,(rx symbol-start (or "Instance" "Module" "Enum") symbol-end)
+           0 font-lock-function-name-face)
+          (,($rx ^ spc* (group upper (1+ alnum)) spc+) 1 font-lock-keyword-face)
+          (,(rx symbol-start (or "InputPort"
+                                 "Alias"
+                                 "ClockMux"
+                                 "DataMux"
+                                 "ScanMux")
+                symbol-end)
+           0 font-lock-keyword-face)
+          (,(rx (char " [':") (group (opt (char "bh")) (1+ digit))) 1 font-lock-type-face)
+          (,(rx ".") 0 'error)
+          (,($rx spc+ (group (or "Of" "SelectedBy"))) 1 font-lock-builtin-face)))
 #+END_SRC
 
 ** config spec
