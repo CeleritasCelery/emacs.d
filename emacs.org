@@ -2453,9 +2453,16 @@ provides snippets for adding complex blocks. use it with =M-/=
 #+BEGIN_SRC emacs-lisp
   (use-package yasnippet
     :defer 3
+    :general
+    ('yas-minor-mode-map
+     "TAB" nil
+     ;; [(tab)] nil
+     "<tab>" nil
+     "C-c C-s" 'yas-expand)
     :config
     (let ((inhibit-message t))
       (yas-global-mode)))
+
   (use-package yasnippet-snippets
     :after yasnippet)
 #+END_SRC
