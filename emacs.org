@@ -2145,12 +2145,25 @@ Use tab for completion if at a symbol
 
 *** copilot
 #+begin_src emacs-lisp
+  (defun $copilot-tab ()
+    (interactive)
+    (or (copilot-accept-completion)
+        (indent-for-tab-command)))
+
   (unless ($dev-config-p)
     (use-package copilot
       :straight (:host github :repo "zerolfx/copilot.el"
                  :files ("dist" "copilot.el"))
+      :general
+      (:states '(insert) :keymaps 'copilot-mode-map
+       "TAB" #'$copilot-tab)
       :init
-      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")))
+      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")
+      (setq copilot-clear-overlay-ignore-commands '( mwheel-scroll))))
+
+  (with-eval-after-load 'company
+    ;; disable inline previews
+    (delq 'company-preview-if-just-one-frontend company-frontends))
 #+end_src
 
 *** whitespace
@@ -4578,6 +4591,8 @@ just using =C-l=
     :general
     (:keymaps 'company-active-map
      "RET" nil
+     "TAB" nil
+     [tab] nil
      [return] nil
      "C-w" nil
      "C-," 'counsel-company
@@ -4949,7 +4964,7 @@ Inferior shell
 #+begin_src emacs-lisp
   (setq-default flycheck-rust-crate-type nil)
   (use-package rustic
-    :gfhook #'tree-sitter-hl-mode
+    :gfhook #'tree-sitter-hl-mode #'copilot-mode
     :general
     (:definer 'leader :keymaps 'rustic-mode-map
      "j" 'counsel-semantic-or-imenu
