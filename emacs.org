@@ -2686,11 +2686,12 @@ track through the whole file to find a match.
                     (lambda (msg &rest args)
                       (let ((msg (apply #'format-message msg args)))
                         (setq ov (display-line-overlay+
-                                  (window-start) msg )))))
-                   ((point) (if (eq evil-state 'insert)
-                                (point)
-                              (1+ (point)))))
-           (blink-matching-open))))))
+                                  (window-start) msg ))))))
+           (save-excursion
+             (goto-char (if (eq evil-state 'insert)
+                            (point)
+                          (1+ (point))))
+             (blink-matching-open)))))))
 
   (defun display-line-overlay+ (pos str &optional face)
     "Display line at POS as STR with FACE.
