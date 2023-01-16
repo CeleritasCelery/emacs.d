@@ -4293,6 +4293,7 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
       (setq org-roam-directory (expand-file-name "~/roam")
             org-roam-dailies-directory "journals/"
             org-roam-database-connector 'sqlite-builtin
+            org-roam-db-location "~/.emacs.d/var/org/my-roam.db"
             org-roam-capture-templates
             '(("d" "default" plain
                "%?" :target
