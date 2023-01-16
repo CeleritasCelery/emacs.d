@@ -4954,7 +4954,8 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
       (add-hook 'python-mode-hook 'tree-sitter-hl-mode)))
 
   (with-eval-after-load 'flycheck
-    (flycheck-add-next-checker 'lsp '(warning . python-flake8)))
+    (with-eval-after-load 'lsp
+      (flycheck-add-next-checker 'lsp '(warning . python-flake8))))
 #+END_SRC
 
 Inferior shell
