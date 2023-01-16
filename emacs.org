@@ -4987,8 +4987,9 @@ Inferior shell
     (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
-    (lsp-rust-analyzer-diagnostics-disabled ["type-mismatch" "unresolved-import" "inactive-code"])
+    (lsp-rust-analyzer-diagnostics-disabled ["inactive-code" "incorrect-ident-case"])
     :config
+    (csetq rustic-ansi-faces (cl-map 'vector (lambda (x) (face-attribute x :foreground)) ansi-color-normal-colors-vector))
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
   (evil-initial-state 'rustic-popup-mode 'emacs)
