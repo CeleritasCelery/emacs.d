@@ -4974,7 +4974,7 @@ Inferior shell
 #+begin_src emacs-lisp
   (setq-default flycheck-rust-crate-type nil)
   (use-package rustic
-    :gfhook #'tree-sitter-hl-mode #'copilot-mode
+    :gfhook #'copilot-mode
     :general
     (:definer 'leader :keymaps 'rustic-mode-map
      "j" 'counsel-semantic-or-imenu
