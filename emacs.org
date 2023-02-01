@@ -2161,9 +2161,9 @@ Use tab for completion if at a symbol
       (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")
       (setq copilot-clear-overlay-ignore-commands '( mwheel-scroll))))
 
-  (with-eval-after-load 'company
-    ;; disable inline previews
-    (delq 'company-preview-if-just-one-frontend company-frontends))
+  (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
+
+
 #+end_src
 
 *** whitespace
