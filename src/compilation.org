@@ -97,6 +97,13 @@ Emacs can interpret ansi escape codes as font lock
     "apply ANSI color codes in this buffer"
     (interactive)
     (ansi-color-apply-on-region (point-min) (point-max)))
+
+  (defvar-local $ansi-color-compile nil)
+
+  (add-hook 'compilation-filter-hook
+            (defun $ansi-color-compile ()
+              (when $ansi-color-compile
+                (ansi-color-apply-on-region (point-min) (point)))))
 #+END_SRC
 
 ** errors
