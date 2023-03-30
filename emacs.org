@@ -4957,10 +4957,7 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
     :general
     (:definer 'leader
      :keymaps 'python-mode-map
-     "j" 'counsel-semantic-or-imenu)
-    :init
-    (unless ($dev-config-p)
-      (add-hook 'python-mode-hook 'tree-sitter-hl-mode)))
+     "j" 'counsel-semantic-or-imenu))
 
   (with-eval-after-load 'flycheck
     (with-eval-after-load 'lsp
