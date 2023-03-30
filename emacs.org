@@ -2166,6 +2166,15 @@ Use tab for completion if at a symbol
 
 #+end_src
 
+*** openai GPT
+#+begin_src emacs-lisp
+  (use-package openai
+    :straight (openai :type git :host github :repo "emacs-openai/openai")
+    :custom (openai-completon-max-tokens 2000))
+  (use-package codegpt
+    :straight (codegpt :type git :host github :repo "emacs-openai/codegpt"))
+#+end_src
+
 *** whitespace
 
 use ws-butler to only fix trailing whitespace on lines that I
