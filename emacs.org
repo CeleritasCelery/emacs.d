@@ -2308,30 +2308,33 @@ Get the next input matching element
 **** DAP
 Debug access protocol
 #+begin_src emacs-lisp
-  ;; (use-package dap-mode
-  ;;   :init
-  ;;   (setq dap-gdb-lldb-debug-program '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/gdb.js"))
-  ;;   (setq dap-gdb-lldb-path-lldb '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/lldb.js"))
-  ;;   :config
-  ;;   (require 'dap-gdb-lldb)
-  ;;   ;; (dap-ui-mode 1)
-  ;;   ;; (dap-tooltip-mode 1)
-  ;;   ;; (tooltip-mode 1)
-  ;;   ;; (dap-ui-controls-mode 1)
-  ;;   (dap-register-debug-template
-  ;;    "Rust::GDB Run Configuration"
-  ;;    (list :type "gdb"
-  ;;          :request "launch"
-  ;;          :name "GDB::Run"
-  ;;          :gdbpath "rust-gdb"
-  ;;          :target nil
-  ;;          :cwd nil)))
+  (use-package dap-mode
+    ;; :init
+    ;; (setq dap-gdb-lldb-debug-program '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/gdb.js"))
+    ;; (setq dap-gdb-lldb-path-lldb '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/lldb.js"))
+    :config
+    (require 'dap-gdb-lldb)
+    ;; (dap-ui-mode 1)
+    ;; (dap-tooltip-mode 1)
+    ;; (tooltip-mode 1)
+    ;; (dap-ui-controls-mode 1)
+    (dap-register-debug-template
+     "Rust::GDB Run Configuration"
+     (list :type "gdb"
+           :request "launch"
+           :name "GDB::Run"
+           :gdbpath "rust-gdb"
+           :target nil
+           :cwd nil)))
 #+end_src
 
 *** tree-sitter
 #+begin_src emacs-lisp
-  (use-package tree-sitter)
-  (use-package tree-sitter-langs)
+  ;; (use-package treesit-auto
+  ;;   :defer 4
+  ;;   :config
+  ;;   (setq treesit-auto-install 'prompt)
+  ;;   (global-treesit-auto-mode))
 #+end_src
 
 *** narrowing
