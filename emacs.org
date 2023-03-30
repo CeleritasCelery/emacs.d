@@ -51,8 +51,7 @@ Let's set some variables with basic user information.
 
 *** customization
 
-stolen from https://github.com/abo-abo/oremacs/blob/github/init.el
-and modified to be more flexible
+stolen from [[https://github.com/abo-abo/oremacs/blob/github/init.el][abo-abo's init]] and modified to be more flexible
 
 This lets us move away from =customize= completely. This is because I
 find it annoying when after a "save for future sessions?" prompt Emacs
@@ -220,10 +219,7 @@ use the emacs client server so that we can send output to this emacs instance
 *** site
 set the site I will be working in
 #+BEGIN_SRC emacs-lisp
-  (defun $user-credentials ()
-    (list (format "\"%s\"" user-full-name) user-mail-address))
-
-  (when ($dev-config-p)
+  (when (file-exists-p "site/site.el")
     (load-file (expand-file-name "site/site.el" user-emacs-directory)))
 #+END_SRC
 
