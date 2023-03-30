@@ -4994,6 +4994,8 @@ Inferior shell
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
     (lsp-rust-analyzer-diagnostics-disabled ["inactive-code" "incorrect-ident-case"])
+    (rustic-cargo-use-last-stored-arguments t)
+    (rustic-default-test-arguments "--tests --all-features")
     :config
     (csetq rustic-ansi-faces (cl-map 'vector (lambda (x) (face-attribute x :foreground)) ansi-color-normal-colors-vector))
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
