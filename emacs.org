@@ -51,8 +51,7 @@ Let's set some variables with basic user information.
 
 *** customization
 
-stolen from https://github.com/abo-abo/oremacs/blob/github/init.el
-and modified to be more flexible
+stolen from [[https://github.com/abo-abo/oremacs/blob/github/init.el][abo-abo's init]] and modified to be more flexible
 
 This lets us move away from =customize= completely. This is because I
 find it annoying when after a "save for future sessions?" prompt Emacs
@@ -220,10 +219,7 @@ use the emacs client server so that we can send output to this emacs instance
 *** site
 set the site I will be working in
 #+BEGIN_SRC emacs-lisp
-  (defun $user-credentials ()
-    (list (format "\"%s\"" user-full-name) user-mail-address))
-
-  (when ($dev-config-p)
+  (when (file-exists-p "site/site.el")
     (load-file (expand-file-name "site/site.el" user-emacs-directory)))
 #+END_SRC
 
@@ -2166,6 +2162,15 @@ Use tab for completion if at a symbol
 
 #+end_src
 
+*** openai GPT
+#+begin_src emacs-lisp
+  (use-package openai
+    :straight (openai :type git :host github :repo "emacs-openai/openai")
+    :custom (openai-completon-max-tokens 2000))
+  (use-package codegpt
+    :straight (codegpt :type git :host github :repo "emacs-openai/codegpt"))
+#+end_src
+
 *** whitespace
 
 use ws-butler to only fix trailing whitespace on lines that I
@@ -2303,30 +2308,33 @@ Get the next input matching element
 **** DAP
 Debug access protocol
 #+begin_src emacs-lisp
-  ;; (use-package dap-mode
-  ;;   :init
-  ;;   (setq dap-gdb-lldb-debug-program '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/gdb.js"))
-  ;;   (setq dap-gdb-lldb-path-lldb '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/lldb.js"))
-  ;;   :config
-  ;;   (require 'dap-gdb-lldb)
-  ;;   ;; (dap-ui-mode 1)
-  ;;   ;; (dap-tooltip-mode 1)
-  ;;   ;; (tooltip-mode 1)
-  ;;   ;; (dap-ui-controls-mode 1)
-  ;;   (dap-register-debug-template
-  ;;    "Rust::GDB Run Configuration"
-  ;;    (list :type "gdb"
-  ;;          :request "launch"
-  ;;          :name "GDB::Run"
-  ;;          :gdbpath "rust-gdb"
-  ;;          :target nil
-  ;;          :cwd nil)))
+  (use-package dap-mode
+    ;; :init
+    ;; (setq dap-gdb-lldb-debug-program '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/gdb.js"))
+    ;; (setq dap-gdb-lldb-path-lldb '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/lldb.js"))
+    :config
+    (require 'dap-gdb-lldb)
+    ;; (dap-ui-mode 1)
+    ;; (dap-tooltip-mode 1)
+    ;; (tooltip-mode 1)
+    ;; (dap-ui-controls-mode 1)
+    (dap-register-debug-template
+     "Rust::GDB Run Configuration"
+     (list :type "gdb"
+           :request "launch"
+           :name "GDB::Run"
+           :gdbpath "rust-gdb"
+           :target nil
+           :cwd nil)))
 #+end_src
 
 *** tree-sitter
 #+begin_src emacs-lisp
-  (use-package tree-sitter)
-  (use-package tree-sitter-langs)
+  ;; (use-package treesit-auto
+  ;;   :defer 4
+  ;;   :config
+  ;;   (setq treesit-auto-install 'prompt)
+  ;;   (global-treesit-auto-mode))
 #+end_src
 
 *** narrowing
@@ -4949,10 +4957,7 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
     :general
     (:definer 'leader
      :keymaps 'python-mode-map
-     "j" 'counsel-semantic-or-imenu)
-    :init
-    (unless ($dev-config-p)
-      (add-hook 'python-mode-hook 'tree-sitter-hl-mode)))
+     "j" 'counsel-semantic-or-imenu))
 
   (with-eval-after-load 'flycheck
     (with-eval-after-load 'lsp
@@ -4989,6 +4994,8 @@ Inferior shell
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
     (lsp-rust-analyzer-diagnostics-disabled ["inactive-code" "incorrect-ident-case"])
+    (rustic-cargo-use-last-stored-arguments t)
+    (rustic-default-test-arguments "--tests --all-features")
     :config
     (csetq rustic-ansi-faces (cl-map 'vector (lambda (x) (face-attribute x :foreground)) ansi-color-normal-colors-vector))
     (csetq rustic-clippy-arguments "--all-targets --all-features"))

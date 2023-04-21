@@ -1,4 +1,4 @@
 # name: println 1
 # key: p1
 # --
-println!("{:?}", $0);
+println!("$1: {:?}", $1);
