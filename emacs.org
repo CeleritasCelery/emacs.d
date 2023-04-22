@@ -2154,12 +2154,9 @@ Use tab for completion if at a symbol
       (:states '(insert) :keymaps 'copilot-mode-map
        "TAB" #'$copilot-tab)
       :init
-      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")
       (setq copilot-clear-overlay-ignore-commands '( mwheel-scroll))))
 
   (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
-
-
 #+end_src
 
 *** openai GPT
