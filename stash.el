@@ -45,7 +45,10 @@
 
 (defun $image-sort-first-file ()
   (interactive)
-  (let* ((directory (file-name-directory buffer-file-name))
+  (let* ((directory (file-name-directory
+                     (or (buffer-file-name)
+                         list-buffers-directory
+                         default-directory)))
          (files
           (seq-filter
            'file-regular-p
@@ -69,14 +72,14 @@
   (let* ((name (buffer-file-name))
          (dir (file-name-directory name))
          (basename (file-name-nondirectory name)))
-    (rename-file (format "%s#%d_%s" dir num basename))
+    (rename-file name (format "%s#%d_%s" dir num basename))
     ($image-sort-next-file)))
 
 ($image-set-filter-file 5)
 
 (defhydra image-sort (:hint nil)
   "
-  Text Scale
+  Sort
     _f_irst _n_next
   "
   ("f" $image-sort-first-file)
