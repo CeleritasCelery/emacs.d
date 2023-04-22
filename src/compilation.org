@@ -36,7 +36,9 @@ use lexical bindings in the file make this file lexically bound
                               (format "*%s - %s*" root cmd-name)
                             (format "*%s/.../%s - %s*" root dir cmd-name))))
            (env-var? (lambda (x) (string-match-p "=" x)))
-           (parts (split-string-shell-command cmd))
+           (parts (if ($dev-config-p)
+                      (split-string cmd)
+                    (split-string-shell-command cmd)))
            (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
            (compilation-environment (append (-take-while env-var? parts)
                                             (list (concat "MODEL_ROOT=" model-root))))
@@ -581,10 +583,11 @@ the timestamp in the compilation buffer.
   (defvar $compilation-start-time nil)
   (make-variable-buffer-local '$compilation-start-time)
 
-  (defun $compilation-set-start-time (&rest _)
-    (when (buffer-live-p compilation-last-buffer)
-      (with-current-buffer compilation-last-buffer
-        (setq-local $compilation-start-time (current-time)))))
+  (defun $compilation-set-start-time (proc)
+    (let ((buffer (process-buffer proc)))
+      (when (buffer-live-p buffer)
+        (with-current-buffer buffer
+          (setq-local $compilation-start-time (current-time))))))
 
   (add-hook 'compilation-start-hook '$compilation-set-start-time)
 

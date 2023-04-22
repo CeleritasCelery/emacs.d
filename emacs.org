@@ -5196,8 +5196,7 @@ locked
 #+begin_src emacs-lisp
   (add-hook 'css-mode-hook
             (defun $setup-css-mode ()
-              (setq tab-width 4)
-              (indent-tabs-mode)))
+              (setq tab-width 4)))
 #+end_src
 
 ** CSV
