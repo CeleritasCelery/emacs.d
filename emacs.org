@@ -256,6 +256,7 @@ at some point.
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+    (straight-use-package ’org)
 #+END_SRC
 
 ** use package
@@ -3931,7 +3932,7 @@ windows.
   (use-package org
     :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
     :gfhook #'$org-truncate-lines #'toggle-word-wrap
-    :straight (:host github :repo "bzg/org-mode")
+    :straight (:type built-in)
     :general
     (:definer 'leader
      :keymaps 'org-mode-map
