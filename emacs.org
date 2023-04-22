@@ -726,6 +726,8 @@ displayed at the same time.
               (defun $custom-doom-modeline ()
                 (doom-modeline-set-modeline 'custom 'default)))
     (column-number-mode))
+
+  (use-package all-the-icons)
 #+END_SRC
 
 *** which key
