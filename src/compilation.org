@@ -84,6 +84,11 @@ a few issues that we are going to resolve now:
    :keymaps 'compilation-mode-map
    "gf" '$find-file-at-point)
 
+  (general-define-key
+   :states 'normal
+   :keymaps 'compilation-minor-mode-map
+   "gr" 'revert-buffer)
+
   (advice-add 'recompile :before (defun $set-recompile-buffer-name (_)
                                    (when compilation-arguments
                                      (setf (nth 2 compilation-arguments) (lambda (_) (buffer-name))))))
