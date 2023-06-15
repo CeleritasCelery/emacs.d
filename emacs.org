@@ -2153,9 +2153,7 @@ Use tab for completion if at a symbol
     :custom (openai-completon-max-tokens 2000))
   (use-package codegpt
     :straight (codegpt :type git :host github :repo "emacs-openai/codegpt"))
-  (use-package chat
-    :straight (chat :type git :host github :repo "iwahbe/chat.el"))
-
+  (use-package chatgpt-shell)
 #+end_src
 
 *** whitespace
