@@ -256,6 +256,7 @@ at some point.
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+    (straight-use-package ’org)
 #+END_SRC
 
 ** use package
@@ -725,6 +726,8 @@ displayed at the same time.
               (defun $custom-doom-modeline ()
                 (doom-modeline-set-modeline 'custom 'default)))
     (column-number-mode))
+
+  (use-package all-the-icons)
 #+END_SRC
 
 *** which key
@@ -2154,12 +2157,9 @@ Use tab for completion if at a symbol
       (:states '(insert) :keymaps 'copilot-mode-map
        "TAB" #'$copilot-tab)
       :init
-      (setq copilot-node-executable "/opt/homebrew/opt/node@16/bin/node")
       (setq copilot-clear-overlay-ignore-commands '( mwheel-scroll))))
 
   (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
-
-
 #+end_src
 
 *** openai GPT
@@ -2169,6 +2169,9 @@ Use tab for completion if at a symbol
     :custom (openai-completon-max-tokens 2000))
   (use-package codegpt
     :straight (codegpt :type git :host github :repo "emacs-openai/codegpt"))
+  (use-package chat
+    :straight (chat :type git :host github :repo "iwahbe/chat.el"))
+
 #+end_src
 
 *** whitespace
@@ -3934,7 +3937,7 @@ windows.
   (use-package org
     :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
     :gfhook #'$org-truncate-lines #'toggle-word-wrap
-    :straight (:host github :repo "bzg/org-mode")
+    :straight (:type built-in)
     :general
     (:definer 'leader
      :keymaps 'org-mode-map
