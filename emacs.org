@@ -1459,7 +1459,7 @@ Normally when operating on snake case names, the evil motion operators stop on a
              (forward-word cnt)
              (if (= pnt (point)) cnt 0)))
        #'(lambda (&optional cnt)
-           (evil-forward-chars "^[:word:]\n\r\t\f _-" cnt))
+           (evil-forward-chars "^[:word:]\n\r\t\f ._/-" cnt))
        #'forward-evil-empty-line)))
 #+end_src
 
