@@ -1410,6 +1410,7 @@ Vim instead of like Emacs.
     (evil-want-abbrev-expand-on-insert-exit nil "Don't try abbrev expand on exit. Causes real issues in verilog mode")
     (evil-ex-search-vim-style-regexp t "use vim style regexp because it is shorter")
     (evil-magic 'very-magic "enable the full power of vim regexp")
+    (evil-v$-excludes-newline t "make v$y behave like y$")
     :init
     (setq evil-want-keybinding nil)
     (setq evil-split-window-below t)
@@ -1443,24 +1444,6 @@ remapping instead of setting =evil-respect-visual-line-mode=.
   (general-def 'operator
     [remap evil-next-line] 'evil-next-line
     [remap evil-previous-line] 'evil-previous-line)
-#+END_SRC
-
-add a little hack to prevent =v$= from grabbing the newline. This is a
-much better default, but the evil people don't like it and won't add
-an option to support it. Nice thing about Emacs though, is we can do
-it anyway.  [[https://github.com/emacs-evil/evil/issues/897][emacs-evil/evil#897]]
-#+BEGIN_SRC emacs-lisp
-  (evil-define-motion evil-end-of-line (count)
-    "Move the cursor to the end of the current line. If COUNT is
-      given, move COUNT - 1 lines downward first."
-    :type inclusive
-    (move-end-of-line count)
-    (when evil-track-eol
-      (setq temporary-goal-column most-positive-fixnum
-            this-command 'next-line))
-    (evil-adjust-cursor)
-    (when (eolp)
-      (setq evil-this-type 'exclusive)))
 #+END_SRC
 
 Normally when operating on snake case names, the evil motion operators stop on all underscores and hyphens. This makes it twice as long to navigate through a word. We redefine the ~evil-word~ "thing" so that those are skipped, just like they are in normal ~word~.
