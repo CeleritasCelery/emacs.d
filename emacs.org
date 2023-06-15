@@ -4277,6 +4277,9 @@ Roam is linking workflow. I am going to give this a try as a BASB tool.
     (use-package emacsql
       :straight (:host github :repo "magit/emacsql"
                  :files ("emacsql.el" "emacsql-compiler.el" "README.md")))
+    (use-package emacsql-sqlite
+      :straight (:host github :repo "magit/emacsql"
+                 :files ("emacsql-sqlite.el" "emacsql-sqlite-common.el")))
     (use-package emacsql-sqlite-builtin
       :straight (:host github :repo "magit/emacsql"
                  :files ("emacsql-sqlite-builtin.el")))
