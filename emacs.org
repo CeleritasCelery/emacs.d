@@ -1732,7 +1732,9 @@ behave better with evil.
     :general
     ('normal
      "gc" 'evilnc-comment-operator
-     "gC" 'evilnc-copy-and-comment-operator))
+     "gC" 'evilnc-copy-and-comment-operator)
+    (inner "c" 'evilnc-inner-commenter)
+    (outer "c" 'evilnc-outer-commenter))
 #+END_SRC
 
 *** replace with register
