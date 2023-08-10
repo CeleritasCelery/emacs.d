@@ -1009,10 +1009,10 @@ set then all errors will trigger a back trace.
 
 *** restart
 #+BEGIN_SRC emacs-lisp
-  (use-package restart-emacs
-    :init
-    ($leader-set-key
-      "qr" 'restart-emacs))
+  (when (version< emacs-version "29.1")
+    (use-package restart-emacs))
+  ($leader-set-key
+    "qr" 'restart-emacs)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
