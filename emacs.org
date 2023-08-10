@@ -2140,10 +2140,14 @@ Use tab for completion if at a symbol
                  :files ("dist" "copilot.el"))
       :general
       (:states '(insert) :keymaps 'copilot-mode-map
+       "C-c c" #'copilot-complete)
+      (:keymaps 'copilot-completion-map
        "TAB" #'$copilot-tab
-       "<tab>" #'$copilot-tab)
+       "<tab>" #'$copilot-tab
+       "M-n" #'copilot-next-completion
+       "M-p" #'copilot-previous-completion)
       :init
-      (setq copilot-clear-overlay-ignore-commands '( mwheel-scroll))))
+      (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
 
   (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 #+end_src
