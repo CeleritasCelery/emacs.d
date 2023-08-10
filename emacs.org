@@ -1633,6 +1633,8 @@ general leader key bindings
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
     :demand t
+    :init
+    (setq undo-tree-auto-save-history nil)
     :config
     (global-undo-tree-mode))
   ($leader-set-key
