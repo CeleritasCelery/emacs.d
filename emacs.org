@@ -219,8 +219,9 @@ use the emacs client server so that we can send output to this emacs instance
 *** site
 set the site I will be working in
 #+BEGIN_SRC emacs-lisp
-  (when (file-exists-p "site/site.el")
-    (load-file (expand-file-name "site/site.el" user-emacs-directory)))
+  (let ((site-file (expand-file-name "site/site.el" user-emacs-directory)))
+    (when (file-exists-p site-file)
+      (load-file site-file)))
 #+END_SRC
 
 *** Operating system
