@@ -9,7 +9,8 @@
  '(helm-minibuffer-history-key "M-p")
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   '((elisp-lint-indent-specs
+   '((lisp-backquote-indentation . t)
+     (elisp-lint-indent-specs
       (describe . 1)
       (it . 1)
       (org-element-map . defun)
