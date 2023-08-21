@@ -112,6 +112,13 @@ use =y= and =n= instead of =yes= and =no=
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+Fix issue on dev machine
+#+begin_src emacs-lisp
+  (when ($dev-config-p)
+    (add-to-list 'image-types 'gif)
+    (add-to-list 'image-types 'svg))
+#+end_src
+
 move the custom file to its own loaction so it does not clutter us.
 #+BEGIN_SRC emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
