@@ -2037,7 +2037,7 @@ time consuming. So we create a function to save the last ediff.
     "Run ediff with the last used files"
     (interactive)
     (apply 'ediff-files-internal $ediff-targets))
-  ($leader-set-key "fd" '$run-last-ediff)
+  ($leader-set-key "fE" '$run-last-ediff)
 #+END_SRC
 
 ** editing
