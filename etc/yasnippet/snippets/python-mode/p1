@@ -1,0 +1,4 @@
+# name: print 1
+# key: p1
+# --
+print(f"$1: {$1}")
