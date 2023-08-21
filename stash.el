@@ -41,6 +41,10 @@
                          unless (s-contains-p "archive" file)
                          collect file))
 
+;;;;;;;;;;;;;;;;
+;; Image sort ;;
+;;;;;;;;;;;;;;;;
+
 (defvar $image-sort-first-file nil)
 
 (defun $image-sort-first-file ()
@@ -74,8 +78,6 @@
          (basename (file-name-nondirectory name)))
     (rename-file name (format "%s#%d_%s" dir num basename))
     ($image-sort-next-file)))
-
-($image-set-filter-file 5)
 
 (defhydra image-sort (:hint nil)
   "

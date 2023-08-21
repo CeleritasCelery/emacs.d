@@ -10,6 +10,13 @@
  '(menu-bar-mode nil)
  '(safe-local-variable-values
    '((lisp-backquote-indentation . t)
+     (eval font-lock-add-keywords nil
+           `((,(concat "("
+                       (regexp-opt
+                        '("sp-do-move-op" "sp-do-move-cl" "sp-do-put-op" "sp-do-put-cl" "sp-do-del-op" "sp-do-del-cl")
+                        t)
+                       "\\_>")
+              1 'font-lock-variable-name-face)))
      (elisp-lint-indent-specs
       (describe . 1)
       (it . 1)

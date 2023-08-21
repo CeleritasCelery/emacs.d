@@ -226,8 +226,9 @@ use the emacs client server so that we can send output to this emacs instance
 *** site
 set the site I will be working in
 #+BEGIN_SRC emacs-lisp
-  (when (file-exists-p "site/site.el")
-    (load-file (expand-file-name "site/site.el" user-emacs-directory)))
+  (let ((site-file (expand-file-name "site/site.el" user-emacs-directory)))
+    (when (file-exists-p site-file)
+      (load-file site-file)))
 #+END_SRC
 
 *** Operating system
@@ -1014,10 +1015,10 @@ set then all errors will trigger a back trace.
 
 *** restart
 #+BEGIN_SRC emacs-lisp
-  (use-package restart-emacs
-    :init
-    ($leader-set-key
-      "qr" 'restart-emacs))
+  (when (version< emacs-version "29.1")
+    (use-package restart-emacs))
+  ($leader-set-key
+    "qr" 'restart-emacs)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
@@ -1642,6 +1643,8 @@ general leader key bindings
 #+BEGIN_SRC emacs-lisp
   (use-package undo-tree
     :demand t
+    :init
+    (setq undo-tree-auto-save-history nil)
     :config
     (global-undo-tree-mode))
   ($leader-set-key
@@ -1739,7 +1742,9 @@ behave better with evil.
     :general
     ('normal
      "gc" 'evilnc-comment-operator
-     "gC" 'evilnc-copy-and-comment-operator))
+     "gC" 'evilnc-copy-and-comment-operator)
+    (inner "c" 'evilnc-inner-commenter)
+    (outer "c" 'evilnc-outer-commenter))
 #+END_SRC
 
 *** replace with register
@@ -2116,10 +2121,14 @@ Use tab for completion if at a symbol
                  :files ("dist" "copilot.el"))
       :general
       (:states '(insert) :keymaps 'copilot-mode-map
+       "C-c c" #'copilot-complete)
+      (:keymaps 'copilot-completion-map
        "TAB" #'$copilot-tab
-       "<tab>" #'$copilot-tab)
+       "<tab>" #'$copilot-tab
+       "M-n" #'copilot-next-completion
+       "M-p" #'copilot-previous-completion)
       :init
-      (setq copilot-clear-overlay-ignore-commands '( mwheel-scroll))))
+      (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
 
   (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 #+end_src
@@ -2131,7 +2140,11 @@ Use tab for completion if at a symbol
     :custom (openai-completon-max-tokens 2000))
   (use-package codegpt
     :straight (codegpt :type git :host github :repo "emacs-openai/codegpt"))
-  (use-package chatgpt-shell)
+  (use-package chatgpt-shell
+    :init
+    (setq chatgpt-shell-model-version "gpt-4"))
+
+  (evil-ex-define-cmd "chat" #'chatgpt-shell)
 #+end_src
 
 *** whitespace
@@ -4926,14 +4939,18 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
   (use-package python
     :straight nil
     :interpreter ("python[a-z0-9.]*" . python-mode)
-    :gfhook
-    #'lsp
     :compdef python-mode
     :company (company-capf company-dabbrev-code)
     :general
     (:definer 'leader
-     :keymaps 'python-mode-map
+     :keymaps '(python-mode-map python-ts-mode-map)
      "j" 'counsel-semantic-or-imenu))
+
+  (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+
+  (if (version< emacs-version "29.1")
+      (add-hook 'python-mode-hook #'lsp)
+    (add-hook 'python-base-mode-hook #'lsp))
 
   (unless ($dev-config-p)
     (use-package lsp-pyright :demand t :after python))

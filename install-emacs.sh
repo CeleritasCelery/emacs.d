@@ -1,4 +1,7 @@
 #!/usr/bin/bash
+
+# Look in the variable system-configuration-options and system-configuration-features
+
 sudo apt install -y autoconf automake autotools-dev bsd-mailx build-essential \
     diffstat gnutls-dev imagemagick libasound2-dev libc6-dev libdatrie-dev \
     libdbus-1-dev libgconf2-dev libgif-dev libgnutls28-dev libgpm-dev libgtk2.0-dev \
@@ -20,6 +23,9 @@ sudo make install
 
 # brew 28
 # brew install emacs-plus@28 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
+
+# brew 29
+# brew install emacs-plus@29 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
 
 # install with custom macos version
 # note that this takes a really long time to clone. almost an hour.
