@@ -2473,7 +2473,7 @@ writing regexp clearer.
       (spc* (0+ spc))
       (-> (1+ any))
       (^ bol)
-      (file (1+ (any alnum "-_/.~:")))
+      (file (1+ (any alnum "-_/.#~:")))
       (symbol (1+ (any alnum "_-")))
       (nums (1+ num))
       (fp (1+ (any num "."))))
@@ -2826,7 +2826,7 @@ email. automatically add the tramp header if from a different site
   (defun $get-path-at-point ()
     "Get the filepath at point.
   This includes remote paths and enviroment variables."
-    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/._~\""))
+    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#:_~\""))
            (beg (car bounds))
            (end (cdr bounds))
            (path (buffer-substring-no-properties beg end)))
