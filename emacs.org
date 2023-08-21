@@ -2876,6 +2876,13 @@ email. automatically add the tramp header if from a different site
                    (goto-line (string-to-number line))))
         (user-error (format "File %s does not exists" file)))))
 
+  (defun $paste-relative-path ()
+    "paste the contents of the clipboard. If it is a path, make it relative to `default-directory'"
+    (interactive)
+    (let* ((path (current-kill 0))
+           (rel-path (file-relative-name (file-truename path) (file-truename default-directory))))
+      (insert rel-path)))
+
   (defun $file-at-point-exists ()
     "Check if file at point exists."
     (interactive)
@@ -2908,6 +2915,9 @@ email. automatically add the tramp header if from a different site
     "fd" '$goto-repo)
   (general-def '(normal visual motion)
     "gf" '$find-file-at-point)
+
+  (general-def
+    "C-c C-p" '$paste-relative-path)
 #+end_src
 
 **** fix file path
