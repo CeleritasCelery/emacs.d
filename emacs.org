@@ -2930,7 +2930,7 @@ email. automatically add the tramp header if from a different site
     "gf" '$find-file-at-point)
 
   (general-def
-    "C-c C-p" '$paste-relative-path)
+    "C-c p" '$paste-relative-path)
 #+end_src
 
 **** fix file path
