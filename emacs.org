@@ -112,6 +112,13 @@ use =y= and =n= instead of =yes= and =no=
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+Fix issue on dev machine
+#+begin_src emacs-lisp
+  (when ($dev-config-p)
+    (add-to-list 'image-types 'gif)
+    (add-to-list 'image-types 'svg))
+#+end_src
+
 move the custom file to its own loaction so it does not clutter us.
 #+BEGIN_SRC emacs-lisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -757,8 +764,7 @@ pretty well, but I have a couple of things I would like to change.
 #+BEGIN_SRC emacs-lisp
   (use-package ace-window
     :general
-    (:states '(motion)
-     "Q" 'ace-window)
+    ("M-u" 'ace-window)
     :init
     (setq aw-dispatch-always t
           aw-background nil)
@@ -1203,6 +1209,10 @@ display
             (rx symbol-start "git ")
             "/usr/intel/bin/git "
             (symbol-value symbol)))))
+
+  ($leader-local-set-key
+    :keymaps 'org-mode-map
+    "j" 'counsel-org-goto)
 #+END_SRC
 
 a function to call counsel-rg from the current directory
@@ -2016,37 +2026,6 @@ repos.
       (helm-ls-git-ls arg)))
 #+END_SRC
 
-*** org
-use helm to quickly navigate org headings. We can also use this to
-jump to a init header from anywhere.
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-org)
-  ($leader-local-set-key
-    :keymaps 'org-mode-map
-    "j" 'helm-org-in-buffer-headings)
-
-  (csetq helm-org-format-outline-path t)
-#+END_SRC
-
-use this function to jump to any part of the config, whether it is in
-this file or not
-#+BEGIN_SRC emacs-lisp
-  (defun $helm-org-init-files-headings ()
-    "Helm for init file headings."
-    (interactive)
-    (require 'helm-org)
-    (let (helm-org-show-filename)
-      (helm :sources (helm-source-org-headings-for-files
-                      $emacs-init-files)
-            :candidate-number-limit 99999
-            :preselect (helm-org-in-buffer-preselect)
-            :truncate-lines helm-org-truncate-lines
-            :buffer "*helm org inbuffer*")))
-
-  ($leader-set-key
-    "fj" '$helm-org-init-files-headings)
-#+END_SRC
-
 *** ediff
 running ediff from helm is very convient. But the problem is that is
 not reproducible. You have to reselect the files everytime, which is
@@ -2063,7 +2042,7 @@ time consuming. So we create a function to save the last ediff.
     "Run ediff with the last used files"
     (interactive)
     (apply 'ediff-files-internal $ediff-targets))
-  ($leader-set-key "fd" '$run-last-ediff)
+  ($leader-set-key "fE" '$run-last-ediff)
 #+END_SRC
 
 ** editing
@@ -2508,7 +2487,7 @@ writing regexp clearer.
       (spc* (0+ spc))
       (-> (1+ any))
       (^ bol)
-      (file (1+ (any alnum "-_/.~:")))
+      (file (1+ (any alnum "-_/.#~:")))
       (symbol (1+ (any alnum "_-")))
       (nums (1+ num))
       (fp (1+ (any num "."))))
@@ -2861,7 +2840,7 @@ email. automatically add the tramp header if from a different site
   (defun $get-path-at-point ()
     "Get the filepath at point.
   This includes remote paths and enviroment variables."
-    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/._~\""))
+    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#:_~\""))
            (beg (car bounds))
            (end (cdr bounds))
            (path (buffer-substring-no-properties beg end)))
@@ -2911,6 +2890,13 @@ email. automatically add the tramp header if from a different site
                    (goto-line (string-to-number line))))
         (user-error (format "File %s does not exists" file)))))
 
+  (defun $paste-relative-path ()
+    "paste the contents of the clipboard. If it is a path, make it relative to `default-directory'"
+    (interactive)
+    (let* ((path (current-kill 0))
+           (rel-path (file-relative-name (file-truename path) (file-truename default-directory))))
+      (insert rel-path)))
+
   (defun $file-at-point-exists ()
     "Check if file at point exists."
     (interactive)
@@ -2943,6 +2929,9 @@ email. automatically add the tramp header if from a different site
     "fd" '$goto-repo)
   (general-def '(normal visual motion)
     "gf" '$find-file-at-point)
+
+  (general-def
+    "C-c p" '$paste-relative-path)
 #+end_src
 
 **** fix file path
