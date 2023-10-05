@@ -2118,16 +2118,17 @@ Use tab for completion if at a symbol
   (unless ($dev-config-p)
     (use-package copilot
       :straight (:host github :repo "zerolfx/copilot.el"
-                 :files ("dist" "copilot.el"))
+                 :files ("dist" "copilot.el" "copilot-balancer.el"))
       :general
       (:states '(insert) :keymaps 'copilot-mode-map
-       "C-c c" #'copilot-complete)
-      (:keymaps 'copilot-completion-map
+       "C-c c" #'copilot-complete
        "TAB" #'$copilot-tab
-       "<tab>" #'$copilot-tab
+       "<tab>" #'$copilot-tab)
+      (:keymaps 'copilot-completion-map
        "M-n" #'copilot-next-completion
        "M-p" #'copilot-previous-completion)
       :init
+      (setq copilot-max-char -1)
       (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
 
   (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
@@ -4982,6 +4983,8 @@ Inferior shell
      "q" 'quit-window)
     (:states '(normal) :keymaps 'rustic-mode-map
      "J" 'lsp-rust-analyzer-join-lines)
+    :init
+    ;; (setq rustic-treesitter-derive t)
     :custom
     (lsp-rust-analyzer-cargo-watch-command "clippy")
     (lsp-rust-analyzer-proc-macro-enable t)
@@ -4995,6 +4998,7 @@ Inferior shell
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
   (evil-initial-state 'rustic-popup-mode 'emacs)
+  (add-to-list 'major-mode-remap-alist '(rust-ts-mode . rustic-mode))
 
   (with-eval-after-load 'org-src
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
