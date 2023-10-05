@@ -2815,10 +2815,8 @@ email. automatically add the tramp header if from a different site
       (cl-loop for (var env) in (s-match-strings-all re-env file)
                if (save-excursion
                     (goto-char (point-min))
-                    ;; bash
-                    (or (re-search-forward (concat env "=" re-path) orig-point t))
-                    ;; tcsh
-                    (or (re-search-forward (concat "setenv +" env " +" re-path) orig-point t)))
+                    (or (re-search-forward (concat env "=" re-path) orig-point t) ;; bash
+                        (re-search-forward (concat "setenv +" env " +" re-path) orig-point t))) ;; tcsh
                collect (cons var
                              ($substitute-env-in-filename
                               (match-string-no-properties 1)))
