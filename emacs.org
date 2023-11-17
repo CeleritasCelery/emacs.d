@@ -45,8 +45,7 @@ make this file lexically bound
 Let's set some variables with basic user information.
 
 #+BEGIN_SRC emacs-lisp
-  (setq user-full-name "Troy Hinckley"
-        user-mail-address "t.macman@gmail.com")
+  (setq user-full-name "Troy Hinckley")
 #+END_SRC
 
 *** customization
