@@ -74,7 +74,8 @@ Some settings need to be changed based on what user there is.
 #+BEGIN_SRC emacs-lisp
   (defun $dev-config-p ()
     (and (not (eq system-type 'windows-nt))
-         (equal user-login-name "tjhinckl")))
+         (or (equal user-login-name "tjhinckl")
+             (equal user-login-name  "sys_swisscld"))))
 #+END_SRC
 
 *** Settings
