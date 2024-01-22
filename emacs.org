@@ -5087,7 +5087,16 @@ automatically detect it.
                  (1+ space) (group (1+ (in alnum "-_:*+")))) 1)))
     (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords)
     (flycheck-tcl-nagelfar-syntaxdb-file "~/custom/tcl_json_files/TclComplete/syntaxdb_tessent.tcl")
-    (tcl-application "tclsh"))
+    (tcl-application "tclsh")
+    :config
+    (add-to-list 'tcl-proc-list "iProc")
+    (add-to-list 'tcl-proc-list "iTopProc")
+    (add-to-list 'tcl-keyword-list "iProc")
+    (add-to-list 'tcl-keyword-list "iTopProc")
+    (add-to-list 'tcl-typeword-list "iProcsForModule")
+    (setq tcl-builtin-list (append tcl-builtin-list '("iWrite" "iRead" "iApply" "iCall" "iTake" "iNote")))
+    (tcl-set-proc-regexp)
+    (tcl-set-font-lock-keywords))
 
   (defun $tcl-fix-symbol-def ()
     (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
