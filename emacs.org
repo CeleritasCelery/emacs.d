@@ -1517,7 +1517,7 @@ create text objects for the buffer, pasted region, and filename
           (save-excursion (search-forward "/") (1- (point)))))
 
   (defmacro $define-evil-inner-object (name char)
-    `(evil-define-text-object ,(evil-unquote name) (count &optional _beg _end _type)
+    `(evil-define-text-object ,(cadr name) (count &optional _beg _end _type)
        (list (save-excursion (search-backward ,char) (1+ (point)))
              (save-excursion (search-forward ,char) (1- (point))))))
 
