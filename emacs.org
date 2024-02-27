@@ -2050,8 +2050,6 @@ make interprogram paste work correctly.
 #+BEGIN_SRC emacs-lisp
   (setq evil-kill-on-visual-paste nil
         select-enable-primary t)
-  (unless (memq system-type '(windows-nt darwin))
-    (setq interprogram-paste-function 'x-cut-buffer-or-selection-value))
 
   (fset 'evil-visual-update-x-selection 'ignore)
 
