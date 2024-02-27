@@ -727,7 +727,7 @@ displayed at the same time.
        'local-map mode-line-coding-system-map))
     (doom-modeline-def-modeline 'custom
       '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position selection-info)
-      '(objed-state misc-info debug lsp minor-modes buffer-encoding-simple major-mode process vcs checker))
+      '(objed-state misc-info debug lsp minor-modes buffer-encoding-simple major-mode process vcs))
     (add-hook 'doom-modeline-mode-hook
               (defun $custom-doom-modeline ()
                 (doom-modeline-set-modeline 'custom 'default)))
