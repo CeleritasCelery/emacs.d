@@ -197,27 +197,6 @@ fix the path to use a new version of git
   (setenv "PAGER" "cat")
 #+END_SRC
 
-Proxy for windows setup
-#+BEGIN_SRC emacs-lisp
-  (defun $enable-proxy ()
-    "enable the proxy for windows"
-    (interactive)
-    (setenv "http_proxy" "http://proxy-dmz.intel.com:911")
-    (setenv "https_proxy" "http://proxy-dmz.intel.com:912")
-    (setenv "NO_PROXY" "localhost,intel.com,192.168.0.0/16,172.16.0.0/12,127.0.0.0/8,10.0.0.0/8"))
-
-  (defun $disable-proxy ()
-    "Remove the proxy settings for windows"
-    (interactive)
-    (setenv "http_proxy")
-    (setenv "https_proxy")
-    (setenv "NO_PROXY"))
-
-  (when (and (eq system-type 'windows-nt)
-             (equal user-login-name "tjhinckl"))
-    ($enable-proxy))
-#+END_SRC
-
 *** server
 use the emacs client server so that we can send output to this emacs instance
 #+BEGIN_SRC emacs-lisp
@@ -249,22 +228,8 @@ The intel proxy does not work with HTTPS so we need to use the http repo
 This is still slower then using package.el, but I think it is worth
 it. below is the bootstrap code to download the package manager and
 run it.
-Currently recipe inheritance is only available on develop. Need to remove this
-at some point.
 #+BEGIN_SRC emacs-lisp
   (setq straight-check-for-modifications '(check-on-save find-when-checking))
-  (defvar bootstrap-version 6)
-  (let ((bootstrap-file
-         (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)))
-    (unless (file-exists-p bootstrap-file)
-      (with-current-buffer
-          (url-retrieve-synchronously
-           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-           'silent 'inhibit-cookies)
-        (goto-char (point-max))
-        (eval-print-last-sexp)))
-    (load bootstrap-file nil 'nomessage))
-  (straight-use-package 'org)
 #+END_SRC
 
 ** use package
@@ -729,7 +694,7 @@ displayed at the same time.
        'local-map mode-line-coding-system-map))
     (doom-modeline-def-modeline 'custom
       '(bar workspace-name window-number modals matches buffer-info remote-host buffer-position selection-info)
-      '(objed-state misc-info debug lsp minor-modes buffer-encoding-simple major-mode process vcs checker))
+      '(objed-state misc-info debug lsp minor-modes buffer-encoding-simple major-mode process vcs))
     (add-hook 'doom-modeline-mode-hook
               (defun $custom-doom-modeline ()
                 (doom-modeline-set-modeline 'custom 'default)))
@@ -1278,46 +1243,6 @@ will always be the same width as a window we are searching.
     (ivy-posframe-mode))
 #+END_SRC
 
-**** flashing fix
-I have an issue with my window manager where the frame will flash
-white when removing the ivy posframe. This seems to be because Emacs
-does not acknowledge the WM if it has other code to run. The following
-code will wait to remove the frame until emacs is idle. This fixes the
-flashing issue.
-#+BEGIN_SRC emacs-lisp
-  (when ($dev-config-p)
-    (defvar posframe-timer nil)
-
-    (setq x-wait-for-event-timeout nil)
-
-    (defun posframe-force-valid (new-buf &rest _)
-      "If we are reusing an exisiting posframe, don't hide the
-  previous one. this prevents blanking the frame unnecessarily."
-      (let ((timer (cdr posframe-timer))
-            (old-buf (car posframe-timer)))
-        (when (and (memq timer timer-idle-list)
-                   (eq new-buf (get-buffer old-buf)))
-          (cancel-timer timer))))
-
-    (el-patch-feature posframe)
-    (with-eval-after-load 'posframe
-      (advice-add 'posframe--create-posframe :before #'posframe-force-valid)
-      (el-patch-defun posframe-hide (posframe-buffer)
-        "Hide posframe which buffer is POSFRAME-BUFFER."
-        (dolist (frame (frame-list))
-          (let ((buffer-info (frame-parameter frame 'posframe-buffer)))
-            (when (or (equal posframe-buffer (car buffer-info))
-                      (equal posframe-buffer (cdr buffer-info)))
-              (el-patch-swap
-                (posframe--make-frame-invisible frame)
-                (setq posframe-timer
-                      (cons posframe-buffer
-                            (run-with-idle-timer
-                             0.01 nil
-                             (lambda ()
-                               (posframe--make-frame-invisible frame))))))))))))
-#+END_SRC
-
 *** rich
 #+BEGIN_SRC emacs-lisp
   (use-package ivy-rich
@@ -1675,21 +1600,6 @@ evil unimpaired binds some usefull functions to some quick keys.
     (evil-unimpaired-mode))
 #+END_SRC
 
-*** escape
-use a quick key combo to enter normal state. We don't want to escape
-magit because I do that by accident all the time.
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-escape
-    :demand t
-    :straight (:fork "hlissner/evil-escape")
-    :init
-    (setq evil-escape-unordered-key-sequence t
-          evil-escape-key-sequence "jk")
-    :config
-    (evil-escape-mode)
-    (advice-add 'evil-escape--is-magit-buffer :override (defun $dont-escape-magit () nil)))
-#+END_SRC
-
 *** collection
 evil collection evilifies several major and minor modes to make them
 behave better with evil.
@@ -1889,18 +1799,7 @@ prefer not to do.
 #+END_SRC
 
 ** Helm
-helm is the more powerfull of the two between itself and ivy. I really
-want to give Ivy a good try because it seems snappier on large files,
-but there are still some issues that gives helm the advantage
-- helm supports marking, which is very efficient.
-
-I have decided to switch from using advices to make helm behave as I
-want and am now maintaining my own helm fork. This fork differs from
-the stock helm in these ways
-- prevent buffers from resorting the initial order
-- add adaptive sorting to find files and symbol helms
-- reorder the sources of helm-bookmarks to list directories first
-- remove the parent hardlink .. from the find file candidates
+I almost completely use Ivy now, but just have Helm for my custom process command.
 
 *** general
 
@@ -1958,75 +1857,6 @@ some hacks to make helm more evil compatible See
   (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
 #+END_SRC
 
-*** swoop
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-swoop
-    :init
-    (setq helm-swoop-split-with-multiple-windows t
-          helm-swoop-speed-or-color t
-          helm-swoop-candidate-number-limit 1000)
-    :config
-    (add-hook 'after-revert-hook 'helm-swoop--clear-cache)
-    (general-def helm-swoop-edit-map
-      "C-c C-c" 'helm-swoop--edit-complete
-      "C-c C-k" 'helm-swoop--edit-cancel))
-#+END_SRC
-
-*** ag
-use the ag utility to search through files. The pcre package provides
-us with PCRE compatible functions. PCRE is more intuitive then emacs
-regex
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-ag
-    :custom
-    (helm-ag-base-command "ag --nocolor --nogroup --search-zip"))
-#+END_SRC
-
-*** git
-helm-ls-git is an awesome package that lets me quickly operate on any
-git controlled files in the current repo. for things like staging it
-is faster then magit because I don't need to load a diff. This is
-especially true for files that are in different directories but are
-similar. In magit they are spaced out because they are not in the same
-part of the hierarchy, so I have to stage one, wait, stage the next
-one, wait, etc. With helm-ls-git I can just narrow the files and stage
-or commit them all at once.
-
-Also in my limited testing $helm-browse-project is faster at listing
-files then projectile. I will have to see if that holds true for large
-repos.
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-ls-git
-    :custom
-    (helm-ls-git-default-sources '(helm-source-ls-git-status))
-    (helm-ls-git-status-command 'magit-status-internal)
-    :general
-    (:definer 'leader
-     "gj" 'helm-ls-git-ls
-     "sg" 'helm-grep-do-git-grep
-     "pf" '$helm-browse-project
-     "pb" '$helm-project-buffers)
-    (:prefix ";"
-     :keymaps 'helm-ls-git-map
-     "s" 'helm-ls-git-stage-files
-     "u" 'helm-ls-git-unstage-files
-     "c" 'helm-ls-git-stage-marked-and-commit))
-
-  (defun $helm-browse-project (arg)
-    "find files in current project with git ls"
-    (interactive "P")
-    (require 'helm-ls-git)
-    (let ((helm-ls-git-default-sources '(helm-source-ls-git)))
-      (helm-ls-git-ls arg)))
-
-  (defun $helm-project-buffers (arg)
-    "open buffers in the current project"
-    (interactive "P")
-    (require 'helm-ls-git)
-    (let ((helm-ls-git-default-sources '(helm-source-ls-git-buffers)))
-      (helm-ls-git-ls arg)))
-#+END_SRC
-
 *** ediff
 running ediff from helm is very convient. But the problem is that is
 not reproducible. You have to reselect the files everytime, which is
@@ -2052,8 +1882,6 @@ make interprogram paste work correctly.
 #+BEGIN_SRC emacs-lisp
   (setq evil-kill-on-visual-paste nil
         select-enable-primary t)
-  (unless (memq system-type '(windows-nt darwin))
-    (setq interprogram-paste-function 'x-cut-buffer-or-selection-value))
 
   (fset 'evil-visual-update-x-selection 'ignore)
 
@@ -2284,36 +2112,7 @@ Get the next input matching element
 #+end_src
 
 **** DAP
-Debug access protocol
-#+begin_src emacs-lisp
-  (use-package dap-mode
-    ;; :init
-    ;; (setq dap-gdb-lldb-debug-program '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/gdb.js"))
-    ;; (setq dap-gdb-lldb-path-lldb '("node" "/home/foco/.vscode/extensions/webfreak.debug-0.25.0/out/src/lldb.js"))
-    :config
-    (require 'dap-gdb-lldb)
-    ;; (dap-ui-mode 1)
-    ;; (dap-tooltip-mode 1)
-    ;; (tooltip-mode 1)
-    ;; (dap-ui-controls-mode 1)
-    (dap-register-debug-template
-     "Rust::GDB Run Configuration"
-     (list :type "gdb"
-           :request "launch"
-           :name "GDB::Run"
-           :gdbpath "rust-gdb"
-           :target nil
-           :cwd nil)))
-#+end_src
-
-*** tree-sitter
-#+begin_src emacs-lisp
-  ;; (use-package treesit-auto
-  ;;   :defer 4
-  ;;   :config
-  ;;   (setq treesit-auto-install 'prompt)
-  ;;   (global-treesit-auto-mode))
-#+end_src
+Debug access protocol via either dap-mode or dape-mode
 
 *** narrowing
 #+BEGIN_SRC emacs-lisp
@@ -2474,7 +2273,8 @@ mutliedit is a hybrid of evil-iedit-state and evil-mc.
   (use-package 0xc
     :general
     (:definer 'leader
-     "xc" '0xc-kill))
+     "xc" '0xc-convert
+     "xp" '0xc-convert-point))
 #+END_SRC
 
 *** regex
@@ -2572,14 +2372,6 @@ counsel and git as well as the specialized functions below.
 
 **** bookmarks
 #+BEGIN_SRC emacs-lisp
-  (defvar $project-bookmarks
-    '(("hier define" "target/*/collage/work/*/gen/tb_specs/soc_ip_hier_define.sv")
-      ("collage output" "target/*/collage/source")
-      ("espf output" "target/*/espfmodel/mdf_s_v_0")
-      ("espflist" "verif/tests/espflist/*master.espflist"))
-    "Alist of project bookmarks to a list of potential paths. File
-    paths are wildcard expanded.")
-
   (defun $read-common-file (file-list &optional prompt)
     "read a file amoung common paths"
     (unless file-list (user-error "no files found"))
@@ -3037,7 +2829,7 @@ we don't need so many dired confirmation prompts
         dired-auto-revert-buffer t)
 
   (general-def dired-mode-map
-    "C-c C-e" 'wdired-change-to-wdired-mode)
+    "C-c C-p" 'wdired-change-to-wdired-mode)
 
   (defun $dired-here ()
     (interactive)
@@ -3802,18 +3594,6 @@ Make the renderings a little bit prettier.
   (setq shr-use-colors nil
         shr-bullet "• ")
 #+end_src
-
-A small package to jump to links in eww buffer.
-#+BEGIN_SRC emacs-lisp
-  (use-package eww-lnum
-    :demand t
-    :after eww
-    :general
-    ('normal
-     eww-mode-map
-     "J" 'eww-lnum-follow))
-#+END_SRC
-
 
 ** compilation
 packages that assist in compiling and building code
@@ -4833,10 +4613,6 @@ reasons:
    theme that you are using
 4. I don't really use any of the features in cperl mode, so I don't
    think it is worth using
-
-#+BEGIN_SRC emacs-lisp
-  (defalias 'cperl-mode 'perl-mode)
-#+END_SRC
 
 I use regular perl-mode for files that are considered read-only.
 #+BEGIN_SRC emacs-lisp
