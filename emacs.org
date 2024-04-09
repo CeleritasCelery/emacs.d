@@ -2997,7 +2997,6 @@ need to set the git version to a newer version because the default at
 intel is not supported. We have to require transient first or else we
 get weird errors in magit.
 #+BEGIN_SRC emacs-lisp
-  (use-package transient :demand t)
   (use-package magit
     :general
     ("C-x g" 'magit-status
