@@ -4727,7 +4727,9 @@ collect usage statistics and filter candidates based on that
       "eb" 'eval-buffer
       "er" 'eval-region
       "ef" 'eval-defun
-      "j"  'counsel-semantic-or-imenu))
+      "j"  'counsel-semantic-or-imenu)
+    :custom
+    (add-hook 'emacs-lisp-mode-hook (lambda () (setq-local tab-width 8))))
 #+END_SRC
 
 *** prettify symbols
