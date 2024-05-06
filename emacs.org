@@ -151,6 +151,11 @@ turn it off.
   (setq auto-window-vscroll nil)
 #+END_SRC
 
+Use hex for bytes
+#+begin_src emacs-lisp
+(setq display-raw-bytes-as-hex t)
+#+end_src
+
 Don't ring the bell, ... Ever.
 #+BEGIN_SRC emacs-lisp
   (setq ring-bell-function 'ignore)
