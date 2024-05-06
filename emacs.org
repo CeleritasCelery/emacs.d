@@ -2141,8 +2141,9 @@ Use tab for completion if at a symbol
        "TAB" #'$copilot-tab
        "<tab>" #'$copilot-tab)
       (:keymaps 'copilot-completion-map
-       "M-n" #'copilot-next-completion
-       "M-p" #'copilot-previous-completion)
+       "M-n" #'copilot-accept-completion-by-line
+       "M-N" #'copilot-next-completion
+       "M-P" #'copilot-previous-completion)
       :init
       (setq copilot-max-char -1)
       (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
