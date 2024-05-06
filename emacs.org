@@ -1209,7 +1209,8 @@ display
     (setq counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t)
     :config
-    (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview" "--search-zip")))
+    ;; adding --search-zip can cause the PCRE engine to hit it's line limit. add `-- -z` to search zip files
+    (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview")))
     ($normalize-git-version 'counsel-git-cmd)
     ($normalize-git-version 'counsel-git-grep-cmd-default)
     ($normalize-git-version 'counsel-git-log-cmd)
