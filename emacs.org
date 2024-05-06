@@ -2097,6 +2097,74 @@ Give us some breathing room
   (setq-default fill-column 80)
 #+END_SRC
 
+#+begin_src emacs-lisp
+  (defun backward-delete-word (arg)
+    "Delete characters backward until encountering the beginning of a word.
+  With argument ARG, do this that many times."
+    (interactive "p")
+    (delete-region (point) (progn (backward-word arg) (point))))
+
+  (defun delete-whole-line (&optional arg)
+    "delete current line.
+  With prefix ARG, delete that many lines starting from the current line.
+  If ARG is negative, delete backward.  Also delete the preceding newline.
+  \(This is meant to make \\[repeat] work well with negative arguments.)
+  If ARG is zero, delete current line but exclude the trailing newline."
+    (interactive "p")
+    (or arg (setq arg 1))
+    (if (and (> arg 0) (eobp) (save-excursion (forward-visible-line 0) (eobp)))
+        (signal 'end-of-buffer nil))
+    (if (and (< arg 0) (bobp) (save-excursion (end-of-visible-line) (bobp)))
+        (signal 'beginning-of-buffer nil))
+    (setq last-command 'delete-region)
+    (cond ((zerop arg)
+           (save-excursion
+             (delete-region (point) (progn (forward-visible-line 0) (point))))
+           (delete-region (point) (progn (end-of-visible-line) (point))))
+          ((< arg 0)
+           (save-excursion
+             (delete-region (point) (progn (end-of-visible-line) (point))))
+           (delete-region (point)
+                          (progn (forward-visible-line (1+ arg))
+                                 (unless (bobp) (backward-char))
+                                 (point))))
+          (t
+           (save-excursion
+             (delete-region (point) (progn (forward-visible-line 0) (point))))
+           (delete-region (point)
+                          (progn (forward-visible-line arg) (point))))))
+
+  (define-key minibuffer-local-map [C-backspace] 'backward-delete-word)
+  (define-key minibuffer-local-map [C-S-backspace] 'delete-whole-line)
+
+  (defun ivy-backward-delete-word ()
+    "Forward to `backward-delete-word'."
+    (interactive)
+    (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
+        (progn
+          (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
+          (ivy--exhibit))
+      (ignore-errors
+        (let ((pt (point))
+              (last-command (if (eq last-command 'ivy-backward-delete-word)
+                                'delete-region
+                              last-command)))
+          (forward-word -1)
+          (delete-region pt (point))))))
+
+  (defun ivy-delete-whole-line ()
+    "Forward to `delete-whole-line'."
+    (interactive)
+    (delete-region (minibuffer-prompt-end) (line-end-position)))
+
+  (with-eval-after-load 'ivy
+    (define-key ivy-minibuffer-map [C-S-backspace] 'ivy-delete-whole-line)
+    (define-key ivy-minibuffer-map [C-backspace] 'ivy-backward-delete-word))
+
+
+
+#+end_src
+
 *** TAB key
 Emacs has an interesting way of handling the tab key. Both <tab> and C-i share
 the same terminal keycode. This means that in terminal applications, using C-i
