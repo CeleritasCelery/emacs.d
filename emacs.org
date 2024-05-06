@@ -2163,6 +2163,8 @@ Use tab for completion if at a symbol
     (setq chatgpt-shell-model-version "gpt-4"))
 
   (evil-ex-define-cmd "chat" #'chatgpt-shell)
+  ($leader-set-key
+    "e" #'chatgpt-shell)
 #+end_src
 
 *** whitespace
