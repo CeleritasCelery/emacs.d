@@ -5048,10 +5048,10 @@ Inferior shell
      "q" 'quit-window)
     (:states '(normal) :keymaps 'rustic-mode-map
      "J" 'lsp-rust-analyzer-join-lines)
-    :init
-    ;; (setq rustic-treesitter-derive t)
     :custom
     (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-rust-analyzer-lens-run-enable nil)
+    (lsp-rust-analyzer-lens-debug-enable nil)
     (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
@@ -5059,6 +5059,7 @@ Inferior shell
     (rustic-cargo-use-last-stored-arguments t)
     (rustic-default-test-arguments "--tests --all-features")
     :config
+    (setenv "RUST_BACKTRACE" "full")
     (csetq rustic-ansi-faces (cl-map 'vector (lambda (x) (face-attribute x :foreground)) ansi-color-normal-colors-vector))
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
