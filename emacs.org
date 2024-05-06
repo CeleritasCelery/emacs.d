@@ -47,6 +47,8 @@ Let's set some variables with basic user information.
 #+BEGIN_SRC emacs-lisp
   (setq user-full-name "Troy Hinckley"
         user-mail-address "t.macman@gmail.com")
+
+  (setenv "LSP_USE_PLISTS" "true")
 #+END_SRC
 
 *** customization
