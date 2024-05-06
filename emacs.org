@@ -2570,7 +2570,10 @@ Add the default intel binary path the remote path so tramp can find up
 to date tools
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'tramp
-    (add-to-list 'tramp-remote-path "/usr/intel/bin"))
+    ;; fix an issue with invalid base64
+    (setq tramp-copy-size-limit nil)
+    (when ($dev-config-p)
+      (add-to-list 'tramp-remote-path "/usr/intel/bin")))
 #+END_SRC
 
 *** projects
