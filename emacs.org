@@ -195,6 +195,7 @@ fix the path to use a new version of git
   (if ($dev-config-p)
       (progn (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
              (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path)))
+    (push "~/bin" exec-path)
     (push "/Users/troyhinckley/Library/Python/3.9/bin" exec-path))
 
 #+END_SRC
