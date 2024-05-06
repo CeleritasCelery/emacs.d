@@ -4117,8 +4117,10 @@ Fix ~org-open-file~ on WSL. Based on [[https://vxlabs.com/2020/03/07/patch-emacs
 #+BEGIN_SRC emacs-lisp
   (csetq org-agenda-todo-ignore-scheduled 'future
          org-agenda-tags-todo-honor-ignore-options t
-         org-agenda-dim-blocked-tasks 'invisible
-         org-agenda-files "~/org/.agenda-files")
+         org-agenda-dim-blocked-tasks 'invisible)
+
+  (when ($dev-config-p)
+    (setq org-agenda-files "~/org/.agenda-files"))
 
   ($leader-set-key
     "a" 'org-agenda)
