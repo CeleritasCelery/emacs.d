@@ -5013,7 +5013,8 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (if (version< emacs-version "29.1")
       (add-hook 'python-mode-hook #'lsp)
-    (add-hook 'python-base-mode-hook #'lsp))
+    (add-hook 'python-base-mode-hook #'lsp)
+    (add-hook 'python-base-mode-hook #'copilot-mode))
 
   (unless ($dev-config-p)
     (use-package lsp-pyright :demand t :after python))
