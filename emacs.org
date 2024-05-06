@@ -852,6 +852,7 @@ easily manipulate files, buffers, and windows.
 
   ($leader-set-key
     "TAB" '$alternate-buffer
+    "SPC" '$alternate-buffer
     "fy" '$show-and-copy-buffer-filename
     "q" '(:ignore t :wk "quit")
     "qq" '$quit-emacs)
