@@ -328,6 +328,10 @@ This function will garbage collect on an idle timer to keep emacs more performan
             $gc-timer nil)))
 
   (add-hook 'after-init-hook '$schedule-maybe-gc)
+
+  (add-function :after
+                    after-focus-change-function
+                    (lambda () (unless (frame-focus-state) (garbage-collect))))
 #+END_SRC
 
 ** Windows
