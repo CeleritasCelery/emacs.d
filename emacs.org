@@ -4765,8 +4765,7 @@ never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :straight
-    (:fork "CeleritasCelery/aggressive-indent-mode")
-    :hook emacs-lisp-mode)
+    (:fork "CeleritasCelery/aggressive-indent-mode"))
 #+END_SRC
 
 fix indentation of plists so that all properties align.
