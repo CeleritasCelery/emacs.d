@@ -3102,7 +3102,7 @@ we don't need so many dired confirmation prompts
     (interactive)
     (dired default-directory))
 
-  ($leader-set-key "SPC" '$dired-here)
+  ($leader-set-key "d" '$dired-here)
 
   (with-eval-after-load 'dired-aux
     (add-to-list 'dired-compress-file-suffixes '("\\.gtar\\'" ".tar" nil)))
