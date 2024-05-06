@@ -2291,8 +2291,8 @@ Get the next input matching element
     :custom
     (lsp-idle-delay 1.0)
     (lsp-ui-sideline-show-code-actions t)
-    (lsp-ui-sideline-update-mode 'line)
-    (lsp-ui-doc-show-with-mouse nil))
+    (lsp-ui-sideline-update-mode 'point)
+    (lsp-ui-doc-show-with-mouse t))
 
   (advice-add #'lsp-execute-code-action :after
               (defun $evil-normal-state-advice (&rest _)
@@ -2301,6 +2301,42 @@ Get the next input matching element
   (use-package lsp-ivy)
 #+end_src
 
+**** LSP Booster
+[[https://github.com/blahgeek/emacs-lsp-booster][repo]]
+#+begin_src emacs-lisp
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+
+
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+
+  (unless ($dev-config-p)
+    (with-eval-after-load 'lsp-mode
+      (advice-add (if (progn (require 'json)
+                             (fboundp 'json-parse-buffer))
+                      'json-parse-buffer
+                    'json-read)
+                  :around
+                  #'lsp-booster--advice-json-parse)
+      (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)))
+#+end_src
 **** DAP
 Debug access protocol
 #+begin_src emacs-lisp
