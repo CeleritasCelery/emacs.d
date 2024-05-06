@@ -4230,16 +4230,17 @@ things more clean and modern. load it after the export libraries are
 loaded so it does not effect startup time.
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'ox-html
-    (setq org-html-head
-          (concat
-           "<style type=\"text/css\">\n"
-           "<!--/*--><![CDATA[/*><!--*/\n"
-           (with-temp-buffer
-             (insert-file-contents
-              "~/.emacs.d/org-html-themes/styles/email/css/email.css")
-             (buffer-string))
-           "/*]]>*/-->\n"
-           "</style>\n")))
+    (when (file-exists-p "~/.emacs.d/org-html-themes/styles/email/css/email.css")
+      (setq org-html-head
+            (concat
+             "<style type=\"text/css\">\n"
+             "<!--/*--><![CDATA[/*><!--*/\n"
+             (with-temp-buffer
+               (insert-file-contents
+                "~/.emacs.d/org-html-themes/styles/email/css/email.css")
+               (buffer-string))
+             "/*]]>*/-->\n"
+             "</style>\n"))))
 #+END_SRC
 
 A simple function to export the current buffer as HTML and put it in
