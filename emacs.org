@@ -2898,7 +2898,7 @@ email. automatically add the tramp header if from a different site
   (defun $get-path-at-point ()
     "Get the filepath at point.
   This includes remote paths and enviroment variables."
-    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#:_~\""))
+    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#_~\""))
            (beg (car bounds))
            (end (cdr bounds))
            (path (buffer-substring-no-properties beg end)))
