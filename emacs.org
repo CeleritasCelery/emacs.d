@@ -678,6 +678,8 @@ that I would like, so When I get some time I will modify them. See
   (use-package monokai-theme)
   (use-package twilight-anti-bright-theme)
   (use-package twilight-bright-theme)
+  (use-package ef-themes)
+  (use-package afternoon-theme)
 
   (load-theme 'darktooth t)
 #+END_SRC
