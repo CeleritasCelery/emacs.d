@@ -589,16 +589,12 @@ not match the resolution of my monitor results in weird text sizes.
     "Use xrandr to resize my VNC window"
     (let ((default-directory "~/")
           (inhibit-message t))
-      (shell-command (concat "xrandr --size 2 && xrandr --size " size))))
+      (shell-command (concat "xrandr --size " size))))
 
   (defhydra vnc-resize (:columns 2 :exit t)
     "VNC Resize"
-    ("l" (vnc-resize "1920x1200") "single monitor (large)")
-    ("m" (vnc-resize "1536x864") "mobile")
-    ("w" (vnc-resize "3840x1200") "double monitor (wide)")
-    ("s" (vnc-resize "1920x1080") "short")
-    ("h" (vnc-resize "2400x1350") "huge")
-    ("r" (vnc-resize "1600x1200") "square"))
+    ("l" (vnc-resize "2560x1440") "large")
+    ("m" (vnc-resize "1536x864") "mobile"))
 
   (general-def 'normal "zn" 'vnc-resize/body)
 #+END_SRC
