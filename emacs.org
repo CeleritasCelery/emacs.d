@@ -149,6 +149,11 @@ turn it off.
   (setq auto-window-vscroll nil)
 #+END_SRC
 
+Use hex for bytes
+#+begin_src emacs-lisp
+(setq display-raw-bytes-as-hex t)
+#+end_src
+
 Don't ring the bell, ... Ever.
 #+BEGIN_SRC emacs-lisp
   (setq ring-bell-function 'ignore)
@@ -189,6 +194,7 @@ fix the path to use a new version of git
       (progn (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
              (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/xhdk74/latest" exec-path))
              (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path)))
+    (push "~/bin" exec-path)
     (push "/Users/troyhinckley/Library/Python/3.9/bin" exec-path))
 
   (push "~/.local/bin" exec-path)
@@ -287,6 +293,10 @@ This function will garbage collect on an idle timer to keep emacs more performan
             $gc-timer nil)))
 
   (add-hook 'after-init-hook '$schedule-maybe-gc)
+
+  (add-function :after
+                    after-focus-change-function
+                    (lambda () (unless (frame-focus-state) (garbage-collect))))
 #+END_SRC
 
 ** Windows
@@ -633,6 +643,8 @@ that I would like, so When I get some time I will modify them. See
   (use-package monokai-theme)
   (use-package twilight-anti-bright-theme)
   (use-package twilight-bright-theme)
+  (use-package ef-themes)
+  (use-package afternoon-theme)
 
   (load-theme 'darktooth t)
 #+END_SRC
@@ -805,6 +817,7 @@ easily manipulate files, buffers, and windows.
 
   ($leader-set-key
     "TAB" '$alternate-buffer
+    "SPC" '$alternate-buffer
     "fy" '$show-and-copy-buffer-filename
     "q" '(:ignore t :wk "quit")
     "qq" '$quit-emacs)
@@ -1161,7 +1174,8 @@ display
     (setq counsel-find-file-ignore-regexp (rx (or (: bos (any "#.")) (: (any "#~") eos)))
           counsel-bookmark-avoid-dired t)
     :config
-    (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview" "--search-zip")))
+    ;; adding --search-zip can cause the PCRE engine to hit it's line limit. add `-- -z` to search zip files
+    (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview")))
     ($normalize-git-version 'counsel-git-cmd)
     ($normalize-git-version 'counsel-git-grep-cmd-default)
     ($normalize-git-version 'counsel-git-log-cmd)
@@ -1911,6 +1925,74 @@ Give us some breathing room
   (setq-default fill-column 80)
 #+END_SRC
 
+#+begin_src emacs-lisp
+  (defun backward-delete-word (arg)
+    "Delete characters backward until encountering the beginning of a word.
+  With argument ARG, do this that many times."
+    (interactive "p")
+    (delete-region (point) (progn (backward-word arg) (point))))
+
+  (defun delete-whole-line (&optional arg)
+    "delete current line.
+  With prefix ARG, delete that many lines starting from the current line.
+  If ARG is negative, delete backward.  Also delete the preceding newline.
+  \(This is meant to make \\[repeat] work well with negative arguments.)
+  If ARG is zero, delete current line but exclude the trailing newline."
+    (interactive "p")
+    (or arg (setq arg 1))
+    (if (and (> arg 0) (eobp) (save-excursion (forward-visible-line 0) (eobp)))
+        (signal 'end-of-buffer nil))
+    (if (and (< arg 0) (bobp) (save-excursion (end-of-visible-line) (bobp)))
+        (signal 'beginning-of-buffer nil))
+    (setq last-command 'delete-region)
+    (cond ((zerop arg)
+           (save-excursion
+             (delete-region (point) (progn (forward-visible-line 0) (point))))
+           (delete-region (point) (progn (end-of-visible-line) (point))))
+          ((< arg 0)
+           (save-excursion
+             (delete-region (point) (progn (end-of-visible-line) (point))))
+           (delete-region (point)
+                          (progn (forward-visible-line (1+ arg))
+                                 (unless (bobp) (backward-char))
+                                 (point))))
+          (t
+           (save-excursion
+             (delete-region (point) (progn (forward-visible-line 0) (point))))
+           (delete-region (point)
+                          (progn (forward-visible-line arg) (point))))))
+
+  (define-key minibuffer-local-map [C-backspace] 'backward-delete-word)
+  (define-key minibuffer-local-map [C-S-backspace] 'delete-whole-line)
+
+  (defun ivy-backward-delete-word ()
+    "Forward to `backward-delete-word'."
+    (interactive)
+    (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
+        (progn
+          (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
+          (ivy--exhibit))
+      (ignore-errors
+        (let ((pt (point))
+              (last-command (if (eq last-command 'ivy-backward-delete-word)
+                                'delete-region
+                              last-command)))
+          (forward-word -1)
+          (delete-region pt (point))))))
+
+  (defun ivy-delete-whole-line ()
+    "Forward to `delete-whole-line'."
+    (interactive)
+    (delete-region (minibuffer-prompt-end) (line-end-position)))
+
+  (with-eval-after-load 'ivy
+    (define-key ivy-minibuffer-map [C-S-backspace] 'ivy-delete-whole-line)
+    (define-key ivy-minibuffer-map [C-backspace] 'ivy-backward-delete-word))
+
+
+
+#+end_src
+
 *** TAB key
 Emacs has an interesting way of handling the tab key. Both <tab> and C-i share
 the same terminal keycode. This means that in terminal applications, using C-i
@@ -1955,8 +2037,9 @@ Use tab for completion if at a symbol
        "TAB" #'$copilot-tab
        "<tab>" #'$copilot-tab)
       (:keymaps 'copilot-completion-map
-       "M-n" #'copilot-next-completion
-       "M-p" #'copilot-previous-completion)
+       "M-n" #'copilot-accept-completion-by-line
+       "M-N" #'copilot-next-completion
+       "M-P" #'copilot-previous-completion)
       :init
       (setq copilot-max-char -1)
       (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
@@ -1976,6 +2059,8 @@ Use tab for completion if at a symbol
     (setq chatgpt-shell-model-version "gpt-4"))
 
   (evil-ex-define-cmd "chat" #'chatgpt-shell)
+  ($leader-set-key
+    "e" #'chatgpt-shell)
 #+end_src
 
 *** whitespace
@@ -2102,8 +2187,8 @@ Get the next input matching element
     :custom
     (lsp-idle-delay 1.0)
     (lsp-ui-sideline-show-code-actions t)
-    (lsp-ui-sideline-update-mode 'line)
-    (lsp-ui-doc-show-with-mouse nil))
+    (lsp-ui-sideline-update-mode 'point)
+    (lsp-ui-doc-show-with-mouse t))
 
   (advice-add #'lsp-execute-code-action :after
               (defun $evil-normal-state-advice (&rest _)
@@ -2112,6 +2197,42 @@ Get the next input matching element
   (use-package lsp-ivy)
 #+end_src
 
+**** LSP Booster
+[[https://github.com/blahgeek/emacs-lsp-booster][repo]]
+#+begin_src emacs-lisp
+  (defun lsp-booster--advice-json-parse (old-fn &rest args)
+    "Try to parse bytecode instead of json."
+    (or
+     (when (equal (following-char) ?#)
+       (let ((bytecode (read (current-buffer))))
+         (when (byte-code-function-p bytecode)
+           (funcall bytecode))))
+     (apply old-fn args)))
+
+
+  (defun lsp-booster--advice-final-command (old-fn cmd &optional test?)
+    "Prepend emacs-lsp-booster command to lsp CMD."
+    (let ((orig-result (funcall old-fn cmd test?)))
+      (if (and (not test?)                             ;; for check lsp-server-present?
+               (not (file-remote-p default-directory)) ;; see lsp-resolve-final-command, it would add extra shell wrapper
+               lsp-use-plists
+               (not (functionp 'json-rpc-connection))  ;; native json-rpc
+               (executable-find "emacs-lsp-booster"))
+          (progn
+            (message "Using emacs-lsp-booster for %s!" orig-result)
+            (cons "emacs-lsp-booster" orig-result))
+        orig-result)))
+
+  (unless ($dev-config-p)
+    (with-eval-after-load 'lsp-mode
+      (advice-add (if (progn (require 'json)
+                             (fboundp 'json-parse-buffer))
+                      'json-parse-buffer
+                    'json-read)
+                  :around
+                  #'lsp-booster--advice-json-parse)
+      (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)))
+#+end_src
 **** DAP
 Debug access protocol via either dap-mode or dape-mode
 
@@ -2317,7 +2438,10 @@ Add the default intel binary path the remote path so tramp can find up
 to date tools
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'tramp
-    (add-to-list 'tramp-remote-path "/usr/intel/bin"))
+    ;; fix an issue with invalid base64
+    (setq tramp-copy-size-limit nil)
+    (when ($dev-config-p)
+      (add-to-list 'tramp-remote-path "/usr/intel/bin")))
 #+END_SRC
 
 *** projects
@@ -2632,7 +2756,7 @@ email. automatically add the tramp header if from a different site
   (defun $get-path-at-point ()
     "Get the filepath at point.
   This includes remote paths and enviroment variables."
-    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#:_~\""))
+    (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#_~\""))
            (beg (car bounds))
            (end (cdr bounds))
            (path (buffer-substring-no-properties beg end)))
@@ -2836,7 +2960,7 @@ we don't need so many dired confirmation prompts
     (interactive)
     (dired default-directory))
 
-  ($leader-set-key "SPC" '$dired-here)
+  ($leader-set-key "d" '$dired-here)
 
   (with-eval-after-load 'dired-aux
     (add-to-list 'dired-compress-file-suffixes '("\\.gtar\\'" ".tar" nil)))
@@ -3838,8 +3962,10 @@ Fix ~org-open-file~ on WSL. Based on [[https://vxlabs.com/2020/03/07/patch-emacs
 #+BEGIN_SRC emacs-lisp
   (csetq org-agenda-todo-ignore-scheduled 'future
          org-agenda-tags-todo-honor-ignore-options t
-         org-agenda-dim-blocked-tasks 'invisible
-         org-agenda-files "~/org/.agenda-files")
+         org-agenda-dim-blocked-tasks 'invisible)
+
+  (when ($dev-config-p)
+    (setq org-agenda-files "~/org/.agenda-files"))
 
   ($leader-set-key
     "a" 'org-agenda)
@@ -3949,16 +4075,17 @@ things more clean and modern. load it after the export libraries are
 loaded so it does not effect startup time.
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'ox-html
-    (setq org-html-head
-          (concat
-           "<style type=\"text/css\">\n"
-           "<!--/*--><![CDATA[/*><!--*/\n"
-           (with-temp-buffer
-             (insert-file-contents
-              "~/.emacs.d/org-html-themes/styles/email/css/email.css")
-             (buffer-string))
-           "/*]]>*/-->\n"
-           "</style>\n")))
+    (when (file-exists-p "~/.emacs.d/org-html-themes/styles/email/css/email.css")
+      (setq org-html-head
+            (concat
+             "<style type=\"text/css\">\n"
+             "<!--/*--><![CDATA[/*><!--*/\n"
+             (with-temp-buffer
+               (insert-file-contents
+                "~/.emacs.d/org-html-themes/styles/email/css/email.css")
+               (buffer-string))
+             "/*]]>*/-->\n"
+             "</style>\n"))))
 #+END_SRC
 
 A simple function to export the current buffer as HTML and put it in
@@ -4464,7 +4591,9 @@ collect usage statistics and filter candidates based on that
       "eb" 'eval-buffer
       "er" 'eval-region
       "ef" 'eval-defun
-      "j"  'counsel-semantic-or-imenu))
+      "j"  'counsel-semantic-or-imenu)
+    :custom
+    (add-hook 'emacs-lisp-mode-hook (lambda () (setq-local tab-width 8))))
 #+END_SRC
 
 *** prettify symbols
@@ -4500,8 +4629,7 @@ never have to worry about tab indenting again.
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
     :straight
-    (:fork "CeleritasCelery/aggressive-indent-mode")
-    :hook emacs-lisp-mode)
+    (:fork "CeleritasCelery/aggressive-indent-mode"))
 #+END_SRC
 
 fix indentation of plists so that all properties align.
@@ -4744,8 +4872,9 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (if (version< emacs-version "29.1")
       (add-hook 'python-mode-hook #'lsp)
-    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
-    (add-hook 'python-base-mode-hook #'lsp))
+    (add-hook 'python-base-mode-hook #'lsp)
+    (add-hook 'python-base-mode-hook #'copilot-mode)
+    (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
   (unless ($dev-config-p)
     (use-package lsp-pyright :demand t :after python))
@@ -4780,10 +4909,10 @@ Inferior shell
      "q" 'quit-window)
     (:states '(normal) :keymaps 'rustic-mode-map
      "J" 'lsp-rust-analyzer-join-lines)
-    :init
-    ;; (setq rustic-treesitter-derive t)
     :custom
     (lsp-rust-analyzer-cargo-watch-command "clippy")
+    (lsp-rust-analyzer-lens-run-enable nil)
+    (lsp-rust-analyzer-lens-debug-enable nil)
     (lsp-rust-analyzer-proc-macro-enable t)
     (lsp-rust-clippy-preference "on")
     (rustic-compile-backtrace "1")
@@ -4791,6 +4920,7 @@ Inferior shell
     (rustic-cargo-use-last-stored-arguments t)
     (rustic-default-test-arguments "--tests --all-features")
     :config
+    (setenv "RUST_BACKTRACE" "full")
     (csetq rustic-ansi-faces (cl-map 'vector (lambda (x) (face-attribute x :foreground)) ansi-color-normal-colors-vector))
     (csetq rustic-clippy-arguments "--all-targets --all-features"))
 
