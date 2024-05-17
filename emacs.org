@@ -4923,7 +4923,7 @@ Inferior shell
   (evil-initial-state 'rustic-popup-mode 'emacs)
 
   (when (version<= "29.1" emacs-version)
-    (add-to-list 'major-mode-remap-alist '(rust-ts-mode  rustic-mode)))
+    (add-to-list 'major-mode-remap-alist '(rust-ts-mode . rustic-mode)))
 
   (with-eval-after-load 'org-src
     (add-to-list 'org-src-lang-modes '("rust" . rustic)))
