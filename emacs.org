@@ -599,16 +599,12 @@ not match the resolution of my monitor results in weird text sizes.
     "Use xrandr to resize my VNC window"
     (let ((default-directory "~/")
           (inhibit-message t))
-      (shell-command (concat "xrandr --size 2 && xrandr --size " size))))
+      (shell-command (concat "xrandr --size " size))))
 
   (defhydra vnc-resize (:columns 2 :exit t)
     "VNC Resize"
-    ("l" (vnc-resize "1920x1200") "single monitor (large)")
-    ("m" (vnc-resize "1536x864") "mobile")
-    ("w" (vnc-resize "3840x1200") "double monitor (wide)")
-    ("s" (vnc-resize "1920x1080") "short")
-    ("h" (vnc-resize "2400x1350") "huge")
-    ("r" (vnc-resize "1600x1200") "square"))
+    ("l" (vnc-resize "2560x1440") "large")
+    ("m" (vnc-resize "1536x864") "mobile"))
 
   (general-def 'normal "zn" 'vnc-resize/body)
 #+END_SRC
@@ -4559,20 +4555,21 @@ collect usage statistics and filter candidates based on that
 
 *** treesitter
 #+begin_src emacs-lisp
-(setq treesit-language-source-alist
-   '((bash "https://github.com/tree-sitter/tree-sitter-bash" "v0.20.5")
-     (cmake "https://github.com/uyha/tree-sitter-cmake")
-     (css "https://github.com/tree-sitter/tree-sitter-css" "v0.20.0")
-     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
-     (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
-     (html "https://github.com/tree-sitter/tree-sitter-html" "v0.20.1")
-     (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
-     (json "https://github.com/tree-sitter/tree-sitter-json" "v0.20.2")
-     (make "https://github.com/alemuller/tree-sitter-make")
-     (markdown "https://github.com/ikatyang/tree-sitter-markdown")
-     (python "https://github.com/tree-sitter/tree-sitter-python" "v0.20.4")
-     (toml "https://github.com/tree-sitter/tree-sitter-toml")
-     (yaml "https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0")))
+  (setq treesit-language-source-alist
+        '((bash "https://github.com/tree-sitter/tree-sitter-bash" "v0.20.5")
+          (cmake "https://github.com/uyha/tree-sitter-cmake")
+          (css "https://github.com/tree-sitter/tree-sitter-css" "v0.20.0")
+          (elisp "https://github.com/Wilfred/tree-sitter-elisp")
+          (go "https://github.com/tree-sitter/tree-sitter-go" "v0.20.0")
+          (html "https://github.com/tree-sitter/tree-sitter-html" "v0.20.1")
+          (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
+          (json "https://github.com/tree-sitter/tree-sitter-json" "v0.20.2")
+          (make "https://github.com/alemuller/tree-sitter-make")
+          (markdown "https://github.com/ikatyang/tree-sitter-markdown")
+          (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
+          (python "https://github.com/tree-sitter/tree-sitter-python" "v0.20.4")
+          (toml "https://github.com/tree-sitter/tree-sitter-toml")
+          (yaml "https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0")))
 #+end_src
 
 ** elisp
@@ -4880,7 +4877,6 @@ Setting to add jump to definition, auto-complete, and formatting to python mode
 
   (setq lsp-pylsp-plugins-flake8-enabled nil
         lsp-pylsp-plugins-pydocstyle-enabled nil
-        lsp-pylsp-plugins-pycodestyle-enabled t
         lsp-pylsp-plugins-pyflakes-enabled t)
 #+END_SRC
 
