@@ -28,6 +28,16 @@
     (setq $image-sort-first-file (cdr files))
     (find-file (car files))))
 
+(let ((base-dir "directory"))
+  (cl-loop for dir in (directory-files base-dir nil "[[:alpha:]]")
+           collect (cl-loop for file in (directory-files (concat base-dir dir) nil "[[:alpha:]]")
+                            collect (let ((parts (split-string file "_"))
+                                          (new))
+                                      (setcdr parts (cons dir (cdr parts)))
+                                      (setq new (string-join parts "_"))
+                                      (let ((default-directory (concat base-dir dir)))
+                                        (rename-file file (concat base-dir new)))))))
+
 (defun $image-sort-next-file ()
   (interactive)
   (if-let ((file (car $image-sort-first-file)))
