@@ -7,3 +7,4 @@ src/compilation.el
 site/
 /stash/
 /eln-cache/
+/tree-sitter/
