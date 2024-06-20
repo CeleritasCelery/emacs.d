@@ -3373,7 +3373,7 @@ a text object to get the current hunk
 ** shell
 
 #+BEGIN_SRC emacs-lisp
-  (when (or (eq system-type 'darwin) ($dev-config-p))
+  (when (eq system-type 'darwin)
     (csetq shell-file-name "bash"))
 #+END_SRC
 
@@ -3623,16 +3623,6 @@ only send a cd command if we are not already in that directory
 Always start in insert state
 #+BEGIN_SRC emacs-lisp
   (add-hook 'shell-pop-in-after-hook 'evil-insert-state)
-#+END_SRC
-
-my current bash prompt is 2 lines, so we always scroll one line down
-so that I can see the whole thing. probably need to make this code
-smarter
-#+BEGIN_SRC emacs-lisp
-  (advice-add 'shell-pop--cd-to-cwd
-              :after
-              (defun $scroll-shell-pop (_)
-                (scroll-down 1)))
 #+END_SRC
 
 fix [[https://github.com/kyagi/shell-pop-el/issues/51][kyagi/shell-pop-el#51]]
