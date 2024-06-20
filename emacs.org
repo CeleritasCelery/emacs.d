@@ -5006,7 +5006,7 @@ automatically detect it.
   (use-package tcl-mode
     :straight nil
     :gfhook #'$tcl-fix-symbol-def #'flycheck-mode
-    :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl") eos)
+    :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl" "iprocs") eos)
     :company ((company-syntcl company-dabbrev-code) (company-capf company-dabbrev))
     :general
     ('normal tcl-mode-map "gz" 'inferior-tcl)
@@ -5015,22 +5015,18 @@ automatically detect it.
      "j" 'counsel-semantic-or-imenu)
     (tcl-mode-map "C-<return>" '$send-command)
     :custom
-    (tcl-imenu-generic-expression
-     `((nil ,(rx bol (0+ space)
-                 (or "body" "class" "configbody" "method" "proc" "iProc" "iTopProc")
-                 (1+ space) (group (1+ (in alnum "-_:*+")))) 1)))
-    (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords)
     (flycheck-tcl-nagelfar-syntaxdb-file "~/custom/tcl_json_files/TclComplete/syntaxdb_tessent.tcl")
     (tcl-application "tclsh")
+    :init
+    (setq tcl-proc-list '("proc" "method" "class" "namespace" "iProc" "iTopProc" "tepam::procedure"))
     :config
-    (add-to-list 'tcl-proc-list "iProc")
-    (add-to-list 'tcl-proc-list "iTopProc")
     (add-to-list 'tcl-keyword-list "iProc")
     (add-to-list 'tcl-keyword-list "iTopProc")
+    (add-to-list 'tcl-keyword-list "tepam::procedure")
     (add-to-list 'tcl-typeword-list "iProcsForModule")
-    (setq tcl-builtin-list (append tcl-builtin-list '("iWrite" "iRead" "iApply" "iCall" "iTake" "iNote")))
-    (tcl-set-proc-regexp)
-    (tcl-set-font-lock-keywords))
+    (setq tcl-builtin-list (append tcl-builtin-list '("iWrite" "iRead" "iApply" "iCall" "iTake" "iNote" "iRunLoop")))
+    (tcl-set-font-lock-keywords)
+    (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords))
 
   (defun $tcl-fix-symbol-def ()
     (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
