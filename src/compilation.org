@@ -750,18 +750,18 @@ finished or running, and easily jump to the associated buffer.
     (memq (process-buffer proc) $compilation-stalled-buffers))
 
 
-  (defun $compilation-format-helm-candidate (buffer msg face)
+  (defun $compilation-format-candidate (buffer msg face)
     (cons (format "%-10s%s" (propertize msg 'face face) buffer)
           buffer))
 
   (defun $compilation-buffers-candidates ()
     "show the status of all current compilations and allow easy
-  access with helm"
+  access"
     (setq $compilation-finished-buffers
           (seq-uniq $compilation-finished-buffers (lambda (x y) (eq (car x) (car y)))))
-    ;; remove dead processes and buffers. If I kill buffers with helm
-    ;; but they were still running then they will never get updated. So
-    ;; we check for that at the start of every status.
+    ;; remove dead processes and buffers. If I kill buffers but they were still
+    ;; running then they will never get updated. So we check for that at the start
+    ;; of every status.
     (setq compilation-in-progress
           (cl-remove-if-not (lambda (proc)
                               (let ((buf (process-buffer proc)))
@@ -781,31 +781,26 @@ finished or running, and easily jump to the associated buffer.
                                           (funcall (or name compilation-buffer-name-function 'identity)
                                                    (string-remove-suffix "-mode" (symbol-name mode))))))
                                      $compilation-command-queue))
-           (formatted-stalled-buffers (--map ($compilation-format-helm-candidate (process-buffer it) "stalled" 'compilation-warning)
+           (formatted-stalled-buffers (--map ($compilation-format-candidate (process-buffer it) "stalled" 'compilation-warning)
                                              stalled-procs))
-           (formatted-running-buffers (--map ($compilation-format-helm-candidate (process-buffer it) "running" 'compilation-line-number)
+           (formatted-running-buffers (--map ($compilation-format-candidate (process-buffer it) "running" 'compilation-line-number)
                                              running-procs))
-           (formatted-waiting-buffers (--map ($compilation-format-helm-candidate it "waiting" 'term-color-cyan)
+           (formatted-waiting-buffers (--map ($compilation-format-candidate it "waiting" 'term-color-cyan)
                                              waiting-buffers))
            (formatted-finished-buffers (--map (let* ((buffer (car it))
                                                      (msg (cdr it))
                                                      (face (if (string-prefix-p "exited abnormally" msg)
                                                                'compilation-error
                                                              'compilation-info)))
-                                                ($compilation-format-helm-candidate buffer (string-remove-prefix "exited abnormally with " msg) face))
+                                                ($compilation-format-candidate buffer (string-remove-prefix "exited abnormally with " msg) face))
                                               finished-buffers)))
       (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers formatted-waiting-buffers)))
 
   (defun $compilation-jump-to-buffer ()
     "select from active and finished compilation buffers"
     (interactive)
-    (helm
-     :buffer "*Helm compilation buffers*"
-     :prompt "jump to compilation buffer: "
-     :sources (helm-build-sync-source
-                  "compilation buffers"
-                :candidates ($compilation-buffers-candidates)
-                :action helm-type-buffer-actions)))
+    (let ((buffers ($compilation-buffers-candidates)))
+      (switch-to-buffer (cdr (assoc (completing-read "jump to buffer: "  buffers) buffers)))))
 
 #+END_SRC
 

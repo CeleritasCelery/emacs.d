@@ -615,7 +615,7 @@ Apply theme changes immediately
 #+begin_src emacs-lisp
   (setq custom--inhibit-theme-enable nil)
 #+end_src
-Creating a collection of themes that I like. I can use =helm-themes=
+Creating a collection of themes that I like. I can use =counsel-themes=
 to switch between them. Some of these themes do not have all faces
 that I would like, so When I get some time I will modify them. See
 [[https://github.com/raxod502/straight.el/issues/265][this]] issue for conflict with challenger-deep and dracula.
@@ -1808,84 +1808,6 @@ prefer not to do.
      emacs-lisp-mode-map
      "i" 'evil-cp-insert
      "a" 'evil-cp-append))
-#+END_SRC
-
-** Helm
-I almost completely use Ivy now, but just have Helm for my custom process command.
-
-*** general
-
-we want to make the helm keybindings more evil friendly. also change
-the display function to be more consistent.
-#+BEGIN_SRC emacs-lisp
-  (use-package helm
-    :straight
-    (:fork "CeleritasCelery/helm")
-    :commands helm-find-files-1
-    :general
-    (:keymaps 'helm-map
-     "C-h" 'helm-next-source
-     "C-S-h" 'helm-help
-     "C-c C-h" 'describe-key
-     "C-l" "RET"
-     "C-z" 'helm-select-action
-     "TAB" 'helm-execute-persistent-action)
-    (:keymaps '(helm-find-files-map
-                helm-read-file-map)
-     "C-l" 'helm-execute-persistent-action
-     "C-h" 'helm-find-files-up-one-level)
-    ("M-y" 'helm-show-kill-ring)
-    :custom
-    (helm-split-window-in-side-p t)
-    (helm-buffer-max-length 60)
-    (helm-ff-candidate-number-limit 500)
-    (helm-ff-fuzzy-matching nil)
-    (helm-buffer-skip-remote-checking t)
-    (helm-echo-input-in-header-line t)
-    (helm-ff-delete-files-function 'helm-delete-marked-files-async)
-    (helm-adaptive-history-length 100)
-    (helm-find-files-ignore-thing-at-point t)
-    :config
-    (setq helm-grep-git-grep-command (concat "/usr/intel/bin/" helm-grep-git-grep-command)))
-#+END_SRC
-
-*** evil
-some hacks to make helm more evil compatible See
-[[https://github.com/syl20bnr/spacemacs/issues/3700][syl20bnr/spacemacs#3700]]
-#+BEGIN_SRC emacs-lisp
-  (defun $helm-unprevent-minibuffer-escape ()
-    (when helm-prevent-escaping-from-minibuffer
-      (general-def 'motion
-        [down-mouse-1] 'evil-mouse-drag-region)
-      (general-def 'normal
-        [mouse-2] 'mouse-yank-primary)))
-
-  (defun $helm-prevent-minibuffer-escape ()
-    (when helm-prevent-escaping-from-minibuffer
-      (general-def 'motion [down-mouse-1] nil)
-      (general-def 'normal [mouse-2] nil)))
-
-  (add-hook 'helm-after-initialize-hook #'$helm-prevent-minibuffer-escape)
-  (add-hook 'helm-cleanup-hook #'$helm-unprevent-minibuffer-escape)
-#+END_SRC
-
-*** ediff
-running ediff from helm is very convient. But the problem is that is
-not reproducible. You have to reselect the files everytime, which is
-time consuming. So we create a function to save the last ediff.
-#+BEGIN_SRC emacs-lisp
-  (defvar $ediff-targets nil
-    "The last two files that were diffed")
-  (defun $save-ediff-targets (&rest args)
-    "Save the last two ediffed files"
-    (setq $ediff-targets (car args)))
-  (advice-add 'ediff-files-internal :filter-args #'$save-ediff-targets)
-
-  (defun $run-last-ediff ()
-    "Run ediff with the last used files"
-    (interactive)
-    (apply 'ediff-files-internal $ediff-targets))
-  ($leader-set-key "fE" '$run-last-ediff)
 #+END_SRC
 
 ** editing
@@ -3910,7 +3832,6 @@ inherit the priority of the parent heading and make sure the default state is al
       (org-show-entry)
       (outline-show-children)))
   (advice-add 'counsel-org-goto :after '$org-show-current-heading-tidily)
-  (advice-add 'helm-org-in-buffer-headings :after '$org-show-current-heading-tidily)
 
 
   (defun $org-archive-done-tasks ()
@@ -4010,8 +3931,7 @@ to change outside of Emacs.
   (csetq org-refile-use-cache t)
 #+END_SRC
 
-since I am using helm, it makes the most sense to show the whole
-outline path instead of trying to refile in steps.
+show the whole outline path instead of trying to refile in steps.
 #+BEGIN_SRC emacs-lisp
   (csetq org-refile-use-outline-path 'file
          org-outline-path-complete-in-steps nil)
