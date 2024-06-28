@@ -79,6 +79,12 @@ Some settings need to be changed based on what user there is.
              (equal user-login-name  "sys_swisscld"))))
 #+END_SRC
 
+*** GPG
+Use Emacs for pinentry loopback
+#+begin_src emacs-lisp
+(setq epg-pinentry-mode 'loopback)
+#+end_src
+
 *** Settings
 
 #+BEGIN_SRC emacs-lisp
