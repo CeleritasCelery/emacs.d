@@ -3387,7 +3387,7 @@ these are utility functions used to setting up the Emacs shell.
     "previous shell directories")
   (make-variable-buffer-local '$dir-history)
 
-  (defun $select-shell-history ()
+  (defun $shell-directory-history ()
     "Select a previous directory using completing read"
     (interactive)
     (goto-char (point-max))
@@ -3395,7 +3395,7 @@ these are utility functions used to setting up the Emacs shell.
                                                 (completing-read "directory:" $dir-history)))))
 
   (general-def shell-mode-map
-    "C-c C-j" '$select-shell-history)
+    "C-c C-j" '$shell-directory-history)
 
   (defun $track-shell-directory (str)
     "use the proc filesytem to get the current directory.
@@ -3427,7 +3427,28 @@ these are utility functions used to setting up the Emacs shell.
     (modify-syntax-entry ?= "." shell-mode-syntax-table)
     (modify-syntax-entry ?> "." shell-mode-syntax-table)
     (modify-syntax-entry ?< "." shell-mode-syntax-table))
-  #+END_SRC
+
+  (defun $push-dir-to-history (dir)
+    (unless (equal dir (car $dir-history))
+      (push dir $dir-history)))
+
+  (defun $shell-mode-hook ()
+    (setq-local comint-prompt-regexp
+                ($rx bol (or (: symbol "(" nums ")%")
+                             (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
+                             (: "bash-" num "." num "$")
+                             (: (opt control "K") "|" (+ (not blank)) "|→")
+                             (: (+ (not blank)) "%")
+                             (: (* nonl) " %")
+                             (: symbol ">"))
+                     " "))
+    (setq-local evil-search-wrap nil)
+    (shell-dirtrack-mode)
+    (advice-add 'shell-cd :after #'$push-dir-to-history))
+  (advice-remove 'shell-cd #'$push-dir-to-history)
+
+  (add-hook 'shell-mode-hook '$shell-mode-hook)
+#+END_SRC
 
 generic wrapper function that can be called from other code.
 #+BEGIN_SRC emacs-lisp
@@ -3439,31 +3460,6 @@ generic wrapper function that can be called from other code.
         (shell-pop--cd-to-cwd dir)
       (let ((default-directory dir))
         (shell-pop arg))))
-#+END_SRC
-
-**** hook
-#+BEGIN_SRC emacs-lisp
-  (defun $remove-control-char-comint (str)
-    (replace-regexp-in-string "^(K|)" "" str))
-
-  (defun $shell-mode-hook ()
-    (setq-local comint-prompt-regexp
-                ($rx bol (or (: (opt control "K") "╰─→")
-                             (: symbol "(" nums ")%")
-                             (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
-                             (: "bash-" num "." num "$")
-                             (: (opt control "K") "|" (+ (not blank)) "|→")
-                             (: (+ (not blank)) "%")
-                             (: (* nonl) " %")
-                             (: symbol ">"))
-                     " "))
-    (setq-local evil-search-wrap nil)
-    (add-hook 'comint-preoutput-filter-functions '$remove-control-char-comint nil t)
-    (when ($dev-config-p)
-      (shell-dirtrack-mode 0)
-      (add-hook 'comint-preoutput-filter-functions '$track-shell-directory nil 'local)))
-
-  (add-hook 'shell-mode-hook '$shell-mode-hook)
 #+END_SRC
 
 **** send to shell
