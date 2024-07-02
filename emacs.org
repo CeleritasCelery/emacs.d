@@ -3349,33 +3349,6 @@ previous command it will automatically move us the the command line.
       (insert path)))
 #+END_SRC
 
-**** Redirection
-Redirection does not currently handle propertized mode lines. This fix changes
-that.
-#+begin_src emacs-lisp
-  (with-eval-after-load 'comint
-    (defun comint-redirect-setup (output-buffer
-                                  comint-buffer
-                                  finished-regexp
-                                  &optional echo-input)
-      (with-current-buffer comint-buffer
-        (setq-local comint-redirect-original-mode-line-process mode-line-process)
-        (setq-local comint-redirect-output-buffer output-buffer)
-        (setq-local comint-redirect-finished-regexp finished-regexp)
-        (setq-local comint-redirect-echo-input echo-input)
-        (setq-local comint-redirect-completed nil)
-        (setq-local comint-redirect-previous-input-string "")
-        (setq mode-line-process
-              (if mode-line-process
-                  (let ((mode-line (elt mode-line-process 0)))
-                    (cond ((stringp mode-line) (list (concat mode-line " Redirection")))
-                          ((and (consp mode-line)
-                                (eq :propertize (car mode-line)))
-                           (cons :propertize
-                             (cons (concat (cadr mode-line) " Redirection")
-                                   (cddr mode-line))))))
-                (list ":%s Redirection"))))))
-#+end_src
 *** shell
 these are utility functions used to setting up the Emacs shell.
 #+BEGIN_SRC emacs-lisp
