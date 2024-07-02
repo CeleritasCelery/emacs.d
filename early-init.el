@@ -1,5 +1,7 @@
 ;; early init -*- lexical-binding: t -*-
 
+;; used for straight.el boostrapping
+(setq package-enable-at-startup nil)
 (when (eq system-type 'darwin)
   ;; required for native compile to work
   ;; See https://github.com/d12frosted/homebrew-emacs-plus/issues/323#issuecomment-805490388
