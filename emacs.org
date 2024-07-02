@@ -3462,6 +3462,45 @@ generic wrapper function that can be called from other code.
         (shell-pop arg))))
 #+END_SRC
 
+**** fixes
+#+begin_src emacs-lisp
+  (el-patch-feature shell)
+  (with-eval-after-load 'shell
+    (el-patch-defun shell-eval-command (command)
+     "Eval COMMAND in the current shell process and return the result."
+     (let* ((proc (get-buffer-process (current-buffer)))
+            (old-filter (process-filter proc))
+            (result "")
+            prev)
+       (unwind-protect
+           (progn
+             (set-process-filter
+              proc
+              (lambda (_proc string)
+                (setq result (concat result string))))
+             (process-send-string proc command)
+             (while (el-patch-swap
+                      (not (let* ((lines (string-lines result))
+                                  (last (car (last lines))))
+                             (and (length> lines 0)
+                                  (not (equal last ""))
+                                  (or (not prev)
+                                      (not (equal last prev)))
+                                  (setq prev last))))
+                      (or (equal result "")
+                          (string-suffix-p "\n" result)))
+               (accept-process-output proc 0 100)))
+         ;; Restore old filter.
+         (set-process-filter proc old-filter))
+       ;; Remove the prompt.
+       (replace-regexp-in-string "\n.*\\'" "\n" result))))
+
+  (advice-add 'shell-eval-command
+              :filter-return
+    (defun $strip-ctrl-m (str)
+      (replace-regexp-in-string "\r" "" str nil t)))
+#+end_src
+
 **** send to shell
 Send the current region or line to the active process. Can be enabled in certain major modes.
 #+BEGIN_SRC emacs-lisp
@@ -3516,7 +3555,6 @@ progress bar from a shell and display it in the minibuffer.
       "%" "%%"
       (ansi-color-apply progress))))
 #+END_SRC
-
 *** Ansi term
 #+BEGIN_SRC emacs-lisp
   (add-hook 'term-mode-hook
