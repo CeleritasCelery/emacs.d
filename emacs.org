@@ -418,6 +418,8 @@ Setup the font that I want to use. Symbola is a backup font that has
 many unicode symbols
 #+BEGIN_SRC emacs-lisp
   (defvar $font-height 140)
+  (when ($dev-config-p)
+    (set-frame-font "-ADBO-Source Code Pro-regular-normal-normal-*-*-*-*-*-m-0-iso10646-1" t))
   (set-face-attribute 'default nil
                       :family (if (eq system-type 'windows-nt)
                                   "Consolas"
