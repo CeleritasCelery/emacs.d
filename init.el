@@ -1627,16 +1627,17 @@ that region."
 
 ;;;; Indentation level
 (defun $get-indent-level ()
-  (let ((indentation (buffer-substring-no-properties
-                      (line-beginning-position)
-                      (save-excursion (back-to-indentation)
-                                      (point)))))
-    (seq-reduce
-     #'+
-     (seq-map
-      (lambda (x) (if (eq x ?\t) tab-width 1))
-      indentation)
-     0)))
+  (save-excursion
+    (goto-char (line-beginning-position))
+    (let ((flag t)
+          (size 0))
+      (while flag
+        (let ((char (following-char)))
+          (cond ((eq char ?\s) (cl-incf size))
+                ((eq char ?\t) (cl-incf size tab-width))
+                (t (setq flag nil)))
+          (forward-char)))
+      size)))
 
 (defun $check-indent-level (indent)
   (or (looking-at-p (rx bol (0+ space) eol))
@@ -1650,7 +1651,7 @@ that region."
       (previous-line))))
 
 (defun $down-indent-level ()
-  "go up an indentation level"
+  "go down an indentation level"
   (interactive)
   (let ((indent ($get-indent-level)))
     (while ($check-indent-level indent)
