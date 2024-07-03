@@ -2908,6 +2908,10 @@ pop."
          (compilation-buffer-name-function (lambda (_mode) buffer-name)))
     (compile final-cmd (consp arg))))
 
+(defun $model-root (&optional dir)
+  "current model root"
+  (file-truename (expand-file-name (or (vc-git-root (or dir default-directory)) ""))))
+
 ;; compilation mode will throw warnings about clearing large buffers, but
 ;; we don't need undo in compilation buffers anyways so we can just turn
 ;; that off
