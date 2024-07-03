@@ -4172,7 +4172,7 @@ prompt in shell mode"
    "j" 'counsel-semantic-or-imenu))
 
 
-(if (version< emacs-version "29.1")
+(if (version< emacs-version "29.2")
     (add-hook 'python-mode-hook #'lsp)
   (add-hook 'python-base-mode-hook #'lsp)
   (add-hook 'python-base-mode-hook #'copilot-mode)
