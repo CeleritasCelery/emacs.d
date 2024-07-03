@@ -3295,18 +3295,10 @@ access"
                                            (or (not (buffer-live-p buffer))
                                                (memq (get-buffer-process buffer) compilation-in-progress)))
                                          $compilation-finished-buffers))
-         (waiting-buffers (mapcar  (lambda (command)
-                                     (get-buffer-create
-                                      (cl-destructuring-bind (_cmd mode name _dir _env) command
-                                        (funcall (or name compilation-buffer-name-function 'identity)
-                                                 (string-remove-suffix "-mode" (symbol-name mode))))))
-                                   $compilation-command-queue))
          (formatted-stalled-buffers (--map ($compilation-format-candidate (process-buffer it) "stalled" 'compilation-warning)
                                            stalled-procs))
          (formatted-running-buffers (--map ($compilation-format-candidate (process-buffer it) "running" 'compilation-line-number)
                                            running-procs))
-         (formatted-waiting-buffers (--map ($compilation-format-candidate it "waiting" 'term-color-cyan)
-                                           waiting-buffers))
          (formatted-finished-buffers (--map (let* ((buffer (car it))
                                                    (msg (cdr it))
                                                    (face (if (string-prefix-p "exited abnormally" msg)
@@ -3314,7 +3306,7 @@ access"
                                                            'compilation-info)))
                                               ($compilation-format-candidate buffer (string-remove-prefix "exited abnormally with " msg) face))
                                             finished-buffers)))
-    (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers formatted-waiting-buffers)))
+    (append formatted-stalled-buffers formatted-finished-buffers formatted-running-buffers)))
 
 (defun $compilation-jump-to-buffer ()
   "select from active and finished compilation buffers"
