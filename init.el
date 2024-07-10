@@ -1922,6 +1922,8 @@ FACE defaults to inheriting from default and highlight."
   (interactive)
   (find-file-existing (expand-file-name "init.el" user-emacs-directory)))
 
+(use-package async)
+
 (defun $async-delete-file (target &optional targets no-prompt)
   "delete a file or directory by moving it to a tmp location and
 then removing in the background"
