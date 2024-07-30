@@ -2563,6 +2563,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (comint-process-echoes t)
   (comint-prompt-read-only t))
 
+(use-package xterm-color)
+(defun $advice-compilation-filter (f proc string)
+  (funcall f proc (xterm-color-filter string)))
+(advice-add 'compilation-filter :around #'$advice-compilation-filter)
+
 (defun $goto-cmd-line (&rest _)
   (goto-char (point-max)))
 
