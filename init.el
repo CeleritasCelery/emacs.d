@@ -66,9 +66,7 @@
     `(progn ,@(nreverse forms))))
 
 (defun $dev-config-p ()
-  (and (not (eq system-type 'windows-nt))
-       (or (equal user-login-name "tjhinckl")
-           (equal user-login-name  "sys_swisscld"))))
+  (equal user-login-name "thinckley"))
 
 (setq epg-pinentry-mode 'loopback)
 
@@ -81,8 +79,6 @@
   "leader key for major mode specific commands")
 
 (setq inhibit-startup-screen t)
-(when ($dev-config-p)
-  (toggle-frame-fullscreen))
 
 (setq create-lockfiles nil
       auto-save-default nil
@@ -91,10 +87,6 @@
 (electric-pair-mode)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
-
-(when ($dev-config-p)
-  (add-to-list 'image-types 'gif)
-  (add-to-list 'image-types 'svg))
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load-file custom-file)
@@ -117,14 +109,8 @@
 (setq initial-major-mode 'fundamental-mode)
 
 ;;;; Environment
-
-(if ($dev-config-p)
-    (progn (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
-           (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/xhdk74/latest" exec-path))
-           (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path)))
-  (push "~/bin" exec-path)
-  (push "/Users/troyhinckley/Library/Python/3.9/bin" exec-path))
-
+(push "~/bin" exec-path)
+(push "/Users/troyhinckley/Library/Python/3.9/bin" exec-path)
 (push "~/.local/bin" exec-path)
 
 (setenv "PAGER" "cat")
@@ -142,8 +128,6 @@
 ;;; Package manager
 
 ;; Not sure if this is still needed
-(when ($dev-config-p)
-  (setq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git"))
 
 (setq straight-check-for-modifications '(check-on-save find-when-checking))
 
@@ -450,20 +434,9 @@
   :config
   ;; adding --search-zip can cause the PCRE engine to hit it's line limit. add `-- -z` to search zip files
   (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview")))
-  ($normalize-git-version 'counsel-git-cmd)
-  ($normalize-git-version 'counsel-git-grep-cmd-default)
-  ($normalize-git-version 'counsel-git-log-cmd)
   (ivy-configure 'counsel-company
     :display-fn 'ivy-display-function-overlay)
   (setq ivy-initial-inputs-alist nil))
-
-(defun $normalize-git-version (symbol)
-  (when ($dev-config-p)
-    (set symbol
-         (replace-regexp-in-string
-          (rx symbol-start "git ")
-          "/usr/intel/bin/git "
-          (symbol-value symbol)))))
 
 ($leader-local-set-key
   :keymaps 'org-mode-map
@@ -506,8 +479,6 @@
   (global-hl-line-mode))
 
 (defvar $font-height 140)
-(when ($dev-config-p)
-  (set-frame-font "-ADBO-Source Code Pro-regular-normal-normal-*-*-*-*-*-m-0-iso10646-1" t))
 (set-face-attribute 'default nil
                     :family (if (eq system-type 'windows-nt)
                                 "Consolas"
@@ -900,22 +871,6 @@ If INVERT, do the opposite of the normal behavior."
   :general
   (:definer 'leader "zw" 'zoom))
 
-(if ($dev-config-p)
-    (use-package yascroll
-      :defer 2
-      :init
-      (scroll-bar-mode -1)
-      (fringe-mode '(8 . 5))
-      :config
-      (global-yascroll-bar-mode)
-      (setq yascroll:disabled-modes '(compilation-mode bman-mode ipgen-mode))
-      (advice-add 'yascroll:enabled-buffer-p :filter-return #'$yascroll-disable-large-files))
-  (general-def "<Scroll_Lock>" 'ignore))
-
-(defun $yascroll-disable-large-files (ret)
-  (when (<= (buffer-size) 10000000)
-    ret))
-
 (use-package helpful
   :init
   ;; workaround for https://github.com/Wilfred/helpful/issues/282
@@ -1008,18 +963,13 @@ If INVERT, do the opposite of the normal behavior."
                 (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
   (plist-put ivy-rich-display-transformers-list
              'ivy-switch-buffer
-             (if ($dev-config-p)
-                 '(:columns
-                   ((ivy-rich-candidate (:width 200)))
-                   :predicate
-                   (lambda (cand) (get-buffer cand)))
-               '(:columns
-                 ((ivy-rich-candidate (:width 200))
-                  (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                  (ivy-rich-switch-buffer-major-mode (:width 15 :face warning))
-                  (ivy-rich-switch-buffer-project (:width 25 :face success)))
-                 :predicate
-                 (lambda (cand) (get-buffer cand)))))
+             '(:columns
+               ((ivy-rich-candidate (:width 200))
+                (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                (ivy-rich-switch-buffer-major-mode (:width 15 :face warning))
+                (ivy-rich-switch-buffer-project (:width 25 :face success)))
+               :predicate
+               (lambda (cand) (get-buffer cand))))
   (plist-put ivy-rich-display-transformers-list
              'counsel-describe-function
              '(:columns
@@ -1151,12 +1101,9 @@ If INVERT, do the opposite of the normal behavior."
   (setq lexical-binding t))
 
 ($leader-set-key
-  "rg" '$counsel-rg-here
-  "rr" '$counsel-rg-root)
-
-($leader-set-key
   "ss" '$counsel-rg-here
-  "sr" '$counsel-rg-root)
+  "sr" '$counsel-rg-root
+  "j" 'counsel-semantic-or-imenu)
 
 (general-def 'insert
   "C-v" 'yank
@@ -1439,22 +1386,21 @@ If ARG is zero, delete current line but exclude the trailing newline."
   (or (copilot-accept-completion)
       (indent-for-tab-command)))
 
-(unless ($dev-config-p)
-  (use-package copilot
-    :straight (:host github :repo "zerolfx/copilot.el"
-               :files ("dist" "copilot.el" "copilot-balancer.el"))
-    :general
-    (:states '(insert) :keymaps 'copilot-mode-map
-     "C-c c" #'copilot-complete
-     "TAB" #'$copilot-tab
-     "<tab>" #'$copilot-tab)
-    (:keymaps 'copilot-completion-map
-     "M-n" #'copilot-accept-completion-by-line
-     "M-N" #'copilot-next-completion
-     "M-P" #'copilot-previous-completion)
-    :init
-    (setq copilot-max-char -1)
-    (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el"
+             :files ("dist" "copilot.el" "copilot-balancer.el"))
+  :general
+  (:states '(insert) :keymaps 'copilot-mode-map
+   "C-c c" #'copilot-complete
+   "TAB" #'$copilot-tab
+   "<tab>" #'$copilot-tab)
+  (:keymaps 'copilot-completion-map
+   "M-n" #'copilot-accept-completion-by-line
+   "M-N" #'copilot-next-completion
+   "M-P" #'copilot-previous-completion)
+  :init
+  (setq copilot-max-char -1)
+  (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll)))
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
@@ -1590,15 +1536,14 @@ that region."
           (cons "emacs-lsp-booster" orig-result))
       orig-result)))
 
-(unless ($dev-config-p)
-  (with-eval-after-load 'lsp-mode
-    (advice-add (if (progn (require 'json)
-                           (fboundp 'json-parse-buffer))
-                    'json-parse-buffer
-                  'json-read)
-                :around
-                #'lsp-booster--advice-json-parse)
-    (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)))
+(with-eval-after-load 'lsp-mode
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command))
 
 ($leader-set-key
   "n" '(:ignore t :wk "narrow")
@@ -1744,11 +1689,8 @@ that region."
 (use-package pcre2el
   :commands reb-change-syntax)
 
-(with-eval-after-load 'tramp
-  ;; fix an issue with invalid base64
-  (setq tramp-copy-size-limit nil)
-  (when ($dev-config-p)
-    (add-to-list 'tramp-remote-path "/usr/intel/bin")))
+;; fix an issue with invalid base64
+;; (setq tramp-copy-size-limit 10240)
 
 ;;;; Projects
 
@@ -2338,10 +2280,9 @@ directory pointing to the same file name"
   :custom
   (vdiff-diff-algorithm 'git-diff-patience))
 
-(unless ($dev-config-p)
-  (use-package pdf-tools
-    :init
-    (pdf-loader-install)))
+(use-package pdf-tools
+  :init
+  (pdf-loader-install))
 
 ;;;;;;;;
 ;;;; Git
@@ -2368,8 +2309,6 @@ directory pointing to the same file name"
   (magit-mode-map
    "SPC" nil)
   :init
-  (when ($dev-config-p)
-    (setq magit-git-executable "/usr/intel/bin/git"))
   ($leader-set-key
     "g" '(:ignore t :wk "git"))
   (evil-ex-define-cmd "git" 'magit-status)
@@ -2384,9 +2323,6 @@ directory pointing to the same file name"
     (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote))
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
-
-(when ($dev-config-p)
-  (csetq magit-delete-by-moving-to-trash nil))
 
 ;; improve [[https://magit.vc/manual/magit/Performance.html][performance]] by
 ;; only reverting buffers in the local repo
@@ -2506,6 +2442,14 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :config
   (push `((nil . ,(rx (opt "$git-hunk/") "git-gutter:")) . (nil . "")) which-key-replacement-alist)
   (global-git-gutter-mode))
+
+;; Don't load git gutter over tramp by default
+(with-eval-after-load 'git-gutter
+  (el-patch-defun git-gutter--turn-on ()
+   (when (and (buffer-file-name)
+              (not (memq major-mode git-gutter:disabled-modes))
+              (el-patch-add (not (file-remote-p (buffer-file-name)))))
+     (git-gutter-mode +1))))
 
 (use-package git-gutter-fringe
   :demand t
@@ -2666,15 +2610,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (push dir $dir-history)))
 
 (defun $shell-mode-hook ()
-  (setq-local comint-prompt-regexp
-              ($rx bol (or (: symbol "(" nums ")%")
-                           (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
-                           (: "bash-" num "." num "$")
-                           (: (opt control "K") "|" (+ (not blank)) "|→")
-                           (: (+ (not blank)) "%")
-                           (: (* nonl) " %")
-                           (: symbol ">"))
-                   " "))
+  ;; only used for native complete. See `tramp-shell-prompt-pattern' for a more
+  ;; robust version.
+  (setq-local comint-prompt-regexp ($rx (or "%" "$" ">" "→") " "))
   (setq-local evil-search-wrap nil)
   (shell-dirtrack-mode)
   (advice-add 'shell-cd :after #'$push-dir-to-history))
@@ -2906,9 +2844,7 @@ pop."
                             (format "*%s - %s*" root cmd-name)
                           (format "*%s/.../%s - %s*" root dir cmd-name))))
          (env-var? (lambda (x) (string-match-p "=" x)))
-         (parts (if ($dev-config-p)
-                    (split-string cmd)
-                  (split-string-shell-command cmd)))
+         (parts (split-string-shell-command cmd))
          (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
          (compilation-environment (append (-take-while env-var? parts)
                                           (list (concat "MODEL_ROOT=" model-root))))
@@ -3031,119 +2967,9 @@ pop."
 
 (add-hook 'next-error-hook '$correct-connection-line-number)
 
-(when ($dev-config-p)
-  (setq $compilation-error-regexp-alist
-        `((,(err-rx ^ "-I-:Error-" ->
-                    "\n-I-:" filename ", " line)
-           1 2)
-          (,(err-rx ^ "-E-:SGDFT" -> "FAILED"
-                    "\n-I-:  Error" ->
-                    "\n-I-:  Use" ->
-                    "\n-I-:Report: " filename)
-           1)
-          (,(err-rx ^ spc+ "simregress invocation failed on " ->
-                    "\n" spc+ "Refer to " -> ": " filename)
-           1)
-          (,(err-rx ^ "Error-[" (group-n 3 ->) "]" ->
-                    "\n" filename ", " line)
-           1 2 nil nil nil (3 'warning))
-          (,(err-rx ^ "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
-                    filename)
-           1)
-          (,(err-rx ^ "  Log: " filename)
-           1 nil nil 1)
-          (,(err-rx ^ "UPFSEM_4" spc+ (1+ word) spc+
-                    filename spc+ line)
-           1 2)
-          (,(err-rx ^ "Errormessage   : Failed to open input file ["
-                    filename "]")
-           1)
-          (,(err-rx ^ info "  Error occurred at File: " filename " Line: " line)
-           1 2)
-          (,(err-rx ^ "-I-:-E-:" symbol ": invalid HSD waiver: " -> " file '" filename "'")
-           1)
-          (,(err-rx ^ line ": " (or "OVM" "UVM") (or "_ERROR" "_FATAL") " ")
-           (0 "acerun.log.gz") 2)
-          (,(err-rx ^ line ": Error: \"")
-           (0 "acerun.log.gz") 2)
-          (,(err-rx ^ (or "OVM" "UVM") (or "_ERROR" "_FATAL") " " filename ":" line " @ ")
-           1 2)
-          (,(err-rx ^ "-I-:ERROR: " symbol " has " nums " upf error" (opt "s")
-                    "\n-I-:Check: " filename)
-           1)
-          (,(err-rx ^ "-I-:Detailed violation log for sgdft_drc for " symbol ": " filename)
-           1)
-          (,(err-rx ^ "-E-:Error in stage bman." symbol ".vclp." symbol ":"
-                    "\n-I-:***** Cat'ing logs *****"
-                    "\n-I-:Executing: cat " filename)
-           1)
-          (,(err-rx ^ "-I-:" (opt "DIE signal:") " ERROR " nums ": Couldn't find directory '" filename "'")
-           1)
-          (,(err-rx ^ "-F-:Failing test in " filename)
-           1)
-          (,(err-rx ^ "-I-:FAILED: Exit status of pid " nums " was '" nums "', user expected '0'; LOG " filename)
-           1)
-          ;; this used to be in ipgen, may need to be in both
-          (,(err-rx ^ "Information: script '" filename
-                    "'\n" spc+ "stopped at line " line ->)
-           1 2)
-          (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
-           1 2)
-          (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file " (or "adhoc" "std") " connection file " filename
-                    " \n Error at line# " line)
-           $follow-connection-file 2)
-          (,(err-rx ^ "ERROR: couldn't parse " filename ":")
-           1)
-          (,(err-rx ^ "FATAL                (F) Exception caught: " (1+ nonl) " at " filename " line " line)
-           1 2)
-          (,(err-rx ^ "//  Error: File: " filename ", Line: " line ": " (1+ nonl))
-           1 2)
-          (,(err-rx ^ filename ":" line ": [Error]" (1+ nonl))
-           1 2)
-          (,(err-rx ^ "Failed Logs:"
-                    "\n\t" filename)
-           1)
-          (,(err-rx ^ "-E- Can't add parameter '" symbol "' because it already exists at " filename " line " line)
-           1 2)
-          (,(err-rx ^ "Error-[MPD] Module previously declare" (group-n 1 nonl))
-           $prev-declaration-file)
-          (,(err-rx ^ "    FileName     : " filename
-                    "\n    LineNumber   : " line)
-           1 2)
-          (,(err-rx ^ "syntax error at " filename " line " line)
-           1 2)
-          (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
-                    "\n  Source file \"" filename "\"")
-           1)
-          (,(err-rx ^ "Error-[URMI] Unresolved modules"
-                    "\n" filename ", " line)
-           1 2)
-          (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
-           $find-par-file)
-          (,(err-rx ^ "-E- Lintra [1051] " filename "(" line ")" -> ":" (group-n 3 ->) ":")
-           1 2 nil nil nil (3 'warning))
-          (,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
-           $bman-skip-intermediate-log)
-          (,(err-rx ^ "ERROR: In file '" filename "':")
-           1)
-          (,(err-rx ^ "Error-[SE] Syntax error"
-                    "\n  Following verilog source has syntax error :"
-                    "\n  \"" filename "\"," (opt "\n ") " " line ":")
-           1 2)
-          (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
-                    "\n" filename ", " line)
-           1 2)
-          (,(err-rx ^ filename ": undefined reference to `" symbol "'")
-           1)
-          (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
-           $bman-find-generic-log)
-          (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
-          (,(err-rx ^ "// 'DOFile " filename "' aborted at line " line)
-           1 2)))
-  (setq compilation-error-regexp-alist $compilation-error-regexp-alist)
-  (with-eval-after-load 'verilog-mode
-    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
-    (setq compilation-error-regexp-alist $compilation-error-regexp-alist)))
+;; This adds a ton of regex that we don't need
+(with-eval-after-load 'verilog-mode
+    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs))
 
 ;; There is an issue where an error message spans multiple lines, the font lock
 ;; engine will sometimes stop parsing in the middle of it and therefore it will
@@ -3499,9 +3325,6 @@ it from todays agenda."
        org-agenda-tags-todo-honor-ignore-options t
        org-agenda-dim-blocked-tasks 'invisible)
 
-(when ($dev-config-p)
-  (setq org-agenda-files "~/org/.agenda-files"))
-
 ($leader-set-key
   "a" 'org-agenda)
 (general-def org-agenda-mode-map "o" 'org-agenda-log-mode)
@@ -3706,9 +3529,6 @@ work, so I copy links and paste them into chrome."
       (message "copied org link: %s"
                (kill-new (org-element-property :raw-link context))))))
 
-(when ($dev-config-p)
-  (add-hook 'org-open-at-point-functions '$org-copy-url))
-
 (setq org-return-follows-link t)
 
 ;;;; editing
@@ -3735,8 +3555,6 @@ work, so I copy links and paste them into chrome."
 (add-hook 'org-mode-hook
           (defun $enable-company-spell ()
             (setq-local company-backends '(company-capf (company-ispell company-dabbrev)))
-            (when ($dev-config-p)
-              (setq-local company-frontends '(company-preview-frontend)))
             (company-mode)))
 
 (use-package org-variable-pitch
@@ -3894,8 +3712,6 @@ work, so I copy links and paste them into chrome."
   (company-backends '((company-capf company-dabbrev-code company-keywords)
                       company-dabbrev))
   :config
-  (unless ($dev-config-p)
-    (company-posframe-mode))
   (advice-add 'company-select-previous :before-until #'$company-select-prev-or-comint-match-input))
 
 (defun $company-select-prev-or-comint-match-input (&optional _)
@@ -3909,8 +3725,7 @@ prompt in shell mode"
 (with-eval-after-load 'company-dabbrev-code
   (add-to-list 'company-dabbrev-code-modes 'shell-mode))
 
-(unless ($dev-config-p)
-  (use-package company-posframe))
+(use-package company-posframe)
 
 ;; https://github.com/doomemacs/doomemacs/commit/2e476de44693c9f4953f3c467284e88b28b6084e
 (add-hook 'evil-local-mode-hook
@@ -3952,8 +3767,7 @@ prompt in shell mode"
     "ee" 'eval-last-sexp
     "eb" 'eval-buffer
     "er" 'eval-region
-    "ef" 'eval-defun
-    "j"  'counsel-semantic-or-imenu)
+    "ef" 'eval-defun)
   :custom
   (add-hook 'emacs-lisp-mode-hook (lambda () (setq-local tab-width 8))))
 
@@ -4092,8 +3906,7 @@ prompt in shell mode"
   :general
   (:definer 'leader
    :keymaps 'perl-mode-map
-   "r" 'quickrun
-   "j" 'counsel-semantic-or-imenu)
+   "r" 'quickrun)
   :init
   (setq perl-indent-parens-as-block t
         perl-continued-brace-offset 0
@@ -4151,14 +3964,7 @@ prompt in shell mode"
    "fs" 'perltidy-subroutine))
 
 ;;;; Python
-(defvar $python-executable (if ($dev-config-p) "python3.6.3a" "python3"))
-
 (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
-
-(setq python-shell-interpreter $python-executable
-      flycheck-python-flake8-executable $python-executable
-      flycheck-python-pycompile-executable $python-executable
-      flycheck-python-pylint-executable $python-executable)
 
 (use-package yapfify)
 
@@ -4168,23 +3974,18 @@ prompt in shell mode"
 
 (use-package python
   :straight nil
-  :interpreter ("python[a-z0-9.]*" . python-mode)
   :compdef python-mode
-  :company (company-capf company-dabbrev-code)
-  :general
-  (:definer 'leader
-   :keymaps '(python-mode-map python-ts-mode-map)
-   "j" 'counsel-semantic-or-imenu))
+  :company (company-capf company-dabbrev-code))
 
 
 (if (version< emacs-version "29.2")
     (add-hook 'python-mode-hook #'lsp)
   (add-hook 'python-base-mode-hook #'lsp)
-  (add-hook 'python-base-mode-hook #'copilot-mode)
+  (unless ($dev-config-p)
+    (add-hook 'python-base-mode-hook #'copilot-mode))
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
-(unless ($dev-config-p)
-  (use-package lsp-pyright :demand t :after python))
+(use-package lsp-pyright :demand t :after python)
 
 (setq lsp-pylsp-plugins-flake8-enabled nil
       lsp-pylsp-plugins-pydocstyle-enabled nil
@@ -4204,7 +4005,6 @@ prompt in shell mode"
   :gfhook #'copilot-mode
   :general
   (:definer 'leader :keymaps 'rustic-mode-map
-   "j" 'counsel-semantic-or-imenu
    "m" 'lsp-rust-analyzer-expand-macro)
   (:states '(normal) :keymaps 'comint-mode-map
    "q" 'quit-window)
@@ -4234,17 +4034,13 @@ prompt in shell mode"
   (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 
 ;;;; C
-(unless ($dev-config-p)
-  (add-hook 'c-mode-hook #'lsp))
+(add-hook 'c++-mode-hook #'lsp)
+(add-hook 'c-mode-hook #'lsp)
 
 ;;; Verilog
 (use-package verilog-mode
   :straight nil
   :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl" "sv09") eos)
-  :general
-  (:definer 'leader
-   :keymaps 'verilog-mode-map
-   "j" 'counsel-semantic-or-imenu)
   :config
   (add-to-list 'verilog-imenu-generic-expression
                `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
@@ -4287,8 +4083,6 @@ prompt in shell mode"
   :general
   ('normal tcl-mode-map "gz" 'inferior-tcl)
   (tcl-mode-map "TAB" 'indent-for-tab-command)
-  (:definer 'leader :keymaps 'tcl-mode-map
-   "j" 'counsel-semantic-or-imenu)
   (tcl-mode-map "C-<return>" '$send-command)
   :custom
   (flycheck-tcl-nagelfar-syntaxdb-file "~/custom/tcl_json_files/TclComplete/syntaxdb_tessent.tcl")
@@ -4307,15 +4101,15 @@ prompt in shell mode"
 (defun $tcl-fix-symbol-def ()
   (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
 
-(when ($dev-config-p)
-  (use-package company-syntcl
-    :straight
-    (:repo "https://github.com/tjhinckl/company-syntcl.git"
-     :files ("company-syntcl.el"))
-    :custom
-    (company-syntcl-dir "~/custom/TclComplete")
-    :config
-    (defun company-syntcl--annotation (_) nil)))
+;; (when ($dev-config-p)
+;;   (use-package company-syntcl
+;;     :straight
+;;     (:repo "https://github.com/tjhinckl/company-syntcl.git"
+;;      :files ("company-syntcl.el"))
+;;     :custom
+;;     (company-syntcl-dir "~/custom/TclComplete")
+;;     :config
+;;     (defun company-syntcl--annotation (_) nil)))
 
 ;;;; ICL
 
@@ -4333,7 +4127,6 @@ prompt in shell mode"
   (modify-syntax-entry ?\' "." icl-mode-syntax-table)
   (modify-syntax-entry ?$ "." icl-mode-syntax-table))
 
-(general-def :definer 'leader :keymaps 'icl-mode-map "j" 'counsel-semantic-or-imenu)
 (add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
 
 (defun icl-broken-line-p ()
@@ -4376,9 +4169,6 @@ prompt in shell mode"
 ;;;; JSON
 (use-package json-mode
   :gfhook 'flycheck-mode 'hs-minor-mode
-  :init
-  (when ($dev-config-p)
-    (setq flycheck-json-python-json-executable $python-executable))
   :config
   (add-to-list 'hs-special-modes-alist (list 'json-mode (rx (any "{[")) (rx (any "]}")) (rx "/" (any "/*"))))
   (font-lock-add-keywords 'json-mode
@@ -4461,3 +4251,5 @@ prompt in shell mode"
                      (find-file (string-remove-suffix ".gz" file))))
           (auto-revert-mode))
       (user-error "commandline not found"))))
+
+(setenv "LIBRARY_PATH")
