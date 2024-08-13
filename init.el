@@ -872,10 +872,11 @@ If INVERT, do the opposite of the normal behavior."
   (:definer 'leader "zw" 'zoom))
 
 (use-package helpful
+  :straight
+  (:fork "CeleritasCelery/helpful")
+  :general ("C-h k" 'helpful-key)
   :init
-  ;; workaround for https://github.com/Wilfred/helpful/issues/282
-  (setq read-symbol-positions-list nil)
-  :general ("C-h k" 'helpful-key))
+  (setq helpful-hide-docstring-in-source t))
 
 (setq help-window-select t)
 
