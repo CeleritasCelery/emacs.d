@@ -1502,7 +1502,14 @@ that region."
   (lsp-idle-delay 1.0)
   (lsp-ui-sideline-show-code-actions t)
   (lsp-ui-sideline-update-mode 'point)
-  (lsp-ui-doc-show-with-mouse t))
+  (lsp-ui-doc-show-with-mouse t)
+  :config
+  ;; https://github.com/emacs-lsp/lsp-mode/issues/2255
+  (defface lsp-flycheck-info-unnecessary
+    '((t))
+    "Face which apply to side line for symbols not used.
+Possibly erroneously redundant of lsp-flycheck-info-unnecessary-face."
+    :group 'lsp-ui-sideline))
 
 (advice-add #'lsp-execute-code-action :after
             (defun $evil-normal-state-advice (&rest _)
