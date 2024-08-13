@@ -976,7 +976,8 @@ If INVERT, do the opposite of the normal behavior."
              '(:columns
                ((counsel-describe-function-transformer (:width 40))
                 (ivy-rich-counsel-function-docstring (:width 70 :face font-lock-doc-face)))))
-  (ivy-rich-mode))
+  (ivy-rich-mode)
+  (ivy-rich-project-root-cache-mode))
 
 (defun $ivy-rich-counsel-find-file-truename (candidate)
   (let ((type (and (not (file-remote-p ivy--directory))
