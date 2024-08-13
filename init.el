@@ -4228,32 +4228,4 @@ prompt in shell mode"
 
 (add-to-list 'auto-mode-alist `(,(rx "itools" eos) . conf-mode))
 
-(defun $rerun-postprocess ()
-  "Rerun the postprocess file for the current postsim"
-  (interactive)
-  (let ((file (buffer-file-name))
-        (cmdline (save-excursion
-                   (goto-char (point-min))
-                   (when (re-search-forward ($rx bol "POSTSIM CMDLINE: " (group ->)))
-                     (match-string 1))))
-        (shell-file-name "/usr/intel/bin/tcsh")
-        (src-file (car (file-expand-wildcards
-                        (expand-file-name
-                         "target/*/collage/work/*/setup_collage_assembler.*_collage_assemble.csh"
-                         ($model-root))))))
-    (if cmdline
-        (progn
-          (setq cmdline
-                (thread-last (unless (string-prefix-p "-force" cmdline)
-                               (concat cmdline " -force"))
-                  (replace-regexp-in-string ($rx "/tmp/netbatch/" -> "//") "$MODEL_ROOT/" )
-                  (replace-regexp-in-string (rx "acerun.log" symbol-end) "acerun.log.gz")))
-          (shell-command-to-string
-           (format "source %s && setenv PATH ${PATH}:$ACE_HOME/bin && %s" src-file cmdline))
-          (if (string-suffix-p ".gz" file)
-              (progn (kill-buffer)
-                     (find-file (string-remove-suffix ".gz" file))))
-          (auto-revert-mode))
-      (user-error "commandline not found"))))
-
 (setenv "LIBRARY_PATH")
