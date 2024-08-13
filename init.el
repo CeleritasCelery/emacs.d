@@ -2068,9 +2068,7 @@ This includes remote paths and enviroment variables."
 (defun $change-model ()
   "Open a model in workspace"
   (interactive)
-  (let ((default-directory (if ($dev-config-p)
-                               "~/workspace/"
-                             "~/"))
+  (let ((default-directory "~/")
         (major-mode 'fundamental-mode))
     (counsel-find-file)))
 
