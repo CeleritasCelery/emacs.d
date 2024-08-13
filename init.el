@@ -1424,8 +1424,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
   :config
   (setq ws-butler-convert-leading-tabs-or-spaces t))
 
-(csetq require-final-newline t)
-
 (with-eval-after-load 'whitespace
   (delq 'lines whitespace-style))
 
