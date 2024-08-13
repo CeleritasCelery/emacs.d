@@ -4117,8 +4117,8 @@ prompt in shell mode"
 
 ;;;; ICL
 
-(define-derived-mode icl-mode c-mode "ICL"
-  (setq-local c-basic-offset 3)
+(define-derived-mode icl-mode java-mode "ICL"
+  (setq-local c-basic-offset 2)
   (setq-local indent-line-function 'icl-indent-line)
   (setq-local font-lock-defaults '(icl-font-lock-keywords))
   (setq-local comment-start "//")
