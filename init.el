@@ -362,7 +362,7 @@
      ("s" (lambda (x) (counsel-rg nil x)) "search")
      ("f" $ivy-file-jump "find")
      ("o" find-file-other-window "other window")
-     ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
+     ("x" (lambda (x) ($counsel-shell-pop ivy-current-prefix-arg nil x)) "shell")
      ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
 (defun $ivy-yank (x)
@@ -2623,11 +2623,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (setq-local evil-search-wrap nil)
   (shell-dirtrack-mode)
   (advice-add 'shell-cd :after #'$push-dir-to-history))
-(advice-remove 'shell-cd #'$push-dir-to-history)
 
 (add-hook 'shell-mode-hook '$shell-mode-hook)
 
-(defun $shell-pop (arg buffer dir)
+(defun $counsel-shell-pop (arg buffer dir)
   "shell-pop to current buffers directory or dir"
   (if (and (boundp 'shell-pop-last-shell-buffer-name)
            (equal (buffer-name buffer)
