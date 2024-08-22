@@ -4187,6 +4187,9 @@ prompt in shell mode"
                         `((,($rx spc (group (>= 1 (in "-")) symbol))
                            1 font-lock-constant-face)))
 
+(use-package bazel
+  :defer 10)
+
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
 ;; https://github.com/Tux/tcsh/blob/master/csh-mode.el fixes that.
