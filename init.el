@@ -381,7 +381,8 @@
   ($ivy-yank (mapconcat 'identity x "\n")))
 
 (defun $yank-file-name (x)
-  (kill-new ($correct-file-path x)))
+  (let ((file ($correct-file-path x)))
+    (kill-new (string-remove-prefix (or (file-remote-p x) "") x))))
 
 (defun $yank-file-name-list (x)
   (kill-new
@@ -786,18 +787,22 @@ current window."
   (if-let ((file-name (or (buffer-file-name)
                           list-buffers-directory
                           default-directory)))
-      (progn (kill-new ($correct-file-path file-name arg))
+      (progn (kill-new (string-remove-prefix
+                        (or (file-remote-p file-name) "")
+                        ($correct-file-path file-name arg)))
              (message (current-kill 0)))
     (error "Buffer not visiting a file")))
 
 (defun $correct-file-path (file &optional invert)
   "If file is in a work disk, get the absolute path.
 If INVERT, do the opposite of the normal behavior."
-  (let ((home (expand-file-name "~")))
+  (let* ((remote (file-remote-p file))
+         (home (expand-file-name
+               (concat remote "~"))))
     (if (eq (null invert)
-            (or (string-prefix-p (concat home "/workspace") file)
-                (string-prefix-p (concat home "/bundle") file)
-                (string-prefix-p (concat home "/temp") file)))
+            (string-prefix-p
+             (concat home "/workspace")
+             file))
         (file-truename file)
       file)))
 
@@ -1929,26 +1934,21 @@ then removing in the background"
       (string-remove-prefix (or (file-remote-p it) "") it)
       (setenv "MODEL_ROOT" it)))
   ;; add remote url if required
-  (let* ((current-site (getenv "EC_SITE"))
-         (target-site (if (string-match (rx bos "/nfs/" (group (1+ word))) file)
-                          (match-string 1 file)
-                        current-site))
-         (remote-url (if (or (equal target-site "site")
-                             (equal current-site target-site))
-                         ""
-                       (format "/%s:%s:" tramp-default-method target-site))))
+  (let* ((remote-url (if (file-name-absolute-p file)
+                         (file-remote-p default-directory)
+                       "")))
     (when (and (not (string-suffix-p "/" file))
                (file-directory-p file))
       (cl-callf concat file "/"))
     ;; remove problematic formatting from files
     (let* ((path (thread-last file
-                   (concat remote-url)
                    (replace-regexp-in-string (rx (1+ (any space "\""))) "")
                    (replace-regexp-in-string "\"" "")
                    (string-remove-prefix "./")
                    (replace-regexp-in-string "$ENV" "$")
                    ($substitute-env-in-filename)
                    (replace-regexp-in-string (rx (1+ "/")) "/")
+                   (concat remote-url)
                    (substitute-in-file-name)))
            (root-path (concat (vc-git-root default-directory)
                               path))
@@ -2029,9 +2029,7 @@ This includes remote paths and enviroment variables."
 (defun $find-file-at-point ()
   "A better replacement for `find-file-at-point'"
   (interactive)
-  (let* ((file ($normalize-file-name
-                (concat (file-remote-p default-directory)
-                        ($get-path-at-point))))
+  (let* ((file ($normalize-file-name ($get-path-at-point)))
          (context (buffer-substring-no-properties (line-beginning-position)
                                                   (line-end-position 2)))
          (line (when (string-match ($rx (any alnum "\"'")
@@ -2060,12 +2058,10 @@ This includes remote paths and enviroment variables."
 (defun $file-at-point-exists ()
   "Check if file at point exists."
   (interactive)
-  (if (file-exists-p
-       ($normalize-file-name
-        (concat (file-remote-p default-directory)
-                ($get-path-at-point))))
-      (message "File exists")
-    (message "File does not exist!")))
+  (let ((file ($normalize-file-name ($get-path-at-point))))
+    (if (file-exists-p file)
+       (message "File exists")
+     (message "File does not exist!"))))
 
 (defun $change-model ()
   "Open a model in workspace"
