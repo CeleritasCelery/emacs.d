@@ -2740,69 +2740,40 @@ Display progress in the minibuffer instead."
     "%" "%%"
     (ansi-color-apply progress))))
 
-(add-hook 'term-mode-hook
-          (defun $disable-yas ()
-            (setq yas-dont-activate t)))
-
 (use-package shell-pop
   :general
   ("C-c C-;" 'shell-pop)
-  ("C-c C-:" '$shell-pop-root))
+  ("C-c C-:" '$shell-pop-root)
+  :init
+  (push (cons "\\*shell" display-buffer--same-window-action) display-buffer-alist)
+  (setq shell-pop-restore-window-configuration nil)
+  :config
+  (add-hook 'shell-pop-in-after-hook 'evil-insert-state)
+  (add-hook 'shell-pop-in-hook
+            (defun $shell-pop-set-remote ()
+              "properly handle remote paths in shell-pop"
+              (let ((remote (file-remote-p default-directory)))
+                (setq shell-pop-internal-mode-buffer
+                      (format "*%sshell*" (or remote ""))))))
+  (advice-add 'shell-pop--cd-to-cwd
+              :before-until
+              (defun $shell-in-cwd-p (cwd)
+                "don't cd if we are already in that directory"
+                (file-equal-p default-directory cwd)))
+  (advice-add 'shell-pop--cd-to-cwd-shell
+              :filter-args
+              (defun $shell-pop-cd-fix-path (args)
+                "fix remote paths during cd"
+                (let* ((cwd (car args)))
+                  (list (string-remove-prefix
+                         (or (file-remote-p cwd) "")
+                         cwd))))))
 
 (defun $shell-pop-root (arg)
   "open a shell in the project root"
   (interactive "P")
   (let ((default-directory (vc-git-root default-directory)))
     (shell-pop arg)))
-
-(advice-add 'shell-pop--cd-to-cwd
-            :before-until
-            (defun $shell-in-cwd-p (cwd)
-              (file-equal-p default-directory cwd)))
-
-(add-hook 'shell-pop-in-after-hook 'evil-insert-state)
-
-(push (cons "\\*shell" display-buffer--same-window-action) display-buffer-alist)
-
-;; This advice endeavors to fix two problems.
-;; 1. It can be frustrating when you run a long running command in a
-;;    shell and then later try to pop shell and it will fail because the
-;;    shell is not available. This code will always grab an available
-;;    shell or create a new one if no shell is available.
-;; 2. When on a remote machine, shell-pop will try and cd a local shell
-;;    to a remote path, which does not work. This code will instead open
-;;    a new shell on remote machines.
-(defun $shell-available (name)
-  "Check if the specified shell NAME is either uncreated or an
-available shell. An available shell is defined as one which is
-waiting at the prompt line."
-  (let ((buffer (get-buffer name)))
-    (or (not (buffer-live-p buffer))
-        (and (process-live-p (get-buffer-process buffer))
-             (with-current-buffer buffer
-               (save-excursion
-                 (goto-char (point-max))
-                 (goto-char (line-beginning-position))
-                 (let ((prompt (string-remove-suffix
-                                (rx eos) comint-prompt-regexp)))
-                   (looking-back prompt
-                                 (- (point) (length prompt))))))))))
-
-(defun $get-available-shell (func arg)
-  "Return the first available shell that can be used for shell
-pop."
-  (let* ((remote (file-remote-p default-directory 'host))
-         (type (format "*%sshell*" (if remote (concat remote ":") ""))))
-    (cl-loop for i in (cons (or arg shell-pop-last-shell-buffer-index)
-                            (number-sequence 1 10))
-             for shell = (replace-regexp-in-string
-                          (rx "*" eos)
-                          (format "-%d*" i) type)
-             until ($shell-available shell)
-             finally (let ((shell-pop-internal-mode-buffer type))
-                       (funcall func i)))))
-
-(advice-add 'shell-pop--switch-to-shell-buffer :around '$get-available-shell)
 
 (use-package native-complete
   :compdef shell-mode
