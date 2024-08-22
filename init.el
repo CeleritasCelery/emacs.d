@@ -3969,6 +3969,7 @@ prompt in shell mode"
 (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
 
 (use-package yapfify)
+(use-package blacken)
 
 (use-package live-py-mode
   :custom
@@ -3977,17 +3978,21 @@ prompt in shell mode"
 (use-package python
   :straight nil
   :compdef python-mode
-  :company (company-capf company-dabbrev-code))
-
-
-(if (version< emacs-version "29.2")
-    (add-hook 'python-mode-hook #'lsp)
-  (add-hook 'python-base-mode-hook #'lsp)
+  :company (company-capf company-dabbrev-code)
+  :config
+  (add-hook 'python-base-mode-hook #'$lsp-unless-remote)
   (unless ($dev-config-p)
     (add-hook 'python-base-mode-hook #'copilot-mode))
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
+(defun $lsp-unless-remote ()
+  (if (file-remote-p buffer-file-name)
+      (eldoc-mode -1)
+    (lsp)))
+
+(use-package lsp-jedi :demand t :after python)
 (use-package lsp-pyright :demand t :after python)
+(setq lsp-disabled-clients '(pyright-tramp))
 
 (setq lsp-pylsp-plugins-flake8-enabled nil
       lsp-pylsp-plugins-pydocstyle-enabled nil
