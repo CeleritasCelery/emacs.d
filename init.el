@@ -1696,8 +1696,29 @@ that region."
 (use-package pcre2el
   :commands reb-change-syntax)
 
-;; fix an issue with invalid base64
-;; (setq tramp-copy-size-limit 10240)
+;;;; TRAMP
+
+;; Fix for Emacs 29 tramp issue
+;; https://lists.nongnu.org/archive/html/bug-gnu-emacs/2024-05/msg01920.html
+(use-package tramp
+  :init
+  (setq remote-file-name-inhibit-locks t
+        tramp-use-scp-direct-remote-copying t
+        tramp-copy-size-limit 5000000
+        tramp-verbose 2
+        remote-file-name-inhibit-auto-save-visited t)
+  (setq vc-ignore-dir-regexp
+        (format "\\(%s\\)\\|\\(%s\\)"
+                vc-ignore-dir-regexp
+                tramp-file-name-regexp)))
+
+;; (connection-local-set-profile-variables
+;;  'remote-direct-async-process
+;;  '((tramp-direct-async-process . t)))
+
+;; (connection-local-set-profiles
+;;  '(:application tramp :machine "server")
+;;  'remote-direct-async-process)
 
 ;;;; Projects
 
@@ -2176,7 +2197,9 @@ directory pointing to the same file name"
       wdired-allow-to-change-permissions t
       dired-listing-switches "-alh"
       dired-dwim-target t
-      dired-auto-revert-buffer t)
+      dired-auto-revert-buffer (defun $dired-not-remote-and-changed (dir)
+                                 (and (not (file-remote-p dir))
+                                      (dired-directory-changed-p dir))))
 
 (general-def dired-mode-map
   "C-c C-p" 'wdired-change-to-wdired-mode)
@@ -2320,9 +2343,18 @@ directory pointing to the same file name"
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
 
-;; improve [[https://magit.vc/manual/magit/Performance.html][performance]] by
-;; only reverting buffers in the local repo
+;; improve performace by only reverting buffers in the local repo
+;; https://magit.vc/manual/magit/Performance.html
 (setq auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffer-p)
+
+;; https://github.com/magit/magit/discussions/4817
+(defun $magit-auto-revert-not-remote (orig-fun &rest args)
+  (unless (and buffer-file-name (file-remote-p buffer-file-name))
+    (apply orig-fun args)))
+
+(advice-add 'magit-turn-on-auto-revert-mode-if-desired
+            :around
+            #'$magit-auto-revert-not-remote)
 
 (csetq magit-diff-expansion-threshold 20)
 
@@ -2606,10 +2638,9 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (push dir $dir-history)))
 
 (defun $shell-mode-hook ()
-  ;; only used for native complete. See `tramp-shell-prompt-pattern' for a more
-  ;; robust version.
-  (setq-local comint-prompt-regexp ($rx (or "%" "$" ">" "→") " "))
   (setq-local evil-search-wrap nil)
+  ;; Tramp will override this
+  (setq-local comint-prompt-regexp (default-value 'comint-prompt-regexp))
   (shell-dirtrack-mode)
   (advice-add 'shell-cd :after #'$push-dir-to-history))
 
