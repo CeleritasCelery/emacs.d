@@ -110,8 +110,9 @@
 
 ;;;; Environment
 (push "~/bin" exec-path)
-(push "/Users/troyhinckley/Library/Python/3.9/bin" exec-path)
 (push "~/.local/bin" exec-path)
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path "/home/thinckley/.local/bin"))
 
 (setenv "PAGER" "cat")
 
