@@ -166,6 +166,7 @@
 
 ;; disable for now
 ;; (add-hook 'after-init-hook '$schedule-maybe-gc)
+(setq gc-cons-threshold 8000000)
 
 (add-function :after
                   after-focus-change-function
