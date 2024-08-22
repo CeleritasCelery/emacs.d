@@ -2022,7 +2022,9 @@ This includes remote paths and enviroment variables."
   "Open the file name in the clipboard"
   (interactive)
   (if-let ((path ($--get-file-from-clipboard)))
-      (find-file path)
+      (progn (when (string-prefix-p "/proj" path)
+               (setq path (concat "/scp:server:" path)))
+             (find-file path))
     (message "no path found in clipboard")))
 
 (defun $open-dir-in-clipboard ()
