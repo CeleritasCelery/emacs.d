@@ -3539,15 +3539,9 @@ work, so I copy links and paste them into chrome."
             (not (org-babel-where-is-src-block-head))
           t)))
 
-(add-hook 'org-mode-hook 'flyspell-mode)
-(add-hook 'with-editor-mode-hook 'flyspell-mode)
-
-(when (eq system-type 'windows-nt)
-  (setq ispell-program-name "hunspell")
-  (setq-default ispell-local-dictionary "en_US")
-  (setq ispell-dictionary-alist
-        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
-  (setq ispell-local-dictionary-alist ispell-dictionary-alist))
+(use-package jinx)
+(add-hook 'org-mode-hook 'jinx-mode)
+(add-hook 'with-editor-mode-hook 'jinx-mode)
 
 (add-hook 'org-mode-hook
           (defun $enable-company-spell ()
