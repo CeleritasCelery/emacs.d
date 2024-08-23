@@ -3,9 +3,11 @@
 # Look in the variable system-configuration-options and system-configuration-features
 
 # brew 28
+# brew tap d12frosted/emacs-plus
 # brew install emacs-plus@28 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
 
 # brew 29
+# brew tap d12frosted/emacs-plus
 # brew install emacs-plus@29 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
 
 # install with custom macos version
