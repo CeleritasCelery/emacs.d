@@ -2899,18 +2899,6 @@ Display progress in the minibuffer instead."
 
 (add-hook 'compilation-shell-minor-mode-hook 'evil-normal-state)
 
-(defun $apply-ansi-color-on-buffer ()
-  "apply ANSI color codes in this buffer"
-  (interactive)
-  (ansi-color-apply-on-region (point-min) (point-max)))
-
-(defvar-local $ansi-color-compile nil)
-
-(add-hook 'compilation-filter-hook
-          (defun $ansi-color-compile ()
-            (when $ansi-color-compile
-              (ansi-color-apply-on-region (point-min) (point)))))
-
 (define-arx err-rx
   (append $rx-defaults
           '((fill (1+ (not (any space))))
@@ -2920,89 +2908,15 @@ Display progress in the minibuffer instead."
             (info (opt "-I-:")))))
 
 ;;;;; errors
-;; we need to define what errors look like in compilation and log
-;; files. compilation mode has some defaults but they are not really
-;; applicable to us. Also the built-in verilog mode tries to add all of
-;; its error regexp's to the alist everytime it is loaded. This results
-;; in a lot of extra processing that we don't want. Therefore we remove
-;; that hook and set the alist back to our canonical version.
-(defvar $compilation-error-regexp-alist nil
-  "The canonical error regexp alist")
-
-(defun $prev-declaration-file ()
-  (save-excursion
-    (forward-line 2)
-    (forward-char)
-    (thread-last (thing-at-point 'line)
-      (string-remove-prefix "  \"")
-      (string-remove-suffix "\",\n"))))
-
-(defun $find-par-file ()
-  (let* ((log (buffer-file-name))
-         (root (vc-git-root log))
-         (model (and (string-match (rx "collage_assemble_"
-                                       (group (1+ any))
-                                       "_collage_assemble")
-                                   log)
-                     (match-string 1 log))))
-    (format "%stools/collage/integ_specs/%s_soc_par.txt" root model)))
-
-(defun $follow-connection-file ()
-  (let* ((file (match-string 1))
-         (buffer (find-file-noselect file 'nowarm 'raw)))
-    (prog1 (with-current-buffer buffer
-             (save-match-data
-               (if (re-search-forward (err-rx bol "##Source File: " filename))
-                   (match-string 1)
-                 file)))
-      (kill-buffer buffer))))
-
-(defun $correct-connection-line-number ()
-  "adjust line numbers for connection files"
-  (let ((file-name (buffer-file-name)))
-    (when (string-match-p (rx (or "adhoc" "std") "_connection") file-name)
-      (forward-line -1)
-      (evil-set-jump))))
-
-(add-hook 'next-error-hook '$correct-connection-line-number)
-
 ;; This adds a ton of regex that we don't need
 (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs))
-
-;; There is an issue where an error message spans multiple lines, the font lock
-;; engine will sometimes stop parsing in the middle of it and therefore it will
-;; never get highlighted. We fix this by creating our own
-;; `font-lock-extend-region' function that makes sure we do not stop on error
-;; messages.
-(defun $font-lock-extend-region-error-message ()
-  (defvar font-lock-end)
-  (save-excursion
-    (goto-char font-lock-end)
-    (when (or ($font-lock-at-error-p 'beginning-of-line-text)
-              ($font-lock-at-error-p (apply-partially 'beginning-of-line-text 0)))
-      (forward-line 2)
-      (end-of-line)
-      (setq font-lock-end (point)))))
-
-(defun $font-lock-at-error-p (move)
-  (save-excursion
-    (funcall move)
-    (looking-at-p (rx (opt "-I-:")
-                      (or "Error: "
-                          "Error-"
-                          "Errormessage"
-                          "-E-:"
-                          "-F-:"
-                          "Information:")))))
-
-(byte-compile '$font-lock-extend-region-error-message)
 
 ;;;;; dir
 ;; by setting the compliation root, we can ensure that we are only prompted to
 ;; save buffers that actaully exist in the project instead of it trying prompt
 ;; us to save all buffers.
-(defvar $current-compilation-dir nil
+(defvar-local $current-compilation-dir nil
   "root of current compliation")
 
 (defun $set-compilation-dir (&rest _)
@@ -3198,7 +3112,6 @@ access"
 
 (use-package org
   :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
-  :gfhook #'$org-truncate-lines #'toggle-word-wrap
   :straight (:type built-in)
   :general
   (:definer 'leader
