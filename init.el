@@ -66,9 +66,7 @@
     `(progn ,@(nreverse forms))))
 
 (defun $dev-config-p ()
-  (and (not (eq system-type 'windows-nt))
-       (or (equal user-login-name "tjhinckl")
-           (equal user-login-name  "sys_swisscld"))))
+  (equal user-login-name "thinckley"))
 
 (setq epg-pinentry-mode 'loopback)
 
@@ -81,8 +79,6 @@
   "leader key for major mode specific commands")
 
 (setq inhibit-startup-screen t)
-(when ($dev-config-p)
-  (toggle-frame-fullscreen))
 
 (setq create-lockfiles nil
       auto-save-default nil
@@ -91,10 +87,6 @@
 (electric-pair-mode)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
-
-(when ($dev-config-p)
-  (add-to-list 'image-types 'gif)
-  (add-to-list 'image-types 'svg))
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load-file custom-file)
@@ -117,15 +109,10 @@
 (setq initial-major-mode 'fundamental-mode)
 
 ;;;; Environment
-
-(if ($dev-config-p)
-    (progn (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest" exec-path))
-           (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/xhdk74/latest" exec-path))
-           (setq exec-path (delete "/p/hdk/rtl/proj_tools/proj_binx/shdk74/latest_sles12" exec-path)))
-  (push "~/bin" exec-path)
-  (push "/Users/troyhinckley/Library/Python/3.9/bin" exec-path))
-
+(push "~/bin" exec-path)
 (push "~/.local/bin" exec-path)
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-path "/home/thinckley/.local/bin"))
 
 (setenv "PAGER" "cat")
 
@@ -142,8 +129,6 @@
 ;;; Package manager
 
 ;; Not sure if this is still needed
-(when ($dev-config-p)
-  (setq straight-recipes-gnu-elpa-url "http://git.savannah.gnu.org/git/emacs/elpa.git"))
 
 (setq straight-check-for-modifications '(check-on-save find-when-checking))
 
@@ -181,6 +166,7 @@
 
 ;; disable for now
 ;; (add-hook 'after-init-hook '$schedule-maybe-gc)
+(setq gc-cons-threshold 8000000)
 
 (add-function :after
                   after-focus-change-function
@@ -378,7 +364,7 @@
      ("s" (lambda (x) (counsel-rg nil x)) "search")
      ("f" $ivy-file-jump "find")
      ("o" find-file-other-window "other window")
-     ("x" (lambda (x) ($shell-pop ivy-current-prefix-arg nil x)) "shell")
+     ("x" (lambda (x) ($counsel-shell-pop ivy-current-prefix-arg nil x)) "shell")
      ("j" (lambda (x) (let ((default-directory x)) (counsel-git))) "jump"))))
 
 (defun $ivy-yank (x)
@@ -395,7 +381,8 @@
   ($ivy-yank (mapconcat 'identity x "\n")))
 
 (defun $yank-file-name (x)
-  (kill-new ($correct-file-path x)))
+  (let ((file ($correct-file-path x)))
+    (kill-new (string-remove-prefix (or (file-remote-p x) "") x))))
 
 (defun $yank-file-name-list (x)
   (kill-new
@@ -450,20 +437,9 @@
   :config
   ;; adding --search-zip can cause the PCRE engine to hit it's line limit. add `-- -z` to search zip files
   (setq counsel-rg-base-command (append counsel-rg-base-command '("--max-columns-preview")))
-  ($normalize-git-version 'counsel-git-cmd)
-  ($normalize-git-version 'counsel-git-grep-cmd-default)
-  ($normalize-git-version 'counsel-git-log-cmd)
   (ivy-configure 'counsel-company
     :display-fn 'ivy-display-function-overlay)
   (setq ivy-initial-inputs-alist nil))
-
-(defun $normalize-git-version (symbol)
-  (when ($dev-config-p)
-    (set symbol
-         (replace-regexp-in-string
-          (rx symbol-start "git ")
-          "/usr/intel/bin/git "
-          (symbol-value symbol)))))
 
 ($leader-local-set-key
   :keymaps 'org-mode-map
@@ -506,8 +482,6 @@
   (global-hl-line-mode))
 
 (defvar $font-height 140)
-(when ($dev-config-p)
-  (set-frame-font "-ADBO-Source Code Pro-regular-normal-normal-*-*-*-*-*-m-0-iso10646-1" t))
 (set-face-attribute 'default nil
                     :family (if (eq system-type 'windows-nt)
                                 "Consolas"
@@ -813,18 +787,22 @@ current window."
   (if-let ((file-name (or (buffer-file-name)
                           list-buffers-directory
                           default-directory)))
-      (progn (kill-new ($correct-file-path file-name arg))
+      (progn (kill-new (string-remove-prefix
+                        (or (file-remote-p file-name) "")
+                        ($correct-file-path file-name arg)))
              (message (current-kill 0)))
     (error "Buffer not visiting a file")))
 
 (defun $correct-file-path (file &optional invert)
   "If file is in a work disk, get the absolute path.
 If INVERT, do the opposite of the normal behavior."
-  (let ((home (expand-file-name "~")))
+  (let* ((remote (file-remote-p file))
+         (home (expand-file-name
+               (concat remote "~"))))
     (if (eq (null invert)
-            (or (string-prefix-p (concat home "/workspace") file)
-                (string-prefix-p (concat home "/bundle") file)
-                (string-prefix-p (concat home "/temp") file)))
+            (string-prefix-p
+             (concat home "/workspace")
+             file))
         (file-truename file)
       file)))
 
@@ -900,27 +878,12 @@ If INVERT, do the opposite of the normal behavior."
   :general
   (:definer 'leader "zw" 'zoom))
 
-(if ($dev-config-p)
-    (use-package yascroll
-      :defer 2
-      :init
-      (scroll-bar-mode -1)
-      (fringe-mode '(8 . 5))
-      :config
-      (global-yascroll-bar-mode)
-      (setq yascroll:disabled-modes '(compilation-mode bman-mode ipgen-mode))
-      (advice-add 'yascroll:enabled-buffer-p :filter-return #'$yascroll-disable-large-files))
-  (general-def "<Scroll_Lock>" 'ignore))
-
-(defun $yascroll-disable-large-files (ret)
-  (when (<= (buffer-size) 10000000)
-    ret))
-
 (use-package helpful
+  :straight
+  (:fork "CeleritasCelery/helpful")
+  :general ("C-h k" 'helpful-key)
   :init
-  ;; workaround for https://github.com/Wilfred/helpful/issues/282
-  (setq read-symbol-positions-list nil)
-  :general ("C-h k" 'helpful-key))
+  (setq helpful-hide-docstring-in-source t))
 
 (setq help-window-select t)
 
@@ -1008,24 +971,20 @@ If INVERT, do the opposite of the normal behavior."
                 (ivy-rich-counsel-variable-docstring (:face font-lock-doc-face)))))
   (plist-put ivy-rich-display-transformers-list
              'ivy-switch-buffer
-             (if ($dev-config-p)
-                 '(:columns
-                   ((ivy-rich-candidate (:width 200)))
-                   :predicate
-                   (lambda (cand) (get-buffer cand)))
-               '(:columns
-                 ((ivy-rich-candidate (:width 100))
-                  (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
-                  (ivy-rich-switch-buffer-major-mode (:width 15 :face warning))
-                  (ivy-rich-switch-buffer-project (:width 25 :face success)))
-                 :predicate
-                 (lambda (cand) (get-buffer cand)))))
+             '(:columns
+               ((ivy-rich-candidate (:width 100))
+                (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
+                (ivy-rich-switch-buffer-major-mode (:width 15 :face warning))
+                (ivy-rich-switch-buffer-project (:width 25 :face success)))
+               :predicate
+               (lambda (cand) (get-buffer cand))))
   (plist-put ivy-rich-display-transformers-list
              'counsel-describe-function
              '(:columns
                ((counsel-describe-function-transformer (:width 40))
                 (ivy-rich-counsel-function-docstring (:width 70 :face font-lock-doc-face)))))
-  (ivy-rich-mode))
+  (ivy-rich-mode)
+  (ivy-rich-project-root-cache-mode))
 
 (defun $ivy-rich-counsel-find-file-truename (candidate)
   (let ((type (and (not (file-remote-p ivy--directory))
@@ -1151,12 +1110,9 @@ If INVERT, do the opposite of the normal behavior."
   (setq lexical-binding t))
 
 ($leader-set-key
-  "rg" '$counsel-rg-here
-  "rr" '$counsel-rg-root)
-
-($leader-set-key
   "ss" '$counsel-rg-here
-  "sr" '$counsel-rg-root)
+  "sr" '$counsel-rg-root
+  "j" 'counsel-semantic-or-imenu)
 
 (general-def 'insert
   "C-v" 'yank
@@ -1439,22 +1395,21 @@ If ARG is zero, delete current line but exclude the trailing newline."
   (or (copilot-accept-completion)
       (indent-for-tab-command)))
 
-(unless ($dev-config-p)
-  (use-package copilot
-    :straight (:host github :repo "zerolfx/copilot.el"
-               :files ("dist" "copilot.el" "copilot-balancer.el"))
-    :general
-    (:states '(insert) :keymaps 'copilot-mode-map
-     "C-c c" #'copilot-complete
-     "TAB" #'$copilot-tab
-     "<tab>" #'$copilot-tab)
-    (:keymaps 'copilot-completion-map
-     "M-n" #'copilot-accept-completion-by-line
-     "M-N" #'copilot-next-completion
-     "M-P" #'copilot-previous-completion)
-    :init
-    (setq copilot-max-char -1)
-    (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll))))
+(use-package copilot
+  :straight (:host github :repo "zerolfx/copilot.el"
+             :files ("dist" "copilot.el" "copilot-balancer.el"))
+  :general
+  (:states '(insert) :keymaps 'copilot-mode-map
+   "C-c c" #'copilot-complete
+   "TAB" #'$copilot-tab
+   "<tab>" #'$copilot-tab)
+  (:keymaps 'copilot-completion-map
+   "M-n" #'copilot-accept-completion-by-line
+   "M-N" #'copilot-next-completion
+   "M-P" #'copilot-previous-completion)
+  :init
+  (setq copilot-max-char -1)
+  (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll)))
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
@@ -1475,8 +1430,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
   :hook (org-mode prog-mode)
   :config
   (setq ws-butler-convert-leading-tabs-or-spaces t))
-
-(csetq require-final-newline t)
 
 (with-eval-after-load 'whitespace
   (delq 'lines whitespace-style))
@@ -1590,15 +1543,14 @@ that region."
           (cons "emacs-lsp-booster" orig-result))
       orig-result)))
 
-(unless ($dev-config-p)
-  (with-eval-after-load 'lsp-mode
-    (advice-add (if (progn (require 'json)
-                           (fboundp 'json-parse-buffer))
-                    'json-parse-buffer
-                  'json-read)
-                :around
-                #'lsp-booster--advice-json-parse)
-    (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)))
+(with-eval-after-load 'lsp-mode
+  (advice-add (if (progn (require 'json)
+                         (fboundp 'json-parse-buffer))
+                  'json-parse-buffer
+                'json-read)
+              :around
+              #'lsp-booster--advice-json-parse)
+  (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command))
 
 ($leader-set-key
   "n" '(:ignore t :wk "narrow")
@@ -1744,11 +1696,29 @@ that region."
 (use-package pcre2el
   :commands reb-change-syntax)
 
-(with-eval-after-load 'tramp
-  ;; fix an issue with invalid base64
-  (setq tramp-copy-size-limit nil)
-  (when ($dev-config-p)
-    (add-to-list 'tramp-remote-path "/usr/intel/bin")))
+;;;; TRAMP
+
+;; Fix for Emacs 29 tramp issue
+;; https://lists.nongnu.org/archive/html/bug-gnu-emacs/2024-05/msg01920.html
+(use-package tramp
+  :init
+  (setq remote-file-name-inhibit-locks t
+        tramp-use-scp-direct-remote-copying t
+        tramp-copy-size-limit 5000000
+        tramp-verbose 2
+        remote-file-name-inhibit-auto-save-visited t)
+  (setq vc-ignore-dir-regexp
+        (format "\\(%s\\)\\|\\(%s\\)"
+                vc-ignore-dir-regexp
+                tramp-file-name-regexp)))
+
+;; (connection-local-set-profile-variables
+;;  'remote-direct-async-process
+;;  '((tramp-direct-async-process . t)))
+
+;; (connection-local-set-profiles
+;;  '(:application tramp :machine "server")
+;;  'remote-direct-async-process)
 
 ;;;; Projects
 
@@ -1978,26 +1948,21 @@ then removing in the background"
       (string-remove-prefix (or (file-remote-p it) "") it)
       (setenv "MODEL_ROOT" it)))
   ;; add remote url if required
-  (let* ((current-site (getenv "EC_SITE"))
-         (target-site (if (string-match (rx bos "/nfs/" (group (1+ word))) file)
-                          (match-string 1 file)
-                        current-site))
-         (remote-url (if (or (equal target-site "site")
-                             (equal current-site target-site))
-                         ""
-                       (format "/%s:%s:" tramp-default-method target-site))))
+  (let* ((remote-url (if (file-name-absolute-p file)
+                         (file-remote-p default-directory)
+                       "")))
     (when (and (not (string-suffix-p "/" file))
                (file-directory-p file))
       (cl-callf concat file "/"))
     ;; remove problematic formatting from files
     (let* ((path (thread-last file
-                   (concat remote-url)
                    (replace-regexp-in-string (rx (1+ (any space "\""))) "")
                    (replace-regexp-in-string "\"" "")
                    (string-remove-prefix "./")
                    (replace-regexp-in-string "$ENV" "$")
                    ($substitute-env-in-filename)
                    (replace-regexp-in-string (rx (1+ "/")) "/")
+                   (concat remote-url)
                    (substitute-in-file-name)))
            (root-path (concat (vc-git-root default-directory)
                               path))
@@ -2078,9 +2043,7 @@ This includes remote paths and enviroment variables."
 (defun $find-file-at-point ()
   "A better replacement for `find-file-at-point'"
   (interactive)
-  (let* ((file ($normalize-file-name
-                (concat (file-remote-p default-directory)
-                        ($get-path-at-point))))
+  (let* ((file ($normalize-file-name ($get-path-at-point)))
          (context (buffer-substring-no-properties (line-beginning-position)
                                                   (line-end-position 2)))
          (line (when (string-match ($rx (any alnum "\"'")
@@ -2109,19 +2072,15 @@ This includes remote paths and enviroment variables."
 (defun $file-at-point-exists ()
   "Check if file at point exists."
   (interactive)
-  (if (file-exists-p
-       ($normalize-file-name
-        (concat (file-remote-p default-directory)
-                ($get-path-at-point))))
-      (message "File exists")
-    (message "File does not exist!")))
+  (let ((file ($normalize-file-name ($get-path-at-point))))
+    (if (file-exists-p file)
+       (message "File exists")
+     (message "File does not exist!"))))
 
 (defun $change-model ()
   "Open a model in workspace"
   (interactive)
-  (let ((default-directory (if ($dev-config-p)
-                               "~/workspace/"
-                             "~/"))
+  (let ((default-directory "~/")
         (major-mode 'fundamental-mode))
     (counsel-find-file)))
 
@@ -2238,7 +2197,9 @@ directory pointing to the same file name"
       wdired-allow-to-change-permissions t
       dired-listing-switches "-alh"
       dired-dwim-target t
-      dired-auto-revert-buffer t)
+      dired-auto-revert-buffer (defun $dired-not-remote-and-changed (dir)
+                                 (and (not (file-remote-p dir))
+                                      (dired-directory-changed-p dir))))
 
 (general-def dired-mode-map
   "C-c C-p" 'wdired-change-to-wdired-mode)
@@ -2338,10 +2299,9 @@ directory pointing to the same file name"
   :custom
   (vdiff-diff-algorithm 'git-diff-patience))
 
-(unless ($dev-config-p)
-  (use-package pdf-tools
-    :init
-    (pdf-loader-install)))
+(use-package pdf-tools
+  :init
+  (pdf-loader-install))
 
 ;;;;;;;;
 ;;;; Git
@@ -2368,8 +2328,6 @@ directory pointing to the same file name"
   (magit-mode-map
    "SPC" nil)
   :init
-  (when ($dev-config-p)
-    (setq magit-git-executable "/usr/intel/bin/git"))
   ($leader-set-key
     "g" '(:ignore t :wk "git"))
   (evil-ex-define-cmd "git" 'magit-status)
@@ -2385,12 +2343,18 @@ directory pointing to the same file name"
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
 
-(when ($dev-config-p)
-  (csetq magit-delete-by-moving-to-trash nil))
-
-;; improve [[https://magit.vc/manual/magit/Performance.html][performance]] by
-;; only reverting buffers in the local repo
+;; improve performace by only reverting buffers in the local repo
+;; https://magit.vc/manual/magit/Performance.html
 (setq auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffer-p)
+
+;; https://github.com/magit/magit/discussions/4817
+(defun $magit-auto-revert-not-remote (orig-fun &rest args)
+  (unless (and buffer-file-name (file-remote-p buffer-file-name))
+    (apply orig-fun args)))
+
+(advice-add 'magit-turn-on-auto-revert-mode-if-desired
+            :around
+            #'$magit-auto-revert-not-remote)
 
 (csetq magit-diff-expansion-threshold 20)
 
@@ -2507,6 +2471,14 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (push `((nil . ,(rx (opt "$git-hunk/") "git-gutter:")) . (nil . "")) which-key-replacement-alist)
   (global-git-gutter-mode))
 
+;; Don't load git gutter over tramp by default
+(with-eval-after-load 'git-gutter
+  (el-patch-defun git-gutter--turn-on ()
+   (when (and (buffer-file-name)
+              (not (memq major-mode git-gutter:disabled-modes))
+              (el-patch-add (not (file-remote-p (buffer-file-name)))))
+     (git-gutter-mode +1))))
+
 (use-package git-gutter-fringe
   :demand t
   :after git-gutter)
@@ -2562,6 +2534,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (comint-scroll-to-bottom-on-input t)
   (comint-process-echoes t)
   (comint-prompt-read-only t))
+
+(use-package xterm-color)
+(defun $advice-compilation-filter (f proc string)
+  (funcall f proc (xterm-color-filter string)))
+(advice-add 'compilation-filter :around #'$advice-compilation-filter)
 
 (defun $goto-cmd-line (&rest _)
   (goto-char (point-max)))
@@ -2661,23 +2638,15 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (push dir $dir-history)))
 
 (defun $shell-mode-hook ()
-  (setq-local comint-prompt-regexp
-              ($rx bol (or (: symbol "(" nums ")%")
-                           (: symbol "@" symbol ":" file (or "$" (: "(" nums ")>")))
-                           (: "bash-" num "." num "$")
-                           (: (opt control "K") "|" (+ (not blank)) "|→")
-                           (: (+ (not blank)) "%")
-                           (: (* nonl) " %")
-                           (: symbol ">"))
-                   " "))
   (setq-local evil-search-wrap nil)
+  ;; Tramp will override this
+  (setq-local comint-prompt-regexp (default-value 'comint-prompt-regexp))
   (shell-dirtrack-mode)
   (advice-add 'shell-cd :after #'$push-dir-to-history))
-(advice-remove 'shell-cd #'$push-dir-to-history)
 
 (add-hook 'shell-mode-hook '$shell-mode-hook)
 
-(defun $shell-pop (arg buffer dir)
+(defun $counsel-shell-pop (arg buffer dir)
   "shell-pop to current buffers directory or dir"
   (if (and (boundp 'shell-pop-last-shell-buffer-name)
            (equal (buffer-name buffer)
@@ -2771,69 +2740,40 @@ Display progress in the minibuffer instead."
     "%" "%%"
     (ansi-color-apply progress))))
 
-(add-hook 'term-mode-hook
-          (defun $disable-yas ()
-            (setq yas-dont-activate t)))
-
 (use-package shell-pop
   :general
   ("C-c C-;" 'shell-pop)
-  ("C-c C-:" '$shell-pop-root))
+  ("C-c C-:" '$shell-pop-root)
+  :init
+  (push (cons "\\*shell" display-buffer--same-window-action) display-buffer-alist)
+  (setq shell-pop-restore-window-configuration nil)
+  :config
+  (add-hook 'shell-pop-in-after-hook 'evil-insert-state)
+  (add-hook 'shell-pop-in-hook
+            (defun $shell-pop-set-remote ()
+              "properly handle remote paths in shell-pop"
+              (let ((remote (file-remote-p default-directory)))
+                (setq shell-pop-internal-mode-buffer
+                      (format "*%sshell*" (or remote ""))))))
+  (advice-add 'shell-pop--cd-to-cwd
+              :before-until
+              (defun $shell-in-cwd-p (cwd)
+                "don't cd if we are already in that directory"
+                (file-equal-p default-directory cwd)))
+  (advice-add 'shell-pop--cd-to-cwd-shell
+              :filter-args
+              (defun $shell-pop-cd-fix-path (args)
+                "fix remote paths during cd"
+                (let* ((cwd (car args)))
+                  (list (string-remove-prefix
+                         (or (file-remote-p cwd) "")
+                         cwd))))))
 
 (defun $shell-pop-root (arg)
   "open a shell in the project root"
   (interactive "P")
   (let ((default-directory (vc-git-root default-directory)))
     (shell-pop arg)))
-
-(advice-add 'shell-pop--cd-to-cwd
-            :before-until
-            (defun $shell-in-cwd-p (cwd)
-              (file-equal-p default-directory cwd)))
-
-(add-hook 'shell-pop-in-after-hook 'evil-insert-state)
-
-(push (cons "\\*shell" display-buffer--same-window-action) display-buffer-alist)
-
-;; This advice endeavors to fix two problems.
-;; 1. It can be frustrating when you run a long running command in a
-;;    shell and then later try to pop shell and it will fail because the
-;;    shell is not available. This code will always grab an available
-;;    shell or create a new one if no shell is available.
-;; 2. When on a remote machine, shell-pop will try and cd a local shell
-;;    to a remote path, which does not work. This code will instead open
-;;    a new shell on remote machines.
-(defun $shell-available (name)
-  "Check if the specified shell NAME is either uncreated or an
-available shell. An available shell is defined as one which is
-waiting at the prompt line."
-  (let ((buffer (get-buffer name)))
-    (or (not (buffer-live-p buffer))
-        (and (process-live-p (get-buffer-process buffer))
-             (with-current-buffer buffer
-               (save-excursion
-                 (goto-char (point-max))
-                 (goto-char (line-beginning-position))
-                 (let ((prompt (string-remove-suffix
-                                (rx eos) comint-prompt-regexp)))
-                   (looking-back prompt
-                                 (- (point) (length prompt))))))))))
-
-(defun $get-available-shell (func arg)
-  "Return the first available shell that can be used for shell
-pop."
-  (let* ((remote (file-remote-p default-directory 'host))
-         (type (format "*%sshell*" (if remote (concat remote ":") ""))))
-    (cl-loop for i in (cons (or arg shell-pop-last-shell-buffer-index)
-                            (number-sequence 1 10))
-             for shell = (replace-regexp-in-string
-                          (rx "*" eos)
-                          (format "-%d*" i) type)
-             until ($shell-available shell)
-             finally (let ((shell-pop-internal-mode-buffer type))
-                       (funcall func i)))))
-
-(advice-add 'shell-pop--switch-to-shell-buffer :around '$get-available-shell)
 
 (use-package native-complete
   :compdef shell-mode
@@ -2901,9 +2841,7 @@ pop."
                             (format "*%s - %s*" root cmd-name)
                           (format "*%s/.../%s - %s*" root dir cmd-name))))
          (env-var? (lambda (x) (string-match-p "=" x)))
-         (parts (if ($dev-config-p)
-                    (split-string cmd)
-                  (split-string-shell-command cmd)))
+         (parts (split-string-shell-command cmd))
          (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
          (compilation-environment (append (-take-while env-var? parts)
                                           (list (concat "MODEL_ROOT=" model-root))))
@@ -3026,119 +2964,9 @@ pop."
 
 (add-hook 'next-error-hook '$correct-connection-line-number)
 
-(when ($dev-config-p)
-  (setq $compilation-error-regexp-alist
-        `((,(err-rx ^ "-I-:Error-" ->
-                    "\n-I-:" filename ", " line)
-           1 2)
-          (,(err-rx ^ "-E-:SGDFT" -> "FAILED"
-                    "\n-I-:  Error" ->
-                    "\n-I-:  Use" ->
-                    "\n-I-:Report: " filename)
-           1)
-          (,(err-rx ^ spc+ "simregress invocation failed on " ->
-                    "\n" spc+ "Refer to " -> ": " filename)
-           1)
-          (,(err-rx ^ "Error-[" (group-n 3 ->) "]" ->
-                    "\n" filename ", " line)
-           1 2 nil nil nil (3 'warning))
-          (,(err-rx ^ "-E-:FAILED: emubuild" -> "REASON : failed LOG :  "
-                    filename)
-           1)
-          (,(err-rx ^ "  Log: " filename)
-           1 nil nil 1)
-          (,(err-rx ^ "UPFSEM_4" spc+ (1+ word) spc+
-                    filename spc+ line)
-           1 2)
-          (,(err-rx ^ "Errormessage   : Failed to open input file ["
-                    filename "]")
-           1)
-          (,(err-rx ^ info "  Error occurred at File: " filename " Line: " line)
-           1 2)
-          (,(err-rx ^ "-I-:-E-:" symbol ": invalid HSD waiver: " -> " file '" filename "'")
-           1)
-          (,(err-rx ^ line ": " (or "OVM" "UVM") (or "_ERROR" "_FATAL") " ")
-           (0 "acerun.log.gz") 2)
-          (,(err-rx ^ line ": Error: \"")
-           (0 "acerun.log.gz") 2)
-          (,(err-rx ^ (or "OVM" "UVM") (or "_ERROR" "_FATAL") " " filename ":" line " @ ")
-           1 2)
-          (,(err-rx ^ "-I-:ERROR: " symbol " has " nums " upf error" (opt "s")
-                    "\n-I-:Check: " filename)
-           1)
-          (,(err-rx ^ "-I-:Detailed violation log for sgdft_drc for " symbol ": " filename)
-           1)
-          (,(err-rx ^ "-E-:Error in stage bman." symbol ".vclp." symbol ":"
-                    "\n-I-:***** Cat'ing logs *****"
-                    "\n-I-:Executing: cat " filename)
-           1)
-          (,(err-rx ^ "-I-:" (opt "DIE signal:") " ERROR " nums ": Couldn't find directory '" filename "'")
-           1)
-          (,(err-rx ^ "-F-:Failing test in " filename)
-           1)
-          (,(err-rx ^ "-I-:FAILED: Exit status of pid " nums " was '" nums "', user expected '0'; LOG " filename)
-           1)
-          ;; this used to be in ipgen, may need to be in both
-          (,(err-rx ^ "Information: script '" filename
-                    "'\n" spc+ "stopped at line " line ->)
-           1 2)
-          (,(err-rx ^ "Could not open file No such file or directory at " filename " line " line)
-           1 2)
-          (,(err-rx ^ (or "-F-: [CRT-023]" "Error:") " Error in conncection file " (or "adhoc" "std") " connection file " filename
-                    " \n Error at line# " line)
-           $follow-connection-file 2)
-          (,(err-rx ^ "ERROR: couldn't parse " filename ":")
-           1)
-          (,(err-rx ^ "FATAL                (F) Exception caught: " (1+ nonl) " at " filename " line " line)
-           1 2)
-          (,(err-rx ^ "//  Error: File: " filename ", Line: " line ": " (1+ nonl))
-           1 2)
-          (,(err-rx ^ filename ":" line ": [Error]" (1+ nonl))
-           1 2)
-          (,(err-rx ^ "Failed Logs:"
-                    "\n\t" filename)
-           1)
-          (,(err-rx ^ "-E- Can't add parameter '" symbol "' because it already exists at " filename " line " line)
-           1 2)
-          (,(err-rx ^ "Error-[MPD] Module previously declare" (group-n 1 nonl))
-           $prev-declaration-file)
-          (,(err-rx ^ "    FileName     : " filename
-                    "\n    LineNumber   : " line)
-           1 2)
-          (,(err-rx ^ "syntax error at " filename " line " line)
-           1 2)
-          (,(err-rx ^ "Error-[SFCOR] Source file cannot be opened"
-                    "\n  Source file \"" filename "\"")
-           1)
-          (,(err-rx ^ "Error-[URMI] Unresolved modules"
-                    "\n" filename ", " line)
-           1 2)
-          (,(err-rx ^ "ERROR: Corekit instances not assigned to partition.  Please add these instances to " filename)
-           $find-par-file)
-          (,(err-rx ^ "-E- Lintra [1051] " filename "(" line ")" -> ":" (group-n 3 ->) ":")
-           1 2 nil nil nil (3 'warning))
-          (,(err-rx ^ "-" (or "E" "I") "-:" (opt spc) "FAILED:" -> (or ";" ":") " LOG " (opt ": ") filename)
-           $bman-skip-intermediate-log)
-          (,(err-rx ^ "ERROR: In file '" filename "':")
-           1)
-          (,(err-rx ^ "Error-[SE] Syntax error"
-                    "\n  Following verilog source has syntax error :"
-                    "\n  \"" filename "\"," (opt "\n ") " " line ":")
-           1 2)
-          (,(err-rx ^ "Error-[ICPD] Illegal combination of drivers"
-                    "\n" filename ", " line)
-           1 2)
-          (,(err-rx ^ filename ": undefined reference to `" symbol "'")
-           1)
-          (,(err-rx ^ "-E-:FAILED" spc+ fp spc+ fp "  " filename)
-           $bman-find-generic-log)
-          (,(err-rx ^ "Error-[" -> "]")) ;; generic catch all VCS error
-          (,(err-rx ^ "// 'DOFile " filename "' aborted at line " line)
-           1 2)))
-  (setq compilation-error-regexp-alist $compilation-error-regexp-alist)
-  (with-eval-after-load 'verilog-mode
-    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs)
-    (setq compilation-error-regexp-alist $compilation-error-regexp-alist)))
+;; This adds a ton of regex that we don't need
+(with-eval-after-load 'verilog-mode
+    (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs))
 
 ;; There is an issue where an error message spans multiple lines, the font lock
 ;; engine will sometimes stop parsing in the middle of it and therefore it will
@@ -3494,9 +3322,6 @@ it from todays agenda."
        org-agenda-tags-todo-honor-ignore-options t
        org-agenda-dim-blocked-tasks 'invisible)
 
-(when ($dev-config-p)
-  (setq org-agenda-files "~/org/.agenda-files"))
-
 ($leader-set-key
   "a" 'org-agenda)
 (general-def org-agenda-mode-map "o" 'org-agenda-log-mode)
@@ -3701,9 +3526,6 @@ work, so I copy links and paste them into chrome."
       (message "copied org link: %s"
                (kill-new (org-element-property :raw-link context))))))
 
-(when ($dev-config-p)
-  (add-hook 'org-open-at-point-functions '$org-copy-url))
-
 (setq org-return-follows-link t)
 
 ;;;; editing
@@ -3717,21 +3539,13 @@ work, so I copy links and paste them into chrome."
             (not (org-babel-where-is-src-block-head))
           t)))
 
-(add-hook 'org-mode-hook 'flyspell-mode)
-(add-hook 'with-editor-mode-hook 'flyspell-mode)
-
-(when (eq system-type 'windows-nt)
-  (setq ispell-program-name "hunspell")
-  (setq-default ispell-local-dictionary "en_US")
-  (setq ispell-dictionary-alist
-        '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
-  (setq ispell-local-dictionary-alist ispell-dictionary-alist))
+(use-package jinx)
+(add-hook 'org-mode-hook 'jinx-mode)
+(add-hook 'with-editor-mode-hook 'jinx-mode)
 
 (add-hook 'org-mode-hook
           (defun $enable-company-spell ()
             (setq-local company-backends '(company-capf (company-ispell company-dabbrev)))
-            (when ($dev-config-p)
-              (setq-local company-frontends '(company-preview-frontend)))
             (company-mode)))
 
 (use-package org-variable-pitch
@@ -3889,8 +3703,6 @@ work, so I copy links and paste them into chrome."
   (company-backends '((company-capf company-dabbrev-code company-keywords)
                       company-dabbrev))
   :config
-  (unless ($dev-config-p)
-    (company-posframe-mode))
   (advice-add 'company-select-previous :before-until #'$company-select-prev-or-comint-match-input))
 
 (defun $company-select-prev-or-comint-match-input (&optional _)
@@ -3904,8 +3716,7 @@ prompt in shell mode"
 (with-eval-after-load 'company-dabbrev-code
   (add-to-list 'company-dabbrev-code-modes 'shell-mode))
 
-(unless ($dev-config-p)
-  (use-package company-posframe))
+(use-package company-posframe)
 
 ;; https://github.com/doomemacs/doomemacs/commit/2e476de44693c9f4953f3c467284e88b28b6084e
 (add-hook 'evil-local-mode-hook
@@ -3947,8 +3758,7 @@ prompt in shell mode"
     "ee" 'eval-last-sexp
     "eb" 'eval-buffer
     "er" 'eval-region
-    "ef" 'eval-defun
-    "j"  'counsel-semantic-or-imenu)
+    "ef" 'eval-defun)
   :custom
   (add-hook 'emacs-lisp-mode-hook (lambda () (setq-local tab-width 8))))
 
@@ -4087,8 +3897,7 @@ prompt in shell mode"
   :general
   (:definer 'leader
    :keymaps 'perl-mode-map
-   "r" 'quickrun
-   "j" 'counsel-semantic-or-imenu)
+   "r" 'quickrun)
   :init
   (setq perl-indent-parens-as-block t
         perl-continued-brace-offset 0
@@ -4146,16 +3955,10 @@ prompt in shell mode"
    "fs" 'perltidy-subroutine))
 
 ;;;; Python
-(defvar $python-executable (if ($dev-config-p) "python3.6.3a" "python3"))
-
 (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
 
-(setq python-shell-interpreter $python-executable
-      flycheck-python-flake8-executable $python-executable
-      flycheck-python-pycompile-executable $python-executable
-      flycheck-python-pylint-executable $python-executable)
-
 (use-package yapfify)
+(use-package blacken)
 
 (use-package live-py-mode
   :custom
@@ -4163,23 +3966,22 @@ prompt in shell mode"
 
 (use-package python
   :straight nil
-  :interpreter ("python[a-z0-9.]*" . python-mode)
   :compdef python-mode
   :company (company-capf company-dabbrev-code)
-  :general
-  (:definer 'leader
-   :keymaps '(python-mode-map python-ts-mode-map)
-   "j" 'counsel-semantic-or-imenu))
-
-
-(if (version< emacs-version "29.1")
-    (add-hook 'python-mode-hook #'lsp)
-  (add-hook 'python-base-mode-hook #'lsp)
-  (add-hook 'python-base-mode-hook #'copilot-mode)
+  :config
+  (add-hook 'python-base-mode-hook #'$lsp-unless-remote)
+  (unless ($dev-config-p)
+    (add-hook 'python-base-mode-hook #'copilot-mode))
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
-(unless ($dev-config-p)
-  (use-package lsp-pyright :demand t :after python))
+(defun $lsp-unless-remote ()
+  (if (file-remote-p buffer-file-name)
+      (eldoc-mode -1)
+    (lsp)))
+
+(use-package lsp-jedi :demand t :after python)
+(use-package lsp-pyright :demand t :after python)
+(setq lsp-disabled-clients '(pyright-tramp))
 
 (setq lsp-pylsp-plugins-flake8-enabled nil
       lsp-pylsp-plugins-pydocstyle-enabled nil
@@ -4199,7 +4001,6 @@ prompt in shell mode"
   :gfhook #'copilot-mode
   :general
   (:definer 'leader :keymaps 'rustic-mode-map
-   "j" 'counsel-semantic-or-imenu
    "m" 'lsp-rust-analyzer-expand-macro)
   (:states '(normal) :keymaps 'comint-mode-map
    "q" 'quit-window)
@@ -4229,17 +4030,13 @@ prompt in shell mode"
   (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 
 ;;;; C
-(unless ($dev-config-p)
-  (add-hook 'c-mode-hook #'lsp))
+(add-hook 'c++-mode-hook #'lsp)
+(add-hook 'c-mode-hook #'lsp)
 
 ;;; Verilog
 (use-package verilog-mode
   :straight nil
   :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl" "sv09") eos)
-  :general
-  (:definer 'leader
-   :keymaps 'verilog-mode-map
-   "j" 'counsel-semantic-or-imenu)
   :config
   (add-to-list 'verilog-imenu-generic-expression
                `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
@@ -4282,8 +4079,6 @@ prompt in shell mode"
   :general
   ('normal tcl-mode-map "gz" 'inferior-tcl)
   (tcl-mode-map "TAB" 'indent-for-tab-command)
-  (:definer 'leader :keymaps 'tcl-mode-map
-   "j" 'counsel-semantic-or-imenu)
   (tcl-mode-map "C-<return>" '$send-command)
   :custom
   (flycheck-tcl-nagelfar-syntaxdb-file "~/custom/tcl_json_files/TclComplete/syntaxdb_tessent.tcl")
@@ -4302,20 +4097,20 @@ prompt in shell mode"
 (defun $tcl-fix-symbol-def ()
   (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
 
-(when ($dev-config-p)
-  (use-package company-syntcl
-    :straight
-    (:repo "https://github.com/tjhinckl/company-syntcl.git"
-     :files ("company-syntcl.el"))
-    :custom
-    (company-syntcl-dir "~/custom/TclComplete")
-    :config
-    (defun company-syntcl--annotation (_) nil)))
+;; (when ($dev-config-p)
+;;   (use-package company-syntcl
+;;     :straight
+;;     (:repo "https://github.com/tjhinckl/company-syntcl.git"
+;;      :files ("company-syntcl.el"))
+;;     :custom
+;;     (company-syntcl-dir "~/custom/TclComplete")
+;;     :config
+;;     (defun company-syntcl--annotation (_) nil)))
 
 ;;;; ICL
 
-(define-derived-mode icl-mode c-mode "ICL"
-  (setq-local c-basic-offset 3)
+(define-derived-mode icl-mode java-mode "ICL"
+  (setq-local c-basic-offset 2)
   (setq-local indent-line-function 'icl-indent-line)
   (setq-local font-lock-defaults '(icl-font-lock-keywords))
   (setq-local comment-start "//")
@@ -4328,7 +4123,6 @@ prompt in shell mode"
   (modify-syntax-entry ?\' "." icl-mode-syntax-table)
   (modify-syntax-entry ?$ "." icl-mode-syntax-table))
 
-(general-def :definer 'leader :keymaps 'icl-mode-map "j" 'counsel-semantic-or-imenu)
 (add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
 
 (defun icl-broken-line-p ()
@@ -4371,9 +4165,6 @@ prompt in shell mode"
 ;;;; JSON
 (use-package json-mode
   :gfhook 'flycheck-mode 'hs-minor-mode
-  :init
-  (when ($dev-config-p)
-    (setq flycheck-json-python-json-executable $python-executable))
   :config
   (add-to-list 'hs-special-modes-alist (list 'json-mode (rx (any "{[")) (rx (any "]}")) (rx "/" (any "/*"))))
   (font-lock-add-keywords 'json-mode
@@ -4395,6 +4186,9 @@ prompt in shell mode"
 (font-lock-add-keywords 'sh-mode
                         `((,($rx spc (group (>= 1 (in "-")) symbol))
                            1 font-lock-constant-face)))
+
+(use-package bazel
+  :defer 10)
 
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
@@ -4429,30 +4223,4 @@ prompt in shell mode"
 
 (add-to-list 'auto-mode-alist `(,(rx "itools" eos) . conf-mode))
 
-(defun $rerun-postprocess ()
-  "Rerun the postprocess file for the current postsim"
-  (interactive)
-  (let ((file (buffer-file-name))
-        (cmdline (save-excursion
-                   (goto-char (point-min))
-                   (when (re-search-forward ($rx bol "POSTSIM CMDLINE: " (group ->)))
-                     (match-string 1))))
-        (shell-file-name "/usr/intel/bin/tcsh")
-        (src-file (car (file-expand-wildcards
-                        (expand-file-name
-                         "target/*/collage/work/*/setup_collage_assembler.*_collage_assemble.csh"
-                         ($model-root))))))
-    (if cmdline
-        (progn
-          (setq cmdline
-                (thread-last (unless (string-prefix-p "-force" cmdline)
-                               (concat cmdline " -force"))
-                  (replace-regexp-in-string ($rx "/tmp/netbatch/" -> "//") "$MODEL_ROOT/" )
-                  (replace-regexp-in-string (rx "acerun.log" symbol-end) "acerun.log.gz")))
-          (shell-command-to-string
-           (format "source %s && setenv PATH ${PATH}:$ACE_HOME/bin && %s" src-file cmdline))
-          (if (string-suffix-p ".gz" file)
-              (progn (kill-buffer)
-                     (find-file (string-remove-suffix ".gz" file))))
-          (auto-revert-mode))
-      (user-error "commandline not found"))))
+(setenv "LIBRARY_PATH")
