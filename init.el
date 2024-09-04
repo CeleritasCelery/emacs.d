@@ -1305,7 +1305,7 @@ If INVERT, do the opposite of the normal behavior."
 
 (csetq sentence-end-double-space nil)
 
-(setq-default fill-column 80)
+(setq-default fill-column 100)
 
 (defun backward-delete-word (arg)
   "Delete characters backward until encountering the beginning of a word.
