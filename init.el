@@ -793,16 +793,19 @@ current window."
              (message (current-kill 0)))
     (error "Buffer not visiting a file")))
 
-(defun $correct-file-path (file &optional invert)
+(defun $correct-file-path (file &optional abs-path)
   "If file is in a work disk, get the absolute path.
 If INVERT, do the opposite of the normal behavior."
   (let* ((remote (file-remote-p file))
          (home (expand-file-name
-               (concat remote "~"))))
-    (if (eq (null invert)
-            (string-prefix-p
-             (concat home "/workspace")
-             file))
+                (concat remote "~")))
+         (prefix (concat home "/workspace")))
+    (if (string-prefix-p prefix file)
+        (setq file (string-replace
+                    prefix
+                    (file-truename prefix)
+                    file)))
+    (if abs-path
         (file-truename file)
       file)))
 
