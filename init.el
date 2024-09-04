@@ -706,6 +706,8 @@ Text Scale
   (doom-modeline-major-mode-color-icon t)
   :config
   (setq eldoc-eval-preferred-function 'eval-expression)
+  (remove-hook 'evil-insert-state-exit-hook #'doom-modeline-update-buffer-file-name)
+  (remove-hook 'find-file-hook #'doom-modeline-update-buffer-file-name)
   (doom-modeline-def-segment buffer-encoding-simple
     (propertize
      (concat (pcase (coding-system-eol-type buffer-file-coding-system)
@@ -3896,7 +3898,8 @@ prompt in shell mode"
 
 (defun $lsp-unless-remote ()
   (if (file-remote-p buffer-file-name)
-      (eldoc-mode -1)
+      (progn (eldoc-mode -1)
+             (setq-local completion-at-point-functions nil))
     (lsp)))
 
 (use-package lsp-jedi :demand t :after python)
@@ -4108,7 +4111,11 @@ prompt in shell mode"
                            1 font-lock-constant-face)))
 
 (use-package bazel
-  :defer 10)
+  :config
+  ;; this is really slow
+  ;; https://github.com/bazelbuild/emacs-bazel-mode/issues/423
+  (when-let ((ffap (rassoc 'bazel-mode-ffap ffap-alist)))
+    (setq ffap-alist (remove ffap ffap-alist))))
 
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
