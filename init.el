@@ -977,7 +977,7 @@ If INVERT, do the opposite of the normal behavior."
   (plist-put ivy-rich-display-transformers-list
              'ivy-switch-buffer
              '(:columns
-               ((ivy-rich-candidate (:width 200))
+               ((ivy-rich-candidate (:width 100))
                 (ivy-rich-switch-buffer-indicators (:width 4 :face error :align right))
                 (ivy-rich-switch-buffer-major-mode (:width 15 :face warning))
                 (ivy-rich-switch-buffer-project (:width 25 :face success)))
