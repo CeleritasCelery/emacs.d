@@ -2334,7 +2334,9 @@ directory pointing to the same file name"
    "SPC" nil)
   :init
   ($leader-set-key
-    "g" '(:ignore t :wk "git"))
+    "g" '(:ignore t :wk "git")
+    "gg" 'magit-dispatch
+    "gf" 'magit-file-dispatch)
   (evil-ex-define-cmd "git" 'magit-status)
   ;; make transient not take the width of the whole frame
   (setq transient-display-buffer-action
