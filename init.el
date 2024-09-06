@@ -706,6 +706,8 @@ Text Scale
   (doom-modeline-major-mode-color-icon t)
   :config
   (setq eldoc-eval-preferred-function 'eval-expression)
+  (remove-hook 'evil-insert-state-exit-hook #'doom-modeline-update-buffer-file-name)
+  (remove-hook 'find-file-hook #'doom-modeline-update-buffer-file-name)
   (doom-modeline-def-segment buffer-encoding-simple
     (propertize
      (concat (pcase (coding-system-eol-type buffer-file-coding-system)
@@ -793,16 +795,19 @@ current window."
              (message (current-kill 0)))
     (error "Buffer not visiting a file")))
 
-(defun $correct-file-path (file &optional invert)
+(defun $correct-file-path (file &optional abs-path)
   "If file is in a work disk, get the absolute path.
 If INVERT, do the opposite of the normal behavior."
   (let* ((remote (file-remote-p file))
          (home (expand-file-name
-               (concat remote "~"))))
-    (if (eq (null invert)
-            (string-prefix-p
-             (concat home "/workspace")
-             file))
+                (concat remote "~")))
+         (prefix (concat home "/workspace")))
+    (if (string-prefix-p prefix file)
+        (setq file (string-replace
+                    prefix
+                    (file-truename prefix)
+                    file)))
+    (if abs-path
         (file-truename file)
       file)))
 
@@ -1302,7 +1307,7 @@ If INVERT, do the opposite of the normal behavior."
 
 (csetq sentence-end-double-space nil)
 
-(setq-default fill-column 80)
+(setq-default fill-column 100)
 
 (defun backward-delete-word (arg)
   "Delete characters backward until encountering the beginning of a word.
@@ -2022,7 +2027,9 @@ This includes remote paths and enviroment variables."
   "Open the file name in the clipboard"
   (interactive)
   (if-let ((path ($--get-file-from-clipboard)))
-      (find-file path)
+      (progn (when (string-prefix-p "/proj" path)
+               (setq path (concat "/scp:server:" path)))
+             (find-file path))
     (message "no path found in clipboard")))
 
 (defun $open-dir-in-clipboard ()
@@ -2329,7 +2336,9 @@ directory pointing to the same file name"
    "SPC" nil)
   :init
   ($leader-set-key
-    "g" '(:ignore t :wk "git"))
+    "g" '(:ignore t :wk "git")
+    "gg" 'magit-dispatch
+    "gf" 'magit-file-dispatch)
   (evil-ex-define-cmd "git" 'magit-status)
   ;; make transient not take the width of the whole frame
   (setq transient-display-buffer-action
@@ -2897,18 +2906,6 @@ Display progress in the minibuffer instead."
 
 (add-hook 'compilation-shell-minor-mode-hook 'evil-normal-state)
 
-(defun $apply-ansi-color-on-buffer ()
-  "apply ANSI color codes in this buffer"
-  (interactive)
-  (ansi-color-apply-on-region (point-min) (point-max)))
-
-(defvar-local $ansi-color-compile nil)
-
-(add-hook 'compilation-filter-hook
-          (defun $ansi-color-compile ()
-            (when $ansi-color-compile
-              (ansi-color-apply-on-region (point-min) (point)))))
-
 (define-arx err-rx
   (append $rx-defaults
           '((fill (1+ (not (any space))))
@@ -2918,89 +2915,15 @@ Display progress in the minibuffer instead."
             (info (opt "-I-:")))))
 
 ;;;;; errors
-;; we need to define what errors look like in compilation and log
-;; files. compilation mode has some defaults but they are not really
-;; applicable to us. Also the built-in verilog mode tries to add all of
-;; its error regexp's to the alist everytime it is loaded. This results
-;; in a lot of extra processing that we don't want. Therefore we remove
-;; that hook and set the alist back to our canonical version.
-(defvar $compilation-error-regexp-alist nil
-  "The canonical error regexp alist")
-
-(defun $prev-declaration-file ()
-  (save-excursion
-    (forward-line 2)
-    (forward-char)
-    (thread-last (thing-at-point 'line)
-      (string-remove-prefix "  \"")
-      (string-remove-suffix "\",\n"))))
-
-(defun $find-par-file ()
-  (let* ((log (buffer-file-name))
-         (root (vc-git-root log))
-         (model (and (string-match (rx "collage_assemble_"
-                                       (group (1+ any))
-                                       "_collage_assemble")
-                                   log)
-                     (match-string 1 log))))
-    (format "%stools/collage/integ_specs/%s_soc_par.txt" root model)))
-
-(defun $follow-connection-file ()
-  (let* ((file (match-string 1))
-         (buffer (find-file-noselect file 'nowarm 'raw)))
-    (prog1 (with-current-buffer buffer
-             (save-match-data
-               (if (re-search-forward (err-rx bol "##Source File: " filename))
-                   (match-string 1)
-                 file)))
-      (kill-buffer buffer))))
-
-(defun $correct-connection-line-number ()
-  "adjust line numbers for connection files"
-  (let ((file-name (buffer-file-name)))
-    (when (string-match-p (rx (or "adhoc" "std") "_connection") file-name)
-      (forward-line -1)
-      (evil-set-jump))))
-
-(add-hook 'next-error-hook '$correct-connection-line-number)
-
 ;; This adds a ton of regex that we don't need
 (with-eval-after-load 'verilog-mode
     (remove-hook 'compilation-mode-hook 'verilog-error-regexp-add-emacs))
-
-;; There is an issue where an error message spans multiple lines, the font lock
-;; engine will sometimes stop parsing in the middle of it and therefore it will
-;; never get highlighted. We fix this by creating our own
-;; `font-lock-extend-region' function that makes sure we do not stop on error
-;; messages.
-(defun $font-lock-extend-region-error-message ()
-  (defvar font-lock-end)
-  (save-excursion
-    (goto-char font-lock-end)
-    (when (or ($font-lock-at-error-p 'beginning-of-line-text)
-              ($font-lock-at-error-p (apply-partially 'beginning-of-line-text 0)))
-      (forward-line 2)
-      (end-of-line)
-      (setq font-lock-end (point)))))
-
-(defun $font-lock-at-error-p (move)
-  (save-excursion
-    (funcall move)
-    (looking-at-p (rx (opt "-I-:")
-                      (or "Error: "
-                          "Error-"
-                          "Errormessage"
-                          "-E-:"
-                          "-F-:"
-                          "Information:")))))
-
-(byte-compile '$font-lock-extend-region-error-message)
 
 ;;;;; dir
 ;; by setting the compliation root, we can ensure that we are only prompted to
 ;; save buffers that actaully exist in the project instead of it trying prompt
 ;; us to save all buffers.
-(defvar $current-compilation-dir nil
+(defvar-local $current-compilation-dir nil
   "root of current compliation")
 
 (defun $set-compilation-dir (&rest _)
@@ -3196,7 +3119,6 @@ access"
 
 (use-package org
   :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
-  :gfhook #'$org-truncate-lines #'toggle-word-wrap
   :straight (:type built-in)
   :general
   (:definer 'leader
@@ -3976,7 +3898,8 @@ prompt in shell mode"
 
 (defun $lsp-unless-remote ()
   (if (file-remote-p buffer-file-name)
-      (eldoc-mode -1)
+      (progn (eldoc-mode -1)
+             (setq-local completion-at-point-functions nil))
     (lsp)))
 
 (use-package lsp-jedi :demand t :after python)
@@ -4188,7 +4111,11 @@ prompt in shell mode"
                            1 font-lock-constant-face)))
 
 (use-package bazel
-  :defer 10)
+  :config
+  ;; this is really slow
+  ;; https://github.com/bazelbuild/emacs-bazel-mode/issues/423
+  (when-let ((ffap (rassoc 'bazel-mode-ffap ffap-alist)))
+    (setq ffap-alist (remove ffap ffap-alist))))
 
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
