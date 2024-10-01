@@ -2583,9 +2583,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   "u" 'evil-inner-hunk)
 
 ;;;; shell
-
-(when (eq system-type 'darwin)
-  (csetq shell-file-name "bash"))
+(setq shell-file-name "bash"
+      explicit-shell-file-name "bash")
 
 (use-package comint
   :straight nil
