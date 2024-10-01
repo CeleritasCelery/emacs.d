@@ -3586,6 +3586,7 @@ work, so I copy links and paste them into chrome."
   (add-hook 'org-insert-heading-hook 'evil-insert-state)
   :config
   (evil-org-set-key-theme)
+  (evil-define-key 'normal evil-org-mode-map (kbd "RET") #'evil-org-return)
   (general-def 'normal 'org-mode-map
     "[[" '$org-headings/org-previous-visible-heading
     "]]" '$org-headings/org-next-visible-heading))
