@@ -2640,34 +2640,6 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (goto-char (point-max))
     (insert path)))
 
-;; see if we need this replacement, if not delete it
-  ;; (with-eval-after-load 'comint
-  ;;   (el-patch-defun $comint-redirect-setup (output-buffer
-  ;;                                 comint-buffer
-  ;;                                 finished-regexp
-  ;;                                 &optional echo-input)
-  ;;     (with-current-buffer comint-buffer
-  ;;       (setq-local comint-redirect-original-mode-line-process mode-line-process)
-  ;;       (setq-local comint-redirect-output-buffer output-buffer)
-  ;;       (setq-local comint-redirect-finished-regexp finished-regexp)
-  ;;       (setq-local comint-redirect-echo-input echo-input)
-  ;;       (setq-local comint-redirect-completed nil)
-  ;;       (setq-local comint-redirect-previous-input-string "")
-  ;;       (setq mode-line-process
-  ;;             (el-patch-swap
-  ;;               (if (and mode-line-process (stringp (elt mode-line-process 0)))
-  ;;                   (list (concat (elt mode-line-process 0) " Redirection"))
-  ;;                 (list ":%s Redirection"))
-  ;;               (if mode-line-process
-  ;;                  (let ((mode-line (elt mode-line-process 0)))
-  ;;                    (cond ((stringp mode-line) (list (concat mode-line " Redirection")))
-  ;;                          ((and (consp mode-line)
-  ;;                                (eq :propertize (car mode-line)))
-  ;;                           (cons :propertize
-  ;;                             (cons (concat (cadr mode-line) " Redirection")
-  ;;                                   (cddr mode-line))))))
-  ;;                (list ":%s Redirection")))))))
-
 (use-package shell
   :straight nil
   :gfhook #'company-mode)
