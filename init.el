@@ -1724,8 +1724,35 @@ that region."
 
 (setq magit-tramp-pipe-stty-settings 'pty)
 
+;; Used to speed up some tramp operations
+(defun $memoize-remote (key cache orig-fn &rest args)
+  "Memoize a value if they key is a remote path."
+  (if (file-remote-p key)
+      (if-let ((current (assoc key (symbol-value cache))))
+          (cdr current)
+        (let ((current (apply orig-fn args)))
+          (set cache (cons (cons key current) (symbol-value cache)))
+          current))
+    (apply orig-fn args)))
+
 ;;;; Projects
 
+(defvar project-current-cache nil
+  "Cache of current projects")
+
+(defun $memoize-project-current (orig &optional prompt directory)
+  "If we have visited project before, return the cached value."
+  ($memoize-remote (or directory
+                       project-current-directory-override
+                       default-directory)
+                   'project-current-cache orig prompt directory))
+
+(advice-add 'project-current :around #'$memoize-project-current)
+
+(defun $clear-project-current-cache ()
+  "Clear the project cache"
+  (interactive)
+  (setq project-current-cache nil))
 (defun $project-buffers (arg &optional dir)
   (interactive "P")
   (let ((root (cdr (project-current
@@ -2363,6 +2390,31 @@ directory pointing to the same file name"
 (advice-add 'magit-turn-on-auto-revert-mode-if-desired
             :around
             #'$magit-auto-revert-not-remote)
+
+(defvar magit-toplevel-cache nil)
+
+(defun $memoize-magit-toplevel (orig &optional directory)
+  ($memoize-remote (or directory default-directory)
+                   'magit-toplevel-cache orig directory))
+
+(advice-add 'magit-toplevel :around #'$memoize-magit-toplevel)
+;; (advice-remove 'magit-toplevel #'$memoize-magit-toplevel)
+
+(defun $clear-magit-toplevel-cache ()
+  (interactive)
+  (setq magit-toplevel-cache nil))
+
+(defvar vc-git-root-cache nil)
+
+(defun $memoize-vc-git-root (orig file)
+  ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file))
+
+(advice-add 'vc-git-root :around #'$memoize-vc-git-root)
+;; (advice-remove 'vc-git-root #'$memoize-vc-git-root)
+
+(defun $clear-vc-git-root-cache ()
+  (interactive)
+  (setq vc-git-root-cache nil))
 
 (csetq magit-diff-expansion-threshold 20)
 
