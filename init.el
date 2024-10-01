@@ -3950,7 +3950,9 @@ prompt in shell mode"
 (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
 
 (use-package yapfify)
-(use-package blacken)
+(use-package blacken
+  :init
+  (setq blacken-line-length 'fill))
 
 (use-package live-py-mode
   :custom
