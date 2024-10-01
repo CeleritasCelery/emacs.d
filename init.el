@@ -463,8 +463,8 @@
   (interactive)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Jump file: "
-              (counsel--call (list (or (executable-find "fd")
-                                       (executable-find "fdfind"))
+              (counsel--call (list (or (executable-find "fd" t)
+                                       (executable-find "fdfind" t))
                                    "--no-ignore" "--hidden" "--exclude" ".git" "--type" "f")
                              (lambda () (split-string (buffer-string) "\n")))
               :matcher #'counsel--find-file-matcher
