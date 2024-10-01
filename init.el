@@ -1753,9 +1753,17 @@ that region."
   "Clear the project cache"
   (interactive)
   (setq project-current-cache nil))
+
+(defun $find-file-from-root ()
+  (interactive)
+  (let ((default-directory (project-root (project-current))))
+    (call-interactively #'find-file)))
+
+($leader-set-key "ff" '$find-file-from-root)
+
 (defun $project-buffers (arg &optional dir)
   (interactive "P")
-  (let ((root (cdr (project-current
+  (let ((root (project-root (project-current
                     nil (or dir default-directory))))
         ivy-use-virtual-buffers
         buffers)
@@ -1796,7 +1804,7 @@ that region."
   (ivy-add-actions '$project-buffers
                    '(("k" ivy--kill-buffer-action "kill"))))
 
-($leader-set-key "bb" '$project-buffers)
+($leader-set-key "bb" 'ivy-switch-buffer)
 
 (defun $read-common-file (file-list &optional prompt)
   "read a file amoung common paths"
@@ -1966,18 +1974,9 @@ then removing in the background"
   "fe" '$find-user-config-file)
 
 (defun $normalize-file-name (file)
-  "This functions does 3 things.
-1. update MODEL_ROOT to the current model
+  "This functions does a few things.
 2. automatically add remote prefix if required
 3. Remove problematic formating from files"
-  ;; set MODEL_ROOT if variable is present in file name
-  (when-let ((root (and (string-match-p "MODEL_ROOT" file)
-                        (vc-git-root default-directory))))
-    (--> root
-      (file-truename it)
-      (string-remove-suffix "/" it)
-      (string-remove-prefix (or (file-remote-p it) "") it)
-      (setenv "MODEL_ROOT" it)))
   ;; add remote url if required
   (let* ((remote-url (if (file-name-absolute-p file)
                          (file-remote-p default-directory)
@@ -1986,22 +1985,15 @@ then removing in the background"
                (file-directory-p file))
       (cl-callf concat file "/"))
     ;; remove problematic formatting from files
-    (let* ((path (thread-last file
-                   (replace-regexp-in-string (rx (1+ (any space "\""))) "")
-                   (replace-regexp-in-string "\"" "")
-                   (string-remove-prefix "./")
-                   (replace-regexp-in-string "$ENV" "$")
-                   ($substitute-env-in-filename)
-                   (replace-regexp-in-string (rx (1+ "/")) "/")
-                   (concat remote-url)
-                   (substitute-in-file-name)))
-           (root-path (concat (vc-git-root default-directory)
-                              path))
-           (zip-path (concat path ".gz")))
-      (cond ((file-exists-p path) path)
-            ((file-exists-p root-path) root-path)
-            ((file-exists-p zip-path) zip-path)
-            (t path)))))
+    (thread-last file
+                 (replace-regexp-in-string (rx (1+ (any space "\""))) "")
+                 (replace-regexp-in-string "\"" "")
+                 (string-remove-prefix "./")
+                 (replace-regexp-in-string "$ENV" "$")
+                 ($substitute-env-in-filename)
+                 (replace-regexp-in-string (rx (1+ "/")) "/")
+                 (concat remote-url)
+                 (substitute-in-file-name))))
 
 (defun $substitute-env-in-filename (file)
   "if the variables in the file name are present in the file,
@@ -2034,10 +2026,13 @@ substitute them in the path"
 (defun $get-path-at-point ()
   "Get the filepath at point.
 This includes remote paths and enviroment variables."
-  (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$/.#_~\""))
+  (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$:/.#_~\""))
          (beg (car bounds))
          (end (cdr bounds))
-         (path (buffer-substring-no-properties beg end)))
+         (substring (buffer-substring-no-properties beg end))
+         ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
+         ;; path. In which case need to remove it
+         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring)))
     (if (save-excursion
           (goto-char beg)
           (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
@@ -2079,21 +2074,35 @@ This includes remote paths and enviroment variables."
   (let* ((file ($normalize-file-name ($get-path-at-point)))
          (context (buffer-substring-no-properties (line-beginning-position)
                                                   (line-end-position 2)))
-         (line (when (string-match ($rx (any alnum "\"'")
-                                        (or ":"
-                                            (: "," (* (any " \n")))
-                                            (: (opt ",") " line ")
-                                            (: "(")
-                                            (: " ")
-                                            (: ", Line: "))
-                                        (group nums))
-                                   context)
-                 (match-string 1 context))))
-    (if (file-exists-p file)
-        (progn (find-file file)
-               (when line
-                 (goto-line (string-to-number line))))
-      (user-error (format "File %s does not exists" file)))))
+         (line-rx ($rx (any alnum "\"'")
+                       (or ":"
+                           (: "," (* (any " \n")))
+                           (: (opt ",") " line ")
+                           (: "(")
+                           (: " ")
+                           (: ", Line: "))
+                       (group nums)))
+         (root (when-let ((current (project-current)))
+                 (project-root current)))
+         (search-dirs
+          (delq nil (list "" ;; current directory
+                          (and root (concat root "bazel-build/"))
+                          (and root (concat root "build/bazel-build/")))))
+         (file-path (cl-loop for dir in search-dirs
+                             for path = (concat dir file)
+                             if (file-exists-p path)
+                             return path
+                             finally (user-error (format "File %s does not exists" file)))))
+    (find-file file-path)
+    (when (string-match line-rx context)
+      (goto-line (string-to-number (match-string 1 context))))))
+
+(defun $find-file-in-dirs (file dirs)
+  (cl-loop for dir in dirs
+           with path = (concat dir file)
+           if (file-exists-p path)
+           return path
+           finally (user-error (format "File %s does not exists" file))))
 
 (defun $paste-relative-path ()
   "paste the contents of the clipboard. If it is a path, make it relative to `default-directory'"
