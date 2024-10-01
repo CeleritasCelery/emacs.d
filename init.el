@@ -2378,12 +2378,12 @@ directory pointing to the same file name"
   ;; make transient not take the width of the whole frame
   (setq transient-display-buffer-action
         '(display-buffer-below-selected))
+  (setq magit-commit-show-diff nil)
+  (setq magit-branch-direct-configure nil)
   :config
   (when ($dev-config-p)
     (setq magit-refresh-status-buffer nil)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-upstream)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header)
-    (remove-hook 'magit-status-sections-hook 'magit-insert-unpulled-from-pushremote))
+    (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header))
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
 
