@@ -4032,6 +4032,9 @@ prompt in shell mode"
 (use-package verilog-mode
   :straight nil
   :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl" "sv09") eos)
+  :init
+  (setq verilog-auto-indent-on-newline nil)
+  (setq verilog-indent-lists nil)
   :config
   (add-to-list 'verilog-imenu-generic-expression
                `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
