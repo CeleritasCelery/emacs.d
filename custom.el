@@ -9,7 +9,13 @@
  '(helm-minibuffer-history-key "M-p")
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   '((lisp-backquote-indentation . t)
+   '((org-src-preserve-indentation)
+     (eval require 'ol-man nil t)
+     (eval require 'magit-base nil t)
+     (elisp-lint-indent-specs
+      (git-gutter:awhen . 1))
+     (magit-todos-exclude-globs)
+     (lisp-backquote-indentation . t)
      (eval font-lock-add-keywords nil
            `((,(concat "("
                        (regexp-opt
