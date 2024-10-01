@@ -3738,6 +3738,8 @@ prompt in shell mode"
         (toml "https://github.com/tree-sitter/tree-sitter-toml")
         (yaml "https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0")))
 
+(add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
+
 ;;;; elisp
 
 (use-package elisp-mode
