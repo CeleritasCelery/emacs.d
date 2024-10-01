@@ -2605,12 +2605,23 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (comint-input-ring-size 1000)
   (comint-scroll-to-bottom-on-input t)
   (comint-process-echoes t)
-  (comint-prompt-read-only t))
+  (comint-prompt-read-only t)
+  :config
+  (add-hook 'compilation-filter-hook #'$compile-apply-ansi-color))
+
+(defun $compile-apply-ansi-color ()
+  (ansi-color-apply-on-region compilation-filter-start (point)))
 
 (use-package xterm-color)
-(defun $advice-compilation-filter (f proc string)
-  (funcall f proc (xterm-color-filter string)))
-(advice-add 'compilation-filter :around #'$advice-compilation-filter)
+
+(defun $xterm-colorize-buffer ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (xterm-color-colorize-buffer)
+    (goto-char (point-min))
+    (while (search-forward "\r" nil t)
+      (replace-match "" nil t)))
+    (goto-char (point-min)))
 
 (defun $goto-cmd-line (&rest _)
   (goto-char (point-max)))
@@ -4204,7 +4215,30 @@ prompt in shell mode"
   ;; this is really slow
   ;; https://github.com/bazelbuild/emacs-bazel-mode/issues/423
   (when-let ((ffap (rassoc 'bazel-mode-ffap ffap-alist)))
-    (setq ffap-alist (remove ffap ffap-alist))))
+    (setq ffap-alist (remove ffap ffap-alist)))
+  ;; make bazel projects higher priority
+  (setq project-find-functions
+        (cons 'bazel-find-project (remove 'bazel-find-project project-find-functions))))
+
+(defun $clear-bazel-progress-bar (orig start end)
+  "Bazel uses the following terminal sequence to clear the progress
+messages. We want to handle these in our terminal so we don't get
+redundant output."
+  (save-excursion
+    (goto-char start)
+    (while (search-forward "\r\e[1A\e[K" nil t)
+      (unless (eq (line-beginning-position) (point-min))
+        (let ((seq-end (point)))
+          ;; need to call line-move first, because it does not stay at the start of the lines
+          (progn (forward-line -1)
+                 (when (< (point) start)
+                   (setq start (point))
+                   (when compilation-filter-start
+                     (setq compilation-filter-start start)))
+                 (delete-region (point) seq-end))))))
+  (funcall orig start (point)))
+
+(advice-add 'comint-carriage-motion :around '$clear-bazel-progress-bar)
 
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
