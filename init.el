@@ -1108,12 +1108,8 @@ If INVERT, do the opposite of the normal behavior."
   (inner "a" 'evil-inner-arg)
   (outer "a" 'evil-outer-arg))
 
-(evil-ex-define-cmd "rg" '$counsel-rg-here)
-(evil-ex-define-cmd "rr" '$counsel-rg-root)
 (evil-ex-define-cmd "j" 'counsel-fd-jump)
-(evil-ex-define-cmd "perl" 'perl-mode)
 (evil-ex-define-cmd "lisp" '$lisp-mode)
-(evil-ex-define-cmd "pkg" 'straight-use-package)
 
 (defun $lisp-mode ()
   (interactive)
@@ -1397,7 +1393,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
   "H-i" 'evil-jump-forward)
 
 (setq tab-always-indent 'complete)
-(setq-default tab-width 4)
 
 ;;;; Copilot
 
