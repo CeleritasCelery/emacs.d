@@ -212,7 +212,13 @@
 (add-to-list 'use-package-keywords :keys)
 
 (use-package no-littering
-  :demand t)
+  :demand t
+  :config
+  ;; These paths need to be relative to the home directory, but no-littering makes them absolute
+  ;; paths.
+  (setq detached-db-directory      "~/.emacs.d/var/detached/db/")
+  (setq detached-session-directory "~/.emacs.d/var/detached/sessions/"))
+
 
 (use-package savehist
   :straight nil
@@ -3114,6 +3120,8 @@ access"
 (use-package alert
   :init
   (setq alert-default-style 'fringe))
+
+(use-package detached)
 
 ;;; Org
 
