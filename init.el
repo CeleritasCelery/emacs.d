@@ -3166,13 +3166,11 @@ access"
      1 'compilation-line-number)
     (,(log-rx I (opt ":")  (group (not (in "-")) (1+ (in alnum " \t_-"))) ": ")
      1 'font-lock-function-name-face)
-    (,(log-rx bol (group "-I-"))
+    (,(log-rx I: (group (or "Note-" "NOTE" "OVM_INFO" "UVM_INFO")))
      1 'compilation-info prepend)
-    (,(log-rx I: (group (or "-I-" "Note-" "NOTE" "OVM_INFO" "UVM_INFO")))
-     1 'compilation-info prepend)
-    (,(log-rx I: (group (or "-E-" "-F-" "Error-" "Fatal-" "OVM_ERROR" "UVM_ERROR" "ERROR" "FATAL" "OVM_FATAL" "UVM_FATAL")))
+    (,(log-rx I: (group (or "%Error:" "Error:" "Error-" "Fatal-" "OVM_ERROR" "UVM_ERROR" "ERROR" "FATAL" "OVM_FATAL" "UVM_FATAL")))
      1 'compilation-error prepend)
-    (,(log-rx I: (group (or "-W-" "Warning-" "WARNING" "OVM_WARNING")))
+    (,(log-rx I: (group (or "Warning-" "WARNING" "OVM_WARNING")))
      1 'compilation-warning prepend)))
 
 
