@@ -4041,6 +4041,20 @@ prompt in shell mode"
                                                 (: symbol "_" symbol))
                                      spc+ (group symbol) (or eol (: spc+ "("))) 1)))
 
+(define-derived-mode filelist-mode prog-mode "FileList"
+  "Major mode for filelists"
+  (setq-local comment-start "//")
+  (setq-local comment-end "")
+  (setq-local font-lock-defaults '(filelist-font-lock-keywords))
+  (modify-syntax-entry ?/ ". 12b" filelist-mode-syntax-table)
+  (modify-syntax-entry ?\n "> b" filelist-mode-syntax-table))
+
+(setq filelist-font-lock-keywords
+      `((,($rx bol spc* "-f" (1+ any)) 0 font-lock-function-name-face)
+        (,($rx bol spc* "+"  (1+ any)) 0 font-lock-builtin-face)))
+
+(add-to-list 'auto-mode-alist '("\\.f\\'" . filelist-mode))
+
 ;; Ligatures in verilog are more complicated then in other languages
 ;; because the symbol <= can be either a left arrow or a "less then or
 ;; equal" symbol. So we add an addition wrapper around the compose
