@@ -2616,7 +2616,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (goto-char (point-max)))
 
 (general-advice-add '(comint-next-matching-input-from-input
-                      comint-previous-matching-input-from-input) :before '$goto-cmd-line)
+                      comint-previous-matching-input-from-input)
+                    :before '$goto-cmd-line)
 
 (defun $copy-path ()
   "copy path at point to prompt"
@@ -2887,7 +2888,10 @@ Display progress in the minibuffer instead."
   (compilation-always-kill t)
   (compilation-scroll-output 'first-error)
   :config
-  (general-unbind compilation-mode-map "SPC"))
+  (general-unbind compilation-mode-map "SPC")
+  ;; If we don't use the controlmaster options, we need to input our password each compile
+  ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2021-02/msg00731.html
+  (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options))
 
 (defun $compile (arg)
   "Compile with model root set"
