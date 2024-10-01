@@ -2474,6 +2474,10 @@ headings that it is contained in."
 
 (add-hook 'magit-diff-visit-file-hook '$expand-org-mode-entry)
 
+(use-package browse-at-remote
+  :config
+  (add-to-list 'browse-at-remote-remote-type-regexps '(:host "gitlab\\..+\\.com" :type "gitlab")))
+
 (use-package smerge-mode
   :straight nil
   :config
