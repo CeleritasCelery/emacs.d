@@ -1712,19 +1712,17 @@ that region."
         tramp-use-scp-direct-remote-copying t
         tramp-copy-size-limit 5000000
         tramp-verbose 2
-        remote-file-name-inhibit-auto-save-visited t)
-  (setq vc-ignore-dir-regexp
-        (format "\\(%s\\)\\|\\(%s\\)"
-                vc-ignore-dir-regexp
-                tramp-file-name-regexp)))
+        remote-file-name-inhibit-auto-save-visited t))
 
-;; (connection-local-set-profile-variables
-;;  'remote-direct-async-process
-;;  '((tramp-direct-async-process . t)))
+(connection-local-set-profile-variables
+ 'remote-direct-async-process
+ '((tramp-direct-async-process . t)))
 
-;; (connection-local-set-profiles
-;;  '(:application tramp :machine "server")
-;;  'remote-direct-async-process)
+(connection-local-set-profiles
+ '(:application tramp :machine "server")
+ 'remote-direct-async-process)
+
+(setq magit-tramp-pipe-stty-settings 'pty)
 
 ;;;; Projects
 
