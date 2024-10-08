@@ -5,3 +5,4 @@ elpa/
 /stash/
 /eln-cache/
 /tree-sitter/
+.aider*

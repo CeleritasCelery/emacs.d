@@ -1419,11 +1419,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
-(use-package openai
-  :straight (openai :type git :host github :repo "emacs-openai/openai")
-  :custom (openai-completon-max-tokens 2000))
-(use-package codegpt
-  :straight (codegpt :type git :host github :repo "emacs-openai/codegpt"))
 (use-package chatgpt-shell
   :init
   (setq chatgpt-shell-model-version "gpt-4"))
@@ -1431,6 +1426,18 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
 ($leader-set-key
   "e" #'chatgpt-shell)
+
+(use-package aider
+  :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
+  :config
+  (setq aider-args '("--sonnet"))
+  ;; Optional: Set a key binding for the transient menu
+  (global-set-key (kbd "C-c a") 'aider-transient-menu))
+
+(use-package gptel
+  :config
+  (gptel-make-anthropic "Claude" :stream t))
+
 
 (use-package ws-butler
   :hook (org-mode prog-mode)
