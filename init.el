@@ -3724,6 +3724,7 @@ prompt in shell mode"
         (markdown "https://github.com/ikatyang/tree-sitter-markdown")
         (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
         (python "https://github.com/tree-sitter/tree-sitter-python" "v0.20.4")
+        (swift "https://github.com/alex-pinkus/tree-sitter-swift")
         (toml "https://github.com/tree-sitter/tree-sitter-toml")
         (yaml "https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0")))
 
