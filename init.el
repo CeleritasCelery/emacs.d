@@ -1729,7 +1729,8 @@ that region."
  '(:application tramp :machine "server")
  'remote-direct-async-process)
 
-(setq magit-tramp-pipe-stty-settings 'pty)
+(with-eval-after-load 'tramp-sh
+  (setq magit-tramp-pipe-stty-settings 'pty))
 
 ;; Used to speed up some tramp operations
 (defun $memoize-remote (key cache orig-fn &rest args)
