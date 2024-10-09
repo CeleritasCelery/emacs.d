@@ -2410,6 +2410,16 @@ directory pointing to the same file name"
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
 
+(use-package forge
+  :demand t
+  :after magit
+  :config
+  (push '("aus-gitlab.local.tenstorrent.com"               ; GITHOST
+          "aus-gitlab.local.tenstorrent.com/api/v4"        ; APIHOST
+          "aus-gitlab.local.tenstorrent.com"               ; WEBHOST and INSTANCE-ID
+          forge-gitlab-repository)    ; CLASS
+        forge-alist))
+
 ;; improve performace by only reverting buffers in the local repo
 ;; https://magit.vc/manual/magit/Performance.html
 (setq auto-revert-buffer-list-filter 'magit-auto-revert-repository-buffer-p)
