@@ -2640,10 +2640,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (comint-process-echoes t)
   (comint-prompt-read-only t)
   :config
-  (add-hook 'compilation-filter-hook #'$compile-apply-ansi-color))
-
-(defun $compile-apply-ansi-color ()
-  (ansi-color-apply-on-region compilation-filter-start (point)))
+  (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
 
 (use-package xterm-color)
 
@@ -2904,10 +2901,13 @@ Display progress in the minibuffer instead."
   (compilation-always-kill t)
   (compilation-scroll-output 'first-error)
   :config
-  (general-unbind compilation-mode-map "SPC")
-  ;; If we don't use the controlmaster options, we need to input our password each compile
-  ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2021-02/msg00731.html
-  (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options))
+  (general-unbind compilation-mode-map "SPC"))
+
+(with-eval-after-load 'tramp
+  (with-eval-after-load 'compile
+    ;; If we don't use the controlmaster options, we need to input our password each compile
+    ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2021-02/msg00731.html
+    (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
 (defun $compile (arg)
   "Compile with model root set"
