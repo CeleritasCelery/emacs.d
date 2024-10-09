@@ -664,22 +664,6 @@ Text Scale
   (set-fontset-font
    t 'symbol (font-spec :family "Segoe UI Emoji") nil 'prepend))
 
-;;;; Screen size
-
-(defun vnc-resize (size)
-  "Use xrandr to resize my VNC window"
-  (let ((default-directory "~/")
-        (inhibit-message t))
-    (shell-command (concat "xrandr --size " size))))
-
-(defhydra vnc-resize (:columns 2 :exit t)
-  "VNC Resize"
-  ("l" (vnc-resize "2560x1440") "large")
-  ("m" (vnc-resize "1536x864") "mobile"))
-
-(general-def 'normal "zn" 'vnc-resize/body)
-
-
 ;;;; Themes
 
 (setq custom--inhibit-theme-enable nil)
