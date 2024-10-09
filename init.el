@@ -2238,6 +2238,7 @@ directory pointing to the same file name"
 (setq dired-no-confirm t
       wdired-allow-to-change-permissions t
       dired-listing-switches "-alh"
+      dired-recursive-copies 'always
       dired-dwim-target t
       dired-auto-revert-buffer (defun $dired-not-remote-and-changed (dir)
                                  (and (not (file-remote-p dir))
@@ -2245,6 +2246,28 @@ directory pointing to the same file name"
 
 (general-def dired-mode-map
   "C-c C-p" 'wdired-change-to-wdired-mode)
+
+(defun dired-try-simple-copy (orig-fn file-creator operation fn-list name-constructor &optional marker-char)
+  (let* ((to (funcall name-constructor (car fn-list)))
+         (to-file (if (< 1 (length fn-list))
+                      (file-name-directory to)
+                    to))
+         exit-code)
+    (if (and (eq file-creator 'dired-copy-file)
+             (file-remote-p to)
+             (tramp-equal-remote (car fn-list) to))
+        (prog1 (message "Copying to %s" to-file)
+          (setq exit-code (shell-command
+                           (format "cp -r %s %s"
+                                   (mapconcat 'file-name-nondirectory fn-list " ")
+                                   (string-remove-prefix (file-remote-p to-file) to-file))))
+          (when (= exit-code 0)
+            (message "Done Copying"))
+          (with-current-buffer (dired-noselect to-file)
+            (revert-buffer)))
+      (apply orig-fn file-creator operation fn-list name-constructor marker-char))))
+
+(advice-add 'dired-create-files :around #'dired-try-simple-copy)
 
 (defun $dired-here ()
   (interactive)
