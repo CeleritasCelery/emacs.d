@@ -1,24 +1,47 @@
-;; init.el --- My init file, calls out to the literate code -*- lexical-binding: t -*-
+;; init.el --- -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2024  Troy Hinckley
 
 ;;; Bootstrap
-;; https://github.com/radian-software/straight.el?tab=readme-ov-file#getting-started
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name
-        "straight/repos/straight.el/bootstrap.el"
-        (or (bound-and-true-p straight-base-dir)
-            user-emacs-directory)))
-      (bootstrap-version 7))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+;; https://github.com/progfolio/elpaca#installer
+(defvar elpaca-installer-version 0.7)
+(defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
+(defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
+(defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
+(defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
+                              :ref nil :depth 1
+                              :files (:defaults "elpaca-test.el" (:exclude "extensions"))
+                              :build (:not elpaca--activate-package)))
+(let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
+       (build (expand-file-name "elpaca/" elpaca-builds-directory))
+       (order (cdr elpaca-order))
+       (default-directory repo))
+  (add-to-list 'load-path (if (file-exists-p build) build repo))
+  (unless (file-exists-p repo)
+    (make-directory repo t)
+    (when (< emacs-major-version 28) (require 'subr-x))
+    (condition-case-unless-debug err
+        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                 ,@(when-let ((depth (plist-get order :depth)))
+                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                 ,(plist-get order :repo) ,repo))))
+                 ((zerop (call-process "git" nil buffer t "checkout"
+                                       (or (plist-get order :ref) "--"))))
+                 (emacs (concat invocation-directory invocation-name))
+                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                 ((require 'elpaca))
+                 ((elpaca-generate-autoloads "elpaca" repo)))
+            (progn (message "%s" (buffer-string)) (kill-buffer buffer))
+          (error "%s" (with-current-buffer buffer (buffer-string))))
+      ((error) (warn "%s" err) (delete-directory repo 'recursive))))
+  (unless (require 'elpaca-autoloads nil t)
+    (require 'elpaca)
+    (elpaca-generate-autoloads "elpaca" repo)
+    (load "./elpaca-autoloads")))
+(add-hook 'after-init-hook #'elpaca-process-queues)
+(elpaca `(,@elpaca-order))
 
 ;;; Configuration
 
@@ -116,7 +139,7 @@
 
 (setenv "PAGER" "cat")
 
-(add-hook 'after-init-hook 'server-start)
+(add-hook 'elpaca-after-init-hook 'server-start)
 
 ;;;; Site
 
@@ -128,16 +151,13 @@
 
 ;;; Package manager
 
-;; Not sure if this is still needed
+;; Elpaca setup
+(elpaca elpaca-use-package
+        ;; Enable Elpaca support for use-package's :ensure keyword.
+        (elpaca-use-package-mode))
 
-(setq straight-check-for-modifications '(check-on-save find-when-checking))
-
-(straight-use-package
- '(use-package
-    :host github :repo "jwiegley/use-package"
-    :fork (:host github :repo "CeleritasCelery/use-package")))
-
-(setq straight-use-package-by-default t
+;; Make sure use-package uses elpaca
+(setq use-package-always-ensure t
       use-package-always-defer t)
 
 ;;; Startup
@@ -147,6 +167,7 @@
 (use-package bug-hunter)
 
 (use-package compdef
+  :ensure (:wait t)
   :demand t)
 
 ;;;; GC hack
@@ -165,7 +186,7 @@
           $gc-timer nil)))
 
 ;; disable for now
-;; (add-hook 'after-init-hook '$schedule-maybe-gc)
+;; (add-hook 'elpaca-after-init-hook '$schedule-maybe-gc)
 (setq gc-cons-threshold 8000000)
 
 (add-function :after
@@ -190,6 +211,7 @@
 ;;; Keybindings
 
 (use-package general
+  :ensure (:wait t)
   :demand t)
 
 (general-create-definer $leader-set-key
@@ -221,7 +243,7 @@
 
 
 (use-package savehist
-  :straight nil
+  :ensure nil
   :defer 1
   :config
   (add-to-list 'savehist-additional-variables 'read-expression-history)
@@ -354,7 +376,8 @@
 (setq ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
                                        (org-mode . org-level-8)))
 
-(use-package hydra)
+(use-package hydra
+  :ensure (:wait t))
 (use-package ivy-hydra
   :after (ivy hydra))
 
@@ -483,7 +506,7 @@
       shr-bullet "• ")
 
 (use-package hl-line
-  :demand t
+  :ensure nil
   :config
   (global-hl-line-mode))
 
@@ -661,18 +684,13 @@ Text Scale
 
 (setq custom--inhibit-theme-enable nil)
 
-(use-package challenger-deep-theme
-  :straight (:local-repo "challenger-deep-theme"))
-(use-package dracula-theme
-  :straight (:local-repo "dracula-theme"))
-(use-package gruvbox-theme)
 (use-package darktooth-theme
-  :straight
-  (:fork "CeleritasCelery/emacs-theme-darktooth"))
+  :ensure (:host github :repo "CeleritasCelery/emacs-theme-darktooth"))
+(use-package challenger-deep-theme)
+(use-package dracula-theme)
+(use-package gruvbox-theme)
 (use-package spacemacs-theme)
-(use-package moe-theme
-  :init
-  (add-to-list 'custom-theme-load-path "~/.emacs.d/straight/build/moe-theme/"))
+(use-package moe-theme)
 (use-package doom-themes)
 (use-package solarized-theme)
 (use-package color-theme-sanityinc-tomorrow)
@@ -681,10 +699,10 @@ Text Scale
 (use-package monokai-theme)
 (use-package twilight-anti-bright-theme)
 (use-package twilight-bright-theme)
-(use-package ef-themes)
+(use-package ef-themes :defer t)
 (use-package afternoon-theme)
 
-(load-theme 'darktooth t)
+(add-hook 'elpaca-after-init-hook (defun $load-theme () (load-theme 'darktooth t)))
 
 (use-package rainbow-mode
   :init
@@ -704,7 +722,7 @@ Text Scale
 ;;;; Modeline
 
 (use-package doom-modeline
-  :hook after-init
+  :hook elpaca-after-init
   :custom
   (doom-modeline-buffer-file-name-style 'relative-from-project)
   (doom-modeline-env-version nil)
@@ -890,8 +908,7 @@ If INVERT, do the opposite of the normal behavior."
   (:definer 'leader "zw" 'zoom))
 
 (use-package helpful
-  :straight
-  (:fork "CeleritasCelery/helpful")
+  :ensure (:repo "CeleritasCelery/helpful")
   :general ("C-h k" 'helpful-key)
   :init
   (setq helpful-hide-docstring-in-source t))
@@ -1083,7 +1100,7 @@ If INVERT, do the opposite of the normal behavior."
   (evil-indent-plus-default-bindings))
 
 (use-package evil-textobj-syntax
-  :straight
+  :ensure
   (:host github :repo "laishulu/evil-textobj-syntax")
   :general
   (inner "h" 'evil-i-syntax)
@@ -1159,7 +1176,7 @@ If INVERT, do the opposite of the normal behavior."
 
 (use-package evil-unimpaired
   :defer 2
-  :straight
+  :ensure
   (:host github :repo "zmaas/evil-unimpaired")
   :init
   (setq evil-unimpaired-leader-keys '("gk" . "gj"))
@@ -1224,7 +1241,7 @@ If INVERT, do the opposite of the normal behavior."
    "gX" 'evil-exchange-cancel))
 
 (use-package evil-numbers
-  :straight (:fork "janpath/evil-numbers"))
+  :ensure (:host github :repo "janpath/evil-numbers"))
 
 (use-package evil-matchit
   :hook prog-mode)
@@ -1283,7 +1300,7 @@ If INVERT, do the opposite of the normal behavior."
 (advice-add 'lispy-wrap-round :before '$lispy-wrap-adjust-paren)
 
 (use-package paredit
-  :straight
+  :ensure
   (:files ("paredit.el")
    :repo "http://mumble.net/~campbell/git/paredit.git"))
 
@@ -1402,8 +1419,8 @@ If ARG is zero, delete current line but exclude the trailing newline."
       (indent-for-tab-command)))
 
 (use-package copilot
-  :straight (:host github :repo "zerolfx/copilot.el"
-             :files ("dist" "copilot.el" "copilot-balancer.el"))
+  :ensure (:host github :repo "zerolfx/copilot.el"
+           :files ("dist" "copilot.el" "copilot-balancer.el"))
   :general
   (:states '(insert) :keymaps 'copilot-mode-map
    "C-c c" #'copilot-complete
@@ -1428,7 +1445,7 @@ If ARG is zero, delete current line but exclude the trailing newline."
   "e" #'chatgpt-shell)
 
 (use-package aider
-  :straight (:host github :repo "tninja/aider.el" :files ("aider.el"))
+  :ensure (:host github :repo "tninja/aider.el" :files ("aider.el"))
   :config
   (setq aider-args '("--sonnet"))
   ;; Optional: Set a key binding for the transient menu
@@ -1581,6 +1598,7 @@ that region."
 
 (use-package saveplace
   :defer 5
+  :ensure nil
   :config
   (save-place-mode))
 
@@ -1848,7 +1866,7 @@ that region."
   :hook prog-mode)
 
 (use-package paren
-  :straight nil
+  :ensure nil
   :demand t
   :after prog-mode
   :custom
@@ -2136,7 +2154,7 @@ This includes remote paths and enviroment variables."
 
 (defun $goto-repo ()
   (interactive)
-  (let ((default-directory "~/.emacs.d/straight/repos/")
+  (let ((default-directory "~/.emacs.d/elpaca/repos/")
         (major-mode 'fundamental-mode))
     (counsel-find-file)))
 
@@ -2264,6 +2282,7 @@ directory pointing to the same file name"
   (add-to-list 'dired-compress-file-suffixes '("\\.gtar\\'" ".tar" nil)))
 
 (use-package recentf
+  :ensure nil
   :init
   (setq recentf-max-saved-items 500
         recentf-auto-cleanup "11:00pm"))
@@ -2286,7 +2305,7 @@ directory pointing to the same file name"
 
 (define-minor-mode path-check-mode
   "check if paths in file exisit"
-  nil nil nil
+  :init-value nil
   (if path-check-mode
       (font-lock-add-keywords nil path-check-font-lock-keywords)
     (font-lock-remove-keywords nil path-check-font-lock-keywords))
@@ -2305,7 +2324,7 @@ directory pointing to the same file name"
 ;;;; auto insert
 
 (use-package auto-insert
-  :straight nil
+  :ensure nil
   :defer 5
   :init
   (setq auto-insert-query nil
@@ -2367,6 +2386,9 @@ directory pointing to the same file name"
     (concat (executable-find "git") " " (string-join cmd " ")))))
 
 (autoload (function vc-git-root) "vc-git")
+
+;; Use the git version of transient
+(use-package transient)
 
 (use-package magit
   :general
@@ -2487,7 +2509,7 @@ headings that it is contained in."
   (add-to-list 'browse-at-remote-remote-type-regexps '(:host "gitlab\\..+\\.com" :type "gitlab")))
 
 (use-package smerge-mode
-  :straight nil
+  :ensure nil
   :config
   (defun $enable-smerge-keys ()
     (when smerge-mode
@@ -2599,7 +2621,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
       explicit-shell-file-name "bash")
 
 (use-package comint
-  :straight nil
+  :ensure nil
   :general
   (:keymaps 'comint-mode-map
    :states '(normal insert)
@@ -2649,7 +2671,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
     (insert path)))
 
 (use-package shell
-  :straight nil
+  :ensure nil
   :gfhook #'company-mode)
 
 (defvar $dir-history nil
@@ -2855,7 +2877,7 @@ Display progress in the minibuffer instead."
 
 (use-package company-async-files
   :after company
-  :straight
+  :ensure
   (:host github :repo "CeleritasCelery/company-async-files")
   :config
   (unless (memq 'company-async-files company-backends)
@@ -2865,7 +2887,7 @@ Display progress in the minibuffer instead."
 ;;;; compile
 
 (use-package compile
-  :straight nil
+  :ensure nil
   :general
   (:definer 'leader
    "o" '(:ignore t :wk "compile")
@@ -3177,7 +3199,7 @@ access"
 
 (use-package org
   :gfhook #'$org-truncate-lines #'toggle-word-wrap #'visual-fill-column-mode
-  :straight (:type built-in)
+  :ensure nil
   :general
   (:definer 'leader
    :keymaps 'org-mode-map
@@ -3387,7 +3409,7 @@ it from todays agenda."
   (use-package ox-hugo))
 
 (use-package org-capture
-  :straight nil
+  :ensure nil
   :init
   ($leader-set-key
     "c" 'org-capture)
@@ -3436,15 +3458,7 @@ it from todays agenda."
 
 ;;;; roam
 (unless ($dev-config-p)
-  (use-package emacsql
-    :straight (:host github :repo "magit/emacsql"
-               :files ("emacsql.el" "emacsql-compiler.el" "README.md")))
-  (use-package emacsql-sqlite
-    :straight (:host github :repo "magit/emacsql"
-               :files ("emacsql-sqlite.el" "emacsql-sqlite-common.el")))
-  (use-package emacsql-sqlite-builtin
-    :straight (:host github :repo "magit/emacsql"
-               :files ("emacsql-sqlite-builtin.el")))
+  (use-package emacsql :ensure (:main nil))
   (use-package org-roam
     :init
     (setq org-roam-directory (expand-file-name "~/roam")
@@ -3510,15 +3524,6 @@ work, so I copy links and paste them into chrome."
 
 ;;;; editing
 
-(use-package auto-capitalize
-  :hook org-mode)
-
-(setq auto-capitalize-predicate
-      (defun $auto-captialize-predicate ()
-        (if (eq major-mode 'org-mode)
-            (not (org-babel-where-is-src-block-head))
-          t)))
-
 (use-package jinx)
 (add-hook 'org-mode-hook 'jinx-mode)
 (add-hook 'with-editor-mode-hook 'jinx-mode)
@@ -3544,7 +3549,7 @@ work, so I copy links and paste them into chrome."
   (set-face-attribute 'org-variable-pitch-face nil :height 0.9))
 
 (use-package org-src
-  :straight nil
+  :ensure nil
   :gfhook #'$org-src-lexical-bindings
   :custom
   (org-src-fontify-natively t)
@@ -3567,7 +3572,7 @@ work, so I copy links and paste them into chrome."
                                (calc . t))))
 
 (use-package evil-org
-  :straight (:repo "hlissner/evil-org-mode")
+  :ensure (:host github :repo "hlissner/evil-org-mode")
   :hook org-mode
   :custom
   (evil-org-key-theme '(navigation insert return textobjects additional calendar))
@@ -3586,7 +3591,7 @@ work, so I copy links and paste them into chrome."
   ("]" org-next-visible-heading "next"))
 
 (use-package evil-org-agenda
-  :straight nil
+  :ensure nil
   :demand t
   :after org-agenda
   :config (evil-org-agenda-set-keys)
@@ -3733,7 +3738,7 @@ prompt in shell mode"
 ;;;; elisp
 
 (use-package elisp-mode
-  :straight nil
+  :ensure nil
   :custom
   (eval-expression-print-length nil)
   :init
@@ -3764,7 +3769,7 @@ prompt in shell mode"
   :hook (emacs-lisp-mode help-mode))
 
 (use-package aggressive-indent
-  :straight
+  :ensure
   (:fork "CeleritasCelery/aggressive-indent-mode"))
 
 (defun $lisp-indent-function (indent-point state)
@@ -3840,7 +3845,7 @@ prompt in shell mode"
     "m" 'macrostep/body))
 
 (use-package epdh
-  :straight (:host github :repo "alphapapa/emacs-package-dev-handbook"))
+  :ensure (:host github :repo "alphapapa/emacs-package-dev-handbook"))
 
 (defmacro $profile (&rest body)
   "generate a CPU profile report for BODY"
@@ -3876,7 +3881,7 @@ prompt in shell mode"
 
 ;; I use regular perl-mode for files that are considered read-only.
 (use-package perl-mode
-  :straight nil
+  :ensure nil
   :mode (rx "." (or "ip_info" "espflist" "udf" "hdl" "map") eos)
   :general
   (:definer 'leader
@@ -3890,7 +3895,7 @@ prompt in shell mode"
 ;; We also change : to be a punctuation character to match perl mode.
 ;; This fixes a ligature issue.
 (use-package cperl-mode
-  :straight nil
+  :ensure nil
   :init
   (setq
    ;; highlight all scalar variables not just the instantiation
@@ -3927,16 +3932,16 @@ prompt in shell mode"
 
 (font-lock-add-keywords 'perl-mode $string-interpolation-keywords)
 
-(use-package perltidy
-  :general
-  (:definer 'leader
-   :keymaps '(perl-mode-map
-              cperl-mode-map)
-   "f" '(:ignore t :wk "format")
-   "fr" 'perltidy-region
-   "ff" 'perltidy-dwim-safe
-   "fb" 'perltidy-buffer
-   "fs" 'perltidy-subroutine))
+;; (use-package perltidy
+;;   :general
+;;   (:definer 'leader
+;;    :keymaps '(perl-mode-map
+;;               cperl-mode-map)
+;;    "f" '(:ignore t :wk "format")
+;;    "fr" 'perltidy-region
+;;    "ff" 'perltidy-dwim-safe
+;;    "fb" 'perltidy-buffer
+;;    "fs" 'perltidy-subroutine))
 
 ;;;; Python
 (setq python-prettify-symbols-alist '(("lambda" . ?λ)))
@@ -3951,7 +3956,7 @@ prompt in shell mode"
   (live-py-version $python-executable))
 
 (use-package python
-  :straight nil
+  :ensure nil
   :compdef python-mode
   :company (company-capf company-dabbrev-code)
   :config
@@ -4022,7 +4027,7 @@ prompt in shell mode"
 
 ;;; Verilog
 (use-package verilog-mode
-  :straight nil
+  :ensure nil
   :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl" "sv09") eos)
   :init
   (setq verilog-auto-indent-on-newline nil)
@@ -4076,7 +4081,7 @@ prompt in shell mode"
 
 ;;;; TCL
 (use-package tcl-mode
-  :straight nil
+  :ensure nil
   :gfhook #'$tcl-fix-symbol-def #'flycheck-mode
   :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl" "iprocs") eos)
   :company ((company-syntcl company-dabbrev-code) (company-capf company-dabbrev))
@@ -4103,7 +4108,7 @@ prompt in shell mode"
 
 ;; (when ($dev-config-p)
 ;;   (use-package company-syntcl
-;;     :straight
+;;     :ensure
 ;;     (:repo "https://github.com/tjhinckl/company-syntcl.git"
 ;;      :files ("company-syntcl.el"))
 ;;     :custom
@@ -4232,11 +4237,10 @@ redundant output."
 
 (add-hook 'sh-set-shell-hook #'$tcsh-set-indent-functions)
 
-(use-package markdown-mode)
+;; (use-package markdown-mode)
 
 (use-package major-modes
-  :straight
-  (:host gitlab :repo "foconoco/major-modes")
+  :ensure (:host gitlab :repo "foconoco/major-modes" :main nil)
   :init
   ($leader-local-set-key
     :keymaps 'spfspec-mode-map
