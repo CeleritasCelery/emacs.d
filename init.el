@@ -4134,13 +4134,15 @@ prompt in shell mode"
   (flycheck-tcl-nagelfar-syntaxdb-file "~/custom/tcl_json_files/TclComplete/syntaxdb_tessent.tcl")
   (tcl-application "tclsh")
   :init
-  (setq tcl-proc-list '("proc" "method" "class" "namespace" "iProc" "iTopProc" "tepam::procedure"))
-  :config
+  (setq tcl-proc-list '("proc" "method" "class" "namespace" "iProc" "iTopProc" "tepam::procedure")))
+
+(with-eval-after-load 'tcl-mode
   (add-to-list 'tcl-keyword-list "iProc")
   (add-to-list 'tcl-keyword-list "iTopProc")
   (add-to-list 'tcl-keyword-list "tepam::procedure")
   (add-to-list 'tcl-typeword-list "iProcsForModule")
-  (setq tcl-builtin-list (append tcl-builtin-list '("iWrite" "iRead" "iApply" "iCall" "iTake" "iNote" "iRunLoop")))
+  (setq tcl-builtin-list (append tcl-builtin-list
+                                 '("iWrite" "iRead" "iApply" "iCall" "iTake" "iNote" "iRunLoop")))
   (tcl-set-font-lock-keywords)
   (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords))
 
