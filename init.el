@@ -2026,7 +2026,7 @@ substitute them in the path"
 (defun $get-path-at-point ()
   "Get the filepath at point.
 This includes remote paths and enviroment variables."
-  (let* ((bounds ($get-chars-at-point "-{}[:alnum:]$:/.#_~\""))
+  (let* ((bounds ($get-chars-at-point "+-{}[:alnum:]$:/.#_~\""))
          (beg (car bounds))
          (end (cdr bounds))
          (substring (buffer-substring-no-properties beg end))
