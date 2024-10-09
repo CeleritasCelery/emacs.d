@@ -3750,6 +3750,7 @@ prompt in shell mode"
         (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
         (python "https://github.com/tree-sitter/tree-sitter-python" "v0.20.4")
         (toml "https://github.com/tree-sitter/tree-sitter-toml")
+        (verilog "https://github.com/gmlarumbe/tree-sitter-systemverilog")
         (yaml "https://github.com/ikatyang/tree-sitter-yaml" "v0.5.0")))
 
 (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-ts-mode))
@@ -4046,8 +4047,6 @@ prompt in shell mode"
 
 ;;; Verilog
 (use-package verilog-mode
-  :straight nil
-  :mode (rx "." (or "hier" "vf" "svh" "vg" "vs" "rdl" "sv09") eos)
   :init
   (setq verilog-auto-indent-on-newline nil)
   (setq verilog-indent-lists nil)
@@ -4056,6 +4055,29 @@ prompt in shell mode"
                `("*Instances*" ,($rx ^ spc+ (or (: (opt "#(") "." symbol "(" -> "))")
                                                 (: symbol "_" symbol))
                                      spc+ (group symbol) (or eol (: spc+ "("))) 1)))
+
+(use-package verilog-ext
+  :hook ((verilog-ts-mode . verilog-ext-mode))
+  :init
+  (setq verilog-ext-feature-list
+      '(font-lock
+        xref
+        capf
+        hierarchy
+        lsp
+        beautify
+        navigation
+        template
+        formatter
+        compilation
+        imenu
+        which-func
+        hideshow
+        typedefs
+        ports)))
+
+(use-package verilog-ts-mode)
+(add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv_ts" "sv.dft") eos) 'verilog-ts-mode))
 
 (define-derived-mode filelist-mode prog-mode "FileList"
   "Major mode for filelists"
