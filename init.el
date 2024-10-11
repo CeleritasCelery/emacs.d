@@ -3493,7 +3493,9 @@ it from todays agenda."
 
 ;;;; roam
 (unless ($dev-config-p)
-  (use-package emacsql :ensure (:main nil))
+  ;; Do a deep clone to work around version issue
+  ;; https://github.com/progfolio/elpaca/issues/353
+  (use-package emacsql :ensure (:main nil :depth nil))
   (use-package org-roam
     :init
     (setq org-roam-directory (expand-file-name "~/roam")
@@ -4063,7 +4065,6 @@ prompt in shell mode"
 
 ;;; Verilog
 (use-package verilog-mode
-  :ensure nil
   :init
   (setq verilog-auto-indent-on-newline nil)
   (setq verilog-indent-lists nil)
