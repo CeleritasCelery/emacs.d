@@ -500,6 +500,16 @@
 
 (use-package smex)
 
+(defvar $counsel-git-cands-cache nil)
+(defun $memoize-counsel-git-cands (orig dir)
+  ($memoize-remote (vc-git-root dir) '$counsel-git-cands-cache orig dir))
+
+(defun $clear-counsel-git-cands-cache ()
+  (interactive)
+  (setq $counsel-git-cands-cache nil))
+
+(advice-add 'counsel-git-cands :around #'$memoize-counsel-git-cands)
+
 ;;; Display
 
 (setq shr-use-colors nil
@@ -2278,6 +2288,7 @@ directory pointing to the same file name"
       (apply orig-fn file-creator operation fn-list name-constructor marker-char))))
 
 (advice-add 'dired-create-files :around #'dired-try-simple-copy)
+;; (advice-remove 'dired-create-files #'dired-try-simple-copy)
 
 (defun $dired-here ()
   (interactive)
