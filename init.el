@@ -2460,6 +2460,13 @@ directory pointing to the same file name"
   (interactive)
   (setq magit-toplevel-cache nil))
 
+;; https://github.com/magit/forge/discussions/712
+(with-eval-after-load 'magit
+  (defun transient-setup-cache (fn &rest args)
+    (let ((magit--refresh-cache (list (cons 0 0))))
+      (apply fn args)))
+  (advice-add 'transient-setup :around #'transient-setup-cache))
+
 (defvar vc-git-root-cache nil)
 
 (defun $memoize-vc-git-root (orig file)
