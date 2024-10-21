@@ -2052,7 +2052,9 @@ This includes remote paths and enviroment variables."
          (substring (buffer-substring-no-properties beg end))
          ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
          ;; path. In which case need to remove it
-         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring)))
+         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring))
+         ;; remove +incdir+ from the start of the path
+         (path (replace-regexp-in-string (rx bos "+incdir+") "" path)))
     (if (save-excursion
           (goto-char beg)
           (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
