@@ -4159,7 +4159,7 @@ prompt in shell mode"
   :init
   (setq tcl-proc-list '("proc" "method" "class" "namespace" "iProc" "iTopProc" "tepam::procedure")))
 
-(with-eval-after-load 'tcl-mode
+(with-eval-after-load 'tcl
   (add-to-list 'tcl-keyword-list "iProc")
   (add-to-list 'tcl-keyword-list "iTopProc")
   (add-to-list 'tcl-keyword-list "tepam::procedure")
