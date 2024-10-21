@@ -4121,7 +4121,7 @@ prompt in shell mode"
 ;; equal" symbol. So we add an addition wrapper around the compose
 ;; function to handle this special case.
 (defun $compose-conditional-symbol (alist)
-  (or (and (eq major-mode 'verilog-mode)
+  (or (and (memq major-mode '(verilog-mode verilog-ts-mode))
            (equal (match-string 0) "<=")
            (not (looking-at-p (rx (or (: (0+ " ") "(" )
                                       (: (1+ (not (in "(\n"))) ")")))))
