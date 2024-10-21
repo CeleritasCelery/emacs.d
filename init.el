@@ -2440,6 +2440,9 @@ directory pointing to the same file name"
 (use-package forge
   :demand t
   :after magit
+  :init
+  ;; will be set by evil-integration
+  (setq forge-add-default-bindings nil)
   :config
   (push '("aus-gitlab.local.tenstorrent.com"               ; GITHOST
           "aus-gitlab.local.tenstorrent.com/api/v4"        ; APIHOST
