@@ -2939,18 +2939,18 @@ Display progress in the minibuffer instead."
     ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2021-02/msg00731.html
     (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
-(defun $compile (arg)
+(defun $compile (cmd &optional comint)
   "Compile with model root set"
-  (interactive "P")
+  (interactive (list (let ((file-name (buffer-file-name)))
+                       (read-string "Compile Command: "
+                                    (when file-name
+                                      (let ((basename (file-name-nondirectory file-name)))
+                                        (cond ((equal basename "Makefile") "make")
+                                              ((file-executable-p file-name) (concat "./" basename))
+                                              (t nil))))
+                                    'compile-history))
+                     (consp current-prefix-arg)))
   (let* ((model-root ($model-root))
-         (file-name (buffer-file-name))
-         (cmd (read-string "Compile Command: "
-                           (when file-name
-                             (let ((basename (file-name-nondirectory file-name)))
-                               (cond ((equal basename "Makefile") "make")
-                                     ((file-executable-p file-name) (concat "./" basename))
-                                     (t nil))))
-                           'compile-history))
          (shorten-fn (lambda (text) (match-string 1 text)))
          (cmd-name (thread-last cmd
                      (replace-regexp-in-string ($rx ^ "source " -> "&& ") "")
@@ -2968,7 +2968,7 @@ Display progress in the minibuffer instead."
          (compilation-environment (append (-take-while env-var? parts)
                                           (list (concat "MODEL_ROOT=" model-root))))
          (compilation-buffer-name-function (lambda (_mode) buffer-name)))
-    (compile final-cmd (consp arg))))
+    (compile final-cmd comint)))
 
 (defun $model-root (&optional dir)
   "current model root"
