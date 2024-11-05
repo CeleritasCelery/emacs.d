@@ -2932,10 +2932,6 @@ Display progress in the minibuffer instead."
   (:definer 'leader
    "o" '(:ignore t :wk "compile")
    "oc" '$compile
-   "ob" 'bman-cmd/body
-   "oi" '$run-ipgen
-   "ot" '$run-turnin
-   "os" '$run-simregress
    "oj" '$compilation-jump-to-buffer)
   :custom
   (compilation-always-kill t)
@@ -2968,10 +2964,11 @@ Display progress in the minibuffer instead."
                                                     (group (+ (in alnum "-_."))) symbol-end)
                                                shorten-fn)))
          (buffer-name (let ((root (f-filename model-root))
-                            (dir (f-filename default-directory)))
+                            (dir (f-filename default-directory))
+                            (parent (f-filename (f-dirname default-directory))))
                         (if (equal root dir)
                             (format "*%s - %s*" root cmd-name)
-                          (format "*%s/.../%s - %s*" root dir cmd-name))))
+                          (format "*%s/.../%s/%s - %s*" root parent dir cmd-name))))
          (env-var? (lambda (x) (string-match-p "=" x)))
          (parts (split-string-shell-command cmd))
          (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
