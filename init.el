@@ -4191,52 +4191,10 @@ prompt in shell mode"
 
 ;;;; ICL
 
-(define-derived-mode icl-mode java-mode "ICL"
-  (setq-local c-basic-offset 3)
-  (setq-local indent-line-function 'icl-indent-line)
-  (setq-local font-lock-defaults '(icl-font-lock-keywords))
-  (setq-local comment-start "//")
-  (setq-local comment-end "")
-  (setq-local imenu-generic-expression
-              `(("modules" ,($rx ^ "Module"
-                                 spc+ (group symbol) spc+ "{") 1)
-                ("instances" ,($rx ^ spc+ "Instance"
-                                   spc+ (group symbol) spc+ "Of") 1)))
-  (modify-syntax-entry ?\' "." icl-mode-syntax-table)
-  (modify-syntax-entry ?$ "." icl-mode-syntax-table))
+(use-package icl-mode)
 
-(add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
-
-(defun icl-broken-line-p ()
-  (save-excursion
-    (previous-line)
-    (end-of-line)
-    (skip-syntax-backward " " (line-beginning-position))
-    (save-match-data
-      (looking-back (rx (or "Of" "SelectedBy" "=")) (line-beginning-position)))))
-
-(defun icl-indent-line ()
-  (interactive)
-  (if (icl-broken-line-p)
-      (let ((c-basic-offset 4))
-        (c-indent-line))
-    (c-indent-line)))
-
-(setq icl-font-lock-keywords
-      `((,(rx symbol-start "Attribute" symbol-end) 0 font-lock-variable-name-face)
-        (,(rx symbol-start (or "Instance" "Module" "Enum") symbol-end)
-         0 font-lock-function-name-face)
-        (,($rx ^ spc* (group upper (1+ alnum)) spc+) 1 font-lock-keyword-face)
-        (,(rx symbol-start (or "InputPort"
-                               "Alias"
-                               "ClockMux"
-                               "DataMux"
-                               "ScanMux")
-              symbol-end)
-         0 font-lock-keyword-face)
-        (,(rx (char " [':") (group (opt (char "bh")) (1+ digit))) 1 font-lock-type-face)
-        (,(rx ".") 0 'error)
-        (,($rx spc+ (group (or "Of" "SelectedBy"))) 1 font-lock-builtin-face)))
+(with-eval-after-load 'tcl
+    (icl-add-pdl-keywords))
 
 (define-derived-mode tessent-spec-mode java-mode "Tessent Spec"
   (setq-local c-basic-offset 2))
