@@ -4234,6 +4234,15 @@ prompt in shell mode"
   (setq project-find-functions
         (cons 'bazel-find-project (remove 'bazel-find-project project-find-functions))))
 
+(defun $run-bazel (cmd)
+  "Run a bazel command"
+  (interactive (list (compilation-read-command "./infra/bzsim ")))
+  (let* ((git-root (vc-git-root default-directory))
+         (rel-path (file-relative-name default-directory git-root))
+         (bzl-root (concat git-root (car (split-string rel-path "/")))))
+    (cd bzl-root)
+    ($compile cmd)))
+
 (defun $clear-bazel-progress-bar (orig start end)
   "Bazel uses the following terminal sequence to clear the progress
 messages. We want to handle these in our terminal so we don't get
