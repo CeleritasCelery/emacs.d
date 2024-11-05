@@ -3747,7 +3747,11 @@ prompt in shell mode"
 (with-eval-after-load 'company-dabbrev-code
   (add-to-list 'company-dabbrev-code-modes 'shell-mode))
 
-(use-package company-posframe)
+(use-package company-posframe
+  :demand t
+  :after company
+  :config
+  (company-posframe-mode))
 
 ;; https://github.com/doomemacs/doomemacs/commit/2e476de44693c9f4953f3c467284e88b28b6084e
 (add-hook 'evil-local-mode-hook
