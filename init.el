@@ -2486,7 +2486,10 @@ directory pointing to the same file name"
 (defvar vc-git-root-cache nil)
 
 (defun $memoize-vc-git-root (orig file)
-  ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file))
+  ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)
+  ;; sometimes vc-git-root returns nil even when there is a root there
+  (when (null (cdr (car vc-git-root-cache)))
+    (setq vc-git-root-cache (cdr vc-git-root-cache))))
 
 (advice-add 'vc-git-root :around #'$memoize-vc-git-root)
 ;; (advice-remove 'vc-git-root #'$memoize-vc-git-root)
@@ -2979,7 +2982,7 @@ Display progress in the minibuffer instead."
 
 (defun $model-root (&optional dir)
   "current model root"
-  (file-truename (expand-file-name (or (vc-git-root (or dir default-directory)) ""))))
+  (expand-file-name (or (magit-toplevel) "")))
 
 ;; compilation mode will throw warnings about clearing large buffers, but
 ;; we don't need undo in compilation buffers anyways so we can just turn
