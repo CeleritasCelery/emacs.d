@@ -1744,6 +1744,12 @@ that region."
 (with-eval-after-load 'tramp-sh
   (setq magit-tramp-pipe-stty-settings 'pty))
 
+;; Don't use ffap on remote files for performance
+(with-eval-after-load 'ffap
+  (defun $ffap-guess-is-remote ()
+    (file-remote-p default-directory))
+  (advice-add 'ffap-guess-file-name-at-point :before-until #'$ffap-guess-is-remote))
+
 ;; Used to speed up some tramp operations
 (defun $memoize-remote (key cache orig-fn &rest args)
   "Memoize a value if they key is a remote path."
@@ -2444,6 +2450,7 @@ directory pointing to the same file name"
   ;; will be set by evil-integration
   (setq forge-add-default-bindings nil)
   :config
+  (remove-hook 'find-file-hook 'forge-bug-reference-setup) ;; for tramp
   (push '("aus-gitlab.local.tenstorrent.com"               ; GITHOST
           "aus-gitlab.local.tenstorrent.com/api/v4"        ; APIHOST
           "aus-gitlab.local.tenstorrent.com"               ; WEBHOST and INSTANCE-ID
