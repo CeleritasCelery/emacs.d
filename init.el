@@ -2620,7 +2620,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package git-gutter-fringe
   :demand t
-  :after git-gutter)
+  :after git-gutter
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
 
 (advice-add 'git-gutter:update-popuped-buffer :after
             (defun $git-gutter-window-quit (&rest _)
