@@ -4182,11 +4182,53 @@ prompt in shell mode"
 (with-eval-after-load 'tcl
     (icl-add-pdl-keywords))
 
-(define-derived-mode tessent-spec-mode java-mode "Tessent Spec"
-  (setq-local c-basic-offset 2))
+(define-derived-mode dft-spec-mode tcl-mode "DFT Spec"
+  "Major mode for editing Tessent configuration Specs."
+  (setq-local tcl-indent-level 2)
+  (setq-local comment-start "//")
+  (setq-local comment-end "")
+  (setq-local indent-line-function #'dft-spec-indent-line)
+  (modify-syntax-entry ?/ ". 12b" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?\n "> b" dft-spec-mode-syntax-table)
+  (setq-local font-lock-defaults '(dft-spec-font-lock-keywords)))
+
+(defun dft-spec-indent-line ()
+  "Indent like TCL, unless we have a comma separated list."
+  (interactive)
+  (let ((indent-level
+         (save-excursion
+           (beginning-of-line)
+           ;; skip blank lines
+           (skip-chars-backward " \t\n")
+           ;; if the previous line was a continuation of a list get the indentation of it
+           (when (eq (preceding-char) ?,)
+             (beginning-of-line)
+             (search-forward ": " (line-end-position) t)
+             (skip-chars-forward " \t")
+             (current-column)))))
+
+    (if (null indent-level)
+        (tcl-indent-line)
+      (let ((offset (save-excursion
+                      (end-of-line)
+                      (back-to-indentation)
+                      (- (current-column) indent-level))))
+        (when (not (eq offset 0))
+          (end-of-line)
+          (back-to-indentation)
+          (if (< offset 0)
+              (indent-to indent-level)
+            (delete-region (- (point) offset) (point))))))))
+
+(defvar dft-spec-font-lock-keywords
+  (rx-let ((property (seq bol (0+ " ") (group (1+ (any alnum "_"))) (0+ " "))))
+    (list (list (rx property "(") 1 'font-lock-function-name-face)
+          (list (rx property ":" ) 1 'font-lock-variable-name-face)
+          (list (rx property "{" ) 1 'font-lock-keyword-face)))
+  "DFT Spec mode font lock keywords")
 
 (add-to-list 'auto-mode-alist
-             `(,(rx (or "meta_spec" "tessent_meta") eos) . tessent-spec-mode))
+             `(,(rx "." (or "dft_spec" "patterns_spec_signoff" "cfg") eos) . dft-spec-mode))
 
 ;;;; JSON
 (use-package json-mode
