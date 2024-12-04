@@ -9,7 +9,10 @@
  '(helm-minibuffer-history-key "M-p")
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   '((org-src-preserve-indentation)
+   '((verilog-typedef-regexp . "_[eus]$")
+     (verilog-library-extensions ".sv" ".h" ".v")
+     (verilog-library-directories ".")
+     (org-src-preserve-indentation)
      (eval require 'ol-man nil t)
      (eval require 'magit-base nil t)
      (elisp-lint-indent-specs
