@@ -1606,15 +1606,8 @@ that region."
 (defun $get-indent-level ()
   (save-excursion
     (goto-char (line-beginning-position))
-    (let ((flag t)
-          (size 0))
-      (while flag
-        (let ((char (following-char)))
-          (cond ((eq char ?\s) (cl-incf size))
-                ((eq char ?\t) (cl-incf size tab-width))
-                (t (setq flag nil)))
-          (forward-char)))
-      size)))
+    (skip-chars-forward " \t")
+    (current-column)))
 
 (defun $check-indent-level (indent)
   (or (looking-at-p (rx bol (0+ space) eol))
