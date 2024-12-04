@@ -3190,8 +3190,8 @@ access"
 ;;;;; alerts
 (add-hook 'compilation-finish-functions
           (defun $notify-compile-done (_buffer exit-string)
-            "notfiy the user that compliation is finished"
-            (alert "compliation finished"
+            "notfiy the user that compilation is finished"
+            (alert "compilation finished"
                    :severity (if (string-prefix-p "exited abnormally" exit-string)
                                  'high
                                'normal))))
@@ -3953,17 +3953,6 @@ prompt in shell mode"
    cperl-indent-parens-as-block t)
   :config
   (modify-syntax-entry ?: "." cperl-mode-syntax-table))
-
-(setq flycheck-perl-executable "/usr/intel/pkgs/perl/5.14.1/bin/perl"
-        flycheck-perl-perlcritic-executable "/usr/intel/pkgs/perl/5.14.1-threads/bin/perlcritic"
-        flycheck-perl-include-path '("/p/hdk/cad/spf/latest/lib/perl5"
-                                     "../lib/perl5"
-                                     "../../lib/perl5"
-                                     ".."))
-    (setenv "SPF_ROOT" "/p/hdk/cad/spf/latest")
-    (setenv "SPF_PERL_LIB" "/p/hdk/cad/spf/latest/lib/perl5")
-    (setenv "XWEAVE_REPO_ROOT" "/p/hdk/rtl/ip_releases/shdk74/xweave/v17ww43a")
-    (setenv "IDS_HOME" "/p/hdk/rtl/cad/x86-64_linux26/dteg/ideas_shell/0.15.1")
 
 (setq $string-interpolation-keywords
       `((,(rx (not (in "\\")) (group-n 1 "$" (opt "{")) (group-n 2 (1+ (any alnum "_"))) (group-n 3 (opt "}")))
