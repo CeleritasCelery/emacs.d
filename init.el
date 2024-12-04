@@ -4093,7 +4093,7 @@ prompt in shell mode"
         ports)))
 
 (use-package verilog-ts-mode)
-(add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv_ts" "sv.dft") eos) 'verilog-ts-mode))
+(add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv.dft") (or eos "_")) 'verilog-ts-mode))
 
 (define-derived-mode filelist-mode prog-mode "FileList"
   "Major mode for filelists"
