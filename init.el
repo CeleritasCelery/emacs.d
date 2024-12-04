@@ -2974,6 +2974,9 @@ Display progress in the minibuffer instead."
          (compilation-buffer-name-function (lambda (_mode) buffer-name)))
     (compile final-cmd comint)))
 
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-process-environment "SALT_LICENSE_SERVER=1717@yyz-license-01"))
+
 (defun $model-root (&optional dir)
   "current model root"
   (expand-file-name (or (magit-toplevel) "")))
