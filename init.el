@@ -910,7 +910,7 @@ If INVERT, do the opposite of the normal behavior."
 (csetq counsel-describe-variable-function 'helpful-variable
        counsel-describe-function-function 'helpful-callable)
 
-(setq find-function-C-source-directory "~/Library/Caches/Homebrew/emacs-plus@29--git/src")
+(setq find-function-C-source-directory "~/repos/emacs/src")
 
 (general-def
   "C-h f" 'counsel-describe-function
