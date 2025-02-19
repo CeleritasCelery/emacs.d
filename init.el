@@ -755,6 +755,14 @@ Text Scale
   (add-to-list 'aw-dispatch-alist '(?d aw-delete-window "delete window"))
   (add-to-list 'aw-dispatch-alist '(?s aw-split-window-horz "Split Horz window")))
 
+(use-package ultra-scroll
+  :ensure (:host github :repo "jdtsmith/ultra-scroll")
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
+
 ;; from https://gist.github.com/3402786
 (defun $toggle-maximize-window ()
   "Maximize buffer"
