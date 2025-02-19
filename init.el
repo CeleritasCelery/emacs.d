@@ -1428,24 +1428,23 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
-(use-package chatgpt-shell
-  :init
-  (setq chatgpt-shell-model-version "gpt-4"))
+(use-package chatgpt-shell)
 
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
 ($leader-set-key
   "e" #'chatgpt-shell)
 
-(use-package aider
-  :ensure (:host github :repo "tninja/aider.el" :files ("aider.el"))
-  :config
-  (setq aider-args '("--sonnet"))
-  ;; Optional: Set a key binding for the transient menu
-  (global-set-key (kbd "C-c a") 'aider-transient-menu))
+(use-package aidermacs
+  :ensure (:host github :repo "MatthewZMD/aidermacs")
+  :init
+  ($leader-set-key "a" 'aidermacs-transient-menu))
 
 (use-package gptel
+  :general (gptel-mode-map "C-c C-c" 'gptel-menu
+                           "RET" #'gptel-send)
   :config
-  (gptel-make-anthropic "Claude" :stream t))
+  (setq gptel-backend
+        (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
 
 
 (use-package ws-butler
@@ -2652,6 +2651,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
    :states '(normal insert)
    "C-p" 'comint-previous-matching-input-from-input
    "<return>" 'comint-send-input
+   "S-<return>" 'comint-accumulate
    "C-n" 'comint-next-matching-input-from-input
    "C-<return>" '$copy-path)
   (:keymaps 'comint-mode-map
@@ -2665,6 +2665,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
 
 (use-package xterm-color)
+
+(use-package vterm)
 
 (defun $xterm-colorize-buffer ()
   (interactive)
