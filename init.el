@@ -3998,7 +3998,8 @@ prompt in shell mode"
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
 (defun $lsp-unless-remote ()
-  (if (file-remote-p buffer-file-name)
+  (if (and buffer-file-name
+           (file-remote-p buffer-file-name))
       (progn (eldoc-mode -1)
              (setq-local completion-at-point-functions nil))
     (lsp)))
@@ -4279,7 +4280,9 @@ redundant output."
                  (delete-region (point) seq-end))))))
   (funcall orig start (point)))
 
-(advice-add 'comint-carriage-motion :around '$clear-bazel-progress-bar)
+(when ($dev-config-p)
+  (advice-add 'comint-carriage-motion :around '$clear-bazel-progress-bar))
+;; (advice-remove 'comint-carriage-motion '$clear-bazel-progress-bar)
 
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
