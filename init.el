@@ -500,6 +500,16 @@
 
 (use-package smex)
 
+(defvar $counsel-git-cands-cache nil)
+(defun $memoize-counsel-git-cands (orig dir)
+  ($memoize-remote (vc-git-root dir) '$counsel-git-cands-cache orig dir))
+
+(defun $clear-counsel-git-cands-cache ()
+  (interactive)
+  (setq $counsel-git-cands-cache nil))
+
+(advice-add 'counsel-git-cands :around #'$memoize-counsel-git-cands)
+
 ;;; Display
 
 (setq shr-use-colors nil
@@ -1603,15 +1613,8 @@ that region."
 (defun $get-indent-level ()
   (save-excursion
     (goto-char (line-beginning-position))
-    (let ((flag t)
-          (size 0))
-      (while flag
-        (let ((char (following-char)))
-          (cond ((eq char ?\s) (cl-incf size))
-                ((eq char ?\t) (cl-incf size tab-width))
-                (t (setq flag nil)))
-          (forward-char)))
-      size)))
+    (skip-chars-forward " \t")
+    (current-column)))
 
 (defun $check-indent-level (indent)
   (or (looking-at-p (rx bol (0+ space) eol))
@@ -1740,6 +1743,12 @@ that region."
 
 (with-eval-after-load 'tramp-sh
   (setq magit-tramp-pipe-stty-settings 'pty))
+
+;; Don't use ffap on remote files for performance
+(with-eval-after-load 'ffap
+  (defun $ffap-guess-is-remote ()
+    (file-remote-p default-directory))
+  (advice-add 'ffap-guess-file-name-at-point :before-until #'$ffap-guess-is-remote))
 
 ;; Used to speed up some tramp operations
 (defun $memoize-remote (key cache orig-fn &rest args)
@@ -2043,14 +2052,16 @@ substitute them in the path"
 (defun $get-path-at-point ()
   "Get the filepath at point.
 This includes remote paths and enviroment variables."
-  (let* ((bounds ($get-chars-at-point "+-{}[:alnum:]$:/.#_~\""))
+  (let* ((bounds ($get-chars-at-point "-+{}[:alnum:]$:/.#_~\""))
          (beg (car bounds))
          (end (cdr bounds))
          (substring (buffer-substring-no-properties beg end))
          ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
          ;; path. In which case need to remove it
          (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring))
-         (path (string-remove-prefix ":" path)))
+         (path (string-remove-prefix ":" path))
+         ;; remove +incdir+ from the start of the path
+         (path (replace-regexp-in-string (rx bos "+incdir+") "" path)))
     (if (save-excursion
           (goto-char beg)
           (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
@@ -2286,6 +2297,7 @@ directory pointing to the same file name"
       (apply orig-fn file-creator operation fn-list name-constructor marker-char))))
 
 (advice-add 'dired-create-files :around #'dired-try-simple-copy)
+;; (advice-remove 'dired-create-files #'dired-try-simple-copy)
 
 (defun $dired-here ()
   (interactive)
@@ -2435,7 +2447,11 @@ directory pointing to the same file name"
 (use-package forge
   :demand t
   :after magit
+  :init
+  ;; will be set by evil-integration
+  (setq forge-add-default-bindings nil)
   :config
+  (remove-hook 'find-file-hook 'forge-bug-reference-setup) ;; for tramp
   (push '("aus-gitlab.local.tenstorrent.com"               ; GITHOST
           "aus-gitlab.local.tenstorrent.com/api/v4"        ; APIHOST
           "aus-gitlab.local.tenstorrent.com"               ; WEBHOST and INSTANCE-ID
@@ -2471,7 +2487,10 @@ directory pointing to the same file name"
 (defvar vc-git-root-cache nil)
 
 (defun $memoize-vc-git-root (orig file)
-  ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file))
+  ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)
+  ;; sometimes vc-git-root returns nil even when there is a root there
+  (when (null (cdr (car vc-git-root-cache)))
+    (setq vc-git-root-cache (cdr vc-git-root-cache))))
 
 (advice-add 'vc-git-root :around #'$memoize-vc-git-root)
 ;; (advice-remove 'vc-git-root #'$memoize-vc-git-root)
@@ -2609,7 +2628,11 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package git-gutter-fringe
   :demand t
-  :after git-gutter)
+  :after git-gutter
+  :config
+  (define-fringe-bitmap 'git-gutter-fr:added [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:modified [224] nil nil '(center repeated))
+  (define-fringe-bitmap 'git-gutter-fr:deleted [128 192 224 240] nil nil 'bottom))
 
 (advice-add 'git-gutter:update-popuped-buffer :after
             (defun $git-gutter-window-quit (&rest _)
@@ -2917,10 +2940,6 @@ Display progress in the minibuffer instead."
   (:definer 'leader
    "o" '(:ignore t :wk "compile")
    "oc" '$compile
-   "ob" 'bman-cmd/body
-   "oi" '$run-ipgen
-   "ot" '$run-turnin
-   "os" '$run-simregress
    "oj" '$compilation-jump-to-buffer)
   :custom
   (compilation-always-kill t)
@@ -2934,18 +2953,18 @@ Display progress in the minibuffer instead."
     ;; https://lists.gnu.org/archive/html/bug-gnu-emacs/2021-02/msg00731.html
     (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
 
-(defun $compile (arg)
+(defun $compile (cmd &optional comint)
   "Compile with model root set"
-  (interactive "P")
+  (interactive (list (let ((file-name (buffer-file-name)))
+                       (read-string "Compile Command: "
+                                    (when file-name
+                                      (let ((basename (file-name-nondirectory file-name)))
+                                        (cond ((equal basename "Makefile") "make")
+                                              ((file-executable-p file-name) (concat "./" basename))
+                                              (t nil))))
+                                    'compile-history))
+                     (consp current-prefix-arg)))
   (let* ((model-root ($model-root))
-         (file-name (buffer-file-name))
-         (cmd (read-string "Compile Command: "
-                           (when file-name
-                             (let ((basename (file-name-nondirectory file-name)))
-                               (cond ((equal basename "Makefile") "make")
-                                     ((file-executable-p file-name) (concat "./" basename))
-                                     (t nil))))
-                           'compile-history))
          (shorten-fn (lambda (text) (match-string 1 text)))
          (cmd-name (thread-last cmd
                      (replace-regexp-in-string ($rx ^ "source " -> "&& ") "")
@@ -2953,21 +2972,25 @@ Display progress in the minibuffer instead."
                                                     (group (+ (in alnum "-_."))) symbol-end)
                                                shorten-fn)))
          (buffer-name (let ((root (f-filename model-root))
-                            (dir (f-filename default-directory)))
+                            (dir (f-filename default-directory))
+                            (parent (f-filename (f-dirname default-directory))))
                         (if (equal root dir)
                             (format "*%s - %s*" root cmd-name)
-                          (format "*%s/.../%s - %s*" root dir cmd-name))))
+                          (format "*%s/.../%s/%s - %s*" root parent dir cmd-name))))
          (env-var? (lambda (x) (string-match-p "=" x)))
          (parts (split-string-shell-command cmd))
          (final-cmd (mapconcat 'identity (-drop-while env-var? parts) " "))
          (compilation-environment (append (-take-while env-var? parts)
                                           (list (concat "MODEL_ROOT=" model-root))))
          (compilation-buffer-name-function (lambda (_mode) buffer-name)))
-    (compile final-cmd (consp arg))))
+    (compile final-cmd comint)))
+
+(with-eval-after-load 'tramp
+  (add-to-list 'tramp-remote-process-environment "SALT_LICENSE_SERVER=1717@yyz-license-01"))
 
 (defun $model-root (&optional dir)
   "current model root"
-  (file-truename (expand-file-name (or (vc-git-root (or dir default-directory)) ""))))
+  (expand-file-name (or (magit-toplevel) "")))
 
 (defun idf-compile ()
   (interactive)
@@ -3183,8 +3206,8 @@ access"
 ;;;;; alerts
 (add-hook 'compilation-finish-functions
           (defun $notify-compile-done (_buffer exit-string)
-            "notfiy the user that compliation is finished"
-            (alert "compliation finished"
+            "notfiy the user that compilation is finished"
+            (alert "compilation finished"
                    :severity (if (string-prefix-p "exited abnormally" exit-string)
                                  'high
                                'normal))))
@@ -3744,7 +3767,11 @@ prompt in shell mode"
 (with-eval-after-load 'company-dabbrev-code
   (add-to-list 'company-dabbrev-code-modes 'shell-mode))
 
-(use-package company-posframe)
+(use-package company-posframe
+  :demand t
+  :after company
+  :config
+  (company-posframe-mode))
 
 ;; https://github.com/doomemacs/doomemacs/commit/2e476de44693c9f4953f3c467284e88b28b6084e
 (add-hook 'evil-local-mode-hook
@@ -4090,7 +4117,7 @@ prompt in shell mode"
         ports)))
 
 (use-package verilog-ts-mode)
-(add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv_ts" "sv.dft") eos) 'verilog-ts-mode))
+(add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv.dft") (or eos "_")) 'verilog-ts-mode))
 
 (define-derived-mode filelist-mode prog-mode "FileList"
   "Major mode for filelists"
@@ -4111,7 +4138,7 @@ prompt in shell mode"
 ;; equal" symbol. So we add an addition wrapper around the compose
 ;; function to handle this special case.
 (defun $compose-conditional-symbol (alist)
-  (or (and (eq major-mode 'verilog-mode)
+  (or (and (memq major-mode '(verilog-mode verilog-ts-mode))
            (equal (match-string 0) "<=")
            (not (looking-at-p (rx (or (: (0+ " ") "(" )
                                       (: (1+ (not (in "(\n"))) ")")))))
@@ -4149,7 +4176,7 @@ prompt in shell mode"
   :init
   (setq tcl-proc-list '("proc" "method" "class" "namespace" "iProc" "iTopProc" "tepam::procedure")))
 
-(with-eval-after-load 'tcl-mode
+(with-eval-after-load 'tcl
   (add-to-list 'tcl-keyword-list "iProc")
   (add-to-list 'tcl-keyword-list "iTopProc")
   (add-to-list 'tcl-keyword-list "tepam::procedure")
@@ -4174,58 +4201,58 @@ prompt in shell mode"
 
 ;;;; ICL
 
-(define-derived-mode icl-mode java-mode "ICL"
-  (setq-local c-basic-offset 2)
-  (setq-local indent-line-function 'icl-indent-line)
-  (setq-local font-lock-defaults '(icl-font-lock-keywords))
+(use-package icl-mode)
+
+(with-eval-after-load 'tcl
+    (icl-add-pdl-keywords))
+
+(define-derived-mode dft-spec-mode tcl-mode "DFT Spec"
+  "Major mode for editing Tessent configuration Specs."
+  (setq-local tcl-indent-level 2)
   (setq-local comment-start "//")
   (setq-local comment-end "")
-  (setq-local imenu-generic-expression
-              `(("modules" ,($rx ^ "Module"
-                                 spc+ (group symbol) spc+ "{") 1)
-                ("instances" ,($rx ^ spc+ "Instance"
-                                   spc+ (group symbol) spc+ "Of") 1)))
-  (modify-syntax-entry ?\' "." icl-mode-syntax-table)
-  (modify-syntax-entry ?$ "." icl-mode-syntax-table))
+  (setq-local indent-line-function #'dft-spec-indent-line)
+  (modify-syntax-entry ?/ ". 12b" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?\n "> b" dft-spec-mode-syntax-table)
+  (setq-local font-lock-defaults '(dft-spec-font-lock-keywords)))
 
-(add-to-list 'auto-mode-alist '("\\.icl\\'" . icl-mode))
-
-(defun icl-broken-line-p ()
-  (save-excursion
-    (previous-line)
-    (end-of-line)
-    (skip-syntax-backward " " (line-beginning-position))
-    (save-match-data
-      (looking-back (rx (or "Of" "SelectedBy" "=")) (line-beginning-position)))))
-
-(defun icl-indent-line ()
+(defun dft-spec-indent-line ()
+  "Indent like TCL, unless we have a comma separated list."
   (interactive)
-  (if (icl-broken-line-p)
-      (let ((c-basic-offset 4))
-        (c-indent-line))
-    (c-indent-line)))
+  (let ((indent-level
+         (save-excursion
+           (beginning-of-line)
+           ;; skip blank lines
+           (skip-chars-backward " \t\n")
+           ;; if the previous line was a continuation of a list get the indentation of it
+           (when (eq (preceding-char) ?,)
+             (beginning-of-line)
+             (search-forward ": " (line-end-position) t)
+             (skip-chars-forward " \t")
+             (current-column)))))
 
-(setq icl-font-lock-keywords
-      `((,(rx symbol-start "Attribute" symbol-end) 0 font-lock-variable-name-face)
-        (,(rx symbol-start (or "Instance" "Module" "Enum") symbol-end)
-         0 font-lock-function-name-face)
-        (,($rx ^ spc* (group upper (1+ alnum)) spc+) 1 font-lock-keyword-face)
-        (,(rx symbol-start (or "InputPort"
-                               "Alias"
-                               "ClockMux"
-                               "DataMux"
-                               "ScanMux")
-              symbol-end)
-         0 font-lock-keyword-face)
-        (,(rx (char " [':") (group (opt (char "bh")) (1+ digit))) 1 font-lock-type-face)
-        (,(rx ".") 0 'error)
-        (,($rx spc+ (group (or "Of" "SelectedBy"))) 1 font-lock-builtin-face)))
+    (if (null indent-level)
+        (tcl-indent-line)
+      (let ((offset (save-excursion
+                      (end-of-line)
+                      (back-to-indentation)
+                      (- (current-column) indent-level))))
+        (when (not (eq offset 0))
+          (end-of-line)
+          (back-to-indentation)
+          (if (< offset 0)
+              (indent-to indent-level)
+            (delete-region (- (point) offset) (point))))))))
 
-(define-derived-mode tessent-spec-mode java-mode "Tessent Spec"
-  (setq-local c-basic-offset 2))
+(defvar dft-spec-font-lock-keywords
+  (rx-let ((property (seq bol (0+ " ") (group (1+ (any alnum "_"))) (0+ " "))))
+    (list (list (rx property "(") 1 'font-lock-function-name-face)
+          (list (rx property ":" ) 1 'font-lock-variable-name-face)
+          (list (rx property "{" ) 1 'font-lock-keyword-face)))
+  "DFT Spec mode font lock keywords")
 
 (add-to-list 'auto-mode-alist
-             `(,(rx (or "meta_spec" "tessent_meta") eos) . tessent-spec-mode))
+             `(,(rx "." (or "dft_spec" "patterns_spec_signoff" "cfg") eos) . dft-spec-mode))
 
 ;;;; JSON
 (use-package json-mode
@@ -4261,6 +4288,15 @@ prompt in shell mode"
   ;; make bazel projects higher priority
   (setq project-find-functions
         (cons 'bazel-find-project (remove 'bazel-find-project project-find-functions))))
+
+(defun $run-bazel (cmd)
+  "Run a bazel command"
+  (interactive (list (compilation-read-command "./infra/bzsim ")))
+  (let* ((git-root (vc-git-root default-directory))
+         (rel-path (file-relative-name default-directory git-root))
+         (bzl-root (concat git-root (car (split-string rel-path "/")))))
+    (cd bzl-root)
+    ($compile cmd)))
 
 (defun $clear-bazel-progress-bar (orig start end)
   "Bazel uses the following terminal sequence to clear the progress
