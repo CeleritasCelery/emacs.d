@@ -2049,7 +2049,8 @@ This includes remote paths and enviroment variables."
          (substring (buffer-substring-no-properties beg end))
          ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
          ;; path. In which case need to remove it
-         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring)))
+         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring))
+         (path (string-remove-prefix ":" path)))
     (if (save-excursion
           (goto-char beg)
           (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
@@ -2109,7 +2110,7 @@ This includes remote paths and enviroment variables."
                              for path = (concat dir file)
                              if (file-exists-p path)
                              return path
-                             finally (user-error (format "File %s does not exists" file)))))
+                             finally (user-error (format "File %s does not exist" file)))))
     (find-file file-path)
     (when (string-match line-rx context)
       (goto-line (string-to-number (match-string 1 context))))))
@@ -2119,7 +2120,7 @@ This includes remote paths and enviroment variables."
            with path = (concat dir file)
            if (file-exists-p path)
            return path
-           finally (user-error (format "File %s does not exists" file))))
+           finally (user-error (format "File %s does not exist" file))))
 
 (defun $paste-relative-path ()
   "paste the contents of the clipboard. If it is a path, make it relative to `default-directory'"
