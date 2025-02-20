@@ -2969,6 +2969,11 @@ Display progress in the minibuffer instead."
   "current model root"
   (file-truename (expand-file-name (or (vc-git-root (or dir default-directory)) ""))))
 
+(defun idf-compile ()
+  (interactive)
+  (let ((default-directory (locate-dominating-file default-directory "sdkconfig")))
+    (compile ". $HOME/esp/esp-idf/export.sh && idf.py build")))
+
 ;; compilation mode will throw warnings about clearing large buffers, but
 ;; we don't need undo in compilation buffers anyways so we can just turn
 ;; that off
