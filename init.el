@@ -4279,6 +4279,50 @@ prompt in shell mode"
          (default-directory (concat git-root (car (split-string rel-path "/")))))
     ($compile cmd)))
 
+
+(defun $simple-truename (file)
+  (string-remove-prefix
+   (file-remote-p default-directory)
+   (if (string-match-p "/home/" file)
+       (file-truename file)
+     file)))
+
+(defun $bazel-rerun ()
+  "Run a bazel command"
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (rel-path (file-relative-name default-directory git-root))
+         (remote (or (file-remote-p git-root) ""))
+         (file-name (buffer-file-name))
+         (path ($get-path-at-point))
+         (logfile-re ($rx "build/bazel-out" -> "test.log" eos))
+         (output-dir
+          (if (and file-name
+                   (string-match-p logfile-re file-name))
+              (concat (file-name-directory file-name) "test.outputs/")
+            (if (string-match-p logfile-re path)
+                (concat (file-name-directory path) "test.outputs/")
+              (read-file-name "test output path: "))))
+         (default-directory (concat git-root (car (split-string rel-path "/")) "/"))
+         (from-dir (string-remove-prefix ($simple-truename default-directory)
+                                         ($simple-truename output-dir)))
+         (test-name (if (string-match "testlogs/\\([^/]+\\)/" output-dir)
+                         (substring output-dir (match-beginning 1) (match-end 1))
+                      ""))
+         (rerun-dir (read-from-minibuffer "rerun directory: " (concat "debug_" test-name))))
+    ($compile (format "./infra/bzsim run vcs:dbg --bazel-remote-dir=./local_cache --rerun-from %s --run-path %s --set-env-runfiles-dir" from-dir rerun-dir))))
+
+(defun $bazel-run-testlist ()
+  "Run a bazel command"
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (rel-path (file-relative-name default-directory git-root))
+         (file-name (buffer-file-name))
+         (default-directory (concat git-root (car (split-string rel-path "/")) "/"))
+         (testlist (string-remove-prefix ($simple-truename default-directory)
+                                         ($simple-truename file-name))))
+    ($compile (format "./infra/bzsim regress %s" testlist))))
+
 (defun $clear-bazel-progress-bar (orig start end)
   "Bazel uses the following terminal sequence to clear the progress
 messages. We want to handle these in our terminal so we don't get
