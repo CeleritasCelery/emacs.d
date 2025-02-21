@@ -1032,9 +1032,8 @@ If INVERT, do the opposite of the normal behavior."
   :after counsel
   :custom
   (ivy-prescient-enable-filtering nil "We don't want the initialism filtering")
-  :init
-  (setq ivy-prescient-sort-commands '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x))
   :config
+  (add-to-list 'ivy-prescient-sort-commands  'counsel-M-x t)
   (prescient-persist-mode)
   (ivy-prescient-mode)
   (setf (alist-get 'counsel-describe-function ivy-sort-functions-alist)
