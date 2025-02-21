@@ -3186,8 +3186,12 @@ access"
   "select from active and finished compilation buffers"
   (interactive)
   (let ((buffers ($compilation-buffers-candidates)))
-    (switch-to-buffer (cdr (assoc (completing-read "jump to buffer: "  buffers) buffers)))))
+    (switch-to-buffer (cdr (assoc (ivy-read "jump to buffer: " buffers
+                                            :caller 'compilation-jump-to-buffer)
+                                  buffers)))))
 
+(with-eval-after-load 'ivy-prescient
+    (add-to-list 'ivy-prescient-sort-commands  'compilation-jump-to-buffer t))
 ;;;;; alerts
 (add-hook 'compilation-finish-functions
           (defun $notify-compile-done (_buffer exit-string)
