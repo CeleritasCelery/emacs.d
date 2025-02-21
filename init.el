@@ -2287,7 +2287,7 @@ directory pointing to the same file name"
             (message "Done Copying"))
           (with-current-buffer (dired-noselect to-file)
             (revert-buffer)))
-      (apply orig-fn file-creator operation fn-list name-constructor marker-char))))
+      (apply orig-fn file-creator operation fn-list name-constructor marker-char nil))))
 
 (advice-add 'dired-create-files :around #'dired-try-simple-copy)
 ;; (advice-remove 'dired-create-files #'dired-try-simple-copy)
