@@ -2305,7 +2305,7 @@ directory pointing to the same file name"
   :ensure nil
   :init
   (setq recentf-max-saved-items 500
-        recentf-auto-cleanup "11:00pm"))
+        recentf-auto-cleanup nil))
 
 ;;;; Path check
 
