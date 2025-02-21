@@ -502,7 +502,7 @@
 
 (defvar $counsel-git-cands-cache nil)
 (defun $memoize-counsel-git-cands (orig dir)
-  ($memoize-remote (vc-git-root dir) '$counsel-git-cands-cache orig dir))
+  ($memoize-remote (magit-toplevel dir) '$counsel-git-cands-cache orig dir))
 
 (defun $clear-counsel-git-cands-cache ()
   (interactive)
@@ -2169,7 +2169,7 @@ This includes remote paths and enviroment variables."
 (defun $update-filename-with-root ()
   (interactive)
   (when-let* ((file (current-kill 0))
-              (root (expand-file-name (vc-git-root file))))
+              (root (expand-file-name (magit-toplevel file))))
     (kill-new (s-replace root "$MODEL_ROOT/" file) 'replace)))
 
 (defun $update-filename-relative ()
@@ -2239,7 +2239,7 @@ directory pointing to the same file name"
   "find the same file in a different model in the same directory"
   (interactive)
   (let* ((file (buffer-file-name))
-         (root (vc-git-root file))
+         (root (magit-toplevel file))
          (path (string-remove-prefix root file))
          (workspace (f-parent root))
          (models (file-expand-wildcards (concat workspace "/*/" path)))
@@ -2896,7 +2896,7 @@ Display progress in the minibuffer instead."
 (defun $shell-pop-root (arg)
   "open a shell in the project root"
   (interactive "P")
-  (let ((default-directory (vc-git-root default-directory)))
+  (let ((default-directory (magit-toplevel)))
     (shell-pop arg)))
 
 (use-package native-complete
@@ -3054,7 +3054,7 @@ Display progress in the minibuffer instead."
 (defun $compilation-save-buffer-p ()
   (when-let ((name (buffer-file-name))
              (root (vc-git-root name))
-             (comp-root (vc-git-root (or $current-compilation-dir
+             (comp-root (magit-toplevel (or $current-compilation-dir
                                          default-directory))))
     (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
          (f-same? comp-root root))))
@@ -4269,10 +4269,9 @@ prompt in shell mode"
 (defun $run-bazel (cmd)
   "Run a bazel command"
   (interactive (list (compilation-read-command "./infra/bzsim ")))
-  (let* ((git-root (vc-git-root default-directory))
+  (let* ((git-root (magit-toplevel))
          (rel-path (file-relative-name default-directory git-root))
-         (bzl-root (concat git-root (car (split-string rel-path "/")))))
-    (cd bzl-root)
+         (default-directory (concat git-root (car (split-string rel-path "/")))))
     ($compile cmd)))
 
 (defun $clear-bazel-progress-bar (orig start end)
