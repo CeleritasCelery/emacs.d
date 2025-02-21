@@ -9,7 +9,8 @@
  '(helm-minibuffer-history-key "M-p")
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   '((verilog-typedef-regexp . "_[eus]$")
+   '((flycheck-mode . t)
+     (verilog-typedef-regexp . "_[eus]$")
      (verilog-library-extensions ".sv" ".h" ".v")
      (verilog-library-directories ".")
      (org-src-preserve-indentation)

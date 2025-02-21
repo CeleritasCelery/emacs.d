@@ -765,6 +765,14 @@ Text Scale
   (add-to-list 'aw-dispatch-alist '(?d aw-delete-window "delete window"))
   (add-to-list 'aw-dispatch-alist '(?s aw-split-window-horz "Split Horz window")))
 
+(use-package ultra-scroll
+  :ensure (:host github :repo "jdtsmith/ultra-scroll")
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
+
 ;; from https://gist.github.com/3402786
 (defun $toggle-maximize-window ()
   "Maximize buffer"
@@ -912,7 +920,7 @@ If INVERT, do the opposite of the normal behavior."
 (csetq counsel-describe-variable-function 'helpful-variable
        counsel-describe-function-function 'helpful-callable)
 
-(setq find-function-C-source-directory "~/Library/Caches/Homebrew/emacs-plus@29--git/src")
+(setq find-function-C-source-directory "~/repos/emacs/src")
 
 (general-def
   "C-h f" 'counsel-describe-function
@@ -1429,24 +1437,23 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
-(use-package chatgpt-shell
-  :init
-  (setq chatgpt-shell-model-version "gpt-4"))
+(use-package chatgpt-shell)
 
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
 ($leader-set-key
   "e" #'chatgpt-shell)
 
-(use-package aider
-  :ensure (:host github :repo "tninja/aider.el" :files ("aider.el"))
-  :config
-  (setq aider-args '("--sonnet"))
-  ;; Optional: Set a key binding for the transient menu
-  (global-set-key (kbd "C-c a") 'aider-transient-menu))
+(use-package aidermacs
+  :ensure (:host github :repo "MatthewZMD/aidermacs")
+  :init
+  ($leader-set-key "a" 'aidermacs-transient-menu))
 
 (use-package gptel
+  :general (gptel-mode-map "C-c C-c" 'gptel-menu
+                           "RET" #'gptel-send)
   :config
-  (gptel-make-anthropic "Claude" :stream t))
+  (setq gptel-backend
+        (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
 
 
 (use-package ws-butler
@@ -2049,10 +2056,10 @@ This includes remote paths and enviroment variables."
          (beg (car bounds))
          (end (cdr bounds))
          (substring (buffer-substring-no-properties beg end))
-         ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the end
-         ;; of a path. In which case need to remove it
-         (path (replace-regexp-in-string (rx ":" (0+ (any ":" digit)) eos) "" substring))
-         (path (string-remove-prefix ":" substring))
+         ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
+         ;; path. In which case need to remove it
+         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring))
+         (path (string-remove-prefix ":" path))
          ;; remove +incdir+ from the start of the path
          (path (replace-regexp-in-string (rx bos "+incdir+") "" path)))
     (if (save-excursion
@@ -2114,7 +2121,7 @@ This includes remote paths and enviroment variables."
                              for path = (concat dir file)
                              if (file-exists-p path)
                              return path
-                             finally (user-error (format "File %s does not exists" file)))))
+                             finally (user-error (format "File %s does not exist" file)))))
     (find-file file-path)
     (when (string-match line-rx context)
       (goto-line (string-to-number (match-string 1 context))))))
@@ -2124,7 +2131,7 @@ This includes remote paths and enviroment variables."
            with path = (concat dir file)
            if (file-exists-p path)
            return path
-           finally (user-error (format "File %s does not exists" file))))
+           finally (user-error (format "File %s does not exist" file))))
 
 (defun $paste-relative-path ()
   "paste the contents of the clipboard. If it is a path, make it relative to `default-directory'"
@@ -2668,6 +2675,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
    :states '(normal insert)
    "C-p" 'comint-previous-matching-input-from-input
    "<return>" 'comint-send-input
+   "S-<return>" 'comint-accumulate
    "C-n" 'comint-next-matching-input-from-input
    "C-<return>" '$copy-path)
   (:keymaps 'comint-mode-map
@@ -2681,6 +2689,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   (add-hook 'compilation-filter-hook #'ansi-color-compilation-filter))
 
 (use-package xterm-color)
+
+(use-package vterm)
 
 (defun $xterm-colorize-buffer ()
   (interactive)
@@ -2981,6 +2991,11 @@ Display progress in the minibuffer instead."
 (defun $model-root (&optional dir)
   "current model root"
   (expand-file-name (or (magit-toplevel) "")))
+
+(defun idf-compile ()
+  (interactive)
+  (let ((default-directory (locate-dominating-file default-directory "sdkconfig")))
+    (compile ". $HOME/esp/esp-idf/export.sh && idf.py build")))
 
 ;; compilation mode will throw warnings about clearing large buffers, but
 ;; we don't need undo in compilation buffers anyways so we can just turn
@@ -3348,41 +3363,48 @@ access"
   "a" '$org-archive-done-tasks
   "h" '$org-show-current-heading-tidily)
 
-(defun $org-procrastinate (arg)
-  "shedule the selected item for tomrrow, effectivly removing
-it from todays agenda."
-  (interactive "P")
-  (let ((fn (if (eq major-mode 'org-agenda-mode)
-                'org-agenda-schedule
-              'org-schedule)))
-    (funcall fn arg "+1d")))
-($leader-local-set-key
-  :keymaps '(org-mode-map org-agenda-mode-map)
-  "s" '$org-procrastinate)
+(use-package hide-mode-line)
 
-;; Fix ~org-open-file~ on WSL. Based on
-;; [[https://vxlabs.com/2020/03/07/patch-emacs-org-open-file-using-advice/][this]]
-;; link
-(defun wsl-fix-org-open-file (orig-org-open-file &rest args)
-  ;; temporarily replace function,
-  ;; see https://endlessparentheses.com/understanding-letf-and-how-it-replaces-flet.html
-  (cl-letf (((symbol-function 'start-process-shell-command) #'call-process-shell-command))
-    (apply orig-org-open-file args)))
-
-(advice-add #'org-open-file :around #'wsl-fix-org-open-file)
+(use-package org-present
+  :init
+  (setq org-present-text-scale 3)
+  :config
+  (add-hook 'org-present-mode-hook
+            (defun $org-present ()
+              (org-present-big)
+              (org-display-inline-images)
+              (org-present-hide-cursor)
+              (org-present-read-only)
+              (git-gutter-mode -1)
+              (evil-mode -1)
+              (hide-mode-line-mode)
+              (show-paren-mode -1)
+              (jinx-mode -1)
+              (hl-line-mode -1)))
+  (add-hook 'org-present-mode-quit-hook
+            (defun $org-present-quit ()
+              (org-present-small)
+              (org-remove-inline-images)
+              (org-present-show-cursor)
+              (org-present-read-write)
+              (hide-mode-line-mode -1)
+              (git-gutter-mode)
+              (show-paren-mode)
+              (evil-mode)
+              (jinx-mode)
+              (hl-line-mode))))
 
 (csetq org-agenda-todo-ignore-scheduled 'future
        org-agenda-tags-todo-honor-ignore-options t
        org-agenda-dim-blocked-tasks 'invisible)
 
-($leader-set-key
-  "a" 'org-agenda)
 (general-def org-agenda-mode-map "o" 'org-agenda-log-mode)
 
 (defun $org-agenda-next-visual-line ()
   (interactive)
   (evil-next-visual-line)
   (org-agenda-do-context-action))
+
 (defun $org-agenda-prev-visual-line ()
   (interactive)
   (evil-previous-visual-line)
@@ -3823,7 +3845,7 @@ prompt in shell mode"
 
 (add-hook 'emacs-lisp-mode-hook '$prettify-cons)
 
-(use-package page-break-lines
+(use-package form-feed-st
   :hook (emacs-lisp-mode help-mode))
 
 (use-package aggressive-indent
@@ -4013,7 +4035,8 @@ prompt in shell mode"
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
 (defun $lsp-unless-remote ()
-  (if (file-remote-p buffer-file-name)
+  (if (and buffer-file-name
+           (file-remote-p buffer-file-name))
       (progn (eldoc-mode -1)
              (setq-local completion-at-point-functions nil))
     (lsp)))
@@ -4347,7 +4370,9 @@ redundant output."
                  (delete-region (point) seq-end))))))
   (funcall orig start (point)))
 
-(advice-add 'comint-carriage-motion :around '$clear-bazel-progress-bar)
+(when ($dev-config-p)
+  (advice-add 'comint-carriage-motion :around '$clear-bazel-progress-bar))
+;; (advice-remove 'comint-carriage-motion '$clear-bazel-progress-bar)
 
 ;; Tcsh is poorly supported in Emacs. The worst offender is the default
 ;; indentation, which is totally broken. This code ripped from
