@@ -3240,6 +3240,12 @@ access"
 
 (use-package detached)
 
+(defun $dtach-socket ()
+  (concat (file-remote-p default-directory)
+          detached-session-directory
+          (format-time-string "%Y-%m-%d-%H:%M:%S" (current-time))
+          ".socket"))
+
 ;;; Org
 
 (use-package org
