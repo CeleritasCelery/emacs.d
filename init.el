@@ -2044,13 +2044,15 @@ substitute them in the path"
 (defun $get-path-at-point ()
   "Get the filepath at point.
 This includes remote paths and enviroment variables."
-  (let* ((bounds ($get-chars-at-point "-+{}[:alnum:]$:/.#_~\""))
+  ;; adding "" to the regex causes issues
+  (let* ((bounds ($get-chars-at-point "-+{}[:alnum:]$:/.#_~"))
          (beg (car bounds))
          (end (cdr bounds))
          (substring (buffer-substring-no-properties beg end))
-         ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
-         ;; path. In which case need to remove it
-         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring))
+         ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the end
+         ;; of a path. In which case need to remove it
+         (path (replace-regexp-in-string (rx ":" (0+ (any ":" digit)) eos) "" substring))
+         (path (string-remove-prefix ":" substring))
          ;; remove +incdir+ from the start of the path
          (path (replace-regexp-in-string (rx bos "+incdir+") "" path)))
     (if (save-excursion
