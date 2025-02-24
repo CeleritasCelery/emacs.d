@@ -1753,7 +1753,8 @@ that region."
 ;; Used to speed up some tramp operations
 (defun $memoize-remote (key cache orig-fn &rest args)
   "Memoize a value if they key is a remote path."
-  (if (file-remote-p key)
+  (if (and key
+           (file-remote-p key))
       (if-let ((current (assoc key (symbol-value cache))))
           (cdr current)
         (let ((current (apply orig-fn args)))
