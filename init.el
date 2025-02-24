@@ -502,7 +502,7 @@
 
 (defvar $counsel-git-cands-cache nil)
 (defun $memoize-counsel-git-cands (orig dir)
-  ($memoize-remote (vc-git-root dir) '$counsel-git-cands-cache orig dir))
+  ($memoize-remote (magit-toplevel dir) '$counsel-git-cands-cache orig dir))
 
 (defun $clear-counsel-git-cands-cache ()
   (interactive)
@@ -1039,9 +1039,8 @@ If INVERT, do the opposite of the normal behavior."
   :after counsel
   :custom
   (ivy-prescient-enable-filtering nil "We don't want the initialism filtering")
-  :init
-  (setq ivy-prescient-sort-commands '(:not swiper swiper-isearch ivy-switch-buffer counsel-M-x))
   :config
+  (add-to-list 'ivy-prescient-sort-commands  'counsel-M-x t)
   (prescient-persist-mode)
   (ivy-prescient-mode)
   (setf (alist-get 'counsel-describe-function ivy-sort-functions-alist)
@@ -2052,16 +2051,18 @@ substitute them in the path"
 (defun $get-path-at-point ()
   "Get the filepath at point.
 This includes remote paths and enviroment variables."
-  (let* ((bounds ($get-chars-at-point "-+{}[:alnum:]$:/.#_~\""))
+  ;; adding "" to the regex causes issues
+  (let* ((bounds ($get-chars-at-point "-+{}[:alnum:]$:/.#_~"))
          (beg (car bounds))
          (end (cdr bounds))
-         (substring (buffer-substring-no-properties beg end))
-         ;; we need to get : so that we can handle tramp paths, but sometimes it is also at the of a
-         ;; path. In which case need to remove it
-         (path (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "" substring))
-         (path (string-remove-prefix ":" path))
-         ;; remove +incdir+ from the start of the path
-         (path (replace-regexp-in-string (rx bos "+incdir+") "" path)))
+         (path
+          (thread-last (buffer-substring-no-properties beg end)
+                       ;; we need to get : so that we can handle tramp paths, but sometimes it
+                       ;; is also at the of a path. In which case need to remove it
+                       (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "")
+                       (string-remove-prefix ":")
+                       ;; remove +incdir+ from the start of the path
+                       (replace-regexp-in-string (rx bos "+incdir+") ""))))
     (if (save-excursion
           (goto-char beg)
           (or (looking-back ($rx "cfg::MODEL_ROOT()" spc* "." spc*) (line-beginning-position))
@@ -2176,7 +2177,7 @@ This includes remote paths and enviroment variables."
 (defun $update-filename-with-root ()
   (interactive)
   (when-let* ((file (current-kill 0))
-              (root (expand-file-name (vc-git-root file))))
+              (root (expand-file-name (magit-toplevel file))))
     (kill-new (s-replace root "$MODEL_ROOT/" file) 'replace)))
 
 (defun $update-filename-relative ()
@@ -2246,7 +2247,7 @@ directory pointing to the same file name"
   "find the same file in a different model in the same directory"
   (interactive)
   (let* ((file (buffer-file-name))
-         (root (vc-git-root file))
+         (root (magit-toplevel file))
          (path (string-remove-prefix root file))
          (workspace (f-parent root))
          (models (file-expand-wildcards (concat workspace "/*/" path)))
@@ -2294,7 +2295,7 @@ directory pointing to the same file name"
             (message "Done Copying"))
           (with-current-buffer (dired-noselect to-file)
             (revert-buffer)))
-      (apply orig-fn file-creator operation fn-list name-constructor marker-char))))
+      (apply orig-fn file-creator operation fn-list name-constructor marker-char nil))))
 
 (advice-add 'dired-create-files :around #'dired-try-simple-copy)
 ;; (advice-remove 'dired-create-files #'dired-try-simple-copy)
@@ -2312,7 +2313,7 @@ directory pointing to the same file name"
   :ensure nil
   :init
   (setq recentf-max-saved-items 500
-        recentf-auto-cleanup "11:00pm"))
+        recentf-auto-cleanup nil))
 
 ;;;; Path check
 
@@ -2906,7 +2907,7 @@ Display progress in the minibuffer instead."
 (defun $shell-pop-root (arg)
   "open a shell in the project root"
   (interactive "P")
-  (let ((default-directory (vc-git-root default-directory)))
+  (let ((default-directory (magit-toplevel)))
     (shell-pop arg)))
 
 (use-package native-complete
@@ -3069,7 +3070,7 @@ Display progress in the minibuffer instead."
 (defun $compilation-save-buffer-p ()
   (when-let ((name (buffer-file-name))
              (root (vc-git-root name))
-             (comp-root (vc-git-root (or $current-compilation-dir
+             (comp-root (magit-toplevel (or $current-compilation-dir
                                          default-directory))))
     (and (not (string-match-p (rx ".log" eos) (buffer-file-name)))
          (f-same? comp-root root))))
@@ -3201,8 +3202,12 @@ access"
   "select from active and finished compilation buffers"
   (interactive)
   (let ((buffers ($compilation-buffers-candidates)))
-    (switch-to-buffer (cdr (assoc (completing-read "jump to buffer: "  buffers) buffers)))))
+    (switch-to-buffer (cdr (assoc (ivy-read "jump to buffer: " buffers
+                                            :caller 'compilation-jump-to-buffer)
+                                  buffers)))))
 
+(with-eval-after-load 'ivy-prescient
+    (add-to-list 'ivy-prescient-sort-commands  'compilation-jump-to-buffer t))
 ;;;;; alerts
 (add-hook 'compilation-finish-functions
           (defun $notify-compile-done (_buffer exit-string)
@@ -3250,6 +3255,12 @@ access"
   (setq alert-default-style 'fringe))
 
 (use-package detached)
+
+(defun $dtach-socket ()
+  (concat (file-remote-p default-directory)
+          detached-session-directory
+          (format-time-string "%Y-%m-%d-%H:%M:%S" (current-time))
+          ".socket"))
 
 ;;; Org
 
@@ -4213,6 +4224,7 @@ prompt in shell mode"
   (setq-local comment-end "")
   (setq-local indent-line-function #'dft-spec-indent-line)
   (modify-syntax-entry ?/ ". 12b" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?# "<" dft-spec-mode-syntax-table)
   (modify-syntax-entry ?\n "> b" dft-spec-mode-syntax-table)
   (setq-local font-lock-defaults '(dft-spec-font-lock-keywords)))
 
@@ -4292,11 +4304,54 @@ prompt in shell mode"
 (defun $run-bazel (cmd)
   "Run a bazel command"
   (interactive (list (compilation-read-command "./infra/bzsim ")))
-  (let* ((git-root (vc-git-root default-directory))
+  (let* ((git-root (magit-toplevel))
          (rel-path (file-relative-name default-directory git-root))
-         (bzl-root (concat git-root (car (split-string rel-path "/")))))
-    (cd bzl-root)
+         (default-directory (concat git-root (car (split-string rel-path "/")))))
     ($compile cmd)))
+
+
+(defun $simple-truename (file)
+  (string-remove-prefix
+   (file-remote-p default-directory)
+   (if (string-match-p "/home/" file)
+       (file-truename file)
+     file)))
+
+(defun $bazel-rerun ()
+  "Run a bazel command"
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (rel-path (file-relative-name default-directory git-root))
+         (remote (or (file-remote-p git-root) ""))
+         (file-name (buffer-file-name))
+         (path ($get-path-at-point))
+         (logfile-re ($rx "build/bazel-out" -> "test.log" eos))
+         (output-dir
+          (if (and file-name
+                   (string-match-p logfile-re file-name))
+              (concat (file-name-directory file-name) "test.outputs/")
+            (if (string-match-p logfile-re path)
+                (concat (file-name-directory path) "test.outputs/")
+              (read-file-name "test output path: "))))
+         (default-directory (concat git-root (car (split-string rel-path "/")) "/"))
+         (from-dir (string-remove-prefix ($simple-truename default-directory)
+                                         ($simple-truename output-dir)))
+         (test-name (if (string-match "testlogs/\\([^/]+\\)/" output-dir)
+                         (substring output-dir (match-beginning 1) (match-end 1))
+                      ""))
+         (rerun-dir (read-from-minibuffer "rerun directory: " (concat "debug_" test-name))))
+    ($compile (format "./infra/bzsim run vcs:dbg --bazel-remote-dir=./local_cache --rerun-from %s --run-path %s --set-env-runfiles-dir" from-dir rerun-dir))))
+
+(defun $bazel-run-testlist ()
+  "Run a bazel command"
+  (interactive)
+  (let* ((git-root (magit-toplevel))
+         (rel-path (file-relative-name default-directory git-root))
+         (file-name (buffer-file-name))
+         (default-directory (concat git-root (car (split-string rel-path "/")) "/"))
+         (testlist (string-remove-prefix ($simple-truename default-directory)
+                                         ($simple-truename file-name))))
+    ($compile (format "./infra/bzsim regress %s" testlist))))
 
 (defun $clear-bazel-progress-bar (orig start end)
   "Bazel uses the following terminal sequence to clear the progress
