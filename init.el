@@ -770,8 +770,7 @@ Text Scale
   :init
   (setq scroll-conservatively 101 ; important!
         scroll-margin 0)
-  :config
-  (ultra-scroll-mode 1))
+  (add-hook 'elpaca-after-init-hook #'ultra-scroll-mode))
 
 ;; from https://gist.github.com/3402786
 (defun $toggle-maximize-window ()
