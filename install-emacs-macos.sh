@@ -2,13 +2,11 @@
 
 # Look in the variable system-configuration-options and system-configuration-features
 
-# brew 28
+# brew 30
 # brew tap d12frosted/emacs-plus
-# brew install emacs-plus@28 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
+# brew install emacs-plus@30 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
 
-# brew 29
-# brew tap d12frosted/emacs-plus
-# brew install emacs-plus@29 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
+# git clone https://git.savannah.gnu.org/cgit/emacs/elpa.git to make sure it is working
 
 # install with custom macos version
 # note that this takes a really long time to clone. almost an hour.
@@ -44,5 +42,5 @@ export CFLAGS="-DFD_SETSIZE=10000 -DDARWIN_UNLIMITED_SELECT"
 # export CPP=/opt/homebrew/bin/cpp-13
 
 ./autogen.sh
-./configure --with-modules --with-mailutils --with-xwidgets --with-imagemagick --with-native-compilation --with-ns --disable-ns-self-contained
+./configure --with-modules --with-mailutils --with-xwidgets --with-imagemagick --with-ns --disable-ns-self-contained --disable-gc-mark-trace
 gmake -j4
