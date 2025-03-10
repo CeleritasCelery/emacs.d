@@ -2723,6 +2723,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   :ensure nil
   :gfhook #'company-mode)
 
+(general-def sh-mode-map "C-<return>" '$send-command)
+
 (defvar $dir-history nil
   "previous shell directories")
 (make-variable-buffer-local '$dir-history)
