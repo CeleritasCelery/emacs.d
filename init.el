@@ -411,7 +411,7 @@
 
 (defun $yank-file-name (x)
   (let ((file ($correct-file-path x)))
-    (kill-new (string-remove-prefix (or (file-remote-p x) "") x))))
+    (kill-new (string-remove-prefix (or (file-remote-p file) "") file))))
 
 (defun $yank-file-name-list (x)
   (kill-new
