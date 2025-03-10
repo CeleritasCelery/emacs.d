@@ -1420,8 +1420,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
       (indent-for-tab-command)))
 
 (use-package copilot
-  :ensure (:host github :repo "zerolfx/copilot.el"
-           :files ("dist" "copilot.el" "copilot-balancer.el"))
   :general
   (:states '(insert) :keymaps 'copilot-mode-map
    "C-c c" #'copilot-complete
@@ -1432,8 +1430,9 @@ If ARG is zero, delete current line but exclude the trailing newline."
    "M-N" #'copilot-next-completion
    "M-P" #'copilot-previous-completion)
   :init
-  (setq copilot-max-char -1)
   (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll)))
+
+(use-package copilot-chat)
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
