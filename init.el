@@ -2487,10 +2487,11 @@ directory pointing to the same file name"
 (defvar vc-git-root-cache nil)
 
 (defun $memoize-vc-git-root (orig file)
-  ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)
-  ;; sometimes vc-git-root returns nil even when there is a root there
-  (when (null (cdr (car vc-git-root-cache)))
-    (setq vc-git-root-cache (cdr vc-git-root-cache))))
+  (let ((value ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)))
+    ;; sometimes vc-git-root returns nil even when there is a root there
+    (when (null (cdr (car vc-git-root-cache)))
+      (setq vc-git-root-cache (cdr vc-git-root-cache)))
+    value))
 
 (advice-add 'vc-git-root :around #'$memoize-vc-git-root)
 ;; (advice-remove 'vc-git-root #'$memoize-vc-git-root)
