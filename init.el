@@ -4153,10 +4153,10 @@ prompt in shell mode"
 (defun $compose-conditional-symbol (alist)
   (or (and (memq major-mode '(verilog-mode verilog-ts-mode))
            (equal (match-string 0) "<=")
-           (not (looking-at-p (rx (or (: (0+ " ") "(" )
-                                      (: (1+ (not (in "(\n"))) ")")))))
+           (not (looking-back (rx symbol-start "if" symbol-end (1+ any)) (line-beginning-position)))
+           (not (looking-at-p (rx (1+ (not (in "(\n"))) ")")))
            `((("<=" . (?\s (Br . Bl) ?\s (Br . Br)
-                           ,(decode-char 'ucs #xEF87))))) )
+                           ,(decode-char 'ucs #xEF87))))))
       alist))
 
 (with-eval-after-load 'prog-mode
