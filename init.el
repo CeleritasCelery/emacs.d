@@ -526,6 +526,12 @@
                                 "Consolas"
                               "Source Code Pro")
                     :height $font-height)
+
+(set-face-attribute 'fixed-pitch nil
+                    :family (if (eq system-type 'windows-nt)
+                                "Consolas"
+                              "Source Code Pro"))
+
 (set-fontset-font t nil "Symbola" nil 'append)
 
 (defun $toggle-large-font ()
