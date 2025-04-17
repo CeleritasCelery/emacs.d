@@ -4120,6 +4120,7 @@ prompt in shell mode"
 ;;;; C
 (add-hook 'c++-mode-hook #'lsp)
 (add-hook 'c-mode-hook #'lsp)
+(add-hook 'c-mode-hook (lambda () (c-toggle-comment-style -1)))
 
 ;;; Verilog
 (use-package verilog-mode
