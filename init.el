@@ -860,7 +860,7 @@ If INVERT, do the opposite of the normal behavior."
   "bp" 'buffer-nav/previous-buffer
   "bn" 'buffer-nav/next-buffer)
 
-(general-def "C-x k" 'kill-this-buffer)
+(general-def "C-x k" 'kill-current-buffer)
 
 (setq initial-scratch-message ";; scratch buffer -*- lexical-binding: t -*-\n")
 
