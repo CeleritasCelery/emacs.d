@@ -4413,6 +4413,7 @@ redundant output."
 (add-hook 'sh-set-shell-hook #'$tcsh-set-indent-functions)
 
 ;; (use-package markdown-mode)
+(setq markdown-fontify-code-blocks-natively t)
 
 (use-package major-modes
   :ensure (:host gitlab :repo "foconoco/major-modes" :main nil)
