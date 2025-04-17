@@ -1105,6 +1105,8 @@ If INVERT, do the opposite of the normal behavior."
   :config
   (evil-indent-plus-default-bindings))
 
+(use-package evil-mc)
+
 (use-package evil-textobj-syntax
   :ensure
   (:host github :repo "laishulu/evil-textobj-syntax")
