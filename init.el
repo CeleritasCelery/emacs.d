@@ -1442,7 +1442,13 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
-(use-package chatgpt-shell)
+(use-package chatgpt-shell
+  :init
+      (setq chatgpt-shell-system-prompt 2))
+
+(use-package dall-e-shell
+  :init
+  (setq dall-e-shell-image-output-directory "~/Downloads/dall-e"))
 
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
 ($leader-set-key
