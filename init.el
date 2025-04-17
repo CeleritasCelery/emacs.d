@@ -3312,6 +3312,9 @@ access"
       (toggle-truncate-lines)))
   :config
   (setf (alist-get 'file org-link-frame-setup) 'find-file)
+  (advice-add 'org-id-new :filter-return
+              (defun $downcase-id (ret)
+                (downcase ret)))
   (general-advice-add '(org-insert-subheading org-insert-todo-subheading)
                       :before
                       (defun $org-insert-subheading (_arg)
