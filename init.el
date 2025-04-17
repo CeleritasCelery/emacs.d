@@ -1457,7 +1457,13 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (use-package aidermacs
   :ensure (:host github :repo "MatthewZMD/aidermacs")
   :init
+  (setq aidermacs-default-model "sonnet")
+  (setq aidermacs-extra-args '("--no-auto-lint"))
+  ;; (setq aidermacs-default-model "openrouter/google/gemini-2.5-pro-exp-03-25:free")
   ($leader-set-key "a" 'aidermacs-transient-menu))
+
+;; (use-package aider
+;;   :ensure (:host github :repo "tninja/aider" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el")))
 
 (use-package gptel
   :general (gptel-mode-map "C-c C-c" 'gptel-menu
