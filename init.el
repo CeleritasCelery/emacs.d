@@ -411,7 +411,7 @@
 
 (defun $yank-file-name (x)
   (let ((file ($correct-file-path x)))
-    (kill-new (string-remove-prefix (or (file-remote-p x) "") x))))
+    (kill-new (string-remove-prefix (or (file-remote-p file) "") file))))
 
 (defun $yank-file-name-list (x)
   (kill-new
@@ -1427,8 +1427,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
       (indent-for-tab-command)))
 
 (use-package copilot
-  :ensure (:host github :repo "zerolfx/copilot.el"
-           :files ("dist" "copilot.el" "copilot-balancer.el"))
   :general
   (:states '(insert) :keymaps 'copilot-mode-map
    "C-c c" #'copilot-complete
@@ -1439,8 +1437,9 @@ If ARG is zero, delete current line but exclude the trailing newline."
    "M-N" #'copilot-next-completion
    "M-P" #'copilot-previous-completion)
   :init
-  (setq copilot-max-char -1)
   (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll)))
+
+(use-package copilot-chat)
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
@@ -2079,7 +2078,7 @@ This includes remote paths and enviroment variables."
           (thread-last (buffer-substring-no-properties beg end)
                        ;; we need to get : so that we can handle tramp paths, but sometimes it
                        ;; is also at the of a path. In which case need to remove it
-                       (replace-regexp-in-string (rx (1+ (any ":" digit)) eos) "")
+                       (replace-regexp-in-string (rx ":" (1+ (any ":" digit)) eos) "")
                        (string-remove-prefix ":")
                        ;; remove +incdir+ from the start of the path
                        (replace-regexp-in-string (rx bos "+incdir+") ""))))
@@ -2744,6 +2743,8 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package shell
   :ensure nil
   :gfhook #'company-mode)
+
+(general-def sh-mode-map "C-<return>" '$send-command)
 
 (defvar $dir-history nil
   "previous shell directories")
@@ -4177,10 +4178,10 @@ prompt in shell mode"
 (defun $compose-conditional-symbol (alist)
   (or (and (memq major-mode '(verilog-mode verilog-ts-mode))
            (equal (match-string 0) "<=")
-           (not (looking-at-p (rx (or (: (0+ " ") "(" )
-                                      (: (1+ (not (in "(\n"))) ")")))))
+           (not (looking-back (rx symbol-start "if" symbol-end (1+ any)) (line-beginning-position)))
+           (not (looking-at-p (rx (1+ (not (in "(\n"))) ")")))
            `((("<=" . (?\s (Br . Bl) ?\s (Br . Br)
-                           ,(decode-char 'ucs #xEF87))))) )
+                           ,(decode-char 'ucs #xEF87))))))
       alist))
 
 (with-eval-after-load 'prog-mode
