@@ -2381,12 +2381,12 @@ directory pointing to the same file name"
         '(((emacs-lisp-mode . "Emacs Lisp header")
            nil ";;; -*- lexical-binding: t; -*-\n\n" _)
           (("\\.p[lm]\\'" . "Perl shebang")
-           nil "#!/usr/intel/pkgs/perl/5.14.1/bin/perl\n\n"
+           nil "#!/usr/bin/env perl\n\n"
            "use strict;\n" "use warnings;\n\n" _)
           ((sh-mode . "Sh shebang")
            nil "#!/bin/sh\n\n" _)
           ((python-mode . "Python shebang")
-           nil "#!/usr/intel/bin/python3.6.3a\n\n" _)))
+           nil "#!/usr/bin/env python3\n\n" _)))
   (auto-insert-mode))
 
 (winner-mode)
