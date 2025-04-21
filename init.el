@@ -1704,7 +1704,7 @@ that region."
     (spc* (0+ spc))
     (-> (1+ any))
     (^ bol)
-    (file (1+ (any alnum "-_/.#~:")))
+    (file (1+ (any alnum "-_/.#~:+")))
     (symbol (1+ (any alnum "_-")))
     (nums (1+ num))
     (fp (1+ (any num "."))))
