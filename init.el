@@ -4184,7 +4184,7 @@ prompt in shell mode"
 (use-package tcl-mode
   :ensure nil
   :gfhook #'$tcl-fix-symbol-def #'flycheck-mode
-  :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl" "iprocs") eos)
+  :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl" "sdc" "iprocs") eos)
   :company ((company-syntcl company-dabbrev-code) (company-capf company-dabbrev))
   :general
   ('normal tcl-mode-map "gz" 'inferior-tcl)
