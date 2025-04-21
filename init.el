@@ -1438,8 +1438,12 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (use-package chatgpt-shell)
 
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
-($leader-set-key
-  "e" #'chatgpt-shell)
+(if ($dev-config-p)
+    ($leader-set-key
+      "e" #'copilot-chat-display)
+  ($leader-set-key
+    "e" #'chatgpt-shell))
+
 
 (use-package aidermacs
   :ensure (:host github :repo "MatthewZMD/aidermacs")
