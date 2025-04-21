@@ -4,12 +4,12 @@
 
 ;;; Bootstrap
 ;; https://github.com/progfolio/elpaca#installer
-(defvar elpaca-installer-version 0.7)
+(defvar elpaca-installer-version 0.10)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
 (defvar elpaca-order '(elpaca :repo "https://github.com/progfolio/elpaca.git"
-                              :ref nil :depth 1
+                              :ref nil :depth 1 :inherit ignore
                               :files (:defaults "elpaca-test.el" (:exclude "extensions"))
                               :build (:not elpaca--activate-package)))
 (let* ((repo  (expand-file-name "elpaca/" elpaca-repos-directory))
@@ -19,20 +19,20 @@
   (add-to-list 'load-path (if (file-exists-p build) build repo))
   (unless (file-exists-p repo)
     (make-directory repo t)
-    (when (< emacs-major-version 28) (require 'subr-x))
+    (when (<= emacs-major-version 28) (require 'subr-x))
     (condition-case-unless-debug err
-        (if-let ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
-                 ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
-                                                 ,@(when-let ((depth (plist-get order :depth)))
-                                                     (list (format "--depth=%d" depth) "--no-single-branch"))
-                                                 ,(plist-get order :repo) ,repo))))
-                 ((zerop (call-process "git" nil buffer t "checkout"
-                                       (or (plist-get order :ref) "--"))))
-                 (emacs (concat invocation-directory invocation-name))
-                 ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
-                                       "--eval" "(byte-recompile-directory \".\" 0 'force)")))
-                 ((require 'elpaca))
-                 ((elpaca-generate-autoloads "elpaca" repo)))
+        (if-let* ((buffer (pop-to-buffer-same-window "*elpaca-bootstrap*"))
+                  ((zerop (apply #'call-process `("git" nil ,buffer t "clone"
+                                                  ,@(when-let* ((depth (plist-get order :depth)))
+                                                      (list (format "--depth=%d" depth) "--no-single-branch"))
+                                                  ,(plist-get order :repo) ,repo))))
+                  ((zerop (call-process "git" nil buffer t "checkout"
+                                        (or (plist-get order :ref) "--"))))
+                  (emacs (concat invocation-directory invocation-name))
+                  ((zerop (call-process emacs nil buffer nil "-Q" "-L" "." "--batch"
+                                        "--eval" "(byte-recompile-directory \".\" 0 'force)")))
+                  ((require 'elpaca))
+                  ((elpaca-generate-autoloads "elpaca" repo)))
             (progn (message "%s" (buffer-string)) (kill-buffer buffer))
           (error "%s" (with-current-buffer buffer (buffer-string))))
       ((error) (warn "%s" err) (delete-directory repo 'recursive))))
@@ -526,6 +526,12 @@
                                 "Consolas"
                               "Source Code Pro")
                     :height $font-height)
+
+(set-face-attribute 'fixed-pitch nil
+                    :family (if (eq system-type 'windows-nt)
+                                "Consolas"
+                              "Source Code Pro"))
+
 (set-fontset-font t nil "Symbola" nil 'append)
 
 (defun $toggle-large-font ()
@@ -854,7 +860,7 @@ If INVERT, do the opposite of the normal behavior."
   "bp" 'buffer-nav/previous-buffer
   "bn" 'buffer-nav/next-buffer)
 
-(general-def "C-x k" 'kill-this-buffer)
+(general-def "C-x k" 'kill-current-buffer)
 
 (setq initial-scratch-message ";; scratch buffer -*- lexical-binding: t -*-\n")
 
@@ -1098,6 +1104,8 @@ If INVERT, do the opposite of the normal behavior."
   :demand t
   :config
   (evil-indent-plus-default-bindings))
+
+(use-package evil-mc)
 
 (use-package evil-textobj-syntax
   :ensure
@@ -1435,7 +1443,13 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
-(use-package chatgpt-shell)
+(use-package chatgpt-shell
+  :init
+      (setq chatgpt-shell-system-prompt 2))
+
+(use-package dall-e-shell
+  :init
+  (setq dall-e-shell-image-output-directory "~/Downloads/dall-e"))
 
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
 (if ($dev-config-p)
@@ -1448,7 +1462,13 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (use-package aidermacs
   :ensure (:host github :repo "MatthewZMD/aidermacs")
   :init
+  (setq aidermacs-default-model "sonnet")
+  (setq aidermacs-extra-args '("--no-auto-lint"))
+  ;; (setq aidermacs-default-model "openrouter/google/gemini-2.5-pro-exp-03-25:free")
   ($leader-set-key "a" 'aidermacs-transient-menu))
+
+;; (use-package aider
+;;   :ensure (:host github :repo "tninja/aider" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el")))
 
 (use-package gptel
   :general (gptel-mode-map "C-c C-c" 'gptel-menu
@@ -2273,6 +2293,7 @@ directory pointing to the same file name"
       dired-listing-switches "-alh"
       dired-recursive-copies 'always
       dired-dwim-target t
+      dired-movement-style 'bounded
       dired-auto-revert-buffer (defun $dired-not-remote-and-changed (dir)
                                  (and (not (file-remote-p dir))
                                       (dired-directory-changed-p dir))))
@@ -2363,12 +2384,12 @@ directory pointing to the same file name"
         '(((emacs-lisp-mode . "Emacs Lisp header")
            nil ";;; -*- lexical-binding: t; -*-\n\n" _)
           (("\\.p[lm]\\'" . "Perl shebang")
-           nil "#!/usr/intel/pkgs/perl/5.14.1/bin/perl\n\n"
+           nil "#!/usr/bin/env perl\n\n"
            "use strict;\n" "use warnings;\n\n" _)
           ((sh-mode . "Sh shebang")
            nil "#!/bin/sh\n\n" _)
           ((python-mode . "Python shebang")
-           nil "#!/usr/intel/bin/python3.6.3a\n\n" _)))
+           nil "#!/usr/bin/env python3\n\n" _)))
   (auto-insert-mode))
 
 (winner-mode)
@@ -2439,11 +2460,11 @@ directory pointing to the same file name"
   ;; make transient not take the width of the whole frame
   (setq transient-display-buffer-action
         '(display-buffer-below-selected))
-  (setq magit-commit-show-diff nil)
-  (setq magit-branch-direct-configure nil)
   :config
   (when ($dev-config-p)
     (setq magit-refresh-status-buffer nil)
+    (setq magit-branch-direct-configure nil)
+    (setq magit-commit-show-diff nil)
     (remove-hook 'magit-status-sections-hook 'magit-insert-tags-header))
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
@@ -3300,6 +3321,9 @@ access"
       (toggle-truncate-lines)))
   :config
   (setf (alist-get 'file org-link-frame-setup) 'find-file)
+  (advice-add 'org-id-new :filter-return
+              (defun $downcase-id (ret)
+                (downcase ret)))
   (general-advice-add '(org-insert-subheading org-insert-todo-subheading)
                       :before
                       (defun $org-insert-subheading (_arg)
@@ -4104,6 +4128,7 @@ prompt in shell mode"
 ;;;; C
 (add-hook 'c++-mode-hook #'lsp)
 (add-hook 'c-mode-hook #'lsp)
+(add-hook 'c-mode-hook (lambda () (c-toggle-comment-style -1)))
 
 ;;; Verilog
 (use-package verilog-mode
@@ -4396,6 +4421,7 @@ redundant output."
 (add-hook 'sh-set-shell-hook #'$tcsh-set-indent-functions)
 
 ;; (use-package markdown-mode)
+(setq markdown-fontify-code-blocks-natively t)
 
 (use-package major-modes
   :ensure (:host gitlab :repo "foconoco/major-modes" :main nil)
