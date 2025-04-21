@@ -2062,7 +2062,7 @@ This includes remote paths and enviroment variables."
           (thread-last (buffer-substring-no-properties beg end)
                        ;; we need to get : so that we can handle tramp paths, but sometimes it
                        ;; is also at the of a path. In which case need to remove it
-                       (replace-regexp-in-string (rx ":" (1+ (any ":" digit)) eos) "")
+                       (replace-regexp-in-string (rx ":" (1+ (any ":" digit)) (optional ".") eos) "")
                        (string-remove-prefix ":")
                        ;; remove +incdir+ from the start of the path
                        (replace-regexp-in-string (rx bos "+incdir+") ""))))
