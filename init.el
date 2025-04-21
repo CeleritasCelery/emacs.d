@@ -952,8 +952,6 @@ If INVERT, do the opposite of the normal behavior."
 ($leader-set-key
   "ts" '$toggle-debug-on-signal)
 
-(when (version< emacs-version "29.1")
-  (use-package restart-emacs))
 ($leader-set-key
   "qr" 'restart-emacs)
 
@@ -1730,12 +1728,10 @@ that region."
     (fp (1+ (any num "."))))
   "modified rx forms that are really usefull")
 
-(if (version< "27.0.0" emacs-version)
-    (defmacro define-arx (name defs)
-      `(defmacro ,name (&rest forms)
-         `(rx-let ,,defs
-            (rx ,@forms))))
-  (use-package ample-regexps))
+(defmacro define-arx (name defs)
+  `(defmacro ,name (&rest forms)
+     `(rx-let ,,defs
+        (rx ,@forms))))
 
 (define-arx $rx $rx-defaults)
 
