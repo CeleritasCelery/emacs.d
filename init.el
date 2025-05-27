@@ -1767,6 +1767,10 @@ that region."
  '(:application tramp :machine "server")
  'remote-direct-async-process)
 
+(connection-local-set-profiles
+ '(:application tramp :machine "aus")
+ 'remote-direct-async-process)
+
 (with-eval-after-load 'tramp-sh
   (setq magit-tramp-pipe-stty-settings 'pty))
 
