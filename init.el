@@ -361,7 +361,7 @@
   ("C-x C-b" 'ivy-switch-buffer)
   :init
   (setq ivy-height 15
-        ivy-use-virtual-buffers t
+        ivy-use-virtual-buffers 'recentf
         ivy-virtual-abbreviate 'abbreviate
         ivy-extra-directories nil
         ivy-use-selectable-prompt t
