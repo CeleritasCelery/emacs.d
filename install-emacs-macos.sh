@@ -8,6 +8,7 @@
 
 ### reinstall
 # brew uninstall emacs-plus@30
+## remove the cache and repo/build of elpaca
 # brew install emacs-plus@30 --with-imagemagick --with-xwidgets --with-elrumo2-icon
 
 # git clone https://git.savannah.gnu.org/cgit/emacs/elpa.git to make sure it is working
