@@ -1469,9 +1469,11 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (use-package aidermacs
   :ensure (:host github :repo "MatthewZMD/aidermacs")
   :init
-  (setq aidermacs-default-model "sonnet")
-  (setq aidermacs-extra-args '("--no-auto-lint"))
-  ;; (setq aidermacs-default-model "openrouter/google/gemini-2.5-pro-exp-03-25:free")
+  (if ($dev-config-p)
+      (setq aidermacs-extra-args '("--no-auto-lint" "--no-show-model-warnings")
+            aidermacs-default-model "openai/gemini/gemini-2.5-pro-preview-03-25")
+    (setq aidermacs-extra-args '("--no-auto-lint")
+          aidermacs-default-model "openrouter/google/gemini-2.5-pro-preview-03-25"))
   ($leader-set-key "a" 'aidermacs-transient-menu))
 
 ;; (use-package aider
