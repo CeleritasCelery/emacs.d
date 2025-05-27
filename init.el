@@ -1449,7 +1449,10 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (use-package chatgpt-shell
   :init
-      (setq chatgpt-shell-system-prompt 2))
+  (setq chatgpt-shell-system-prompt 2)
+  (when ($dev-config-p)
+    (setq chatgpt-shell-api-url-base (getenv "OPENAI_API_BASE")
+          chatgpt-shell-openai-key (getenv "OPENAI_API_KEY"))))
 
 (use-package dall-e-shell
   :init
