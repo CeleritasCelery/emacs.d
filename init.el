@@ -4142,6 +4142,7 @@ prompt in shell mode"
 ;;; Verilog
 (use-package verilog-mode
   :init
+  (setq verilog-indent-level 2)
   (setq verilog-auto-indent-on-newline nil)
   (setq verilog-indent-lists nil)
   :config
@@ -4153,6 +4154,7 @@ prompt in shell mode"
 (use-package verilog-ext
   :hook ((verilog-ts-mode . verilog-ext-mode))
   :init
+  (setq apheleia-remote-algorithm 'remote)
   (setq verilog-ext-feature-list
       '(font-lock
         xref
@@ -4170,7 +4172,9 @@ prompt in shell mode"
         typedefs
         ports)))
 
-(use-package verilog-ts-mode)
+(use-package verilog-ts-mode
+  :init
+  (setq verilog-ts-indent-level 2))
 (add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv.dft") (or eos "_")) 'verilog-ts-mode))
 
 (define-derived-mode filelist-mode prog-mode "FileList"
