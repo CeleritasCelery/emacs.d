@@ -4271,8 +4271,9 @@ prompt in shell mode"
   (setq-local comment-end "")
   (setq-local indent-line-function #'dft-spec-indent-line)
   (modify-syntax-entry ?/ ". 12b" dft-spec-mode-syntax-table)
-  (modify-syntax-entry ?# "<" dft-spec-mode-syntax-table)
   (modify-syntax-entry ?\n "> b" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?# "<" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?\n ">" dft-spec-mode-syntax-table)
   (setq-local font-lock-defaults '(dft-spec-font-lock-keywords)))
 
 (defun dft-spec-indent-line ()
