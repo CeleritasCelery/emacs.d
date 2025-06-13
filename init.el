@@ -1461,7 +1461,7 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
 (if ($dev-config-p)
     ($leader-set-key
-      "e" #'copilot-chat-display)
+      "e" #'gptel)
   ($leader-set-key
     "e" #'chatgpt-shell))
 
@@ -1471,7 +1471,7 @@ If ARG is zero, delete current line but exclude the trailing newline."
   :init
   (if ($dev-config-p)
       (setq aidermacs-extra-args '("--no-auto-lint" "--no-show-model-warnings")
-            aidermacs-default-model "openai/gemini/gemini-2.5-pro-preview-03-25")
+            aidermacs-default-model "openai/azure/gpt-4o")
     (setq aidermacs-extra-args '("--no-auto-lint")
           aidermacs-default-model "openrouter/google/gemini-2.5-pro-preview-03-25"))
   ($leader-set-key "a" 'aidermacs-transient-menu))
@@ -1481,10 +1481,42 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (use-package gptel
   :general (gptel-mode-map "C-c C-c" 'gptel-menu
+                           "S-<return>" 'newline
                            "RET" #'gptel-send)
   :config
-  (setq gptel-backend
-        (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
+  (if ($dev-config-p)
+      (setq gptel-model 'azure/gpt-4o
+            gptel-backend
+            (gptel-make-openai "Tenstorrent"
+              :host "litellm-proxy--tenstorrent.workload.tenstorrent.com"
+              :key (getenv "OPENAI_API_KEY")
+              :stream t
+              :models '(gemini/gemini-2.5-pro-preview-03-25
+                        gemini/gemini-2.5-flash-preview-04-17
+                        gemini/gemini-2.0-flash
+                        azure/gpt-4o
+                        tenstorrent/DeepSeek-R1-Distill-Llama-70B)))
+    (setq gptel-backend
+          (gptel-make-anthropic "Claude" :stream t :key gptel-api-key))))
+
+(with-eval-after-load 'gptel
+  (gptel-make-tool
+   :name "shell_command"                    ; javascript-style snake_case name
+   :function (lambda (command) (shell-command-to-string command))
+   :description "run a shell command in the current directory"
+   :args (list '(:name "command"
+                 :type string            ; :type value must be a symbol
+                 :description "The shell command to run"))
+   :category "filesystem")
+
+  (gptel-make-tool
+   :name "change_directory"                    ; javascript-style snake_case name
+   :function (lambda (directory) (cd (concat "/scp:server:" directory)))
+   :description "Change the current directory (i.e. cd)"
+   :args (list '(:name "directory"
+                 :type string            ; :type value must be a symbol
+                 :description "The directory to change to"))
+   :category "filesystem"))
 
 
 (use-package ws-butler
