@@ -2145,7 +2145,7 @@ This includes remote paths and enviroment variables."
   (interactive)
   (if-let ((path ($--get-file-from-clipboard)))
       (progn (when (string-prefix-p "/proj" path)
-               (setq path (concat "/scp:server:" path)))
+               (setq path (concat "/-:server:" path)))
              (find-file path))
     (message "no path found in clipboard")))
 
@@ -2157,12 +2157,12 @@ This includes remote paths and enviroment variables."
     (message "no path found in clipboard")))
 
 (defun $--get-file-from-clipboard ()
-  (let ((is-path-p (apply-partially 'string-match-p ($rx bos (or "$" "/") file eos))))
-    (thread-last (current-kill 0)
-                 (string-trim)
-                 (split-string)
-                 (cl-find-if is-path-p)
-                 ($normalize-file-name))))
+  (let* ((is-path-p (apply-partially 'string-match-p ($rx bos (or "$" "/") file eos)))
+         (kill (string-trim (current-kill 0)))
+         (path (cl-find-if is-path-p (split-string kill))))
+    (if path
+        ($normalize-file-name path)
+      (user-error "Unable to find path in %s" kill))))
 
 (defun $find-file-at-point ()
   "A better replacement for `find-file-at-point'"
@@ -2218,7 +2218,7 @@ This includes remote paths and enviroment variables."
 (defun $change-model ()
   "Open a model in workspace"
   (interactive)
-  (let ((default-directory (if ($dev-config-p) "/scp:server:~/workspace/" "~/"))
+  (let ((default-directory (if ($dev-config-p) "/-:server:~/workspace/" "~/"))
         (major-mode 'fundamental-mode))
     (counsel-find-file)))
 
