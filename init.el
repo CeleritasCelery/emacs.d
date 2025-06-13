@@ -2473,6 +2473,11 @@ directory pointing to the same file name"
 
 (csetq vc-follow-symlinks t)
 
+(setq $orig-vc-ignore-dirs vc-ignore-dir-regexp)
+(setq vc-ignore-dir-regexp
+      (format "\\(%s\\)\\|\\(%s\\)"
+              vc-ignore-dir-regexp
+              tramp-file-name-regexp))
 (csetq vc-handled-backends '(Git))
 
 (defun $git-command (&rest cmd)
@@ -2552,22 +2557,6 @@ directory pointing to the same file name"
   (interactive)
   (setq magit-toplevel-cache nil))
 
-(defvar vc-git-root-cache nil)
-
-(defun $memoize-vc-git-root (orig file)
-  (let ((value ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)))
-    ;; sometimes vc-git-root returns nil even when there is a root there
-    (when (null (cdr (car vc-git-root-cache)))
-      (setq vc-git-root-cache (cdr vc-git-root-cache)))
-    value))
-
-(advice-add 'vc-git-root :around #'$memoize-vc-git-root)
-;; (advice-remove 'vc-git-root #'$memoize-vc-git-root)
-
-(defun $clear-vc-git-root-cache ()
-  (interactive)
-  (setq vc-git-root-cache nil))
-
 (csetq magit-diff-expansion-threshold 20)
 
 (csetq magit-diff-paint-whitespace-lines 'both)
@@ -2620,9 +2609,14 @@ headings that it is contained in."
 (use-package browse-at-remote
   :init
   ($leader-set-key
-  "fu" 'browse-at-remote-kill)
+  "fu" '$browse-at-remote-kill)
   :config
   (add-to-list 'browse-at-remote-remote-type-regexps '(:host "gitlab\\..+\\.com" :type "gitlab")))
+
+(defun $browse-at-remote-kill ()
+  (interactive)
+  (let ((vc-ignore-dir-regexp $orig-vc-ignore-dirs))
+    (browse-at-remote-kill)))
 
 (use-package smerge-mode
   :ensure nil
