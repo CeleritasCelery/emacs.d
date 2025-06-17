@@ -1511,7 +1511,10 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
   (gptel-make-tool
    :name "change_directory"                    ; javascript-style snake_case name
-   :function (lambda (directory) (cd (concat "/scp:server:" directory)))
+   :function (lambda (directory) (cd (if (or (string-prefix-p "/" directory)
+                                         (string-prefix-p "~" directory))
+                                     (concat "/scp:server:" directory)
+                                   directory)))
    :description "Change the current directory (i.e. cd)"
    :args (list '(:name "directory"
                  :type string            ; :type value must be a symbol
