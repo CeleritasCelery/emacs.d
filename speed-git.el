@@ -5,7 +5,7 @@
     (define-key map (kbd "s") 'speed-git-stage-file-at-point)
     (define-key map (kbd "u") 'speed-git-unstage-file-at-point)
     (define-key map (kbd "d") 'speed-git-diff-file-at-point)
-    (define-key map (kbd "q") 'kill-this-buffer)
+    (define-key map (kbd "q") 'kill-current-buffer)
     map)
   "Keymap for speed-git-mode.")
 
@@ -13,6 +13,7 @@
   "s" #'speed-git-stage-file-at-point
   "u" #'speed-git-unstage-file-at-point
   "gr" #'speed-git-refresh
+  "q" #'kill-current-buffer
   "d" #'speed-git-diff-file-at-point)
 
 

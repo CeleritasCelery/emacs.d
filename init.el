@@ -2487,6 +2487,8 @@ directory pointing to the same file name"
 
 (autoload (function vc-git-root) "vc-git")
 
+(load-file (expand-file-name "speed-git.el" user-emacs-directory))
+
 ;; Use the git version of transient
 (use-package transient)
 
