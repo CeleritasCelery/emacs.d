@@ -1789,7 +1789,7 @@ that region."
   :init
   (setq remote-file-name-inhibit-locks t
         tramp-use-scp-direct-remote-copying t
-        tramp-copy-size-limit 5000000
+        tramp-copy-size-limit 1000000
         tramp-verbose 2
         remote-file-name-inhibit-auto-save-visited t))
 
