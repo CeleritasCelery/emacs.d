@@ -5,16 +5,19 @@
     (define-key map (kbd "s") 'speed-git-stage-file-at-point)
     (define-key map (kbd "u") 'speed-git-unstage-file-at-point)
     (define-key map (kbd "d") 'speed-git-diff-file-at-point)
+    (define-key map (kbd "g") 'speed-git-refresh)
     (define-key map (kbd "q") 'kill-current-buffer)
     map)
   "Keymap for speed-git-mode.")
 
-(general-def '(normal visual motion) speed-git-mode-map
-  "s" #'speed-git-stage-file-at-point
-  "u" #'speed-git-unstage-file-at-point
-  "gr" #'speed-git-refresh
-  "q" #'kill-current-buffer
-  "d" #'speed-git-diff-file-at-point)
+(with-eval-after-load 'evil
+  (add-hook 'speed-git-mode-hook (lambda () (evil-surround-mode -1)))
+  (general-def '(normal visual motion) speed-git-mode-map
+    "s" #'speed-git-stage-file-at-point
+    "u" #'speed-git-unstage-file-at-point
+    "gr" #'speed-git-refresh
+    "q" #'kill-current-buffer
+    "d" #'speed-git-diff-file-at-point))
 
 
 (define-derived-mode speed-git-mode fundamental-mode "SpeedGit"
