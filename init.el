@@ -4,7 +4,7 @@
 
 ;;; Bootstrap
 ;; https://github.com/progfolio/elpaca#installer
-(defvar elpaca-installer-version 0.10)
+(defvar elpaca-installer-version 0.11)
 (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
 (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
 (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -39,7 +39,7 @@
   (unless (require 'elpaca-autoloads nil t)
     (require 'elpaca)
     (elpaca-generate-autoloads "elpaca" repo)
-    (load "./elpaca-autoloads")))
+    (let ((load-source-file-function nil)) (load "./elpaca-autoloads"))))
 (add-hook 'after-init-hook #'elpaca-process-queues)
 (elpaca `(,@elpaca-order))
 
@@ -361,7 +361,7 @@
   ("C-x C-b" 'ivy-switch-buffer)
   :init
   (setq ivy-height 15
-        ivy-use-virtual-buffers t
+        ivy-use-virtual-buffers 'recentf
         ivy-virtual-abbreviate 'abbreviate
         ivy-extra-directories nil
         ivy-use-selectable-prompt t
@@ -583,6 +583,8 @@ Text Scale
       '(("&&"   . #xEF3B)
         ("||"   . #xEF3C)
         ("::"   . #xEF07)
+        ("!!"   . #xEF0D)
+        ("**"   . #xEF00)
         ("=="   . #xEF4C)
         ("->"   . #xEF15)
         ("=>"   . #xEF4F)
@@ -596,11 +598,15 @@ Text Scale
         ("++"   . #xEF47)
         ("!="   . #xEF0F)
         (".="   . #xEF27)
+        ("/="   . #xEF33)
+        ("|="   . #xEF43)
+        ("^="   . #xEF45)
         ("=~"   . #xEF83)
         ("!~"   . #xEF84)
         (";;"   . #xEF31)
         ("##"   . #xEF1E)
         ("#!"   . #xEF1D)
+        ("#("   . #xEF22)
         ("//"   . #xEF36)
         (":="   . #xEF0A)
         ("?="   . #xEF2E)
@@ -952,8 +958,6 @@ If INVERT, do the opposite of the normal behavior."
 ($leader-set-key
   "ts" '$toggle-debug-on-signal)
 
-(when (version< emacs-version "29.1")
-  (use-package restart-emacs))
 ($leader-set-key
   "qr" 'restart-emacs)
 
@@ -1445,23 +1449,31 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (use-package chatgpt-shell
   :init
-      (setq chatgpt-shell-system-prompt 2))
+  (setq chatgpt-shell-system-prompt 2)
+  (when ($dev-config-p)
+    (setq chatgpt-shell-api-url-base (getenv "OPENAI_API_BASE")
+          chatgpt-shell-openai-key (getenv "OPENAI_API_KEY"))))
 
 (use-package dall-e-shell
   :init
   (setq dall-e-shell-image-output-directory "~/Downloads/dall-e"))
 
 (evil-ex-define-cmd "chat" #'chatgpt-shell)
-($leader-set-key
-  "e" #'chatgpt-shell)
+(if ($dev-config-p)
+    ($leader-set-key
+      "e" #'gptel)
+  ($leader-set-key
+    "e" #'chatgpt-shell))
+
 
 (use-package aidermacs
   :ensure (:host github :repo "MatthewZMD/aidermacs")
   :init
-  (setq aidermacs-default-model "sonnet")
-  (setq aidermacs-extra-args '("--no-auto-lint"))
-  (setq aidermacs-default-model "openrouter/google/gemini-2.5-pro-preview-03-25")
-
+  (if ($dev-config-p)
+      (setq aidermacs-extra-args '("--no-auto-lint" "--no-show-model-warnings")
+            aidermacs-default-model "openai/azure/gpt-4o")
+    (setq aidermacs-extra-args '("--no-auto-lint")
+          aidermacs-default-model "openrouter/google/gemini-2.5-pro-preview-03-25"))
   ($leader-set-key "a" 'aidermacs-transient-menu))
 
 ;; (use-package aider
@@ -1469,10 +1481,45 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (use-package gptel
   :general (gptel-mode-map "C-c C-c" 'gptel-menu
+                           "S-<return>" 'newline
                            "RET" #'gptel-send)
   :config
-  (setq gptel-backend
-        (gptel-make-anthropic "Claude" :stream t :key gptel-api-key)))
+  (if ($dev-config-p)
+      (setq gptel-model 'azure/gpt-4o
+            gptel-backend
+            (gptel-make-openai "Tenstorrent"
+              :host "litellm-proxy--tenstorrent.workload.tenstorrent.com"
+              :key (getenv "OPENAI_API_KEY")
+              :stream t
+              :models '(gemini/gemini-2.5-pro-preview-03-25
+                        gemini/gemini-2.5-flash-preview-04-17
+                        gemini/gemini-2.0-flash
+                        azure/gpt-4o
+                        tenstorrent/DeepSeek-R1-Distill-Llama-70B)))
+    (setq gptel-backend
+          (gptel-make-anthropic "Claude" :stream t :key gptel-api-key))))
+
+(with-eval-after-load 'gptel
+  (gptel-make-tool
+   :name "shell_command"                    ; javascript-style snake_case name
+   :function (lambda (command) (shell-command-to-string command))
+   :description "run a shell command in the current directory"
+   :args (list '(:name "command"
+                 :type string            ; :type value must be a symbol
+                 :description "The shell command to run"))
+   :category "filesystem")
+
+  (gptel-make-tool
+   :name "change_directory"                    ; javascript-style snake_case name
+   :function (lambda (directory) (cd (if (or (string-prefix-p "/" directory)
+                                         (string-prefix-p "~" directory))
+                                     (concat "/scp:server:" directory)
+                                   directory)))
+   :description "Change the current directory (i.e. cd)"
+   :args (list '(:name "directory"
+                 :type string            ; :type value must be a symbol
+                 :description "The directory to change to"))
+   :category "filesystem"))
 
 
 (use-package ws-butler
@@ -1723,18 +1770,16 @@ that region."
     (spc* (0+ spc))
     (-> (1+ any))
     (^ bol)
-    (file (1+ (any alnum "-_/.#~:")))
+    (file (1+ (any alnum "-_/.#~:+")))
     (symbol (1+ (any alnum "_-")))
     (nums (1+ num))
     (fp (1+ (any num "."))))
   "modified rx forms that are really usefull")
 
-(if (version< "27.0.0" emacs-version)
-    (defmacro define-arx (name defs)
-      `(defmacro ,name (&rest forms)
-         `(rx-let ,,defs
-            (rx ,@forms))))
-  (use-package ample-regexps))
+(defmacro define-arx (name defs)
+  `(defmacro ,name (&rest forms)
+     `(rx-let ,,defs
+        (rx ,@forms))))
 
 (define-arx $rx $rx-defaults)
 
@@ -1759,6 +1804,10 @@ that region."
 
 (connection-local-set-profiles
  '(:application tramp :machine "server")
+ 'remote-direct-async-process)
+
+(connection-local-set-profiles
+ '(:application tramp :machine "aus")
  'remote-direct-async-process)
 
 (with-eval-after-load 'tramp-sh
@@ -2081,7 +2130,7 @@ This includes remote paths and enviroment variables."
           (thread-last (buffer-substring-no-properties beg end)
                        ;; we need to get : so that we can handle tramp paths, but sometimes it
                        ;; is also at the of a path. In which case need to remove it
-                       (replace-regexp-in-string (rx ":" (1+ (any ":" digit)) eos) "")
+                       (replace-regexp-in-string (rx ":" (1+ (any ":" digit)) (optional ".") eos) "")
                        (string-remove-prefix ":")
                        ;; remove +incdir+ from the start of the path
                        (replace-regexp-in-string (rx bos "+incdir+") ""))))
@@ -2101,7 +2150,7 @@ This includes remote paths and enviroment variables."
   (interactive)
   (if-let ((path ($--get-file-from-clipboard)))
       (progn (when (string-prefix-p "/proj" path)
-               (setq path (concat "/scp:server:" path)))
+               (setq path (concat "/-:server:" path)))
              (find-file path))
     (message "no path found in clipboard")))
 
@@ -2113,12 +2162,12 @@ This includes remote paths and enviroment variables."
     (message "no path found in clipboard")))
 
 (defun $--get-file-from-clipboard ()
-  (let ((is-path-p (apply-partially 'string-match-p ($rx bos (or "$" "/") file eos))))
-    (thread-last (current-kill 0)
-                 (string-trim)
-                 (split-string)
-                 (cl-find-if is-path-p)
-                 ($normalize-file-name))))
+  (let* ((is-path-p (apply-partially 'string-match-p ($rx bos (or "$" "/") file eos)))
+         (kill (string-trim (current-kill 0)))
+         (path (cl-find-if is-path-p (split-string kill))))
+    (if path
+        ($normalize-file-name path)
+      (user-error "Unable to find path in %s" kill))))
 
 (defun $find-file-at-point ()
   "A better replacement for `find-file-at-point'"
@@ -2174,7 +2223,7 @@ This includes remote paths and enviroment variables."
 (defun $change-model ()
   "Open a model in workspace"
   (interactive)
-  (let ((default-directory (if ($dev-config-p) "/scp:server:~/workspace/" "~/"))
+  (let ((default-directory (if ($dev-config-p) "/-:server:~/workspace/" "~/"))
         (major-mode 'fundamental-mode))
     (counsel-find-file)))
 
@@ -2429,6 +2478,11 @@ directory pointing to the same file name"
 
 (csetq vc-follow-symlinks t)
 
+(setq $orig-vc-ignore-dirs vc-ignore-dir-regexp)
+(setq vc-ignore-dir-regexp
+      (format "\\(%s\\)\\|\\(%s\\)"
+              vc-ignore-dir-regexp
+              tramp-file-name-regexp))
 (csetq vc-handled-backends '(Git))
 
 (defun $git-command (&rest cmd)
@@ -2437,6 +2491,8 @@ directory pointing to the same file name"
     (concat (executable-find "git") " " (string-join cmd " ")))))
 
 (autoload (function vc-git-root) "vc-git")
+
+(load-file (expand-file-name "speed-git.el" user-emacs-directory))
 
 ;; Use the git version of transient
 (use-package transient)
@@ -2508,22 +2564,6 @@ directory pointing to the same file name"
   (interactive)
   (setq magit-toplevel-cache nil))
 
-(defvar vc-git-root-cache nil)
-
-(defun $memoize-vc-git-root (orig file)
-  (let ((value ($memoize-remote (file-name-directory file) 'vc-git-root-cache orig file)))
-    ;; sometimes vc-git-root returns nil even when there is a root there
-    (when (null (cdr (car vc-git-root-cache)))
-      (setq vc-git-root-cache (cdr vc-git-root-cache)))
-    value))
-
-(advice-add 'vc-git-root :around #'$memoize-vc-git-root)
-;; (advice-remove 'vc-git-root #'$memoize-vc-git-root)
-
-(defun $clear-vc-git-root-cache ()
-  (interactive)
-  (setq vc-git-root-cache nil))
-
 (csetq magit-diff-expansion-threshold 20)
 
 (csetq magit-diff-paint-whitespace-lines 'both)
@@ -2574,8 +2614,16 @@ headings that it is contained in."
 (add-hook 'magit-diff-visit-file-hook '$expand-org-mode-entry)
 
 (use-package browse-at-remote
+  :init
+  ($leader-set-key
+  "fu" '$browse-at-remote-kill)
   :config
   (add-to-list 'browse-at-remote-remote-type-regexps '(:host "gitlab\\..+\\.com" :type "gitlab")))
+
+(defun $browse-at-remote-kill ()
+  (interactive)
+  (let ((vc-ignore-dir-regexp $orig-vc-ignore-dirs))
+    (browse-at-remote-kill)))
 
 (use-package smerge-mode
   :ensure nil
@@ -4129,6 +4177,7 @@ prompt in shell mode"
 ;;; Verilog
 (use-package verilog-mode
   :init
+  (setq verilog-indent-level 2)
   (setq verilog-auto-indent-on-newline nil)
   (setq verilog-indent-lists nil)
   :config
@@ -4140,6 +4189,7 @@ prompt in shell mode"
 (use-package verilog-ext
   :hook ((verilog-ts-mode . verilog-ext-mode))
   :init
+  (setq apheleia-remote-algorithm 'remote)
   (setq verilog-ext-feature-list
       '(font-lock
         xref
@@ -4157,7 +4207,9 @@ prompt in shell mode"
         typedefs
         ports)))
 
-(use-package verilog-ts-mode)
+(use-package verilog-ts-mode
+  :init
+  (setq verilog-ts-indent-level 2))
 (add-to-list 'auto-mode-alist (cons (rx "." (or "v" "sv" "svh" "sv09" "sv.dft") (or eos "_")) 'verilog-ts-mode))
 
 (define-derived-mode filelist-mode prog-mode "FileList"
@@ -4181,7 +4233,7 @@ prompt in shell mode"
 (defun $compose-conditional-symbol (alist)
   (or (and (memq major-mode '(verilog-mode verilog-ts-mode))
            (equal (match-string 0) "<=")
-           (not (looking-back (rx symbol-start "if" symbol-end (1+ any)) (line-beginning-position)))
+           (not (save-match-data (looking-back (rx symbol-start "if" symbol-end (1+ (not ")"))) (line-beginning-position))))
            (not (looking-at-p (rx (1+ (not (in "(\n"))) ")")))
            `((("<=" . (?\s (Br . Bl) ?\s (Br . Br)
                            ,(decode-char 'ucs #xEF87))))))
@@ -4205,7 +4257,7 @@ prompt in shell mode"
 (use-package tcl-mode
   :ensure nil
   :gfhook #'$tcl-fix-symbol-def #'flycheck-mode
-  :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl" "iprocs") eos)
+  :mode (rx "." (or "upf" "pdl" "dofile" "do" "tcl" "sdc" "iprocs") eos)
   :company ((company-syntcl company-dabbrev-code) (company-capf company-dabbrev))
   :general
   ('normal tcl-mode-map "gz" 'inferior-tcl)
@@ -4254,8 +4306,9 @@ prompt in shell mode"
   (setq-local comment-end "")
   (setq-local indent-line-function #'dft-spec-indent-line)
   (modify-syntax-entry ?/ ". 12b" dft-spec-mode-syntax-table)
-  (modify-syntax-entry ?# "<" dft-spec-mode-syntax-table)
   (modify-syntax-entry ?\n "> b" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?# "<" dft-spec-mode-syntax-table)
+  (modify-syntax-entry ?\n ">" dft-spec-mode-syntax-table)
   (setq-local font-lock-defaults '(dft-spec-font-lock-keywords)))
 
 (defun dft-spec-indent-line ()

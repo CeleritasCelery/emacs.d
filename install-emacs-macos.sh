@@ -2,9 +2,14 @@
 
 # Look in the variable system-configuration-options and system-configuration-features
 
-# brew 30
+### Emacs 30
 # brew tap d12frosted/emacs-plus
-# brew install emacs-plus@30 --with-native-comp --with-imagemagick --with-xwidgets --with-elrumo2-icon
+# brew install emacs-plus@30 --with-imagemagick --with-xwidgets --with-elrumo2-icon
+
+### reinstall
+# brew uninstall emacs-plus@30
+## remove the cache and repo/build of elpaca
+# brew install emacs-plus@30 --with-imagemagick --with-xwidgets --with-elrumo2-icon
 
 # git clone https://git.savannah.gnu.org/cgit/emacs/elpa.git to make sure it is working
 
