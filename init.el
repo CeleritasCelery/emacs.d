@@ -2525,6 +2525,7 @@ directory pointing to the same file name"
 (use-package transient)
 
 (use-package magit
+  :defer 6
   :general
   ("C-x g" 'magit-status
    "C-x M-g" 'magit-dispatch
@@ -3086,9 +3087,6 @@ Display progress in the minibuffer instead."
                                           (list (concat "MODEL_ROOT=" model-root))))
          (compilation-buffer-name-function (lambda (_mode) buffer-name)))
     (compile final-cmd comint)))
-
-(with-eval-after-load 'tramp
-  (add-to-list 'tramp-remote-process-environment "SALT_LICENSE_SERVER=1717@yyz-license-01"))
 
 (defun $model-root (&optional dir)
   "current model root"
@@ -4204,7 +4202,8 @@ prompt in shell mode"
 ;;; Verilog
 (use-package verilog-mode
   :init
-  (setq verilog-indent-level 2)
+  (setq verilog-indent-level 4)
+  (setq verilog-auto-newline nil)
   (setq verilog-auto-indent-on-newline nil)
   (setq verilog-indent-lists nil)
   :config
