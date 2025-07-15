@@ -4307,7 +4307,8 @@ prompt in shell mode"
   (font-lock-add-keywords 'tcl-mode $string-interpolation-keywords))
 
 (defun $tcl-fix-symbol-def ()
-  (modify-syntax-entry ?$ "." tcl-mode-syntax-table))
+  (modify-syntax-entry ?$ "." tcl-mode-syntax-table)
+  (modify-syntax-entry ?: "." tcl-mode-syntax-table))
 
 ;; (when ($dev-config-p)
 ;;   (use-package company-syntcl
