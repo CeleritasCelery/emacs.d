@@ -2204,6 +2204,26 @@ This includes remote paths and enviroment variables."
     (when (string-match line-rx context)
       (goto-line (string-to-number (match-string 1 context))))))
 
+(defun $find-directory-at-point ()
+  (interactive)
+  (let* ((file ($normalize-file-name ($get-path-at-point)))
+         (context (buffer-substring-no-properties (line-beginning-position)
+                                                  (line-end-position 2)))
+         (root (when-let ((current (project-current)))
+                 (project-root current)))
+         (search-dirs
+          (delq nil (list "" ;; current directory
+                          (and root (concat root "bazel-build/"))
+                          (and root (concat root "build/bazel-build/")))))
+         (file-path (cl-loop for dir in search-dirs
+                             for path = (concat dir file)
+                             if (file-exists-p path)
+                             return path
+                             finally (user-error (format "File %s does not exist" file)))))
+    (find-file (if (file-directory-p file-path)
+                   file-path
+                   (file-name-directory file-path)))))
+
 (defun $find-file-in-dirs (file dirs)
   (cl-loop for dir in dirs
            with path = (concat dir file)
@@ -2246,7 +2266,8 @@ This includes remote paths and enviroment variables."
   "fa" '$file-at-point-exists
   "fd" '$goto-repo)
 (general-def '(normal visual motion)
-  "gf" '$find-file-at-point)
+  "gf" '$find-file-at-point
+  "gF" '$find-directory-at-point)
 
 (general-def
   "C-c p" '$paste-relative-path)
