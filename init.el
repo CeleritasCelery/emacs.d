@@ -1109,7 +1109,10 @@ If INVERT, do the opposite of the normal behavior."
   :config
   (evil-indent-plus-default-bindings))
 
-(use-package evil-mc)
+(use-package evil-mc
+  :defer 3
+  :config
+  (global-evil-mc-mode))
 
 (use-package evil-textobj-syntax
   :ensure
