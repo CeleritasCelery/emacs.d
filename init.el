@@ -1797,6 +1797,7 @@ that region."
         tramp-use-scp-direct-remote-copying t
         tramp-copy-size-limit 1000000
         tramp-verbose 2
+        tramp-default-method "rsync"
         remote-file-name-inhibit-auto-save-visited t))
 
 (connection-local-set-profile-variables
@@ -1804,11 +1805,15 @@ that region."
  '((tramp-direct-async-process . t)))
 
 (connection-local-set-profiles
- '(:application tramp :machine "server")
+ '(:application tramp :protcol "scp")
  'remote-direct-async-process)
 
 (connection-local-set-profiles
- '(:application tramp :machine "aus")
+ '(:application tramp :protocol "rsync")
+ 'remote-direct-async-process)
+
+(connection-local-set-profiles
+ '(:application tramp :protocol "ssh")
  'remote-direct-async-process)
 
 (with-eval-after-load 'tramp-sh
