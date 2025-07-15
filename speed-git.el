@@ -7,6 +7,7 @@
     (define-key map (kbd "d") 'speed-git-diff-file-at-point)
     (define-key map (kbd "g") 'speed-git-refresh)
     (define-key map (kbd "q") 'kill-current-buffer)
+    (define-key map (kbd "x") 'speed-git-restore-and-clean)
     map)
   "Keymap for speed-git-mode.")
 
@@ -17,7 +18,8 @@
     "u" #'speed-git-unstage-file-at-point
     "gr" #'speed-git-refresh
     "q" #'kill-current-buffer
-    "d" #'speed-git-diff-file-at-point))
+    "d" #'speed-git-diff-file-at-point
+    "x" #'speed-git-restore-and-clean))
 
 
 (define-derived-mode speed-git-mode fundamental-mode "SpeedGit"
@@ -35,7 +37,7 @@ STATUS is a string like \"deleted:\", \"modified:\", etc., or \"untracked\" for 
     (beginning-of-line)
     (cond
      ;; Matches lines like "deleted: path/to/file", "modified: path/to/file"
-     ((re-search-forward "^\t\\(modified:\\|new file:\\|deleted:\\|renamed:\\|copied:\\) +\\(.*\\)$" (line-end-position) t)
+     ((re-search-forward "^\t\\(both modified:\\|modified:\\|new file:\\|deleted:\\|renamed:\\|copied:\\) +\\(.*\\)$" (line-end-position) t)
       (list (match-string 1) (match-string 2)))
      ;; Matches lines for porcelain format
      ((re-search-forward "^\t\\(UU\\|AA\\|DD\\|AU\\|UA\\|DU\\|UD\\|\\?\\?\\| M\\| A\\| D\\) \\(.*\\)$" (line-end-position) t) ; for --porcelain=v1
@@ -142,15 +144,45 @@ Uses 'git rm' for deleted files."
               (display-buffer output-buffer))))
       (message "No files found at point or in region."))))
 
+(defun speed-git-restore-and-clean ()
+  "Restores modified files and deletes untracked files at point or in region."
+  (interactive)
+  (let ((file-infos (speed-git-get-file-infos-in-selection)))
+    (if file-infos
+        (dolist (file-info file-infos)
+          (let ((status (car file-info))
+                (filename (cadr file-info)))
+            (cond
+             ;; Untracked files - delete them
+             ((or (string= status "untracked")
+                  (string= status "??"))
+              (message "Deleting untracked file %s..." filename)
+              (delete-file filename)
+              (message "Deleted %s." filename))
+             ;; Modified files - restore them
+             ((or (string= status "modified:")
+                  (string= status " M")
+                  (string= status "both modified:"))
+              (message "Restoring modified file %s..." filename)
+              (speed-git-run-git-command "restore" (list filename))
+              (message "Restored %s." filename))
+             ;; Other statuses - skip with message
+             (t
+              (message "Skipping %s (status: %s)" filename status)))))
+      (message "No files found at point or in region."))))
+
 (defun speed-git-status ()
   "Runs git status and displays the output in a new buffer with speed-git-mode."
   (interactive)
   (let ((default-directory (locate-dominating-file default-directory ".git"))
+        (output-buffer (get-buffer "*speed-git-status*"))
         (inhibit-read-only t))
     (unless default-directory
       (error "Not in a git repository"))
-    (let* ((output-buffer (get-buffer-create "*speed-git-status*"))
-           (status-output (shell-command-to-string "git status")))
+    (if (not (null output-buffer))
+        (kill-buffer output-buffer))
+    (let ((output-buffer (get-buffer-create "*speed-git-status*"))
+          (status-output (shell-command-to-string "git status")))
       (with-current-buffer output-buffer
         (erase-buffer)
         (insert status-output)
