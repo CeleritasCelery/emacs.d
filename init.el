@@ -1726,6 +1726,8 @@ that region."
   (:states '(motion normal)
    "s" 'avy-goto-char-timer))
 
+;; Highlight symbol at point
+;; TODO: try hi-lock-mode
 (use-package symbol-overlay
   :init
   ($leader-set-key
