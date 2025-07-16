@@ -135,7 +135,9 @@
 (push "~/bin" exec-path)
 (push "~/.local/bin" exec-path)
 (with-eval-after-load 'tramp
-  (add-to-list 'tramp-remote-path "/home/thinckley/.local/bin"))
+  (add-to-list 'tramp-remote-path "/home/thinckley/.local/bin")
+  (add-to-list 'tramp-remote-path "/home/thinckley/.npm-global/bin")
+  (add-to-list 'tramp-remote-path "/home/thinckley/.nvm/versions/node/v22.17.0/bin"))
 
 (setenv "PAGER" "cat")
 
