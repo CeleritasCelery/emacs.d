@@ -1479,6 +1479,13 @@ If ARG is zero, delete current line but exclude the trailing newline."
           aidermacs-default-model "openrouter/google/gemini-2.5-pro-preview-03-25"))
   ($leader-set-key "a" 'aidermacs-transient-menu))
 
+(use-package claude-code
+  :ensure (:host github :repo "stevemolitor/claude-code.el" :files ("claude-code.el") :depth 1)
+:bind-keymap
+  ("C-c c" . claude-code-command-map) ;; or your preferred key
+  :config
+  (claude-code-mode))
+
 ;; (use-package aider
 ;;   :ensure (:host github :repo "tninja/aider" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el")))
 
@@ -2792,6 +2799,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 (use-package xterm-color)
 
 (use-package vterm)
+(use-package eat)
 
 (defun $xterm-colorize-buffer ()
   (interactive)
