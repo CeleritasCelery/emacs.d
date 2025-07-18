@@ -1857,6 +1857,14 @@ that region."
 
 ;;;; Projects
 
+(defun $enable-tramp-vc (orig &rest args)
+  (interactive)
+  (let ((vc-ignore-dir-regexp $orig-vc-ignore-dirs))
+    (apply orig args)))
+
+(advice-add 'project-current :around #'$enable-tramp-vc)
+(advice-add 'project-root :around #'$enable-tramp-vc)
+
 (defvar project-current-cache nil
   "Cache of current projects")
 
