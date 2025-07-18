@@ -1486,8 +1486,17 @@ If ARG is zero, delete current line but exclude the trailing newline."
   :config
   (claude-code-mode))
 
-;; (use-package aider
-;;   :ensure (:host github :repo "tninja/aider" :files ("aider.el" "aider-core.el" "aider-file.el" "aider-code-change.el" "aider-discussion.el" "aider-prompt-mode.el")))
+;; fix the claude code spinner font
+(set-fontset-font nil ?✶ "DejaVuSansM Nerd Font Mono")
+(set-fontset-font nil ?✻ "DejaVuSansM Nerd Font Mono")
+(set-fontset-font nil ?✽ "DejaVuSansM Nerd Font Mono")
+(set-fontset-font nil ?✢ "DejaVuSansM Nerd Font Mono")
+
+(defun $alert-claude-done (title message )
+  (alert (format "%s : %s" title message)
+         :severity 'trivial))
+
+(setq claude-code-notification-function #'$alert-claude-done)
 
 (use-package gptel
   :general (gptel-mode-map "C-c C-c" 'gptel-menu
