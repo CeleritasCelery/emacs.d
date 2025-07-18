@@ -2,6 +2,8 @@
 
 ;; Copyright (C) 2024  Troy Hinckley
 
+(setq mac-command-modifier 'control)
+
 ;;; Bootstrap
 ;; https://github.com/progfolio/elpaca#installer
 (defvar elpaca-installer-version 0.11)
@@ -127,8 +129,6 @@
 
 (setq ring-bell-function 'ignore)
 
-(require 'cl)
-
 (setq initial-major-mode 'fundamental-mode)
 
 ;;;; Environment
@@ -148,8 +148,6 @@
 (let ((site-file (expand-file-name "site/site.el" user-emacs-directory)))
   (when (file-exists-p site-file)
     (load-file site-file)))
-
-(setq mac-command-modifier 'control)
 
 ;;; Package manager
 
