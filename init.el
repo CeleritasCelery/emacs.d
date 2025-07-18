@@ -413,7 +413,7 @@
 
 (defun $yank-file-name (x)
   (let ((file ($correct-file-path x)))
-    (kill-new (string-remove-prefix (or (file-remote-p file) "") file))))
+    (kill-new (file-local-name file))))
 
 (defun $yank-file-name-list (x)
   (kill-new
@@ -828,9 +828,7 @@ current window."
   (if-let ((file-name (or (buffer-file-name)
                           list-buffers-directory
                           default-directory)))
-      (progn (kill-new (string-remove-prefix
-                        (or (file-remote-p file-name) "")
-                        ($correct-file-path file-name arg)))
+      (progn (kill-new (file-local-name ($correct-file-path file-name arg)))
              (message (current-kill 0)))
     (error "Buffer not visiting a file")))
 
@@ -2400,7 +2398,7 @@ directory pointing to the same file name"
           (setq exit-code (shell-command
                            (format "cp -r %s %s"
                                    (mapconcat 'file-name-nondirectory fn-list " ")
-                                   (string-remove-prefix (file-remote-p to-file) to-file))))
+                                   (file-local-name to-file))))
           (when (= exit-code 0)
             (message "Done Copying"))
           (with-current-buffer (dired-noselect to-file)
@@ -2845,8 +2843,7 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
   "Select a previous directory using completing read"
   (interactive)
   (goto-char (point-max))
-  (insert (concat "cd " (string-remove-prefix (or (file-remote-p default-directory) "")
-                                              (completing-read "directory:" $dir-history)))))
+  (insert (concat "cd " (file-local-name (completing-read "directory:" $dir-history)))))
 
 (general-def shell-mode-map
   "C-c C-j" '$shell-directory-history)
@@ -3014,9 +3011,7 @@ Display progress in the minibuffer instead."
               (defun $shell-pop-cd-fix-path (args)
                 "fix remote paths during cd"
                 (let* ((cwd (car args)))
-                  (list (string-remove-prefix
-                         (or (file-remote-p cwd) "")
-                         cwd))))))
+                  (list (file-local-name cwd))))))
 
 (defun $shell-pop-root (arg)
   "open a shell in the project root"
@@ -4433,9 +4428,7 @@ prompt in shell mode"
 
 
 (defun $simple-truename (file)
-  (string-remove-prefix
-   (file-remote-p default-directory)
-   (if (string-match-p "/home/" file)
+  (file-local-name (if (string-match-p "/home/" file)
        (file-truename file)
      file)))
 
@@ -4444,7 +4437,6 @@ prompt in shell mode"
   (interactive)
   (let* ((git-root (magit-toplevel))
          (rel-path (file-relative-name default-directory git-root))
-         (remote (or (file-remote-p git-root) ""))
          (file-name (buffer-file-name))
          (path ($get-path-at-point))
          (logfile-re ($rx "build/bazel-out" -> "test.log" eos))
