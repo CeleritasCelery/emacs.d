@@ -86,21 +86,24 @@ or prints a message and returns an empty list for the point case."
   "Stages the file(s) at the current point or in the active region.
 Uses 'git rm' for deleted files."
   (interactive)
-  (let ((file-infos (speed-git-get-file-infos-in-selection)))
+  (let ((file-infos (speed-git-get-file-infos-in-selection))
+        (had-region (use-region-p)))
     (if file-infos
-        (dolist (file-info file-infos)
-          (let ((status (car file-info))
-                (filename (cadr file-info)))
-            (message "Processing %s (status: %s)..." filename status)
-            (if (or (string= status "deleted:")
-                    ;; Handle porcelain status for deleted files:
-                    ;; " D" -> deleted in worktree
-                    ;; "DD" -> unmerged, both deleted
-                    (string= status " D")
-                    (string= status "DD"))
-                (speed-git-run-git-command "rm" (list filename))
-              (speed-git-run-git-command "add" (list filename)))
-            (message "Processed %s." filename)))
+        (progn
+          (dolist (file-info file-infos)
+            (let ((status (car file-info))
+                  (filename (cadr file-info)))
+              (message "Processing %s (status: %s)..." filename status)
+              (if (or (string= status "deleted:")
+                      ;; Handle porcelain status for deleted files:
+                      ;; " D" -> deleted in worktree
+                      ;; "DD" -> unmerged, both deleted
+                      (string= status " D")
+                      (string= status "DD"))
+                  (speed-git-run-git-command "rm" (list filename))
+                (speed-git-run-git-command "add" (list filename)))
+              (message "Processed %s." filename)))
+          (when had-region (deactivate-mark)))
       (message "No files found at point or in region."))))
 
 (defun speed-git-refresh ()
@@ -117,58 +120,67 @@ Uses 'git rm' for deleted files."
 (defun speed-git-unstage-file-at-point ()
   "Unstages the file(s) at the current point or in the active region (git restore --staged)."
   (interactive)
-  (let ((file-infos (speed-git-get-file-infos-in-selection)))
+  (let ((file-infos (speed-git-get-file-infos-in-selection))
+        (had-region (use-region-p)))
     (if file-infos
-        (dolist (file-info file-infos)
-          (let* ((filename (cadr file-info))) ;; Status not strictly needed for unstage
-            (message "Unstaging %s..." filename)
-            (speed-git-run-git-command "restore" (list "--staged" filename))
-            (message "Unstaged %s." filename)))
+        (progn
+          (dolist (file-info file-infos)
+            (let* ((filename (cadr file-info))) ;; Status not strictly needed for unstage
+              (message "Unstaging %s..." filename)
+              (speed-git-run-git-command "restore" (list "--staged" filename))
+              (message "Unstaged %s." filename)))
+          (when had-region (deactivate-mark)))
       (message "No files found at point or in region."))))
 
 (defun speed-git-diff-file-at-point ()
   "Runs git diff on the file at point."
   (interactive)
-  (let ((file-infos (speed-git-get-file-infos-in-selection)))
+  (let ((file-infos (speed-git-get-file-infos-in-selection))
+        (had-region (use-region-p)))
     (if file-infos
-        (dolist (file-info file-infos)
-          (let ((filename (cadr file-info)))
-            (message "Displaying git diff for %s..." filename)
-            (let* ((diff-output (shell-command-to-string (format "git diff %s" filename)))
-                   (output-buffer (get-buffer-create "*speed-git-diff*")))
-              (with-current-buffer output-buffer
-                (erase-buffer)
-                (insert diff-output)
-                (goto-char (point-min))
-                (diff-mode))
-              (display-buffer output-buffer))))
+        (progn
+          (dolist (file-info file-infos)
+            (let ((filename (cadr file-info)))
+              (message "Displaying git diff for %s..." filename)
+              (let* ((diff-output (shell-command-to-string (format "git diff %s" filename)))
+                     (output-buffer (get-buffer-create "*speed-git-diff*")))
+                (with-current-buffer output-buffer
+                  (erase-buffer)
+                  (insert diff-output)
+                  (goto-char (point-min))
+                  (diff-mode))
+                (pop-to-buffer output-buffer))))
+          (when had-region (deactivate-mark)))
       (message "No files found at point or in region."))))
 
 (defun speed-git-restore-and-clean ()
   "Restores modified files and deletes untracked files at point or in region."
   (interactive)
-  (let ((file-infos (speed-git-get-file-infos-in-selection)))
+  (let ((file-infos (speed-git-get-file-infos-in-selection))
+        (had-region (use-region-p)))
     (if file-infos
-        (dolist (file-info file-infos)
-          (let ((status (car file-info))
-                (filename (cadr file-info)))
-            (cond
-             ;; Untracked files - delete them
-             ((or (string= status "untracked")
-                  (string= status "??"))
-              (message "Deleting untracked file %s..." filename)
-              (delete-file filename)
-              (message "Deleted %s." filename))
-             ;; Modified files - restore them
-             ((or (string= status "modified:")
-                  (string= status " M")
-                  (string= status "both modified:"))
-              (message "Restoring modified file %s..." filename)
-              (speed-git-run-git-command "restore" (list filename))
-              (message "Restored %s." filename))
-             ;; Other statuses - skip with message
-             (t
-              (message "Skipping %s (status: %s)" filename status)))))
+        (progn
+          (dolist (file-info file-infos)
+            (let ((status (car file-info))
+                  (filename (cadr file-info)))
+              (cond
+               ;; Untracked files - delete them
+               ((or (string= status "untracked")
+                    (string= status "??"))
+                (message "Deleting untracked file %s..." filename)
+                (delete-file filename)
+                (message "Deleted %s." filename))
+               ;; Modified files - restore them
+               ((or (string= status "modified:")
+                    (string= status " M")
+                    (string= status "both modified:"))
+                (message "Restoring modified file %s..." filename)
+                (speed-git-run-git-command "restore" (list filename))
+                (message "Restored %s." filename))
+               ;; Other statuses - skip with message
+               (t
+                (message "Skipping %s (status: %s)" filename status)))))
+          (when had-region (deactivate-mark)))
       (message "No files found at point or in region."))))
 
 (defun speed-git-status ()
