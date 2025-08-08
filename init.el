@@ -1479,20 +1479,35 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (use-package claude-code
   :ensure (:host github :repo "stevemolitor/claude-code.el" :files ("claude-code.el") :depth 1)
-:bind-keymap
-  ("C-c c" . claude-code-command-map) ;; or your preferred key
+  :init
+  ($leader-set-key "a" 'claude-code-transient)
   :config
   (claude-code-mode))
+
+(use-package web-server)
+
+(use-package claude-code-ide
+  :ensure (:host github :repo "manzaltu/claude-code-ide.el")
+  :init
+  (setq claude-code-ide-use-side-window nil)
+  (setq claude-code-ide-terminal-backend 'eat)
+  (setq claude-code-ide-window-width 95)
+  (setq claude-code-ide-cli-path "claudex")
+  :config
+  (claude-code-ide-emacs-tools-setup))
 
 ;; fix the claude code spinner font
 (set-fontset-font nil ?✶ "DejaVuSansM Nerd Font Mono")
 (set-fontset-font nil ?✻ "DejaVuSansM Nerd Font Mono")
 (set-fontset-font nil ?✽ "DejaVuSansM Nerd Font Mono")
 (set-fontset-font nil ?✢ "DejaVuSansM Nerd Font Mono")
+(set-fontset-font nil ?✳ "DejaVuSansM Nerd Font Mono")
+(set-fontset-font nil ?⎿ "JuliaMono")
+(set-fontset-font nil ?☒ "JuliaMono")
+(set-fontset-font nil ?☐ "JuliaMono")
 
-(defun $alert-claude-done (title message )
-  (alert (format "%s : %s" title message)
-         :severity 'trivial))
+(defun $alert-claude-done (title message)
+  (alert message :severity 'trivial :title title))
 
 (setq claude-code-notification-function #'$alert-claude-done)
 
