@@ -1831,6 +1831,12 @@ that region."
         tramp-default-method "rsync"
         remote-file-name-inhibit-auto-save-visited t))
 
+(with-eval-after-load 'tramp
+  (defun tramp-recentf-exclude-predicate (_name)
+    "Predicate to exclude a remote file name from recentf.
+NAME must be equal to `tramp-current-connection'."
+    nil))
+
 (connection-local-set-profile-variables
  'remote-direct-async-process
  '((tramp-direct-async-process . t)))
