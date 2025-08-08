@@ -1943,13 +1943,22 @@ NAME must be equal to `tramp-current-connection'."
          (equal ($get-project-root buffer)
                 project))))
 
+(defun $insert-buffer-file-name (buffer-name)
+  "Insert the file name of the buffer at point"
+  (let* ((buffer (get-buffer buffer-name))
+         (file-name (and buffer (buffer-file-name buffer))))
+    (when file-name
+      (insert (file-local-name ($correct-file-path file-name))))))
+
 (with-eval-after-load 'ivy
   (ivy-add-actions 'counsel-find-file
                    '(("b" (lambda (x)
                             ($project-buffers ivy-current-prefix-arg x))
                       "buffers")))
   (ivy-add-actions '$project-buffers
-                   '(("k" ivy--kill-buffer-action "kill"))))
+                   '(("k" ivy--kill-buffer-action "kill")))
+  (ivy-add-actions 'ivy-switch-buffer
+                   '(("i" $insert-buffer-file-name "insert file name"))))
 
 ($leader-set-key "bb" 'ivy-switch-buffer)
 
