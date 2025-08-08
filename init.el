@@ -1533,13 +1533,22 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (with-eval-after-load 'gptel
   (gptel-make-tool
-   :name "shell_command"                    ; javascript-style snake_case name
+   :name "shell_command"
    :function (lambda (command) (shell-command-to-string command))
    :description "run a shell command in the current directory"
    :args (list '(:name "command"
                  :type string            ; :type value must be a symbol
                  :description "The shell command to run"))
    :category "filesystem")
+
+  (gptel-make-tool
+   :name "eval_elisp"
+   :function (lambda (sexp) (eval (read sexp)))
+   :description "Eval an sexp in the current Emacs instance"
+   :args (list '(:name "sexp"
+                 :type string
+                 :description "The sexp to evaluate"))
+   :category "emacs")
 
   (gptel-make-tool
    :name "change_directory"                    ; javascript-style snake_case name
