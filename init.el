@@ -845,9 +845,7 @@ If INVERT, do the opposite of the normal behavior."
                     prefix
                     (file-truename prefix)
                     file)))
-    (if abs-path
-        (file-truename file)
-      file)))
+    (file-truename file)))
 
 ($leader-set-key
   "TAB" '$alternate-buffer
