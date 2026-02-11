@@ -2591,6 +2591,9 @@ directory pointing to the same file name"
 ;; Use the git version of transient
 (use-package transient)
 
+(use-package cond-let
+  :ensure (:host github :repo "tarsius/cond-let"))
+
 (use-package magit
   :defer 6
   :general
