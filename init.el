@@ -1841,6 +1841,9 @@ that region."
         tramp-default-method "rsync"
         remote-file-name-inhibit-auto-save-visited t))
 
+(use-package tramp-rpc
+  :ensure (:host github :repo "ArthurHeymans/emacs-tramp-rpc"))
+
 (with-eval-after-load 'tramp
   (defun tramp-recentf-exclude-predicate (_name)
     "Predicate to exclude a remote file name from recentf.
