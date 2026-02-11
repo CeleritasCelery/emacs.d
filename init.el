@@ -2622,6 +2622,9 @@ directory pointing to the same file name"
   (add-hook 'magit-process-find-password-functions
             'magit-process-password-auth-source))
 
+(use-package magit-boost
+  :ensure (:host github :repo "jeremy-compostella/magit-boost"))
+
 (use-package forge
   :demand t
   :after magit
