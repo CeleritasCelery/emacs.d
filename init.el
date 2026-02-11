@@ -127,6 +127,9 @@
 
 (setq display-raw-bytes-as-hex t)
 
+;; fix gaps between your emacs frames and other windows on MacOS
+(setq frame-resize-pixelwise t)
+
 (setq ring-bell-function 'ignore)
 
 (setq initial-major-mode 'fundamental-mode)
