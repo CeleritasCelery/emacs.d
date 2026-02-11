@@ -2700,6 +2700,10 @@ directory pointing to the same file name"
                                                   magit-status-mode-hook)))
                 (apply fn args))))
 
+(add-hook 'magit-status-mode-hook
+          (defun $disable-evil-surround ()
+            (evil-surround-mode -1)))
+
 ($leader-set-key
   "gd" '$magit-status-current-dir
   "gs" 'magit-status)
