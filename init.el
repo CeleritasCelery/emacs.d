@@ -3575,6 +3575,10 @@ access"
 (csetq org-agenda-todo-ignore-scheduled 'future
        org-agenda-tags-todo-honor-ignore-options t
        org-agenda-dim-blocked-tasks 'invisible)
+(setq org-agenda-files '("~/org/inbox.org"))
+
+($leader-set-key
+  "r" 'org-agenda)
 
 (general-def org-agenda-mode-map "o" 'org-agenda-log-mode)
 
