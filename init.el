@@ -1546,7 +1546,7 @@ If ARG is zero, delete current line but exclude the trailing newline."
    :name "change_directory"                    ; javascript-style snake_case name
    :function (lambda (directory) (cd (if (or (string-prefix-p "/" directory)
                                          (string-prefix-p "~" directory))
-                                     (concat "/scp:server:" directory)
+                                     (concat "/-:server:" directory)
                                    directory)))
    :description "Change the current directory (i.e. cd)"
    :args (list '(:name "directory"
@@ -1829,8 +1829,10 @@ that region."
         tramp-use-scp-direct-remote-copying t
         tramp-copy-size-limit 1000000
         tramp-verbose 2
-        tramp-default-method "rsync"
+        tramp-default-method "rpc"
         remote-file-name-inhibit-auto-save-visited t))
+
+(use-package msgpack)
 
 (use-package tramp-rpc
   :ensure (:host github :repo "ArthurHeymans/emacs-tramp-rpc"))
@@ -1841,24 +1843,10 @@ that region."
 NAME must be equal to `tramp-current-connection'."
     nil))
 
-(connection-local-set-profile-variables
- 'remote-direct-async-process
- '((tramp-direct-async-process . t)))
-
-(connection-local-set-profiles
- '(:application tramp :protcol "scp")
- 'remote-direct-async-process)
-
-(connection-local-set-profiles
- '(:application tramp :protocol "rsync")
- 'remote-direct-async-process)
-
-(connection-local-set-profiles
- '(:application tramp :protocol "ssh")
- 'remote-direct-async-process)
-
 (with-eval-after-load 'tramp-sh
-  (setq magit-tramp-pipe-stty-settings 'pty))
+  ;; (setq magit-tramp-pipe-stty-settings 'pty)
+  (setq magit-tramp-pipe-stty-settings ""))
+
 
 ;; Don't use ffap on remote files for performance
 (with-eval-after-load 'ffap
@@ -2213,7 +2201,9 @@ This includes remote paths and enviroment variables."
   "Open the file name in the clipboard"
   (interactive)
   (if-let ((path ($--get-file-from-clipboard)))
-      (progn (when (string-prefix-p "/proj" path)
+      (progn (when (or (string-prefix-p "/proj" path)
+                       (string-prefix-p "/tools_" path)
+                       (string-prefix-p "/vendor_ip" path))
                (setq path (concat "/-:server:" path)))
              (find-file path))
     (message "no path found in clipboard")))
@@ -2623,12 +2613,7 @@ directory pointing to the same file name"
   ;; will be set by evil-integration
   (setq forge-add-default-bindings nil)
   :config
-  (remove-hook 'find-file-hook 'forge-bug-reference-setup) ;; for tramp
-  (push '("aus-gitlab.local.tenstorrent.com"               ; GITHOST
-          "aus-gitlab.local.tenstorrent.com/api/v4"        ; APIHOST
-          "aus-gitlab.local.tenstorrent.com"               ; WEBHOST and INSTANCE-ID
-          forge-gitlab-repository)    ; CLASS
-        forge-alist))
+  (remove-hook 'find-file-hook 'forge-bug-reference-setup)) ;; for tramp
 
 ;; improve performace by only reverting buffers in the local repo
 ;; https://magit.vc/manual/magit/Performance.html
@@ -2642,19 +2627,6 @@ directory pointing to the same file name"
 (advice-add 'magit-turn-on-auto-revert-mode-if-desired
             :around
             #'$magit-auto-revert-not-remote)
-
-(defvar magit-toplevel-cache nil)
-
-(defun $memoize-magit-toplevel (orig &optional directory)
-  ($memoize-remote (or directory default-directory)
-                   'magit-toplevel-cache orig directory))
-
-(advice-add 'magit-toplevel :around #'$memoize-magit-toplevel)
-;; (advice-remove 'magit-toplevel #'$memoize-magit-toplevel)
-
-(defun $clear-magit-toplevel-cache ()
-  (interactive)
-  (setq magit-toplevel-cache nil))
 
 (csetq magit-diff-expansion-threshold 20)
 
@@ -2859,7 +2831,10 @@ _p_rev       _u_pper              _=_: upper/lower       _r_esolve
 
 (use-package xterm-color)
 
-(use-package vterm)
+(use-package vterm
+  :config
+  (add-hook 'vterm-mode-hook (defun $disable-hl-line-local ()
+                               (hl-line-mode -1))))
 (use-package eat)
 
 (defun $xterm-colorize-buffer ()
@@ -4203,8 +4178,6 @@ prompt in shell mode"
   :company (company-capf company-dabbrev-code)
   :config
   (add-hook 'python-base-mode-hook #'$lsp-unless-remote)
-  (unless ($dev-config-p)
-    (add-hook 'python-base-mode-hook #'copilot-mode))
   (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode)))
 
 (defun $lsp-unless-remote ()
@@ -4216,7 +4189,10 @@ prompt in shell mode"
 
 (use-package lsp-jedi :demand t :after python)
 (use-package lsp-pyright :demand t :after python)
-(setq lsp-disabled-clients '(pyright-tramp))
+
+(setq lsp-pyright-langserver-command "basedpyright") ;; or basedpyright
+(setq lsp-disabled-clients nil)
+;; (setq lsp-disabled-clients '(pyright-tramp))
 
 (setq lsp-pylsp-plugins-flake8-enabled nil
       lsp-pylsp-plugins-pydocstyle-enabled nil
@@ -4233,7 +4209,6 @@ prompt in shell mode"
 ;;;; Rust
 (setq-default flycheck-rust-crate-type nil)
 (use-package rustic
-  :gfhook #'copilot-mode
   :general
   (:definer 'leader :keymaps 'rustic-mode-map
    "m" 'lsp-rust-analyzer-expand-macro)
@@ -4254,7 +4229,14 @@ prompt in shell mode"
   :config
   (setenv "RUST_BACKTRACE" "full")
   (csetq rustic-ansi-faces (cl-map 'vector (lambda (x) (face-attribute x :foreground)) ansi-color-normal-colors-vector))
-  (csetq rustic-clippy-arguments "--all-targets --all-features"))
+  (csetq rustic-clippy-arguments "--all-targets --all-features")
+
+  (remove-hook 'rustic-mode-hook 'rustic-setup-lsp)
+  (add-hook 'rustic-mode-hook #'$rustic-maybe-lsp))
+
+(defun $rustic-maybe-lsp ()
+  (unless (file-remote-p default-directory)
+    (rustic-setup-lsp)))
 
 (evil-initial-state 'rustic-popup-mode 'emacs)
 
@@ -4265,8 +4247,6 @@ prompt in shell mode"
   (add-to-list 'org-src-lang-modes '("rust" . rustic)))
 
 ;;;; C
-(add-hook 'c++-mode-hook #'lsp)
-(add-hook 'c-mode-hook #'lsp)
 (add-hook 'c-mode-hook (lambda () (c-toggle-comment-style -1)))
 
 ;;; Verilog
