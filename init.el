@@ -872,9 +872,10 @@ If INVERT, do the opposite of the normal behavior."
 (defun $open-scratch-buffer ()
   "open the scratch buffer"
   (interactive)
-  (set-window-buffer
-   (selected-window)
-   (get-buffer-create "*scratch*")))
+  (let ((default-directory "~"))
+    (set-window-buffer
+    (selected-window)
+    (get-buffer-create "*scratch*"))))
 
 (general-def "C-c b" '$open-scratch-buffer)
 
