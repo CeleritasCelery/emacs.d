@@ -2,18 +2,24 @@
 
 # Look in the variable system-configuration-options and system-configuration-features
 
-### Emacs 30
+##############
+# Installing #
+##############
+
 # brew tap d12frosted/emacs-plus
-# brew install emacs-plus@30 --with-imagemagick --with-xwidgets --with-elrumo2-icon
+# brew install --cask emacs-plus-app
 
-### reinstall
-# brew uninstall emacs-plus@30
+################
+# reinstalling #
+################
+
+# brew uninstall --cask emacs-plus-app
 ## remove the cache and repo/build of elpaca
-# brew install emacs-plus@30 --with-imagemagick --with-xwidgets --with-elrumo2-icon
+# brew install --cask emacs-plus-app
 
-# git clone https://git.savannah.gnu.org/cgit/emacs/elpa.git to make sure it is working
-
-# install with custom macos version
+#####################################
+# install with custom macos version #
+#####################################
 # note that this takes a really long time to clone. almost an hour.
 # brew edit emacs-plus@29
 #  url "https://github.com/tyler-dodge/emacs.git", :branch => "tyler-main-2"
@@ -37,15 +43,15 @@
 #     tree-sitter \
 #     mailutils
 
-export LDFLAGS="-L/opt/homebrew/Cellar/libgccjit/13.2.0/lib/gcc/13"
-export LIBRARY_PATH="-L/opt/homebrew/Cellar/libgccjit/13.2.0/lib/gcc/13"
-export CPATH="-I/opt/homebrew/Cellar/libgccjit/13.2.0/include"
-export CFLAGS="-DFD_SETSIZE=10000 -DDARWIN_UNLIMITED_SELECT"
+# export LDFLAGS="-L/opt/homebrew/Cellar/libgccjit/13.2.0/lib/gcc/13"
+# export LIBRARY_PATH="-L/opt/homebrew/Cellar/libgccjit/13.2.0/lib/gcc/13"
+# export CPATH="-I/opt/homebrew/Cellar/libgccjit/13.2.0/include"
+# export CFLAGS="-DFD_SETSIZE=10000 -DDARWIN_UNLIMITED_SELECT"
 
 # export CC=/opt/homebrew/bin/gcc-13
 # export CXX=/opt/homebrew/bin/g++-13
 # export CPP=/opt/homebrew/bin/cpp-13
 
-./autogen.sh
-./configure --with-modules --with-mailutils --with-xwidgets --with-imagemagick --with-ns --disable-ns-self-contained --disable-gc-mark-trace
-gmake -j4
+# ./autogen.sh
+# ./configure --with-modules --with-mailutils --with-xwidgets --with-imagemagick --with-ns --disable-ns-self-contained --disable-gc-mark-trace
+# gmake -j4
