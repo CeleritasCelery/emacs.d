@@ -186,7 +186,7 @@ Uses 'git rm' for deleted files."
 (defun speed-git-status ()
   "Runs git status and displays the output in a new buffer with speed-git-mode."
   (interactive)
-  (let ((default-directory (locate-dominating-file default-directory ".git"))
+  (let ((default-directory (magit-toplevel))
         (output-buffer (get-buffer "*speed-git-status*"))
         (inhibit-read-only t))
     (unless default-directory
