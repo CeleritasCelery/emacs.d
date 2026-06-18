@@ -1381,30 +1381,8 @@ If ARG is zero, delete current line but exclude the trailing newline."
 
 (define-key minibuffer-local-map [C-backspace] 'backward-delete-word)
 (define-key minibuffer-local-map [C-S-backspace] 'delete-whole-line)
-
-(defun ivy-backward-delete-word ()
-  "Forward to `backward-delete-word'."
-  (interactive)
-  (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
-      (progn
-        (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
-        (ivy--exhibit))
-    (ignore-errors
-      (let ((pt (point))
-            (last-command (if (eq last-command 'ivy-backward-delete-word)
-                              'delete-region
-                            last-command)))
-        (forward-word -1)
-        (delete-region pt (point))))))
-
-(defun ivy-delete-whole-line ()
-  "Forward to `delete-whole-line'."
-  (interactive)
-  (delete-region (minibuffer-prompt-end) (line-end-position)))
-
-(with-eval-after-load 'ivy
-  (define-key ivy-minibuffer-map [C-S-backspace] 'ivy-delete-whole-line)
-  (define-key ivy-minibuffer-map [C-backspace] 'ivy-backward-delete-word))
+(general-def "C-S-<backspace>" 'delete-whole-line)
+(general-def "M-DEL" 'backward-delete-word)
 
 ;; Emacs has an interesting way of handling the tab key. Both <tab> and C-i share
 ;; the same terminal keycode. This means that in terminal applications, using C-i
@@ -1453,7 +1431,7 @@ If ARG is zero, delete current line but exclude the trailing newline."
   (setq chatgpt-shell-system-prompt 2)
   (when ($dev-config-p)
     (setq chatgpt-shell-api-url-base (getenv "OPENAI_API_BASE")
-          chatgpt-shell-openai-key (getenv "OPENAI_API_KEY"))))
+          chatgpt-shell-openai-key ($get-openai-api-key))))
 
 (use-package dall-e-shell
   :init
