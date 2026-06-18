@@ -1446,8 +1446,6 @@ If ARG is zero, delete current line but exclude the trailing newline."
   :init
   (setq copilot-clear-overlay-ignore-commands '(mwheel-scroll)))
 
-(use-package copilot-chat)
-
 (setq company-frontends '(company-pseudo-tooltip-frontend company-echo-metadata-frontend))
 
 (use-package chatgpt-shell
@@ -1468,35 +1466,42 @@ If ARG is zero, delete current line but exclude the trailing newline."
   ($leader-set-key
     "e" #'chatgpt-shell))
 
-
-(use-package aidermacs
-  :ensure (:host github :repo "MatthewZMD/aidermacs")
-  :init
-  (if ($dev-config-p)
-      (setq aidermacs-extra-args '("--no-auto-lint" "--no-show-model-warnings")
-            aidermacs-default-model "openai/azure/gpt-4o")
-    (setq aidermacs-extra-args '("--no-auto-lint")
-          aidermacs-default-model "openrouter/google/gemini-2.5-pro-preview-03-25"))
-  ($leader-set-key "a" 'aidermacs-transient-menu))
-
 (use-package claude-code
   :ensure (:host github :repo "stevemolitor/claude-code.el" :files ("claude-code.el") :depth 1)
   :init
   ($leader-set-key "a" 'claude-code-transient)
+
+  (general-def "C-c a" 'claude-code-transient)
   :config
   (claude-code-mode))
 
-(use-package web-server)
+(use-package acp
+  :ensure (:host github :repo "xenodium/acp.el"))
 
-(use-package claude-code-ide
-  :ensure (:host github :repo "manzaltu/claude-code-ide.el")
-  :init
-  (setq claude-code-ide-use-side-window nil)
-  (setq claude-code-ide-terminal-backend 'eat)
-  (setq claude-code-ide-window-width 95)
-  (setq claude-code-ide-cli-path "claudex")
+(use-package agent-shell
+  :ensure (:host github :repo "xenodium/agent-shell")
+  :general (agent-shell-mode-map
+            "TAB"  (lambda () (interactive)
+                       (agent-shell-ui--toggle-fragment-at-point)))
   :config
-  (claude-code-ide-emacs-tools-setup))
+  (setq agent-shell-opencode-default-model-id "Gemini 2.5 Pro")
+  (setq agent-shell-context-sources '(region error))
+  (setq agent-shell-permission-responder-function #'agent-shell-permission-allow-always))
+
+(use-package agent-shell-attention
+  :ensure (:host github :repo "ultronozm/agent-shell-attention.el")
+  :after agent-shell
+  :config
+  (setopt agent-shell-attention-notify-function
+        (defun $agent-shell-notify (_buffer title body)
+          (alert body :severity 'trivial :title title))))
+
+(use-package agent-shell-tramp
+  :ensure (:host github :repo "junyi-hou/agent-shell-tramp")
+  :after agent-shell
+  :config
+  (agent-shell-tramp-mode -1)
+  (agent-shell-tramp-mode 1))
 
 ;; fix the claude code spinner font
 (set-fontset-font nil ?✶ "DejaVuSansM Nerd Font Mono")
@@ -1516,22 +1521,7 @@ If ARG is zero, delete current line but exclude the trailing newline."
 (use-package gptel
   :general (gptel-mode-map "C-c C-c" 'gptel-menu
                            "S-<return>" 'newline
-                           "RET" #'gptel-send)
-  :config
-  (if ($dev-config-p)
-      (setq gptel-model 'azure/gpt-4o
-            gptel-backend
-            (gptel-make-openai "Tenstorrent"
-              :host "litellm-proxy--tenstorrent.workload.tenstorrent.com"
-              :key (getenv "OPENAI_API_KEY")
-              :stream t
-              :models '(gemini/gemini-2.5-pro-preview-03-25
-                        gemini/gemini-2.5-flash-preview-04-17
-                        gemini/gemini-2.0-flash
-                        azure/gpt-4o
-                        tenstorrent/DeepSeek-R1-Distill-Llama-70B)))
-    (setq gptel-backend
-          (gptel-make-anthropic "Claude" :stream t :key gptel-api-key))))
+                           "RET" #'gptel-send))
 
 (with-eval-after-load 'gptel
   (gptel-make-tool
