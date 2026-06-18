@@ -10,11 +10,22 @@
  '(helm-minibuffer-history-key "M-p")
  '(menu-bar-mode nil)
  '(safe-local-variable-values
-   '((nameless-aliases ("ai" . "aidermacs")) (flycheck-mode . t) (verilog-typedef-regexp . "_[eus]$")
-     (verilog-library-extensions ".sv" ".h" ".v") (verilog-library-directories ".")
-     (org-src-preserve-indentation) (eval require 'ol-man nil t) (eval require 'magit-base nil t)
-     (elisp-lint-indent-specs (git-gutter:awhen . 1)) (magit-todos-exclude-globs)
-     (lisp-backquote-indentation . t)
+   '((lisp-indent-local-overrides (cond . 0) (interactive . 0)) (checkdoc-allow-quoting-nil-and-t . t)
+     (eval defun agent-shell-run-all-tests nil "Run all agent-shell tests in batch mode."
+           (interactive) (require 'ert)
+           (mapatoms
+            (lambda (sym)
+              (when (and (ert-test-boundp sym) (string-prefix-p "agent-shell" (symbol-name sym)))
+                (ert-delete-test sym))))
+           (let ((test-dir (expand-file-name "tests/" (project-root (project-current t)))))
+             (dolist (file (directory-files-recursively test-dir "\\.el$"))
+               (unless (string-prefix-p "." (file-name-nondirectory file)) (load file)))
+             (if noninteractive (ert-run-tests-batch-and-exit "^agent-shell") (ert "^agent-shell"))))
+     (nameless-aliases ("ai" . "aidermacs")) (flycheck-mode . t)
+     (verilog-typedef-regexp . "_[eus]$") (verilog-library-extensions ".sv" ".h" ".v")
+     (verilog-library-directories ".") (org-src-preserve-indentation) (eval require 'ol-man nil t)
+     (eval require 'magit-base nil t) (elisp-lint-indent-specs (git-gutter:awhen . 1))
+     (magit-todos-exclude-globs) (lisp-backquote-indentation . t)
      (eval font-lock-add-keywords nil
            `
            ((,(concat "("
